@@ -329,7 +329,7 @@ function enableEnterNavigation(){
   });
 }
 function enableThirdEnterNavigation(){
-  const controls=()=>Array.from(document.querySelectorAll('#terceiros input,#terceiros select')).filter(el=>!el.disabled && el.offsetParent!==null);
+  const controls=()=>['thirdPerson','thirdDate','thirdBank','thirdType','thirdValue','thirdNote'].map(id=>$('#'+id)).filter(el=>el && !el.disabled && el.offsetParent!==null);
   document.querySelector('#terceiros').addEventListener('keydown',e=>{
     if(e.key!=='Enter')return;
     const list=controls(); const i=list.indexOf(e.target);
