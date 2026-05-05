@@ -179,7 +179,6 @@ async function syncFromCloud(){
       setSyncStatus('Sync atualizado');
     }else{
       setSyncStatus('Sync ok');
-      if((!remote||!Array.isArray(remote.entries)||Number(state.lastSync||0)>Number(remote.lastSync||0))&&Number(state.lastSync||0)>0) scheduleCloudSave(100);
     }
   }catch(err){ console.warn(err); setSyncStatus('Sync erro'); }
 }
