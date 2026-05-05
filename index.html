@@ -54,7 +54,7 @@
 </head>
 <body id="app">
 <div class="app">
-<header><div class="brand"><small>controle mensal</small><h1>Painel Financeiro</h1></div><div class="topbar"><div class="view-toggle"><button id="btnDesktop" type="button">💻 Desktop</button><button id="btnMobile" type="button">📱 Mobile</button></div><div class="pill">📅 <select id="monthSelect"></select></div><div class="pill">💰 Receita do mês: <input id="incomeInput" value="R$ 0,00" readonly></div></div></header>
+<header><div class="brand"><small>controle mensal</small><h1>Painel Financeiro</h1></div><div class="topbar"><div class="view-toggle"><button id="btnDesktop" type="button">💻 Desktop</button><button id="btnMobile" type="button">📱 Mobile</button></div><button class="pill" id="syncBtn" type="button">☁ <span id="syncStatus">Sync local</span></button><div class="pill">📅 <select id="monthSelect"></select></div><div class="pill">💰 Receita do mês: <input id="incomeInput" value="R$ 0,00" readonly></div></div></header>
 <section class="summary"><div class="kpi kpi-green"><span>Receita disponível</span><strong id="totalReceita">R$ 0,00</strong><small><span id="qtdReceitasLancadas">0</span> receitas pendentes</small></div><div class="kpi kpi-red"><span>Débitos do mês</span><strong id="totalDebitos">R$ 0,00</strong><small><span id="qtdDebitosLancados">0</span> débitos pendentes</small></div><div class="kpi kpi-blue"><span>Saldo projetado</span><strong id="saldoProjetado">R$ 0,00</strong><small>receitas - todos os débitos</small></div><div class="kpi kpi-orange"><span>Débito fixo</span><strong id="qtdFixos">0</strong><small id="totalFixos">R$ 0,00 em débitos fixos</small></div><div class="kpi kpi-yellow"><span>Débitos mensais</span><strong id="mensaisSemValor">0</strong><small id="totalMensaisValor">R$ 0,00 em débito mensal</small></div></section>
 <nav class="tabs"><button class="tab active" data-panel="debitos">Débitos do mês</button><button class="tab" data-panel="receitas">Receitas do mês</button><button class="tab" data-panel="lancar">Editar/DB.RC</button><button class="tab" data-panel="bancos">Bancos Saldo</button><button class="tab" data-panel="terceiros">Terceiros</button><button class="tab" data-panel="planejar">Planejamento</button><button class="tab" data-panel="dashboard">Dashboard geral</button></nav>
 <section id="debitos" class="panel active"><div class="grid"><div class="card"><div class="card-head"><div><h2 id="debitMonthTitle">Débitos de Abril</h2><p>Marque como pago com 2 cliques. O valor sai do banco selecionado.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="debitFilter" class="filter-select"><option value="todos">Todos</option><option value="pendente">Débito mensal</option><option value="fixo">Débito fixo</option><option value="pago">Pago</option></select><button class="btn" id="addDebitBtn">+ Adicionar débito</button></div></div><div class="month-list" id="debitList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo do mês</h2><p>Cálculo por status.</p></div></div><div class="note"><strong>Pago</strong> desconta do banco escolhido no lançamento.<br><br>Débitos sem banco entram no total, mas não mexem no saldo bancário.</div></div><div class="card"><div class="card-head"><div><h2>Próxima ação</h2><p>O que falta conferir.</p></div></div><div class="suggestion">Confira os débitos mensais sem valor e selecione banco de saída antes de marcar como pago.</div></div></aside></div></section>
@@ -87,6 +87,9 @@ const INITIAL_ENTRIES = [{"id": 1, "tipo": "debito", "nome": "FUTEBOL", "dia": "
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 const STORAGE_KEY='dualizeFinanceStateV3_FINAL';
+const SYNC_URL_KEY='dualizeFinanceSyncUrlV1';
+let syncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
+let syncTimer=null, syncReady=false, applyingRemote=false;
 function loadSavedState(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
@@ -106,18 +109,25 @@ const state={
   entries:savedState?.entries?.length?structuredClone(savedState.entries):structuredClone(INITIAL_ENTRIES),
   transfers:Array.isArray(savedState?.transfers)?structuredClone(savedState.transfers):[],
   thirdMovements:Array.isArray(savedState?.thirdMovements)?structuredClone(savedState.thirdMovements):[],
+  lastSync:Number(savedState?.lastSync||0),
   cleanForm:''
 };
 state.entries.forEach(normalizeEntry);
+function statePayload(){
+  return {
+    currentMonth:state.currentMonth,
+    nextId:state.nextId,
+    entries:state.entries,
+    transfers:state.transfers,
+    thirdMovements:state.thirdMovements,
+    lastSync:state.lastSync
+  };
+}
 function persist(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({
-      currentMonth:state.currentMonth,
-      nextId:state.nextId,
-      entries:state.entries,
-      transfers:state.transfers,
-      thirdMovements:state.thirdMovements
-    }));
+    if(!applyingRemote) state.lastSync=Date.now();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
+    scheduleCloudSave();
   }catch(err){ console.warn('Não foi possível salvar no navegador.',err); }
 }
 const banks=['Nenhum','PF Sicredi','PJ Sicredi','NuBank','Caixa','Santander'];
@@ -126,6 +136,75 @@ const $=s=>document.querySelector(s); const $$=s=>Array.from(document.querySelec
 const br=(n)=>'R$ '+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const brDeb=(n)=>'R$ -'+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 function parseMoney(v){ if(!v)return 0; const c=String(v).replace(/R\$/g,'').replace(/\s/g,'').replace(/-/g,'').replace(/\./g,'').replace(',','.'); const n=parseFloat(c); return isNaN(n)?0:Math.abs(n); }
+function syncEndpoint(action,extra=''){ if(!syncUrl)return ''; const sep=syncUrl.includes('?')?'&':'?'; return syncUrl+sep+'action='+encodeURIComponent(action)+extra; }
+function setSyncStatus(text){ const el=$('#syncStatus'); if(el) el.textContent=text; }
+function loadCloudState(){
+  return new Promise((resolve,reject)=>{
+    if(!syncUrl) return resolve(null);
+    const cb='dualizeSyncCb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+    const script=document.createElement('script');
+    const done=(err,data)=>{ delete window[cb]; script.remove(); err?reject(err):resolve(data); };
+    window[cb]=payload=>done(null,payload&&payload.data?payload.data:payload);
+    script.onerror=()=>done(new Error('Falha ao carregar sincronização.'));
+    script.src=syncEndpoint('load','&callback='+encodeURIComponent(cb)+'&t='+Date.now());
+    document.body.appendChild(script);
+  });
+}
+function saveLocalSnapshot(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
+}
+function applyCloudState(data){
+  if(!data||!Array.isArray(data.entries))return false;
+  applyingRemote=true;
+  state.currentMonth=Number(data.currentMonth||0);
+  state.nextId=Number(data.nextId||503);
+  state.entries=structuredClone(data.entries);
+  state.transfers=Array.isArray(data.transfers)?structuredClone(data.transfers):[];
+  state.thirdMovements=Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):[];
+  state.lastSync=Number(data.lastSync||Date.now());
+  state.entries.forEach(normalizeEntry);
+  saveLocalSnapshot();
+  applyingRemote=false;
+  renderAll();
+  return true;
+}
+async function syncFromCloud(){
+  if(!syncUrl){ setSyncStatus('Sync local'); return; }
+  try{
+    setSyncStatus('Sync baixando...');
+    const remote=await loadCloudState();
+    if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>Number(state.lastSync||0)){
+      applyCloudState(remote);
+      setSyncStatus('Sync atualizado');
+    }else{
+      setSyncStatus('Sync ok');
+      if(!remote||!Array.isArray(remote.entries)||Number(state.lastSync||0)>Number(remote.lastSync||0)) scheduleCloudSave(100);
+    }
+  }catch(err){ console.warn(err); setSyncStatus('Sync erro'); }
+}
+function scheduleCloudSave(delay=800){
+  if(!syncReady||!syncUrl||applyingRemote)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(saveCloudState,delay);
+}
+async function saveCloudState(){
+  if(!syncUrl)return;
+  try{
+    setSyncStatus('Sync salvando...');
+    await fetch(syncUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',data:statePayload()})});
+    setSyncStatus('Sync salvo');
+  }catch(err){ console.warn(err); setSyncStatus('Sync erro'); }
+}
+async function configureSync(){
+  const url=prompt('Cole a URL do Web App do Google Apps Script para sincronizar online. Deixe vazio para usar somente este navegador.',syncUrl);
+  if(url===null)return;
+  syncUrl=url.trim();
+  if(syncUrl)localStorage.setItem(SYNC_URL_KEY,syncUrl); else localStorage.removeItem(SYNC_URL_KEY);
+  if(!syncUrl){ setSyncStatus('Sync local'); return; }
+  syncReady=true;
+  const sendLocal=confirm('Sincronização configurada. OK envia os dados deste dispositivo para a nuvem agora. Cancelar baixa o que já estiver na nuvem.');
+  if(sendLocal) await saveCloudState(); else await syncFromCloud();
+}
 function moneyInput(n,tipo){ return tipo==='debito' ? '-'+br(n) : br(n); }
 function monthLabel(i){ return new Date(state.baseYear,state.baseMonth+i,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase()); }
 function visible(e){return state.currentMonth>=e.inicio && state.currentMonth<e.inicio+e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(state.currentMonth)])}
@@ -345,7 +424,7 @@ function enableThirdEnterNavigation(){
     else saveThirdMovement();
   },true);
 }
-function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);persist();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#saveTransferBtn').onclick=()=>{const v=parseMoney($('#transferValue').value);if(!v)return;state.transfers.push({from:$('#transferFrom').value,to:$('#transferTo').value,valor:br(v),note:$('#transferNote').value});$('#transferValue').value='';$('#transferNote').value='';persist();updateTotals();}; $('#saveThirdBtn').onclick=saveThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>renderThird(true); document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('dblclick',e=>{const btn=e.target.closest('.status-pill');if(!btn)return; const row=btn.closest('.entry-row'); const ent=state.entries.find(x=>x.id===Number(row.dataset.id)); if(!ent)return; const hasValue=parseMoney(displayValue(ent))>0; const stBefore=currentStatus(ent); if(!hasValue && !['pago','recebido'].includes(stBefore)){ alert('Informe um valor antes de marcar como pago/recebido.'); return; } const st=currentStatus(ent); if(ent.tipo==='receita')setCurrentStatus(ent, st==='recebido'?'receitaPendente':'recebido'); else setCurrentStatus(ent, st==='pago'?baseStatus(ent):'pago'); persist(); renderAll();}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput')updateSplitTotal(); validate();})}); }
+function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $('#syncBtn').onclick=configureSync; $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);persist();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#saveTransferBtn').onclick=()=>{const v=parseMoney($('#transferValue').value);if(!v)return;state.transfers.push({from:$('#transferFrom').value,to:$('#transferTo').value,valor:br(v),note:$('#transferNote').value});$('#transferValue').value='';$('#transferNote').value='';persist();updateTotals();}; $('#saveThirdBtn').onclick=saveThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>renderThird(true); document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('dblclick',e=>{const btn=e.target.closest('.status-pill');if(!btn)return; const row=btn.closest('.entry-row'); const ent=state.entries.find(x=>x.id===Number(row.dataset.id)); if(!ent)return; const hasValue=parseMoney(displayValue(ent))>0; const stBefore=currentStatus(ent); if(!hasValue && !['pago','recebido'].includes(stBefore)){ alert('Informe um valor antes de marcar como pago/recebido.'); return; } const st=currentStatus(ent); if(ent.tipo==='receita')setCurrentStatus(ent, st==='recebido'?'receitaPendente':'recebido'); else setCurrentStatus(ent, st==='pago'?baseStatus(ent):'pago'); persist(); renderAll();}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput')updateSplitTotal(); validate();})}); }
 
 function enableDragSorting(){
   let draggedRow=null;
@@ -395,7 +474,7 @@ function enableDragSorting(){
   });
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));}); $('#thirdDate').value=new Date().toISOString().slice(0,10); bind(); enableEnterNavigation(); enableThirdEnterNavigation(); enableDragSorting(); syncFormType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop');}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));}); $('#thirdDate').value=new Date().toISOString().slice(0,10); bind(); enableEnterNavigation(); enableThirdEnterNavigation(); enableDragSorting(); syncFormType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; setSyncStatus(syncUrl?'Sync conectando...':'Sync local'); if(syncUrl) syncFromCloud();}
 init();
 });
 </script>
