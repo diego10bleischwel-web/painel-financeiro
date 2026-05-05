@@ -128,7 +128,7 @@ const brDeb=(n)=>'R$ -'+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigi
 function parseMoney(v){ if(!v)return 0; const c=String(v).replace(/R\$/g,'').replace(/\s/g,'').replace(/-/g,'').replace(/\./g,'').replace(',','.'); const n=parseFloat(c); return isNaN(n)?0:Math.abs(n); }
 function moneyInput(n,tipo){ return tipo==='debito' ? '-'+br(n) : br(n); }
 function monthLabel(i){ return new Date(state.baseYear,state.baseMonth+i,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase()); }
-function visible(e){return state.currentMonth>=e.inicio && state.currentMonth<e.inicio+e.repeticoes}
+function visible(e){return state.currentMonth>=e.inicio && state.currentMonth<e.inicio+e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(state.currentMonth)])}
 function monthOffset(e){return Math.max(0,state.currentMonth-Number(e.inicio||0));}
 function displayValue(e){ if(!e)return ''; const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado') return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[off]:'') || ''; if(modo==='branco') return (e.valoresMes&&e.valoresMes[off]) ? e.valoresMes[off] : ''; return e.valor||''; }
 function setDisplayValue(e,formatted){ const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado'){ if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[]; e.valoresParcelas[off]=formatted; } else if(modo==='branco'){ if(!e.valoresMes) e.valoresMes={}; if(formatted)e.valoresMes[off]=formatted; else delete e.valoresMes[off]; } else { e.valor=formatted; } }
@@ -137,6 +137,7 @@ function normalizeEntry(e){
   if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[];
   if(!e.valoresMes) e.valoresMes={};
   if(!e.statusMes || typeof e.statusMes!=='object') e.statusMes={};
+  if(!e.hiddenMes || typeof e.hiddenMes!=='object') e.hiddenMes={};
   if(e.categoria==='Estudo') e.categoria='Escola';
   if(['Mercado','Farmácia','Farmacia','Restaurante'].includes(e.categoria)) e.categoria='Cartão Crédito';
   const base = e.tipo==='receita' ? 'receitaPendente' : (e.original==='fixo' ? 'fixo' : 'pendente');
@@ -168,6 +169,30 @@ function setCurrentStatus(e,status){
   const base=baseStatus(e);
   if(status===base) delete e.statusMes[key];
   else e.statusMes[key]=status;
+}
+function deleteEntry(id){
+  const ent=state.entries.find(x=>x.id===id);
+  if(!ent)return;
+  const choice=prompt('Excluir lançamento:\n1 - Somente o mês selecionado\n2 - Este mês e próximos meses\n\nDigite 1 ou 2:','1');
+  if(choice===null)return;
+  const opt=String(choice).trim();
+  if(opt==='1'){
+    if(!ent.hiddenMes) ent.hiddenMes={};
+    ent.hiddenMes[String(state.currentMonth)]=true;
+  }else if(opt==='2'){
+    if(state.currentMonth<=ent.inicio){
+      state.entries=state.entries.filter(x=>x.id!==id);
+    }else{
+      ent.repeticoes=Math.max(0,state.currentMonth-ent.inicio);
+      if(ent.statusMes) Object.keys(ent.statusMes).forEach(k=>{ if(Number(k)>=state.currentMonth) delete ent.statusMes[k]; });
+      if(ent.hiddenMes) Object.keys(ent.hiddenMes).forEach(k=>{ if(Number(k)>=state.currentMonth) delete ent.hiddenMes[k]; });
+    }
+  }else{
+    alert('Digite 1 para excluir só este mês ou 2 para excluir este mês e os próximos.');
+    return;
+  }
+  persist();
+  renderAll();
 }
 function statusText(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'Recebido':'Pendente'; if(st==='pago') return 'Pago'; return e.original==='fixo'?'Débito fixo':'Débito mensal'; }
 function statusClass(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'recebido':'receita'; if(st==='pago') return 'pago'; return e.original==='fixo'?'fixo':'pendente'; }
@@ -279,6 +304,19 @@ function saveEntry(){
 }
 function focusEntry(id){ setTimeout(()=>{ const el=document.querySelector(`.entry-row[data-id=\"${id}\"]`); if(!el)return; el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('focus-return'); el.setAttribute('tabindex','-1'); el.focus({preventScroll:true}); setTimeout(()=>el.classList.remove('focus-return'),1800); },60);}
 function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(input.closest('.entry-row').dataset.id)); if(!ent)return; const v=parseMoney(input.value); setDisplayValue(ent,v?moneyInput(v,ent.tipo):''); persist(); renderAll(); focusEntry(ent.id);}
+function saveThirdMovement(){
+  const v=parseMoney($('#thirdValue').value);
+  if(!$('#thirdPerson').value||!v||!$('#thirdBank').value||!$('#thirdType').value)return alert('Preencha pessoa, banco, tipo e valor.');
+  state.thirdMovements.push({person:$('#thirdPerson').value,date:$('#thirdDate').value,bank:$('#thirdBank').value,type:$('#thirdType').value,valor:br(v),note:$('#thirdNote').value});
+  $('#thirdPerson').value='';
+  $('#thirdValue').value='';
+  $('#thirdNote').value='';
+  $('#thirdType').value='';
+  $('#thirdBank').value='';
+  $('#thirdDate').value=new Date().toISOString().slice(0,10);
+  persist();
+  updateTotals();
+}
 function enableEnterNavigation(){
   const controls=()=>Array.from(document.querySelectorAll('#lancar input:not([type=hidden]),#lancar select,#lancar textarea')).filter(el=>!el.disabled && el.offsetParent!==null);
   document.querySelector('#lancar').addEventListener('keydown',e=>{
@@ -290,7 +328,18 @@ function enableEnterNavigation(){
     else if(!$('#saveBtn').disabled) $('#saveBtn').click();
   });
 }
-function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);persist();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#saveTransferBtn').onclick=()=>{const v=parseMoney($('#transferValue').value);if(!v)return;state.transfers.push({from:$('#transferFrom').value,to:$('#transferTo').value,valor:br(v),note:$('#transferNote').value});$('#transferValue').value='';$('#transferNote').value='';persist();updateTotals();}; $('#saveThirdBtn').onclick=()=>{const v=parseMoney($('#thirdValue').value);if(!$('#thirdPerson').value||!v||!$('#thirdBank').value||!$('#thirdType').value)return alert('Preencha pessoa, banco, tipo e valor.');state.thirdMovements.push({person:$('#thirdPerson').value,date:$('#thirdDate').value,bank:$('#thirdBank').value,type:$('#thirdType').value,valor:br(v),note:$('#thirdNote').value});$('#thirdPerson').value='';$('#thirdValue').value='';$('#thirdNote').value='';$('#thirdType').value='';$('#thirdBank').value='';$('#thirdDate').value=new Date().toISOString().slice(0,10);persist();updateTotals();}; $('#searchThirdBtn').onclick=()=>renderThird(true); document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del){const id=Number(del.closest('.entry-row').dataset.id);if(confirm('Deletar lançamento?')){state.entries=state.entries.filter(x=>x.id!==id);persist();renderAll();}}}); document.body.addEventListener('dblclick',e=>{const btn=e.target.closest('.status-pill');if(!btn)return; const row=btn.closest('.entry-row'); const ent=state.entries.find(x=>x.id===Number(row.dataset.id)); if(!ent)return; const hasValue=parseMoney(displayValue(ent))>0; const stBefore=currentStatus(ent); if(!hasValue && !['pago','recebido'].includes(stBefore)){ alert('Informe um valor antes de marcar como pago/recebido.'); return; } const st=currentStatus(ent); if(ent.tipo==='receita')setCurrentStatus(ent, st==='recebido'?'receitaPendente':'recebido'); else setCurrentStatus(ent, st==='pago'?baseStatus(ent):'pago'); persist(); renderAll();}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput')updateSplitTotal(); validate();})}); }
+function enableThirdEnterNavigation(){
+  const controls=()=>Array.from(document.querySelectorAll('#terceiros input,#terceiros select')).filter(el=>!el.disabled && el.offsetParent!==null);
+  document.querySelector('#terceiros').addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return;
+    const list=controls(); const i=list.indexOf(e.target);
+    if(i<0)return;
+    e.preventDefault();
+    if(i<list.length-1) list[i+1].focus();
+    else saveThirdMovement();
+  });
+}
+function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);persist();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#saveTransferBtn').onclick=()=>{const v=parseMoney($('#transferValue').value);if(!v)return;state.transfers.push({from:$('#transferFrom').value,to:$('#transferTo').value,valor:br(v),note:$('#transferNote').value});$('#transferValue').value='';$('#transferNote').value='';persist();updateTotals();}; $('#saveThirdBtn').onclick=saveThirdMovement; $('#searchThirdBtn').onclick=()=>renderThird(true); document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('dblclick',e=>{const btn=e.target.closest('.status-pill');if(!btn)return; const row=btn.closest('.entry-row'); const ent=state.entries.find(x=>x.id===Number(row.dataset.id)); if(!ent)return; const hasValue=parseMoney(displayValue(ent))>0; const stBefore=currentStatus(ent); if(!hasValue && !['pago','recebido'].includes(stBefore)){ alert('Informe um valor antes de marcar como pago/recebido.'); return; } const st=currentStatus(ent); if(ent.tipo==='receita')setCurrentStatus(ent, st==='recebido'?'receitaPendente':'recebido'); else setCurrentStatus(ent, st==='pago'?baseStatus(ent):'pago'); persist(); renderAll();}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput')updateSplitTotal(); validate();})}); }
 
 function enableDragSorting(){
   let draggedRow=null;
@@ -340,7 +389,7 @@ function enableDragSorting(){
   });
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));}); $('#thirdDate').value=new Date().toISOString().slice(0,10); bind(); enableEnterNavigation(); enableDragSorting(); syncFormType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop');}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));}); $('#thirdDate').value=new Date().toISOString().slice(0,10); bind(); enableEnterNavigation(); enableThirdEnterNavigation(); enableDragSorting(); syncFormType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop');}
 init();
 });
 </script>
