@@ -18,11 +18,11 @@ button{cursor:pointer}
 .workspace{min-height:0;display:grid;grid-template-columns:1fr 360px;gap:14px;padding:14px 18px 18px}.main{min-width:0;min-height:0}.side{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;min-height:0}#boardView{grid-template-columns:1fr}#creativePanel{display:none}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.toolbar h2{margin:0;font-size:22px}.toolbar p{margin:4px 0 0;color:var(--muted);font-size:13px;font-weight:800}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;background:var(--dark);color:#fff;border-radius:999px;padding:11px 14px;font-weight:950}.btn.soft{background:#fff;color:var(--dark);border:1px solid var(--line)}.btn.blue{background:var(--blue)}.btn.warn{background:var(--brown-soft);color:var(--brown)}
 .board{height:calc(100vh - 164px);display:flex;gap:12px;overflow:auto;padding-bottom:14px;scrollbar-color:#aac7e8 transparent}.column{flex:0 0 285px;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;max-height:100%;box-shadow:0 14px 32px rgba(31,41,55,.08)}.column.drag-over{outline:3px solid rgba(37,99,235,.25)}.col-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--line)}.col-title{font-weight:950;font-size:13px;text-transform:uppercase;letter-spacing:.2px}.count{background:#eef2f7;border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px;font-weight:950}.cards{padding:8px;display:grid;gap:8px;overflow:auto;min-height:42px}.add-card{margin:0 8px 8px;border:0;background:transparent;border-radius:10px;padding:9px 10px;color:#667085;font-weight:900;text-align:left}.add-card:hover{background:#e9eef6;color:var(--text)}.composer{padding:0 8px 8px}.composer textarea{width:100%;min-height:58px;border:2px solid #2f80ed;border-radius:10px;padding:10px;background:#fff;resize:vertical;outline:0;font-weight:850}.composer-actions{display:flex;align-items:center;gap:8px;margin-top:8px}.composer-close{border:0;background:transparent;color:var(--muted);font-size:22px;line-height:1}
-.creative{position:relative;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 4px 12px rgba(31,41,55,.10);overflow:hidden}.creative.done{opacity:.78}.creative.dragging{opacity:.55}.creative:hover{outline:2px solid #2f80ed}.cover{height:120px;background:#eef2f7;display:grid;place-items:center;color:var(--muted);font-size:12px;font-weight:900;overflow:hidden}.cover img,.cover video{width:100%;height:100%;object-fit:cover;display:block}.cover .play{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;display:grid;place-items:center;font-size:18px}.creative-body{padding:8px;display:grid;gap:7px}.card-top{display:flex;gap:8px;align-items:flex-start}.check-btn{flex:0 0 22px;width:22px;height:22px;border:2px solid #98a2b3;border-radius:50%;background:#fff;color:#fff;font-weight:950;line-height:17px}.check-btn.done{background:#61bd4f;border-color:#61bd4f}.creative-title{font-weight:850;line-height:1.25;font-size:14px;flex:1}.creative.done .creative-title{text-decoration:line-through;color:#667085}.meta{display:flex;gap:5px;flex-wrap:wrap}.tag{border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;background:#eef2f7;color:#475467}.tag.hot{background:var(--orange);color:var(--orange-text)}.tag.cold{background:var(--teal);color:var(--teal-text)}.tag.done{background:var(--green);color:var(--green-text)}.tag.stop{background:var(--red);color:var(--red-text)}.small{font-size:12px;color:var(--muted);font-weight:800;line-height:1.35}.quick-card-actions{position:absolute;right:6px;top:6px;display:none;gap:4px}.creative:hover .quick-card-actions{display:flex}.icon-mini{border:1px solid var(--line);background:#fff;border-radius:8px;width:28px;height:28px;font-weight:950;color:#344054}.card-actions{display:flex;justify-content:space-between;gap:8px}.link{color:var(--blue);font-weight:950;text-decoration:none;font-size:12px}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px}
+.creative{position:relative;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 4px 12px rgba(31,41,55,.10);overflow:hidden}.creative.done{opacity:.78}.creative.dragging{opacity:.55}.creative:hover{outline:2px solid #2f80ed}.cover{height:120px;background:linear-gradient(135deg,#f8fbff,#edf3fb);display:grid;place-items:center;color:var(--muted);font-size:12px;font-weight:900;overflow:hidden}.cover img,.cover video{width:100%;height:100%;object-fit:cover;display:block}.cover.embed iframe{width:190%;height:360px;border:0;transform:scale(.54);transform-origin:top left;pointer-events:none}.cover .play{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;display:grid;place-items:center;font-size:18px}.social-preview{width:100%;height:100%;display:grid;place-items:center;text-align:center;padding:14px;background:linear-gradient(135deg,#fff,#f3e8ff)}.social-preview b{display:block;font-size:15px;color:#0f172a}.social-preview span{display:inline-flex;margin-top:8px;border-radius:999px;background:#fff;color:#475467;padding:6px 10px;box-shadow:0 6px 16px rgba(31,41,55,.12)}.creative-body{padding:8px;display:grid;gap:7px}.card-top{display:flex;gap:8px;align-items:flex-start}.check-btn{flex:0 0 22px;width:22px;height:22px;border:2px solid #98a2b3;border-radius:50%;background:#fff;color:#fff;font-weight:950;line-height:17px}.check-btn.done{background:#61bd4f;border-color:#61bd4f}.creative-title{font-weight:850;line-height:1.25;font-size:14px;flex:1}.creative.done .creative-title{text-decoration:line-through;color:#667085}.meta{display:flex;gap:5px;flex-wrap:wrap}.tag{border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;background:#eef2f7;color:#475467}.tag.hot{background:var(--orange);color:var(--orange-text)}.tag.cold{background:var(--teal);color:var(--teal-text)}.tag.done{background:var(--green);color:var(--green-text)}.tag.stop{background:var(--red);color:var(--red-text)}.tag.wait{background:var(--yellow);color:var(--yellow-text)}.tag.approved{background:var(--green);color:var(--green-text)}.tag.scheduled{background:#dbeafe;color:#1d4ed8}.tag.published{background:#e0e7ff;color:#3730a3}.tag.adjust{background:var(--red);color:var(--red-text)}.small{font-size:12px;color:var(--muted);font-weight:800;line-height:1.35}.quick-card-actions{position:absolute;right:6px;top:6px;display:none;gap:4px}.creative:hover .quick-card-actions{display:flex}.icon-mini{border:1px solid var(--line);background:#fff;border-radius:8px;width:28px;height:28px;font-weight:950;color:#344054}.card-actions{display:flex;justify-content:space-between;gap:8px}.link{color:var(--blue);font-weight:950;text-decoration:none;font-size:12px}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px}
 .panel-head{padding:18px 18px 12px;border-bottom:1px solid var(--line)}.panel-head h3{margin:0;font-size:20px}.panel-head p{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:800;line-height:1.35}.form{padding:16px;display:grid;gap:12px;overflow:auto;max-height:calc(100vh - 190px)}.form label{display:block;font-size:11px;color:var(--muted);font-weight:950;text-transform:uppercase;margin-bottom:6px}.form input,.form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff;outline:0;font-weight:850}.form textarea{min-height:82px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hint{background:var(--brown-soft);color:var(--brown);border-radius:14px;padding:12px;font-size:13px;font-weight:850;line-height:1.4}.preview-box{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#f8fafc;min-height:160px;display:grid;place-items:center;color:var(--muted);font-size:13px;font-weight:850}.preview-box img,.preview-box video,.preview-box iframe{width:100%;height:220px;object-fit:cover;border:0}.panel-actions{display:flex;gap:8px;flex-wrap:wrap}.danger{background:var(--red);color:var(--red-text)}
 .planner{height:calc(100vh - 164px);display:grid;grid-template-columns:1fr 310px;gap:14px}.calendar{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-rows:auto 1fr}.cal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-bottom:1px solid var(--line)}.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);min-height:0}.weekday{background:#f8fafc;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px;font-size:12px;font-weight:950;text-align:center}.day{min-height:118px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px;background:#fff;display:flex;flex-direction:column;gap:6px}.day.other{background:#f8fafc;color:#98a2b3}.day.today{background:#eaf3ff;outline:2px solid #2f80ed;outline-offset:-2px}.day-num{font-weight:950;font-size:13px}.task{border:1px solid var(--line);background:#fff;border-left:5px solid var(--blue);border-radius:8px;padding:7px;font-size:12px;font-weight:900;box-shadow:0 6px 14px rgba(31,41,55,.08)}.task.done{border-left-color:var(--green-text);opacity:.78}.task.dragging{opacity:.55}.task-time{display:block;color:var(--muted);font-size:11px;margin-top:2px}.agenda{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}.agenda-list{padding:12px;display:grid;gap:9px;overflow:auto}.agenda-empty{padding:18px;color:var(--muted);font-weight:850;text-align:center}
 .clients{height:calc(100vh - 164px);display:grid;grid-template-columns:1fr 360px;gap:14px}.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;align-content:start;overflow:auto}.client-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.client-banner{height:74px;background:linear-gradient(135deg,#dbeafe,#c7d2fe)}.client-body{padding:14px}.client-body h3{margin:0 0 6px}.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.modal{position:fixed;inset:0;background:rgba(17,24,39,.62);z-index:50;display:grid;place-items:start center;padding:42px 18px;overflow:auto}.modal-card{width:min(980px,100%);background:#f1f2f4;border-radius:16px;box-shadow:0 28px 90px rgba(0,0,0,.38);display:grid;grid-template-columns:1fr 250px;gap:18px;padding:18px;position:relative}.modal-close{position:absolute;right:14px;top:12px;border:0;background:#e4e7ec;border-radius:50%;width:34px;height:34px;font-size:22px;color:#344054}.modal-main{display:grid;gap:14px}.modal-title{display:flex;gap:10px;align-items:flex-start}.modal-title input{font-size:23px;font-weight:950;border:0;background:transparent;outline:0;width:100%;padding:4px}.modal-section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.modal-section h4{margin:0 0 10px;font-size:14px}.modal-section input,.modal-section select,.modal-section textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;font-weight:850;outline:0}.modal-section textarea{min-height:84px;resize:vertical}.modal-side{display:grid;align-content:start;gap:8px}.side-title{font-size:12px;color:var(--muted);font-weight:950;text-transform:uppercase;margin:2px 0 4px}.modal-action{border:0;background:#fff;border-radius:9px;padding:10px 11px;text-align:left;font-weight:900;color:#344054;box-shadow:0 2px 6px rgba(31,41,55,.08)}.modal-action:hover{background:#e9eef6}.label-row{display:flex;gap:6px;flex-wrap:wrap}.checklist-row{display:flex;gap:8px;align-items:center;margin:6px 0}.checklist-row input[type=text]{flex:1}.hidden{display:none!important}
+.modal{position:fixed;inset:0;background:rgba(17,24,39,.62);z-index:50;display:grid;place-items:start center;padding:42px 18px;overflow:auto}.modal-card{width:min(1040px,100%);background:#f1f2f4;border-radius:16px;box-shadow:0 28px 90px rgba(0,0,0,.38);display:grid;grid-template-columns:1fr 250px;gap:18px;padding:18px;position:relative}.modal-close{position:absolute;right:14px;top:12px;border:0;background:#e4e7ec;border-radius:50%;width:34px;height:34px;font-size:22px;color:#344054}.modal-main{display:grid;gap:14px}.modal-title{display:flex;gap:10px;align-items:flex-start}.modal-title input{font-size:23px;font-weight:950;border:0;background:transparent;outline:0;width:100%;padding:4px}.modal-section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.modal-section h4{margin:0 0 10px;font-size:14px}.modal-section input,.modal-section select,.modal-section textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;font-weight:850;outline:0}.modal-section textarea{min-height:84px;resize:vertical}.modal-side{display:grid;align-content:start;gap:8px}.side-title{font-size:12px;color:var(--muted);font-weight:950;text-transform:uppercase;margin:2px 0 4px}.modal-action{border:0;background:#fff;border-radius:9px;padding:10px 11px;text-align:left;font-weight:900;color:#344054;box-shadow:0 2px 6px rgba(31,41,55,.08)}.modal-action:hover{background:#e9eef6}.label-row{display:flex;gap:6px;flex-wrap:wrap}.checklist-row{display:flex;gap:8px;align-items:center;margin:6px 0}.checklist-row input[type=text]{flex:1}.flux-preview{min-height:260px}.flux-preview iframe{width:100%;height:540px;border:0;border-radius:12px;background:#fff}.hidden{display:none!important}
 @media(max-width:980px){body{overflow:auto}.app{height:auto;min-height:100vh}.workspace,.planner,.clients{grid-template-columns:1fr;height:auto}.side{min-height:500px}.board{height:70vh}.top,.toolbar,.cal-head{align-items:flex-start;flex-direction:column}.top-actions,.actions,.pill{width:100%}.pill select,.pill input{max-width:100%;width:100%}.summary{grid-template-columns:1fr}.row{grid-template-columns:1fr}.column{flex-basis:270px}.cal-grid{min-width:820px}.calendar{overflow:auto}}
 </style>
 </head>
@@ -149,24 +149,50 @@ function isoDate(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate()).to
 function monthLabel(d){return d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}
 function dateLabel(iso){return iso?new Date(iso+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'}):'';}
 function isMedia(url,type){if(!url)return false;return type==='video'?/\.(mp4|webm|ogg)(\?|$)/i.test(url):/\.(png|jpe?g|gif|webp|avif)(\?|$)/i.test(url);}
+function detectSocial(url){
+  const clean=String(url||'').trim();
+  const lower=clean.toLowerCase();
+  if(!clean)return {platform:'',format:'',embed:''};
+  if(lower.includes('instagram.com')){
+    const m=clean.match(/instagram\.com\/(?:reel|reels|p|tv)\/([^/?#]+)/i);
+    const code=m?m[1]:'';
+    const format=lower.includes('/reel')||lower.includes('/reels')?'Reel':(lower.includes('/stories')?'Story':'Feed');
+    return {platform:'Instagram',format,embed:code?`https://www.instagram.com/${format==='Reel'?'reel':'p'}/${code}/embed`:''};
+  }
+  if(lower.includes('facebook.com'))return {platform:'Facebook',format:'Feed',embed:''};
+  if(lower.includes('tiktok.com'))return {platform:'TikTok',format:'Video',embed:''};
+  if(lower.includes('youtube.com')||lower.includes('youtu.be'))return {platform:'YouTube',format:'Video',embed:''};
+  if(lower.includes('linkedin.com'))return {platform:'LinkedIn',format:'Post',embed:''};
+  return {platform:'Link',format:'Criativo',embed:''};
+}
 function cardMedia(card){
   const url=(card.mediaUrl||card.link||'').trim();
   if(!url)return '<div class="cover">Sem preview<br>Cole a URL da imagem/video</div>';
+  const social=detectSocial(card.link||url);
+  if(social.embed)return `<div class="cover embed"><iframe src="${escapeHtml(social.embed)}" loading="lazy"></iframe></div>`;
   if(isMedia(url,'video'))return `<div class="cover"><video src="${escapeHtml(url)}" muted controls></video></div>`;
   if(isMedia(url,'image'))return `<div class="cover"><img src="${escapeHtml(url)}" alt=""></div>`;
-  return '<div class="cover"><div class="play">></div></div>';
+  return `<div class="cover"><div class="social-preview"><b>${escapeHtml(social.platform||'Criativo')}</b><span>${escapeHtml(social.format||'Abrir link')}</span></div></div>`;
 }
 function panelPreview(card){
   const url=(card.mediaUrl||card.link||'').trim();
   if(!url)return 'Preview da midia';
+  const social=detectSocial(card.link||url);
+  if(social.embed)return `<iframe src="${escapeHtml(social.embed)}" loading="lazy"></iframe>`;
   if(isMedia(url,'video'))return `<video src="${escapeHtml(url)}" controls></video>`;
   if(isMedia(url,'image'))return `<img src="${escapeHtml(url)}" alt="">`;
-  return '<div>Link salvo. Para preview visual, cole uma URL direta de imagem ou video.</div>';
+  return `<div>Link salvo como ${escapeHtml(social.platform||'criativo')}. Para imagem exata no card, cole uma URL direta de thumbnail/midia.</div>`;
 }
 function statusTag(card){
-  const st=card.status||'rodando';
-  const cls=st==='quente'?'hot':st==='frio'?'cold':st==='validado'?'done':st==='pausado'?'stop':'';
+  const st=card.status||'pendente';
+  const cls=st==='quente'?'hot':st==='frio'?'cold':st==='validado'||st==='aprovado'?'approved':st==='pausado'?'stop':st==='agendado'?'scheduled':st==='publicado'?'published':st==='ajuste'?'adjust':'wait';
   return `<span class="tag ${cls}">${escapeHtml(st.toUpperCase())}</span>`;
+}
+function formatTag(card){
+  const social=detectSocial(card.link);
+  const platform=card.platform||social.platform||'Rede';
+  const format=card.format||social.format||'Formato';
+  return `<span class="tag">${escapeHtml(platform)}</span><span class="tag">${escapeHtml(format)}</span>`;
 }
 function renderClients(){
   $('#clientSelect').innerHTML=state.clients.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
@@ -198,7 +224,7 @@ function renderCard(card){
     ${cardMedia(card)}
     <div class="creative-body">
       <div class="card-top"><button class="check-btn ${card.done?'done':''}" data-toggle-card="${card.id}" title="${card.done?'Marcar como incompleto':'Marcar como concluido'}" type="button">${card.done?'V':''}</button><div class="creative-title">${escapeHtml(card.title||'Novo criativo')}</div></div>
-      <div class="meta">${statusTag(card)}<span class="tag">${escapeHtml(card.audience||'Publico')}</span></div>
+      <div class="meta">${formatTag(card)}${statusTag(card)}<span class="tag">${escapeHtml(card.audience||'Publico')}</span></div>
       <div class="small">${escapeHtml(card.note||'')}</div>
       <div class="card-actions"><button class="mini-btn edit-card" type="button">Editar</button>${card.link?`<a class="link" href="${escapeHtml(card.link)}" target="_blank" rel="noreferrer">Abrir link</a>`:''}</div>
     </div>
@@ -218,10 +244,12 @@ function createCardFromLine(line,columnId){
   let title=raw, link='', mediaUrl='';
   if(looksUrl){
     link=raw;
-    try{title=new URL(raw).hostname.replace(/^www\./,'') || 'Criativo colado';}catch(e){title='Criativo colado';}
+    const social=detectSocial(raw);
+    title=social.platform==='Instagram'?`${social.format} Instagram`:social.platform||'Criativo colado';
     if(isMedia(raw,'image')||isMedia(raw,'video'))mediaUrl=raw;
   }
-  return {id:state.nextCardId++,clientId:state.activeClientId,columnId,order:cardsFor(columnId).length,title,status:'rodando',audience:'Publico',link,mediaUrl,note:'',done:false,checklist:[]};
+  const social=detectSocial(link);
+  return {id:state.nextCardId++,clientId:state.activeClientId,columnId,order:cardsFor(columnId).length,title,status:'pendente',platform:social.platform||'',format:social.format||'',account:'',audience:'Publico',link,mediaUrl,note:'',done:false,checklist:[]};
 }
 function addInlineCards(columnId){
   const box=document.querySelector(`[data-composer="${columnId}"] .composer-title`);
@@ -246,7 +274,7 @@ function renderCreativePanel(card){
     <div><label>URL da imagem ou video para aparecer no card</label><input id="cardMedia" value="${escapeHtml(c?.mediaUrl||'')}" placeholder="https://...jpg ou ...mp4"></div>
     <div id="livePreview" class="preview-box">${c?panelPreview(c):'Preview da midia'}</div>
     <div><label>Observacoes</label><textarea id="cardNote" placeholder="Gancho, verba, criativo, resultado...">${escapeHtml(c?.note||'')}</textarea></div>
-    <div class="hint">Para Instagram/TikTok, cole o link em "Link do criativo". Para ver a imagem/video dentro do quadro, cole tambem a URL direta da midia ou thumbnail.</div>
+    <div class="hint">Links do Instagram/Reels tentam abrir preview automatico por embed. Se alguma rede bloquear, cole uma URL direta de thumbnail/midia no campo de capa.</div>
     <div class="panel-actions"><button class="btn blue" id="saveCardBtn" type="button">Salvar criativo</button>${existing?'<button class="btn danger" id="deleteCardBtn" type="button">Excluir</button>':''}<button class="btn soft" id="clearCardBtn" type="button">Limpar</button></div>
   </div>`;
   bindCardForm();
@@ -301,9 +329,36 @@ function moveCardNext(id){
 function createTaskFromCard(id){
   const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
   const date=card.dueDate||isoDate(new Date());
-  state.tasks.push({id:state.nextTaskId++,clientId:state.activeClientId,title:'Revisar: '+(card.title||'Criativo'),date,time:'09:00',status:'aberto',kind:'criativo',note:'Criado a partir do card.'});
+  state.tasks.push({id:state.nextTaskId++,clientId:state.activeClientId,title:'Revisar: '+(card.title||'Criativo'),date,time:card.dueTime||'09:00',status:'aberto',kind:'criativo',note:'Criado a partir do card.'});
   saveLocal();
   alert('Tarefa criada no Planejador para '+dateLabel(date)+'.');
+}
+function approveCard(id){
+  const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
+  card.status='aprovado';
+  card.done=true;
+  card.comments=Array.isArray(card.comments)?card.comments:[];
+  card.comments.push({at:new Date().toISOString(),text:'Conteudo aprovado.'});
+  saveLocal(); renderBoard(); renderCardModal(card);
+}
+function requestAdjustment(id){
+  const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
+  const text=prompt('Qual ajuste precisa ser feito?', 'Revisar texto ou criativo.');
+  if(text===null)return;
+  card.status='ajuste';
+  card.done=false;
+  card.comments=Array.isArray(card.comments)?card.comments:[];
+  card.comments.push({at:new Date().toISOString(),text:'Pedido de ajuste: '+text});
+  saveLocal(); renderBoard(); renderCardModal(card);
+}
+function scheduleTomorrow(id){
+  const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
+  const d=new Date(); d.setDate(d.getDate()+1);
+  card.dueDate=isoDate(d);
+  card.dueTime='09:00';
+  card.status='agendado';
+  state.tasks.push({id:state.nextTaskId++,clientId:state.activeClientId,title:'Publicar: '+(card.title||'Criativo'),date:card.dueDate,time:card.dueTime,status:'aberto',kind:'criativo',note:'Agendamento rapido criado pelo card.'});
+  saveLocal(); renderBoard(); renderCardModal(card);
 }
 function closeCardModal(){
   openCardId=null;
@@ -320,21 +375,28 @@ function openCardModal(id){
 function renderCardModal(card){
   const columnTitle=columns.find(c=>c.id===card.columnId)?.title||'Coluna';
   const checklist=Array.isArray(card.checklist)?card.checklist:[];
+  const social=detectSocial(card.link);
+  const platform=card.platform||social.platform||'';
+  const format=card.format||social.format||'';
   $('#cardModal').innerHTML=`<div class="modal-card" data-modal-card="${card.id}">
     <button class="modal-close" type="button">&times;</button>
     <div class="modal-main">
       <div class="modal-title"><button class="check-btn ${card.done?'done':''}" data-modal-toggle type="button">${card.done?'V':''}</button><input id="modalTitle" value="${escapeHtml(card.title||'Novo criativo')}"></div>
       <div class="small">No quadro <b>${escapeHtml(currentClient().name)}</b> em <b>${escapeHtml(columnTitle)}</b></div>
-      <div class="modal-section"><h4>Etiquetas e status</h4><div class="row"><select id="modalStatus">${['rodando','quente','frio','validado','pausado'].map(s=>`<option ${card.status===s?'selected':''}>${s}</option>`).join('')}</select><input id="modalAudience" value="${escapeHtml(card.audience||'')}" placeholder="Publico"></div><div class="label-row" style="margin-top:10px">${statusTag(card)}<span class="tag">${escapeHtml(card.audience||'Publico')}</span></div></div>
-      <div class="modal-section"><h4>Link e capa</h4><div class="row"><input id="modalLink" value="${escapeHtml(card.link||'')}" placeholder="Link do criativo rodando"><input id="modalMedia" value="${escapeHtml(card.mediaUrl||'')}" placeholder="URL da imagem ou video"></div><div class="preview-box" id="modalPreview" style="margin-top:10px">${panelPreview(card)}</div></div>
+      <div class="modal-section"><h4>Rede, formato e status</h4><div class="row"><select id="modalPlatform">${['Instagram','Facebook','TikTok','Threads','YouTube','LinkedIn','Pinterest','Link'].map(s=>`<option ${platform===s?'selected':''}>${s}</option>`).join('')}</select><select id="modalFormat">${['Feed','Story','Reel','Video','Carrossel','Post'].map(s=>`<option ${format===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="row" style="margin-top:10px"><select id="modalStatus">${['pendente','ajuste','aprovado','agendado','publicado','quente','frio','pausado'].map(s=>`<option ${card.status===s?'selected':''}>${s}</option>`).join('')}</select><input id="modalAccount" value="${escapeHtml(card.account||'')}" placeholder="@conta ou pagina"></div><div class="label-row" style="margin-top:10px">${formatTag({...card,platform,format})}${statusTag(card)}<span class="tag">${escapeHtml(card.audience||'Publico')}</span></div></div>
+      <div class="modal-section"><h4>Publico e link</h4><div class="row"><input id="modalAudience" value="${escapeHtml(card.audience||'')}" placeholder="Publico"><input id="modalLink" value="${escapeHtml(card.link||'')}" placeholder="Link do criativo rodando"></div><input id="modalMedia" style="margin-top:10px" value="${escapeHtml(card.mediaUrl||'')}" placeholder="URL direta da imagem/video se tiver"></div>
+      <div class="modal-section"><h4>Preview do post</h4><div class="preview-box flux-preview" id="modalPreview">${panelPreview(card)}</div></div>
       <div class="modal-section"><h4>Descricao</h4><textarea id="modalNote" placeholder="Gancho, verba, criativo, resultado...">${escapeHtml(card.note||'')}</textarea></div>
-      <div class="modal-section"><h4>Data e checklist</h4><div class="row"><input id="modalDueDate" type="date" value="${escapeHtml(card.dueDate||'')}"><input id="modalChecklistNew" placeholder="Adicionar item de checklist"></div><div id="modalChecklist">${checklist.map((item,i)=>renderChecklistItem(item,i)).join('')}</div><button class="mini-btn" id="addChecklistItem" type="button">Adicionar item</button></div>
+      <div class="modal-section"><h4>Agendamento e checklist</h4><div class="row"><input id="modalDueDate" type="date" value="${escapeHtml(card.dueDate||'')}"><input id="modalDueTime" type="time" value="${escapeHtml(card.dueTime||'')}"></div><input id="modalChecklistNew" style="margin-top:10px" placeholder="Adicionar item de checklist"><div id="modalChecklist">${checklist.map((item,i)=>renderChecklistItem(item,i)).join('')}</div><button class="mini-btn" id="addChecklistItem" type="button">Adicionar item</button></div>
       <div class="modal-section"><h4>Comentario rapido</h4><textarea id="modalComment" placeholder="Digite uma nota de acompanhamento..."></textarea></div>
     </div>
     <aside class="modal-side">
       <div class="side-title">Adicionar ao cartao</div>
       <button class="modal-action" data-modal-save type="button">Salvar alteracoes</button>
       ${card.link?'<button class="modal-action" data-open-link type="button">Abrir criativo</button>':''}
+      <button class="modal-action" data-modal-approve type="button">Aprovar conteudo</button>
+      <button class="modal-action" data-modal-adjust type="button">Pedir ajuste</button>
+      <button class="modal-action" data-modal-schedule type="button">Agendar amanha 09:00</button>
       <button class="modal-action" data-modal-complete type="button">${card.done?'Marcar como incompleto':'Marcar como concluido'}</button>
       <button class="modal-action" data-modal-next type="button">Mover para proxima coluna</button>
       <button class="modal-action" data-modal-task type="button">Criar tarefa no Planejador</button>
@@ -351,12 +413,19 @@ function renderChecklistItem(item,index){
 function saveModalCard(){
   const card=state.cards.find(c=>Number(c.id)===Number(openCardId)); if(!card)return;
   card.title=$('#modalTitle').value.trim()||'Novo criativo';
+  card.platform=$('#modalPlatform').value;
+  card.format=$('#modalFormat').value;
   card.status=$('#modalStatus').value;
+  card.account=$('#modalAccount').value.trim();
   card.audience=$('#modalAudience').value.trim();
   card.link=$('#modalLink').value.trim();
   card.mediaUrl=$('#modalMedia').value.trim();
+  const social=detectSocial(card.link);
+  if(!card.platform&&social.platform)card.platform=social.platform;
+  if(!card.format&&social.format)card.format=social.format;
   card.note=$('#modalNote').value.trim();
   card.dueDate=$('#modalDueDate').value;
+  card.dueTime=$('#modalDueTime').value;
   card.checklist=$$('#modalChecklist .checklist-row').map(row=>({done:row.querySelector('input[type=checkbox]').checked,text:row.querySelector('input[type=text]').value.trim()})).filter(x=>x.text);
   const comment=$('#modalComment').value.trim();
   if(comment){card.comments=Array.isArray(card.comments)?card.comments:[];card.comments.push({at:new Date().toISOString(),text:comment});}
@@ -578,6 +647,9 @@ function bind(){
     if(e.target.closest('[data-modal-save]'))saveModalCard();
     if(e.target.closest('[data-modal-toggle]')||e.target.closest('[data-modal-complete]')){const card=state.cards.find(c=>Number(c.id)===Number(openCardId));if(card){card.done=!card.done;saveLocal();renderBoard();renderCardModal(card);}}
     if(e.target.closest('[data-open-link]')){const card=state.cards.find(c=>Number(c.id)===Number(openCardId));if(card?.link)window.open(card.link,'_blank','noopener');}
+    if(e.target.closest('[data-modal-approve]'))approveCard(openCardId);
+    if(e.target.closest('[data-modal-adjust]'))requestAdjustment(openCardId);
+    if(e.target.closest('[data-modal-schedule]'))scheduleTomorrow(openCardId);
     if(e.target.closest('[data-modal-next]'))moveCardNext(openCardId);
     if(e.target.closest('[data-modal-task]'))createTaskFromCard(openCardId);
     if(e.target.closest('[data-modal-copy]'))copyCard(openCardId);
@@ -594,6 +666,11 @@ function bind(){
   document.body.addEventListener('input',e=>{
     if(e.target.id==='modalMedia'||e.target.id==='modalLink'){
       const tmp={mediaUrl:$('#modalMedia')?.value||'',link:$('#modalLink')?.value||''};
+      const social=detectSocial(tmp.link);
+      if(e.target.id==='modalLink'){
+        if(social.platform)$('#modalPlatform').value=social.platform;
+        if(social.format)$('#modalFormat').value=social.format;
+      }
       const box=$('#modalPreview'); if(box)box.innerHTML=panelPreview(tmp);
     }
   });
