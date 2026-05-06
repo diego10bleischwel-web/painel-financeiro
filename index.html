@@ -88,7 +88,7 @@ const INITIAL_ENTRIES = [{"id": 1, "tipo": "debito", "nome": "FUTEBOL", "dia": "
 document.addEventListener('DOMContentLoaded', () => {
 const STORAGE_KEY='dualizeFinanceStateV3_FINAL';
 const SYNC_URL_KEY='dualizeFinanceSyncUrlV1';
-const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbzdHciCQMdtt8CdG1IBurNIqE5W17W7kDsVnUlMlyQkN4hKHgcNRuUleBaVjXW-quf1/exec';
+const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwG8318Daiduvqwt-BxRg4bETjfRi44zu8wiiUwUixsGPUW4gi6Ew6GNcPqFatfWLSSzg/exec';
 let syncUrl=localStorage.getItem(SYNC_URL_KEY)||DEFAULT_SYNC_URL;
 let syncTimer=null, syncReady=false, applyingRemote=false;
 function loadSavedState(){
