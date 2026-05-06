@@ -88,12 +88,13 @@ const INITIAL_ENTRIES = [{"id": 1, "tipo": "debito", "nome": "FUTEBOL", "dia": "
 document.addEventListener('DOMContentLoaded', () => {
 const STORAGE_KEY='dualizeFinanceStateV3_FINAL';
 const SYNC_URL_KEY='dualizeFinanceSyncUrlV1';
+const PENDING_SYNC_KEY='dualizeFinanceSyncPendingV1';
 const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwG8318Daiduvqwt-BxRg4bETjfRi44zu8wiiUwUixsGPUW4gi6Ew6GNcPqFatfWLSSzg/exec';
 const LEGACY_SYNC_URLS=['https://script.google.com/macros/s/AKfycbzdHciCQMdtt8CdG1IBurNIqE5W17W7kDsVnUlMlyQkN4hKHgcNRuUleBaVjXW-quf1/exec'];
 let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
 if(LEGACY_SYNC_URLS.includes(savedSyncUrl)){ localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL); savedSyncUrl=DEFAULT_SYNC_URL; }
 let syncUrl=savedSyncUrl||DEFAULT_SYNC_URL;
-let syncTimer=null, syncReady=false, applyingRemote=false;
+let syncTimer=null, syncReady=false, applyingRemote=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
 function loadSavedState(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
@@ -129,7 +130,7 @@ function statePayload(){
 }
 function persist(){
   try{
-    if(!applyingRemote) state.lastSync=Date.now();
+    if(!applyingRemote){ state.lastSync=Date.now(); setSyncPending(true); }
     localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
     scheduleCloudSave();
   }catch(err){ console.warn('Não foi possível salvar no navegador.',err); }
@@ -142,6 +143,13 @@ const brDeb=(n)=>'R$ -'+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigi
 function parseMoney(v){ if(!v)return 0; const c=String(v).replace(/R\$/g,'').replace(/\s/g,'').replace(/-/g,'').replace(/\./g,'').replace(',','.'); const n=parseFloat(c); return isNaN(n)?0:Math.abs(n); }
 function syncEndpoint(action,extra=''){ if(!syncUrl)return ''; const sep=syncUrl.includes('?')?'&':'?'; return syncUrl+sep+'action='+encodeURIComponent(action)+extra; }
 function setSyncStatus(text){ const el=$('#syncStatus'); if(el) el.textContent=text; }
+function syncTime(ts=Date.now()){ return new Date(ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+function setSyncPending(pending){
+  syncPending=!!pending;
+  if(syncPending) localStorage.setItem(PENDING_SYNC_KEY,'1'); else localStorage.removeItem(PENDING_SYNC_KEY);
+}
+function syncSavedLabel(ts=Date.now()){ return 'Sync salvo '+syncTime(ts); }
+function delay(ms){ return new Promise(resolve=>setTimeout(resolve,ms)); }
 function loadCloudState(){
   return new Promise((resolve,reject)=>{
     if(!syncUrl) return resolve(null);
@@ -167,6 +175,7 @@ function applyCloudState(data){
   state.thirdMovements=Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):[];
   state.lastSync=Number(data.lastSync||Date.now());
   state.entries.forEach(normalizeEntry);
+  setSyncPending(false);
   saveLocalSnapshot();
   applyingRemote=false;
   renderAll();
@@ -179,9 +188,10 @@ async function syncFromCloud(){
     const remote=await loadCloudState();
     if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>Number(state.lastSync||0)){
       applyCloudState(remote);
-      setSyncStatus('Sync atualizado');
+      setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
     }else{
-      setSyncStatus('Sync ok');
+      if(syncPending&&Number(state.lastSync||0)>Number(remote?.lastSync||0)) scheduleCloudSave(100);
+      else setSyncStatus(syncPending?'Sync pendente':syncSavedLabel(Number(state.lastSync||Date.now())));
     }
   }catch(err){ console.warn(err); setSyncStatus('Sync erro'); }
 }
@@ -192,11 +202,21 @@ function scheduleCloudSave(delay=800){
 }
 async function saveCloudState(){
   if(!syncUrl)return;
+  const sentAt=Number(state.lastSync||Date.now());
   try{
     setSyncStatus('Sync salvando...');
     await fetch(syncUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',data:statePayload()})});
-    setSyncStatus('Sync salvo');
-  }catch(err){ console.warn(err); setSyncStatus('Sync erro'); }
+    await delay(1200);
+    const remote=await loadCloudState();
+    if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt){
+      setSyncPending(false);
+      setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
+    }else{
+      setSyncPending(true);
+      setSyncStatus('Sync pendente');
+      scheduleCloudSave(5000);
+    }
+  }catch(err){ console.warn(err); setSyncPending(true); setSyncStatus('Sync pendente'); scheduleCloudSave(5000); }
 }
 async function configureSync(){
   const url=prompt('Cole a URL do Web App do Google Apps Script para sincronizar online. Deixe vazio para usar somente este navegador.',syncUrl);
@@ -487,7 +507,15 @@ function enableDragSorting(){
   });
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));}); $('#thirdDate').value=new Date().toISOString().slice(0,10); bind(); enableEnterNavigation(); enableThirdEnterNavigation(); enableDragSorting(); syncFormType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; setSyncStatus(syncUrl?'Sync conectando...':'Sync local'); if(syncUrl) syncFromCloud();}
+function enableSyncSafety(){
+  window.addEventListener('beforeunload',e=>{
+    if(!syncPending)return;
+    e.preventDefault();
+    e.returnValue='Ainda existe alteração pendente de sincronização.';
+  });
+}
+
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));}); $('#thirdDate').value=new Date().toISOString().slice(0,10); bind(); enableEnterNavigation(); enableThirdEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local'); if(syncUrl) syncFromCloud();}
 init();
 });
 </script>
