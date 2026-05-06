@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle Online</title>
+<style>
+:root{--bg:#f5f2ee;--card:#fff;--text:#2f2f2f;--muted:#7c756f;--line:#e4ddd6;--dark:#303030;--brown:#815d46;--brown-soft:#efe6df;--green:#e7f6ed;--green-text:#257247;--yellow:#fff4d2;--yellow-text:#9a6a00;--orange:#ffe5cf;--orange-text:#a34f12;--red:#ffe3e1;--red-text:#b42318;--blue:#e7eef7;--blue-text:#34506d;--shadow:0 18px 45px rgba(47,47,47,.08)}
+*{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text)}
+.app{max-width:1180px;margin:auto;padding:30px 22px 80px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}
+.brand small{letter-spacing:2px;text-transform:uppercase;color:var(--brown);font-weight:900;font-size:11px}
+h1{margin:6px 0 0;font-size:44px;line-height:1}
+.topbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:11px 16px;box-shadow:var(--shadow);font-weight:900;display:flex;gap:8px;align-items:center}
+.pill input,.pill select{border:0;background:transparent;outline:0;font-weight:900;color:var(--text);font-size:14px;max-width:190px}
+.sync-pending{background:var(--yellow);color:var(--yellow-text);border-color:#ecd38b}
+.sync-error{background:var(--red);color:var(--red-text);border-color:#f1b5ae}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+.kpi{border-radius:22px;padding:18px 20px;box-shadow:var(--shadow);border:1px solid var(--line);min-height:122px;display:flex;flex-direction:column;justify-content:center;background:#fff}
+.kpi span{font-size:13px;font-weight:850;margin-bottom:10px;color:var(--muted)}
+.kpi strong{font-size:25px;line-height:1.1}
+.kpi small{font-size:12px;font-weight:900;margin-top:10px;color:var(--muted)}
+.kpi-green{background:linear-gradient(135deg,#fff,#e3f6ea);border-color:#acdcbc}.kpi-green strong{color:var(--green-text)}
+.kpi-red{background:linear-gradient(135deg,#fff,#ffe6e3);border-color:#f1b5ae}.kpi-red strong{color:var(--red-text)}
+.kpi-yellow{background:linear-gradient(135deg,#fff,#fff4d2);border-color:#ecd38b}.kpi-yellow strong{color:var(--yellow-text)}
+.kpi-blue{background:linear-gradient(135deg,#fff,#e7eef7);border-color:#b9cade}.kpi-blue strong{color:var(--blue-text)}
+.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;align-items:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);overflow:hidden}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 22px;border-bottom:1px solid var(--line)}
+.card-head h2{margin:0;font-size:23px}.card-head p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
+.btn{border:0;background:var(--dark);color:#fff;border-radius:999px;padding:12px 16px;font-weight:900;cursor:pointer}
+.btn.soft{background:var(--brown-soft);color:var(--brown)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.filters{display:flex;gap:8px;flex-wrap:wrap}.filter-select{border:1px solid var(--line);border-radius:999px;padding:9px 12px;font-weight:850;background:#fff;color:var(--muted);font-size:12px;outline:none}
+.list{padding:14px 18px 18px;display:grid;gap:10px}
+.item-row{position:relative;display:grid;grid-template-columns:1fr 92px 132px 112px;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 50px 14px 16px;min-height:82px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.item-row:hover,.card:hover,.kpi:hover{transform:translateY(-2px);box-shadow:0 22px 52px rgba(47,47,47,.11)}
+.name strong{display:block;font-size:16px}.name small{display:block;margin-top:4px;color:var(--muted);font-size:11px;font-weight:800}
+.date{background:#f8f5f1;border:1px solid var(--line);border-radius:14px;padding:7px 10px;text-align:center;font-weight:950;font-size:15px}
+.value{font-weight:950;text-align:right}.value.negative{color:var(--red-text)}.value.positive{color:var(--green-text)}
+.status-pill{border:0;border-radius:999px;padding:10px 12px;font-size:12px;font-weight:950;cursor:pointer;text-align:center;width:100%;white-space:nowrap}
+.status-pill.aberto{background:var(--yellow);color:var(--yellow-text)}.status-pill.concluido{background:var(--green);color:var(--green-text)}.status-pill.cancelado{background:var(--red);color:var(--red-text)}
+.row-tools{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:5px}.icon-btn{width:28px;height:28px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}.icon-btn:hover{background:var(--blue);color:var(--blue-text)}
+.form{padding:20px;display:grid;gap:12px}.form label{display:block;font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;margin-bottom:6px}.form input,.form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;font-weight:850;outline:0}.form textarea{min-height:88px;resize:vertical}.form .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{padding:18px 20px;color:var(--muted);line-height:1.5;font-size:14px}.suggestion{background:var(--brown-soft);color:var(--brown);font-weight:850;line-height:1.45;border-radius:18px;padding:15px;margin:18px 20px}
+.empty{padding:28px;color:var(--muted);font-weight:850;text-align:center}
+@media(max-width:900px){.app{padding:22px 12px 70px}header{flex-direction:column}h1{font-size:34px}.topbar,.pill{width:100%}.summary,.grid,.form .row{grid-template-columns:1fr}.item-row{grid-template-columns:1fr 86px;padding-right:48px}.item-row .value,.item-row .status-pill{grid-column:1/3}.pill input,.pill select{max-width:100%;width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><small>controle online</small><h1>Controle Online</h1></div>
+    <div class="topbar">
+      <button class="pill" id="syncBtn" type="button">Sync: <span id="syncStatus">local</span></button>
+      <div class="pill">Filtro <select id="statusFilter"><option value="todos">Todos</option><option value="aberto">Abertos</option><option value="concluido">Concluidos</option><option value="cancelado">Cancelados</option></select></div>
+      <div class="pill">Mes <input id="monthFilter" type="month"></div>
+    </div>
+  </header>
+
+  <section class="summary">
+    <div class="kpi kpi-yellow"><span>Itens abertos</span><strong id="openCount">0</strong><small>pendentes de acao</small></div>
+    <div class="kpi kpi-green"><span>Concluidos</span><strong id="doneCount">0</strong><small>finalizados no filtro</small></div>
+    <div class="kpi kpi-blue"><span>Total previsto</span><strong id="totalValue">R$ 0,00</strong><small>soma dos itens ativos</small></div>
+    <div class="kpi kpi-red"><span>Cancelados</span><strong id="cancelCount">0</strong><small>fora do total previsto</small></div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <div class="card-head">
+        <div><h2>Itens do controle</h2><p>Use dois cliques no status para alternar entre aberto e concluido.</p></div>
+        <button class="btn" id="newBtn" type="button">+ Novo item</button>
+      </div>
+      <div class="list" id="itemList"></div>
+    </div>
+
+    <aside class="card">
+      <div class="card-head"><div><h2 id="formTitle">Novo item</h2><p>Campos simples para adaptar ao seu controle.</p></div></div>
+      <div class="form">
+        <input id="editingId" type="hidden">
+        <div><label>Descricao</label><input id="descInput" placeholder="Ex.: Renovar contrato"></div>
+        <div class="row">
+          <div><label>Categoria</label><input id="categoryInput" placeholder="Ex.: Cliente, tarefa, compra"></div>
+          <div><label>Data</label><input id="dateInput" type="date"></div>
+        </div>
+        <div class="row">
+          <div><label>Valor</label><input id="valueInput" inputmode="decimal" placeholder="R$ 0,00"></div>
+          <div><label>Status</label><select id="statusInput"><option value="aberto">Aberto</option><option value="concluido">Concluido</option><option value="cancelado">Cancelado</option></select></div>
+        </div>
+        <div><label>Observacao</label><textarea id="noteInput" placeholder="Detalhes importantes"></textarea></div>
+        <button class="btn" id="saveBtn" type="button">Salvar item</button>
+        <button class="btn soft" id="clearBtn" type="button">Limpar formulario</button>
+      </div>
+      <div class="suggestion" id="syncHint">Sem URL de sync configurada. Clique em Sync para colar a URL do Apps Script.</div>
+    </aside>
+  </section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const STORAGE_KEY='controleOnlineState.v1';
+const SYNC_URL_KEY='controleOnlineSyncUrl.v1';
+const PENDING_SYNC_KEY='controleOnlineSyncPending.v1';
+const defaultState={items:[],nextId:1,lastSync:0};
+let state=loadState();
+let syncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
+let syncTimer=null, syncReady=false, applyingRemote=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
+
+function loadState(){
+  try{return {...defaultState,...JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')};}
+  catch(e){return {...defaultState};}
+}
+function saveLocal(){
+  if(applyingRemote)return;
+  state.lastSync=Date.now();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  setSyncPending(true);
+  scheduleCloudSave();
+}
+function br(v){return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+function parseMoney(v){
+  const s=String(v||'').replace(/[^\d,-]/g,'').replace(/\./g,'').replace(',','.');
+  return Number(s)||0;
+}
+function moneyInput(v){return br(v);}
+function fmtDate(iso){
+  if(!iso)return '-';
+  const [y,m,d]=iso.split('-');
+  return d&&m?`${d}/${m}`:iso;
+}
+function syncTime(ts=Date.now()){return new Date(ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function syncSavedLabel(ts=Date.now()){return 'Sync salvo '+syncTime(ts);}
+function setSyncStatus(text,mode=''){
+  $('#syncStatus').textContent=text;
+  $('#syncBtn').classList.toggle('sync-pending',mode==='pending');
+  $('#syncBtn').classList.toggle('sync-error',mode==='error');
+  $('#syncHint').textContent=syncUrl?(syncPending?'Existe sync pendente. Clique em Sync para tentar salvar agora.':'Sincronizacao online conectada.'):'Sem URL de sync configurada. Clique em Sync para colar a URL do Apps Script.';
+}
+function setSyncPending(pending){
+  syncPending=!!pending;
+  if(syncPending)localStorage.setItem(PENDING_SYNC_KEY,'1'); else localStorage.removeItem(PENDING_SYNC_KEY);
+  if(syncReady&&syncPending)setSyncStatus('Sync pendente','pending');
+}
+function normalizeRemote(data){
+  if(!data||!Array.isArray(data.items))return null;
+  return {...defaultState,...data,nextId:Number(data.nextId)||((data.items.reduce((m,i)=>Math.max(m,Number(i.id)||0),0))+1)};
+}
+function jsonp(url){
+  return new Promise((resolve,reject)=>{
+    const cb='controleSync_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const script=document.createElement('script');
+    window[cb]=payload=>{cleanup();resolve(payload);};
+    function cleanup(){delete window[cb];script.remove();}
+    script.onerror=()=>{cleanup();reject(new Error('jsonp_failed'));};
+    script.src=url+(url.includes('?')?'&':'?')+'callback='+cb+'&t='+Date.now();
+    document.body.appendChild(script);
+  });
+}
+async function syncFromCloud(){
+  if(!syncUrl){setSyncStatus('Sync local');return;}
+  try{
+    setSyncStatus('Sync baixando...');
+    const res=await jsonp(syncUrl);
+    const remote=normalizeRemote(res.data);
+    if(remote&&Number(remote.lastSync||0)>Number(state.lastSync||0)){
+      applyingRemote=true;
+      state=remote;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+      applyingRemote=false;
+      setSyncPending(false);
+      renderAll();
+      setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
+      return;
+    }
+    if(syncPending)await saveCloudState();
+    else setSyncStatus(syncSavedLabel(Number(state.lastSync||Date.now())));
+  }catch(err){console.warn(err);setSyncStatus('Sync erro','error');}
+}
+async function saveCloudState(){
+  if(!syncUrl){setSyncStatus('Sync local');return;}
+  clearTimeout(syncTimer);
+  try{
+    setSyncStatus('Sync salvando...');
+    const payload={...state,lastSync:Date.now()};
+    const res=await fetch(syncUrl,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({data:payload})});
+    const json=await res.json();
+    if(!json.ok)throw new Error(json.error||'sync_failed');
+    state=normalizeRemote(json.data)||payload;
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    setSyncPending(false);
+    renderAll();
+    setSyncStatus(syncSavedLabel(Number(state.lastSync||Date.now())));
+  }catch(err){
+    console.warn(err);
+    setSyncPending(true);
+    setSyncStatus('Sync pendente','pending');
+    scheduleCloudSave(5000);
+  }
+}
+function scheduleCloudSave(delay=900){
+  if(!syncReady||!syncUrl||applyingRemote)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(saveCloudState,delay);
+}
+async function configureSync(){
+  const current=syncUrl||'';
+  const url=prompt('Cole a URL do Web App do Apps Script para sincronizar online:',current);
+  if(url===null)return;
+  syncUrl=url.trim();
+  if(syncUrl)localStorage.setItem(SYNC_URL_KEY,syncUrl); else localStorage.removeItem(SYNC_URL_KEY);
+  if(!syncUrl){setSyncStatus('Sync local');return;}
+  const sendLocal=confirm('Enviar os dados deste aparelho para a nuvem agora?\\n\\nOK envia local. Cancelar baixa o que estiver na planilha.');
+  if(sendLocal){setSyncPending(true);await saveCloudState();} else await syncFromCloud();
+}
+function filteredItems(){
+  const status=$('#statusFilter').value;
+  const month=$('#monthFilter').value;
+  return state.items
+    .filter(i=>status==='todos'||i.status===status)
+    .filter(i=>!month||String(i.date||'').startsWith(month))
+    .sort((a,b)=>String(a.date||'9999').localeCompare(String(b.date||'9999'))||Number(a.id)-Number(b.id));
+}
+function renderList(){
+  const items=filteredItems();
+  $('#itemList').innerHTML=items.length?items.map(i=>{
+    const value=parseMoney(i.value);
+    const valueClass=value<0?'negative':'positive';
+    return `<div class="item-row" data-id="${i.id}">
+      <div class="name"><strong>${escapeHtml(i.desc||'Sem descricao')}</strong><small>${escapeHtml(i.category||'Sem categoria')}${i.note?' - '+escapeHtml(i.note):''}</small></div>
+      <div class="date">${fmtDate(i.date)}</div>
+      <div class="value ${valueClass}">${br(value)}</div>
+      <button class="status-pill ${i.status}" type="button">${labelStatus(i.status)}</button>
+      <div class="row-tools"><button class="icon-btn edit-btn" title="Editar" type="button">E</button><button class="icon-btn delete-btn" title="Excluir" type="button">X</button></div>
+    </div>`;
+  }).join(''):'<div class="empty">Nenhum item encontrado para o filtro atual.</div>';
+}
+function renderTotals(){
+  const items=filteredItems();
+  const active=items.filter(i=>i.status!=='cancelado');
+  $('#openCount').textContent=items.filter(i=>i.status==='aberto').length;
+  $('#doneCount').textContent=items.filter(i=>i.status==='concluido').length;
+  $('#cancelCount').textContent=items.filter(i=>i.status==='cancelado').length;
+  $('#totalValue').textContent=br(active.reduce((sum,i)=>sum+parseMoney(i.value),0));
+}
+function renderAll(){renderList();renderTotals();}
+function labelStatus(st){return st==='concluido'?'Concluido':st==='cancelado'?'Cancelado':'Aberto';}
+function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function formObj(){
+  return {
+    id:$('#editingId').value?Number($('#editingId').value):state.nextId++,
+    desc:$('#descInput').value.trim()||'Novo item',
+    category:$('#categoryInput').value.trim()||'Geral',
+    date:$('#dateInput').value,
+    value:moneyInput(parseMoney($('#valueInput').value)),
+    status:$('#statusInput').value,
+    note:$('#noteInput').value.trim()
+  };
+}
+function clearForm(){
+  $('#editingId').value='';
+  $('#formTitle').textContent='Novo item';
+  $('#descInput').value='';
+  $('#categoryInput').value='';
+  $('#dateInput').value=new Date().toISOString().slice(0,10);
+  $('#valueInput').value='';
+  $('#statusInput').value='aberto';
+  $('#noteInput').value='';
+}
+function saveItem(){
+  const item=formObj();
+  const idx=state.items.findIndex(i=>Number(i.id)===Number(item.id));
+  if(idx>=0)state.items[idx]={...state.items[idx],...item}; else state.items.push(item);
+  saveLocal();
+  clearForm();
+  renderAll();
+}
+function editItem(id){
+  const item=state.items.find(i=>Number(i.id)===Number(id));
+  if(!item)return;
+  $('#editingId').value=item.id;
+  $('#formTitle').textContent='Editar item';
+  $('#descInput').value=item.desc||'';
+  $('#categoryInput').value=item.category||'';
+  $('#dateInput').value=item.date||new Date().toISOString().slice(0,10);
+  $('#valueInput').value=item.value||'';
+  $('#statusInput').value=item.status||'aberto';
+  $('#noteInput').value=item.note||'';
+}
+function deleteItem(id){
+  if(!confirm('Excluir este item?'))return;
+  state.items=state.items.filter(i=>Number(i.id)!==Number(id));
+  saveLocal();
+  renderAll();
+}
+function bind(){
+  $('#syncBtn').onclick=configureSync;
+  $('#newBtn').onclick=clearForm;
+  $('#saveBtn').onclick=saveItem;
+  $('#clearBtn').onclick=clearForm;
+  $('#statusFilter').onchange=renderAll;
+  $('#monthFilter').onchange=renderAll;
+  $('#valueInput').onblur=()=>{const v=parseMoney($('#valueInput').value);$('#valueInput').value=v?moneyInput(v):'';};
+  document.body.addEventListener('click',e=>{
+    const row=e.target.closest('.item-row');
+    if(e.target.closest('.edit-btn'))editItem(row.dataset.id);
+    if(e.target.closest('.delete-btn'))deleteItem(row.dataset.id);
+  });
+  document.body.addEventListener('dblclick',e=>{
+    const btn=e.target.closest('.status-pill');
+    if(!btn)return;
+    const item=state.items.find(i=>Number(i.id)===Number(btn.closest('.item-row').dataset.id));
+    if(!item)return;
+    item.status=item.status==='concluido'?'aberto':'concluido';
+    saveLocal();
+    renderAll();
+  });
+  window.addEventListener('beforeunload',e=>{
+    if(!syncPending)return;
+    e.preventDefault();
+    e.returnValue='Ainda existe alteracao pendente de sincronizacao.';
+  });
+}
+function init(){
+  $('#monthFilter').value=new Date().toISOString().slice(0,7);
+  bind();
+  clearForm();
+  renderAll();
+  syncReady=true;
+  setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local',syncPending?'pending':'');
+  if(syncUrl)syncFromCloud();
+}
+init();
+});
+</script>
+</body>
+</html>
