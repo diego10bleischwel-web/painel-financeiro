@@ -1,11 +1,18 @@
-# Controle Online
+# Controle de Criativos
 
-Controle simples em HTML para GitHub Pages, no estilo do `painel-financeiro`, com estado local e sincronizacao online via Google Sheets + Apps Script.
+Controle em HTML para GitHub Pages, no estilo do `painel-financeiro`, com quadro tipo Trello, clientes separados, cards de criativos, planejador em calendario e sincronizacao online via Google Sheets + Apps Script.
 
 ## Arquivos
 
 - `index.html`: aplicacao inteira, pronta para GitHub Pages.
 - `apps-script.gs`: backend do Google Apps Script, salvando o JSON na aba oculta `state`.
+
+## Uso
+
+- `Quadro`: clientes separados, colunas horizontais e cards arrastaveis.
+- `Planejador`: calendario mensal com tarefas por dia.
+- `Clientes`: cria e edita quadros separados por cliente.
+- Em cada criativo, cole o link do anuncio rodando. Para mostrar imagem/video dentro do card, cole tambem uma URL direta da midia ou thumbnail.
 
 ## Configurar sync
 

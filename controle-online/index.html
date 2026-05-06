@@ -3,96 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle Online</title>
+<title>Controle de Criativos</title>
 <style>
-:root{--bg:#f5f2ee;--card:#fff;--text:#2f2f2f;--muted:#7c756f;--line:#e4ddd6;--dark:#303030;--brown:#815d46;--brown-soft:#efe6df;--green:#e7f6ed;--green-text:#257247;--yellow:#fff4d2;--yellow-text:#9a6a00;--orange:#ffe5cf;--orange-text:#a34f12;--red:#ffe3e1;--red-text:#b42318;--blue:#e7eef7;--blue-text:#34506d;--shadow:0 18px 45px rgba(47,47,47,.08)}
+:root{--bg:#dfeeff;--app:#f7f9fc;--card:#fff;--text:#1f2937;--muted:#667085;--line:#d8dee8;--dark:#253042;--blue:#2563eb;--blue-soft:#e8f1ff;--brown:#815d46;--brown-soft:#efe6df;--green:#dff8e9;--green-text:#237247;--yellow:#fff0be;--yellow-text:#946300;--orange:#ffd59b;--orange-text:#9a4b00;--red:#ffe0dd;--red-text:#b42318;--teal:#c8f0f8;--teal-text:#166579;--purple:#eee4ff;--purple-text:#6941c6;--shadow:0 16px 42px rgba(31,41,55,.12)}
 *{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
-body{margin:0;background:var(--bg);color:var(--text)}
-.app{max-width:1180px;margin:auto;padding:30px 22px 80px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}
-.brand small{letter-spacing:2px;text-transform:uppercase;color:var(--brown);font-weight:900;font-size:11px}
-h1{margin:6px 0 0;font-size:44px;line-height:1}
-.topbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:11px 16px;box-shadow:var(--shadow);font-weight:900;display:flex;gap:8px;align-items:center}
-.pill input,.pill select{border:0;background:transparent;outline:0;font-weight:900;color:var(--text);font-size:14px;max-width:190px}
-.sync-pending{background:var(--yellow);color:var(--yellow-text);border-color:#ecd38b}
-.sync-error{background:var(--red);color:var(--red-text);border-color:#f1b5ae}
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
-.kpi{border-radius:22px;padding:18px 20px;box-shadow:var(--shadow);border:1px solid var(--line);min-height:122px;display:flex;flex-direction:column;justify-content:center;background:#fff}
-.kpi span{font-size:13px;font-weight:850;margin-bottom:10px;color:var(--muted)}
-.kpi strong{font-size:25px;line-height:1.1}
-.kpi small{font-size:12px;font-weight:900;margin-top:10px;color:var(--muted)}
-.kpi-green{background:linear-gradient(135deg,#fff,#e3f6ea);border-color:#acdcbc}.kpi-green strong{color:var(--green-text)}
-.kpi-red{background:linear-gradient(135deg,#fff,#ffe6e3);border-color:#f1b5ae}.kpi-red strong{color:var(--red-text)}
-.kpi-yellow{background:linear-gradient(135deg,#fff,#fff4d2);border-color:#ecd38b}.kpi-yellow strong{color:var(--yellow-text)}
-.kpi-blue{background:linear-gradient(135deg,#fff,#e7eef7);border-color:#b9cade}.kpi-blue strong{color:var(--blue-text)}
-.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;align-items:start}
-.card{background:#fff;border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);overflow:hidden}
-.card-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 22px;border-bottom:1px solid var(--line)}
-.card-head h2{margin:0;font-size:23px}.card-head p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
-.btn{border:0;background:var(--dark);color:#fff;border-radius:999px;padding:12px 16px;font-weight:900;cursor:pointer}
-.btn.soft{background:var(--brown-soft);color:var(--brown)}.btn:disabled{opacity:.45;cursor:not-allowed}
-.filters{display:flex;gap:8px;flex-wrap:wrap}.filter-select{border:1px solid var(--line);border-radius:999px;padding:9px 12px;font-weight:850;background:#fff;color:var(--muted);font-size:12px;outline:none}
-.list{padding:14px 18px 18px;display:grid;gap:10px}
-.item-row{position:relative;display:grid;grid-template-columns:1fr 92px 132px 112px;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 50px 14px 16px;min-height:82px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-.item-row:hover,.card:hover,.kpi:hover{transform:translateY(-2px);box-shadow:0 22px 52px rgba(47,47,47,.11)}
-.name strong{display:block;font-size:16px}.name small{display:block;margin-top:4px;color:var(--muted);font-size:11px;font-weight:800}
-.date{background:#f8f5f1;border:1px solid var(--line);border-radius:14px;padding:7px 10px;text-align:center;font-weight:950;font-size:15px}
-.value{font-weight:950;text-align:right}.value.negative{color:var(--red-text)}.value.positive{color:var(--green-text)}
-.status-pill{border:0;border-radius:999px;padding:10px 12px;font-size:12px;font-weight:950;cursor:pointer;text-align:center;width:100%;white-space:nowrap}
-.status-pill.aberto{background:var(--yellow);color:var(--yellow-text)}.status-pill.concluido{background:var(--green);color:var(--green-text)}.status-pill.cancelado{background:var(--red);color:var(--red-text)}
-.row-tools{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:5px}.icon-btn{width:28px;height:28px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}.icon-btn:hover{background:var(--blue);color:var(--blue-text)}
-.form{padding:20px;display:grid;gap:12px}.form label{display:block;font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;margin-bottom:6px}.form input,.form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;font-weight:850;outline:0}.form textarea{min-height:88px;resize:vertical}.form .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.note{padding:18px 20px;color:var(--muted);line-height:1.5;font-size:14px}.suggestion{background:var(--brown-soft);color:var(--brown);font-weight:850;line-height:1.45;border-radius:18px;padding:15px;margin:18px 20px}
-.empty{padding:28px;color:var(--muted);font-weight:850;text-align:center}
-@media(max-width:900px){.app{padding:22px 12px 70px}header{flex-direction:column}h1{font-size:34px}.topbar,.pill{width:100%}.summary,.grid,.form .row{grid-template-columns:1fr}.item-row{grid-template-columns:1fr 86px;padding-right:48px}.item-row .value,.item-row .status-pill{grid-column:1/3}.pill input,.pill select{max-width:100%;width:100%}}
+body{margin:0;background:var(--bg);color:var(--text);overflow:hidden}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{height:100vh;display:grid;grid-template-rows:auto auto 1fr;background:linear-gradient(180deg,#eef6ff,#dcecff)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px;background:rgba(255,255,255,.82);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:12px;min-width:260px}.logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:grid;place-items:center;font-weight:950;font-size:22px}.brand h1{font-size:19px;margin:0}.brand small{display:block;color:var(--muted);font-weight:850;margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 13px;font-weight:900;display:flex;align-items:center;gap:8px;box-shadow:0 10px 28px rgba(31,41,55,.08)}.pill select,.pill input{border:0;outline:0;background:transparent;font-weight:900;color:var(--text);max-width:210px}.sync-pending{background:var(--yellow);color:var(--yellow-text);border-color:#e6ca77}.sync-error{background:var(--red);color:var(--red-text);border-color:#f1b5ae}
+.tabs{display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(223,238,255,.88);border-bottom:1px solid rgba(216,222,232,.75)}.tab{border:1px solid transparent;background:transparent;color:#344054;border-radius:999px;padding:9px 14px;font-weight:950}.tab.active{background:#fff;border-color:var(--line);box-shadow:0 10px 24px rgba(31,41,55,.1);color:var(--blue)}
+.workspace{min-height:0;display:grid;grid-template-columns:1fr 360px;gap:14px;padding:14px 18px 18px}.main{min-width:0;min-height:0}.side{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;min-height:0}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.toolbar h2{margin:0;font-size:22px}.toolbar p{margin:4px 0 0;color:var(--muted);font-size:13px;font-weight:800}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;background:var(--dark);color:#fff;border-radius:999px;padding:11px 14px;font-weight:950}.btn.soft{background:#fff;color:var(--dark);border:1px solid var(--line)}.btn.blue{background:var(--blue)}.btn.warn{background:var(--brown-soft);color:var(--brown)}
+.board{height:calc(100vh - 164px);display:flex;gap:12px;overflow:auto;padding-bottom:14px;scrollbar-color:#aac7e8 transparent}.column{flex:0 0 285px;background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;max-height:100%;box-shadow:0 14px 32px rgba(31,41,55,.08)}.column.drag-over{outline:3px solid rgba(37,99,235,.25)}.col-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--line)}.col-title{font-weight:950;font-size:13px;text-transform:uppercase;letter-spacing:.2px}.count{background:#eef2f7;border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px;font-weight:950}.cards{padding:10px;display:grid;gap:10px;overflow:auto;min-height:90px}.add-card{margin:0 10px 10px;border:1px dashed #b9c4d5;background:#fff;border-radius:10px;padding:10px;color:var(--muted);font-weight:900;text-align:left}
+.creative{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 22px rgba(31,41,55,.08);overflow:hidden}.creative.dragging{opacity:.55}.cover{height:132px;background:#eef2f7;display:grid;place-items:center;color:var(--muted);font-size:12px;font-weight:900;overflow:hidden}.cover img,.cover video{width:100%;height:100%;object-fit:cover;display:block}.cover .play{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;display:grid;place-items:center;font-size:18px}.creative-body{padding:10px;display:grid;gap:8px}.creative-title{font-weight:950;line-height:1.25}.meta{display:flex;gap:6px;flex-wrap:wrap}.tag{border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;background:#eef2f7;color:#475467}.tag.hot{background:var(--orange);color:var(--orange-text)}.tag.cold{background:var(--teal);color:var(--teal-text)}.tag.done{background:var(--green);color:var(--green-text)}.tag.stop{background:var(--red);color:var(--red-text)}.small{font-size:12px;color:var(--muted);font-weight:800;line-height:1.35}.card-actions{display:flex;justify-content:space-between;gap:8px}.link{color:var(--blue);font-weight:950;text-decoration:none;font-size:12px}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px}
+.panel-head{padding:18px 18px 12px;border-bottom:1px solid var(--line)}.panel-head h3{margin:0;font-size:20px}.panel-head p{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:800;line-height:1.35}.form{padding:16px;display:grid;gap:12px;overflow:auto;max-height:calc(100vh - 190px)}.form label{display:block;font-size:11px;color:var(--muted);font-weight:950;text-transform:uppercase;margin-bottom:6px}.form input,.form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff;outline:0;font-weight:850}.form textarea{min-height:82px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hint{background:var(--brown-soft);color:var(--brown);border-radius:14px;padding:12px;font-size:13px;font-weight:850;line-height:1.4}.preview-box{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#f8fafc;min-height:160px;display:grid;place-items:center;color:var(--muted);font-size:13px;font-weight:850}.preview-box img,.preview-box video,.preview-box iframe{width:100%;height:220px;object-fit:cover;border:0}.panel-actions{display:flex;gap:8px;flex-wrap:wrap}.danger{background:var(--red);color:var(--red-text)}
+.planner{height:calc(100vh - 164px);display:grid;grid-template-columns:1fr 310px;gap:14px}.calendar{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-rows:auto 1fr}.cal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-bottom:1px solid var(--line)}.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);min-height:0}.weekday{background:#f8fafc;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px;font-size:12px;font-weight:950;text-align:center}.day{min-height:118px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px;background:#fff;display:flex;flex-direction:column;gap:6px}.day.other{background:#f8fafc;color:#98a2b3}.day.today{background:#eaf3ff;outline:2px solid #2f80ed;outline-offset:-2px}.day-num{font-weight:950;font-size:13px}.task{border:1px solid var(--line);background:#fff;border-left:5px solid var(--blue);border-radius:8px;padding:7px;font-size:12px;font-weight:900;box-shadow:0 6px 14px rgba(31,41,55,.08)}.task.done{border-left-color:var(--green-text);opacity:.78}.task.dragging{opacity:.55}.task-time{display:block;color:var(--muted);font-size:11px;margin-top:2px}.agenda{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}.agenda-list{padding:12px;display:grid;gap:9px;overflow:auto}.agenda-empty{padding:18px;color:var(--muted);font-weight:850;text-align:center}
+.clients{height:calc(100vh - 164px);display:grid;grid-template-columns:1fr 360px;gap:14px}.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;align-content:start;overflow:auto}.client-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.client-banner{height:74px;background:linear-gradient(135deg,#dbeafe,#c7d2fe)}.client-body{padding:14px}.client-body h3{margin:0 0 6px}.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hidden{display:none!important}
+@media(max-width:980px){body{overflow:auto}.app{height:auto;min-height:100vh}.workspace,.planner,.clients{grid-template-columns:1fr;height:auto}.side{min-height:500px}.board{height:70vh}.top,.toolbar,.cal-head{align-items:flex-start;flex-direction:column}.top-actions,.actions,.pill{width:100%}.pill select,.pill input{max-width:100%;width:100%}.summary{grid-template-columns:1fr}.row{grid-template-columns:1fr}.column{flex-basis:270px}.cal-grid{min-width:820px}.calendar{overflow:auto}}
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="brand"><small>controle online</small><h1>Controle Online</h1></div>
-    <div class="topbar">
+  <header class="top">
+    <div class="brand"><div class="logo">T</div><div><h1>Controle de Criativos</h1><small>Clientes, criativos, publicos e tarefas</small></div></div>
+    <div class="top-actions">
       <button class="pill" id="syncBtn" type="button">Sync: <span id="syncStatus">local</span></button>
-      <div class="pill">Filtro <select id="statusFilter"><option value="todos">Todos</option><option value="aberto">Abertos</option><option value="concluido">Concluidos</option><option value="cancelado">Cancelados</option></select></div>
-      <div class="pill">Mes <input id="monthFilter" type="month"></div>
+      <div class="pill">Cliente <select id="clientSelect"></select></div>
+      <button class="btn blue" id="quickCardBtn" type="button">+ Criativo</button>
     </div>
   </header>
+  <nav class="tabs">
+    <button class="tab active" data-view="board">Quadro</button>
+    <button class="tab" data-view="planner">Planejador</button>
+    <button class="tab" data-view="clients">Clientes</button>
+  </nav>
 
-  <section class="summary">
-    <div class="kpi kpi-yellow"><span>Itens abertos</span><strong id="openCount">0</strong><small>pendentes de acao</small></div>
-    <div class="kpi kpi-green"><span>Concluidos</span><strong id="doneCount">0</strong><small>finalizados no filtro</small></div>
-    <div class="kpi kpi-blue"><span>Total previsto</span><strong id="totalValue">R$ 0,00</strong><small>soma dos itens ativos</small></div>
-    <div class="kpi kpi-red"><span>Cancelados</span><strong id="cancelCount">0</strong><small>fora do total previsto</small></div>
+  <section id="boardView" class="workspace">
+    <main class="main">
+      <div class="toolbar">
+        <div><h2 id="boardTitle">Quadro</h2><p>Arraste cards entre colunas para controlar o que esta rodando, o que precisa subir e o que ja rodou.</p></div>
+        <div class="actions"><button class="btn soft" id="newClientBtn" type="button">+ Cliente</button><button class="btn warn" id="seedBtn" type="button">Modelo rapido</button></div>
+      </div>
+      <div class="board" id="board"></div>
+    </main>
+    <aside class="side" id="creativePanel"></aside>
   </section>
 
-  <section class="grid">
-    <div class="card">
-      <div class="card-head">
-        <div><h2>Itens do controle</h2><p>Use dois cliques no status para alternar entre aberto e concluido.</p></div>
-        <button class="btn" id="newBtn" type="button">+ Novo item</button>
+  <section id="plannerView" class="workspace hidden">
+    <main class="main planner">
+      <div class="calendar">
+        <div class="cal-head">
+          <div><h2 id="monthTitle">Planejador</h2><p class="small">Arraste tarefas entre os dias ou clique em um dia para criar lembrete.</p></div>
+          <div class="actions"><button class="btn soft" id="prevMonth" type="button">&lt;</button><button class="btn soft" id="todayBtn" type="button">Hoje</button><button class="btn soft" id="nextMonth" type="button">&gt;</button><button class="btn blue" id="newTaskBtn" type="button">+ Tarefa</button></div>
+        </div>
+        <div class="cal-grid" id="calendarGrid"></div>
       </div>
-      <div class="list" id="itemList"></div>
-    </div>
+      <aside class="agenda">
+        <div class="panel-head"><h3>Agenda do dia</h3><p id="selectedDateLabel">Selecione um dia no calendario.</p></div>
+        <div class="agenda-list" id="agendaList"></div>
+      </aside>
+    </main>
+    <aside class="side" id="taskPanel"></aside>
+  </section>
 
-    <aside class="card">
-      <div class="card-head"><div><h2 id="formTitle">Novo item</h2><p>Campos simples para adaptar ao seu controle.</p></div></div>
-      <div class="form">
-        <input id="editingId" type="hidden">
-        <div><label>Descricao</label><input id="descInput" placeholder="Ex.: Renovar contrato"></div>
-        <div class="row">
-          <div><label>Categoria</label><input id="categoryInput" placeholder="Ex.: Cliente, tarefa, compra"></div>
-          <div><label>Data</label><input id="dateInput" type="date"></div>
-        </div>
-        <div class="row">
-          <div><label>Valor</label><input id="valueInput" inputmode="decimal" placeholder="R$ 0,00"></div>
-          <div><label>Status</label><select id="statusInput"><option value="aberto">Aberto</option><option value="concluido">Concluido</option><option value="cancelado">Cancelado</option></select></div>
-        </div>
-        <div><label>Observacao</label><textarea id="noteInput" placeholder="Detalhes importantes"></textarea></div>
-        <button class="btn" id="saveBtn" type="button">Salvar item</button>
-        <button class="btn soft" id="clearBtn" type="button">Limpar formulario</button>
+  <section id="clientsView" class="workspace hidden">
+    <main class="main clients">
+      <div>
+        <div class="toolbar"><div><h2>Clientes</h2><p>Cada cliente tem seu proprio quadro, cards e planejamento.</p></div></div>
+        <div class="client-grid" id="clientGrid"></div>
       </div>
-      <div class="suggestion" id="syncHint">Sem URL de sync configurada. Clique em Sync para colar a URL do Apps Script.</div>
-    </aside>
+      <aside class="side" id="clientPanel"></aside>
+    </main>
   </section>
 </div>
 
@@ -100,18 +85,53 @@ h1{margin:6px 0 0;font-size:44px;line-height:1}
 document.addEventListener('DOMContentLoaded',()=>{
 const $=s=>document.querySelector(s);
 const $$=s=>Array.from(document.querySelectorAll(s));
-const STORAGE_KEY='controleOnlineState.v1';
-const SYNC_URL_KEY='controleOnlineSyncUrl.v1';
-const PENDING_SYNC_KEY='controleOnlineSyncPending.v1';
-const defaultState={items:[],nextId:1,lastSync:0};
+const STORAGE_KEY='criativosState.v2';
+const SYNC_URL_KEY='criativosSyncUrl.v2';
+const PENDING_SYNC_KEY='criativosSyncPending.v2';
+const columns=[
+  {id:'subir',title:'Criativos a subir'},
+  {id:'recomendacoes',title:'Recomendacoes'},
+  {id:'segunda',title:'Segunda-feira'},
+  {id:'terca',title:'Terca-feira'},
+  {id:'quarta',title:'Quarta-feira'},
+  {id:'quinta',title:'Quinta-feira'},
+  {id:'sexta',title:'Sexta-feira'},
+  {id:'sabado',title:'Sabado'},
+  {id:'domingo',title:'Domingo'},
+  {id:'rodados',title:'Criativos ja rodados'},
+  {id:'publico',title:'Melhor publico'}
+];
+const defaultState={version:2,clients:[{id:1,name:'Best MultiMarcas',note:'Lancamentos e estrategias de campanha'}],activeClientId:1,cards:[],tasks:[],nextClientId:2,nextCardId:1,nextTaskId:1,lastSync:0};
 let state=loadState();
 let syncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
 let syncTimer=null, syncReady=false, applyingRemote=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
+let activeView='board';
+let plannerDate=new Date();
+let selectedDate=isoDate(new Date());
+let openCardId=null;
+let openTaskId=null;
+let openClientId=null;
 
 function loadState(){
-  try{return {...defaultState,...JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')};}
-  catch(e){return {...defaultState};}
+  try{
+    const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+    if(raw.version===2)return normalizeState(raw);
+  }catch(e){}
+  return normalizeState({...defaultState});
 }
+function normalizeState(data){
+  const clients=Array.isArray(data.clients)&&data.clients.length?data.clients:[...defaultState.clients];
+  const cards=Array.isArray(data.cards)?data.cards:[];
+  const tasks=Array.isArray(data.tasks)?data.tasks:[];
+  return {
+    ...defaultState,...data,version:2,clients,cards,tasks,
+    activeClientId:clients.some(c=>Number(c.id)===Number(data.activeClientId))?Number(data.activeClientId):Number(clients[0].id),
+    nextClientId:Number(data.nextClientId)||maxId(clients)+1,
+    nextCardId:Number(data.nextCardId)||maxId(cards)+1,
+    nextTaskId:Number(data.nextTaskId)||maxId(tasks)+1
+  };
+}
+function maxId(list){return list.reduce((m,x)=>Math.max(m,Number(x.id)||0),0)||0;}
 function saveLocal(){
   if(applyingRemote)return;
   state.lastSync=Date.now();
@@ -119,37 +139,247 @@ function saveLocal(){
   setSyncPending(true);
   scheduleCloudSave();
 }
-function br(v){return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
-function parseMoney(v){
-  const s=String(v||'').replace(/[^\d,-]/g,'').replace(/\./g,'').replace(',','.');
-  return Number(s)||0;
+function currentClient(){return state.clients.find(c=>Number(c.id)===Number(state.activeClientId))||state.clients[0];}
+function cardsFor(columnId){return state.cards.filter(c=>Number(c.clientId)===Number(state.activeClientId)&&c.columnId===columnId).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0)||Number(a.id)-Number(b.id));}
+function tasksFor(date){return state.tasks.filter(t=>Number(t.clientId)===Number(state.activeClientId)&&t.date===date).sort((a,b)=>String(a.time||'').localeCompare(String(b.time||''))||Number(a.id)-Number(b.id));}
+function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function isoDate(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10);}
+function monthLabel(d){return d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}
+function dateLabel(iso){return iso?new Date(iso+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit'}):'';}
+function isMedia(url,type){if(!url)return false;return type==='video'?/\.(mp4|webm|ogg)(\?|$)/i.test(url):/\.(png|jpe?g|gif|webp|avif)(\?|$)/i.test(url);}
+function cardMedia(card){
+  const url=(card.mediaUrl||card.link||'').trim();
+  if(!url)return '<div class="cover">Sem preview<br>Cole a URL da imagem/video</div>';
+  if(isMedia(url,'video'))return `<div class="cover"><video src="${escapeHtml(url)}" muted controls></video></div>`;
+  if(isMedia(url,'image'))return `<div class="cover"><img src="${escapeHtml(url)}" alt=""></div>`;
+  return '<div class="cover"><div class="play">></div></div>';
 }
-function moneyInput(v){return br(v);}
-function fmtDate(iso){
-  if(!iso)return '-';
-  const [y,m,d]=iso.split('-');
-  return d&&m?`${d}/${m}`:iso;
+function panelPreview(card){
+  const url=(card.mediaUrl||card.link||'').trim();
+  if(!url)return 'Preview da midia';
+  if(isMedia(url,'video'))return `<video src="${escapeHtml(url)}" controls></video>`;
+  if(isMedia(url,'image'))return `<img src="${escapeHtml(url)}" alt="">`;
+  return '<div>Link salvo. Para preview visual, cole uma URL direta de imagem ou video.</div>';
+}
+function statusTag(card){
+  const st=card.status||'rodando';
+  const cls=st==='quente'?'hot':st==='frio'?'cold':st==='validado'?'done':st==='pausado'?'stop':'';
+  return `<span class="tag ${cls}">${escapeHtml(st.toUpperCase())}</span>`;
+}
+function renderClients(){
+  $('#clientSelect').innerHTML=state.clients.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  $('#clientSelect').value=String(state.activeClientId);
+  const client=currentClient();
+  $('#boardTitle').textContent=client?client.name:'Quadro';
+  $('#clientGrid').innerHTML=state.clients.map(c=>{
+    const total=state.cards.filter(x=>Number(x.clientId)===Number(c.id)).length;
+    const tasks=state.tasks.filter(x=>Number(x.clientId)===Number(c.id)&&x.status!=='feito').length;
+    return `<button class="client-card" data-client="${c.id}" type="button">
+      <div class="client-banner"></div><div class="client-body"><h3>${escapeHtml(c.name)}</h3><p class="small">${escapeHtml(c.note||'Sem observacao')}</p><div class="stats"><span class="tag">${total} cards</span><span class="tag hot">${tasks} tarefas</span></div></div>
+    </button>`;
+  }).join('');
+}
+function renderBoard(){
+  renderClients();
+  $('#board').innerHTML=columns.map(col=>{
+    const list=cardsFor(col.id);
+    return `<section class="column" data-column="${col.id}">
+      <div class="col-head"><div class="col-title">${escapeHtml(col.title)}</div><span class="count">${list.length}</span></div>
+      <div class="cards">${list.map(renderCard).join('')}</div>
+      <button class="add-card" data-add-column="${col.id}" type="button">+ Adicionar card</button>
+    </section>`;
+  }).join('');
+  if(!openCardId)renderCreativePanel();
+}
+function renderCard(card){
+  return `<article class="creative" draggable="true" data-card="${card.id}">
+    ${cardMedia(card)}
+    <div class="creative-body">
+      <div class="creative-title">${escapeHtml(card.title||'Novo criativo')}</div>
+      <div class="meta">${statusTag(card)}<span class="tag">${escapeHtml(card.audience||'Publico')}</span></div>
+      <div class="small">${escapeHtml(card.note||'')}</div>
+      <div class="card-actions"><button class="mini-btn edit-card" type="button">Editar</button>${card.link?`<a class="link" href="${escapeHtml(card.link)}" target="_blank" rel="noreferrer">Abrir link</a>`:''}</div>
+    </div>
+  </article>`;
+}
+function renderCreativePanel(card){
+  const c=card||state.cards.find(x=>Number(x.id)===Number(openCardId));
+  const existing=!!(c&&c.id);
+  $('#creativePanel').innerHTML=`<div class="panel-head"><h3>${existing?'Editar criativo':'Novo criativo'}</h3><p>Cadastre link do anuncio, URL da midia para preview, publico, status e observacoes.</p></div>
+  <div class="form">
+    <input id="cardId" type="hidden" value="${existing?c.id:''}">
+    <div><label>Titulo</label><input id="cardTitle" value="${escapeHtml(c?.title||'')}" placeholder="Ex.: Video bolo no pote"></div>
+    <div class="row"><div><label>Coluna</label><select id="cardColumn">${columns.map(col=>`<option value="${col.id}" ${c?.columnId===col.id?'selected':''}>${escapeHtml(col.title)}</option>`).join('')}</select></div><div><label>Status</label><select id="cardStatus">${['rodando','quente','frio','validado','pausado'].map(s=>`<option ${c?.status===s?'selected':''}>${s}</option>`).join('')}</select></div></div>
+    <div><label>Publico</label><input id="cardAudience" value="${escapeHtml(c?.audience||'')}" placeholder="Ex.: Publico semelhantes"></div>
+    <div><label>Link do criativo rodando</label><input id="cardLink" value="${escapeHtml(c?.link||'')}" placeholder="https://..."></div>
+    <div><label>URL da imagem ou video para aparecer no card</label><input id="cardMedia" value="${escapeHtml(c?.mediaUrl||'')}" placeholder="https://...jpg ou ...mp4"></div>
+    <div id="livePreview" class="preview-box">${c?panelPreview(c):'Preview da midia'}</div>
+    <div><label>Observacoes</label><textarea id="cardNote" placeholder="Gancho, verba, criativo, resultado...">${escapeHtml(c?.note||'')}</textarea></div>
+    <div class="hint">Para Instagram/TikTok, cole o link em "Link do criativo". Para ver a imagem/video dentro do quadro, cole tambem a URL direta da midia ou thumbnail.</div>
+    <div class="panel-actions"><button class="btn blue" id="saveCardBtn" type="button">Salvar criativo</button>${existing?'<button class="btn danger" id="deleteCardBtn" type="button">Excluir</button>':''}<button class="btn soft" id="clearCardBtn" type="button">Limpar</button></div>
+  </div>`;
+  bindCardForm();
+}
+function bindCardForm(){
+  $('#saveCardBtn').onclick=saveCard;
+  $('#clearCardBtn').onclick=()=>{openCardId=null;renderCreativePanel();};
+  const del=$('#deleteCardBtn'); if(del)del.onclick=deleteCard;
+  ['cardMedia','cardLink'].forEach(id=>$('#'+id).oninput=()=>{
+    const tmp={mediaUrl:$('#cardMedia').value,link:$('#cardLink').value};
+    $('#livePreview').innerHTML=panelPreview(tmp);
+  });
+}
+function saveCard(){
+  const id=$('#cardId').value?Number($('#cardId').value):state.nextCardId++;
+  const existing=state.cards.find(c=>Number(c.id)===id);
+  const columnId=$('#cardColumn').value;
+  const order=existing?existing.order:cardsFor(columnId).length;
+  const card={...(existing||{}),id,clientId:state.activeClientId,columnId,order,title:$('#cardTitle').value.trim()||'Novo criativo',status:$('#cardStatus').value,audience:$('#cardAudience').value.trim(),link:$('#cardLink').value.trim(),mediaUrl:$('#cardMedia').value.trim(),note:$('#cardNote').value.trim()};
+  const idx=state.cards.findIndex(c=>Number(c.id)===id);
+  if(idx>=0)state.cards[idx]=card; else state.cards.push(card);
+  openCardId=id;
+  saveLocal(); renderBoard(); renderCreativePanel(card);
+}
+function deleteCard(){
+  if(!confirm('Excluir este criativo?'))return;
+  const id=Number($('#cardId').value);
+  state.cards=state.cards.filter(c=>Number(c.id)!==id);
+  openCardId=null;
+  saveLocal(); renderBoard(); renderCreativePanel();
+}
+function moveCard(cardId,columnId,targetId){
+  const card=state.cards.find(c=>Number(c.id)===Number(cardId)); if(!card)return;
+  card.columnId=columnId;
+  const list=state.cards.filter(c=>Number(c.clientId)===Number(state.activeClientId)&&c.columnId===columnId&&Number(c.id)!==Number(cardId)).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0));
+  const pos=targetId?Math.max(0,list.findIndex(c=>Number(c.id)===Number(targetId))):list.length;
+  list.splice(pos,0,card);
+  list.forEach((c,i)=>c.order=i);
+  saveLocal(); renderBoard();
+}
+function renderPlanner(){
+  renderClients();
+  $('#monthTitle').textContent=monthLabel(plannerDate);
+  const start=new Date(plannerDate.getFullYear(),plannerDate.getMonth(),1);
+  const gridStart=new Date(start); gridStart.setDate(start.getDate()-start.getDay());
+  const names=['dom.','seg.','ter.','qua.','qui.','sex.','sab.'];
+  let html=names.map(n=>`<div class="weekday">${n}</div>`).join('');
+  for(let i=0;i<42;i++){
+    const d=new Date(gridStart); d.setDate(gridStart.getDate()+i);
+    const iso=isoDate(d);
+    const other=d.getMonth()!==plannerDate.getMonth();
+    const today=iso===isoDate(new Date());
+    html+=`<div class="day ${other?'other':''} ${today?'today':''}" data-date="${iso}"><div class="day-num">${d.getDate()}</div>${tasksFor(iso).slice(0,4).map(renderTaskMini).join('')}</div>`;
+  }
+  $('#calendarGrid').innerHTML=html;
+  renderAgenda();
+  if(!openTaskId)renderTaskPanel();
+}
+function renderTaskMini(t){return `<div class="task ${t.status==='feito'?'done':''}" draggable="true" data-task="${t.id}">${escapeHtml(t.title)}${t.time?`<span class="task-time">${escapeHtml(t.time)}</span>`:''}</div>`;}
+function renderAgenda(){
+  $('#selectedDateLabel').textContent=dateLabel(selectedDate);
+  const list=tasksFor(selectedDate);
+  $('#agendaList').innerHTML=list.length?list.map(t=>`<div class="task ${t.status==='feito'?'done':''}" data-task-open="${t.id}"><b>${escapeHtml(t.title)}</b>${t.time?`<span class="task-time">${escapeHtml(t.time)}</span>`:''}<div class="small">${escapeHtml(t.note||'')}</div></div>`).join(''):'<div class="agenda-empty">Nenhuma tarefa neste dia.</div>';
+}
+function renderTaskPanel(task){
+  const t=task||state.tasks.find(x=>Number(x.id)===Number(openTaskId));
+  $('#taskPanel').innerHTML=`<div class="panel-head"><h3>${t?'Editar tarefa':'Nova tarefa'}</h3><p>Lance afazeres do dia a dia e deixe salvo no sync do Google.</p></div>
+  <div class="form">
+    <input id="taskId" type="hidden" value="${t?t.id:''}">
+    <div><label>Tarefa</label><input id="taskTitle" value="${escapeHtml(t?.title||'')}" placeholder="Ex.: Subir criativos de terca"></div>
+    <div class="row"><div><label>Data</label><input id="taskDate" type="date" value="${escapeHtml(t?.date||selectedDate)}"></div><div><label>Hora</label><input id="taskTime" type="time" value="${escapeHtml(t?.time||'')}"></div></div>
+    <div class="row"><div><label>Status</label><select id="taskStatus"><option value="aberto" ${t?.status!=='feito'?'selected':''}>Aberto</option><option value="feito" ${t?.status==='feito'?'selected':''}>Feito</option></select></div><div><label>Tipo</label><select id="taskKind"><option ${t?.kind==='criativo'?'selected':''}>criativo</option><option ${t?.kind==='campanha'?'selected':''}>campanha</option><option ${t?.kind==='reuniao'?'selected':''}>reuniao</option><option ${t?.kind==='outro'?'selected':''}>outro</option></select></div></div>
+    <div><label>Observacao</label><textarea id="taskNote">${escapeHtml(t?.note||'')}</textarea></div>
+    <div class="panel-actions"><button class="btn blue" id="saveTaskBtn" type="button">Salvar tarefa</button>${t?'<button class="btn danger" id="deleteTaskBtn" type="button">Excluir</button>':''}<button class="btn soft" id="clearTaskBtn" type="button">Limpar</button></div>
+  </div>`;
+  $('#saveTaskBtn').onclick=saveTask;
+  $('#clearTaskBtn').onclick=()=>{openTaskId=null;renderTaskPanel();};
+  const del=$('#deleteTaskBtn'); if(del)del.onclick=deleteTask;
+}
+function saveTask(){
+  const id=$('#taskId').value?Number($('#taskId').value):state.nextTaskId++;
+  const existing=state.tasks.find(t=>Number(t.id)===id);
+  const task={...(existing||{}),id,clientId:state.activeClientId,title:$('#taskTitle').value.trim()||'Nova tarefa',date:$('#taskDate').value||selectedDate,time:$('#taskTime').value,status:$('#taskStatus').value,kind:$('#taskKind').value,note:$('#taskNote').value.trim()};
+  const idx=state.tasks.findIndex(t=>Number(t.id)===id);
+  if(idx>=0)state.tasks[idx]=task; else state.tasks.push(task);
+  selectedDate=task.date; openTaskId=id;
+  saveLocal(); renderPlanner(); renderTaskPanel(task);
+}
+function deleteTask(){
+  if(!confirm('Excluir esta tarefa?'))return;
+  const id=Number($('#taskId').value);
+  state.tasks=state.tasks.filter(t=>Number(t.id)!==id);
+  openTaskId=null;
+  saveLocal(); renderPlanner(); renderTaskPanel();
+}
+function renderClientPanel(client){
+  const c=client||state.clients.find(x=>Number(x.id)===Number(openClientId));
+  $('#clientPanel').innerHTML=`<div class="panel-head"><h3>${c?'Editar cliente':'Novo cliente'}</h3><p>Crie quadros separados para cada cliente, como no Trello.</p></div>
+  <div class="form">
+    <input id="clientId" type="hidden" value="${c?c.id:''}">
+    <div><label>Nome do cliente</label><input id="clientName" value="${escapeHtml(c?.name||'')}" placeholder="Ex.: Solido Sentimento"></div>
+    <div><label>Descricao</label><textarea id="clientNote">${escapeHtml(c?.note||'')}</textarea></div>
+    <div class="panel-actions"><button class="btn blue" id="saveClientBtn" type="button">Salvar cliente</button>${c&&state.clients.length>1?'<button class="btn danger" id="deleteClientBtn" type="button">Excluir</button>':''}</div>
+  </div>`;
+  $('#saveClientBtn').onclick=saveClient;
+  const del=$('#deleteClientBtn'); if(del)del.onclick=deleteClient;
+}
+function saveClient(){
+  const id=$('#clientId').value?Number($('#clientId').value):state.nextClientId++;
+  const client={id,name:$('#clientName').value.trim()||'Novo cliente',note:$('#clientNote').value.trim()};
+  const idx=state.clients.findIndex(c=>Number(c.id)===id);
+  if(idx>=0)state.clients[idx]=client; else state.clients.push(client);
+  state.activeClientId=id; openClientId=id;
+  saveLocal(); renderAll();
+}
+function deleteClient(){
+  if(!confirm('Excluir cliente e todos os cards/tarefas dele?'))return;
+  const id=Number($('#clientId').value);
+  state.clients=state.clients.filter(c=>Number(c.id)!==id);
+  state.cards=state.cards.filter(c=>Number(c.clientId)!==id);
+  state.tasks=state.tasks.filter(t=>Number(t.clientId)!==id);
+  state.activeClientId=state.clients[0].id; openClientId=null;
+  saveLocal(); renderAll();
+}
+function seedModel(){
+  if(!confirm('Adicionar um modelo de colunas/cards para este cliente?'))return;
+  const sample=[
+    ['subir','Rodar hoje','quente','Publico personalizado','https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=900'],
+    ['terca','Reconhecimento','frio','Publico semelhantes','https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=900'],
+    ['terca','Venda - oferta 2','quente','Publico interesse','https://images.unsplash.com/photo-1542838132-92c53300491e?w=900'],
+    ['publico','Manter - melhor PB','validado','Melhor publico','']
+  ];
+  sample.forEach((s,i)=>state.cards.push({id:state.nextCardId++,clientId:state.activeClientId,columnId:s[0],order:i,title:s[1],status:s[2],audience:s[3],mediaUrl:s[4],link:'',note:'Modelo rapido para adaptar.'}));
+  saveLocal(); renderBoard();
+}
+function setView(view){
+  activeView=view;
+  $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===view));
+  $('#boardView').classList.toggle('hidden',view!=='board');
+  $('#plannerView').classList.toggle('hidden',view!=='planner');
+  $('#clientsView').classList.toggle('hidden',view!=='clients');
+  renderAll();
+}
+function renderAll(){
+  renderClients();
+  if(activeView==='board')renderBoard();
+  if(activeView==='planner')renderPlanner();
+  if(activeView==='clients'){renderClients();renderClientPanel(state.clients.find(c=>Number(c.id)===Number(openClientId)));}
+  setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync salvo '+syncTime(state.lastSync||Date.now())):'Sync local',syncPending?'pending':'');
 }
 function syncTime(ts=Date.now()){return new Date(ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
-function syncSavedLabel(ts=Date.now()){return 'Sync salvo '+syncTime(ts);}
 function setSyncStatus(text,mode=''){
-  $('#syncStatus').textContent=text;
+  $('#syncStatus').textContent=text.replace('Sync ','');
   $('#syncBtn').classList.toggle('sync-pending',mode==='pending');
   $('#syncBtn').classList.toggle('sync-error',mode==='error');
-  $('#syncHint').textContent=syncUrl?(syncPending?'Existe sync pendente. Clique em Sync para tentar salvar agora.':'Sincronizacao online conectada.'):'Sem URL de sync configurada. Clique em Sync para colar a URL do Apps Script.';
 }
 function setSyncPending(pending){
   syncPending=!!pending;
   if(syncPending)localStorage.setItem(PENDING_SYNC_KEY,'1'); else localStorage.removeItem(PENDING_SYNC_KEY);
   if(syncReady&&syncPending)setSyncStatus('Sync pendente','pending');
 }
-function normalizeRemote(data){
-  if(!data||!Array.isArray(data.items))return null;
-  return {...defaultState,...data,nextId:Number(data.nextId)||((data.items.reduce((m,i)=>Math.max(m,Number(i.id)||0),0))+1)};
-}
 function jsonp(url){
   return new Promise((resolve,reject)=>{
-    const cb='controleSync_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const cb='criativosSync_'+Date.now()+'_'+Math.random().toString(36).slice(2);
     const script=document.createElement('script');
     window[cb]=payload=>{cleanup();resolve(payload);};
     function cleanup(){delete window[cb];script.remove();}
@@ -163,19 +393,11 @@ async function syncFromCloud(){
   try{
     setSyncStatus('Sync baixando...');
     const res=await jsonp(syncUrl);
-    const remote=normalizeRemote(res.data);
+    const remote=res&&res.data?normalizeState(res.data):null;
     if(remote&&Number(remote.lastSync||0)>Number(state.lastSync||0)){
-      applyingRemote=true;
-      state=remote;
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
-      applyingRemote=false;
-      setSyncPending(false);
-      renderAll();
-      setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
-      return;
+      applyingRemote=true; state=remote; localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); applyingRemote=false; setSyncPending(false); renderAll(); return;
     }
-    if(syncPending)await saveCloudState();
-    else setSyncStatus(syncSavedLabel(Number(state.lastSync||Date.now())));
+    if(syncPending)await saveCloudState(); else setSyncStatus('Sync salvo '+syncTime(state.lastSync||Date.now()));
   }catch(err){console.warn(err);setSyncStatus('Sync erro','error');}
 }
 async function saveCloudState(){
@@ -187,17 +409,12 @@ async function saveCloudState(){
     const res=await fetch(syncUrl,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({data:payload})});
     const json=await res.json();
     if(!json.ok)throw new Error(json.error||'sync_failed');
-    state=normalizeRemote(json.data)||payload;
+    state=normalizeState(json.data||payload);
     localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
     setSyncPending(false);
     renderAll();
-    setSyncStatus(syncSavedLabel(Number(state.lastSync||Date.now())));
-  }catch(err){
-    console.warn(err);
-    setSyncPending(true);
-    setSyncStatus('Sync pendente','pending');
-    scheduleCloudSave(5000);
-  }
+    setSyncStatus('Sync salvo '+syncTime(state.lastSync||Date.now()));
+  }catch(err){console.warn(err);setSyncPending(true);setSyncStatus('Sync pendente','pending');scheduleCloudSave(5000);}
 }
 function scheduleCloudSave(delay=900){
   if(!syncReady||!syncUrl||applyingRemote)return;
@@ -205,8 +422,7 @@ function scheduleCloudSave(delay=900){
   syncTimer=setTimeout(saveCloudState,delay);
 }
 async function configureSync(){
-  const current=syncUrl||'';
-  const url=prompt('Cole a URL do Web App do Apps Script para sincronizar online:',current);
+  const url=prompt('Cole a URL do Web App do Apps Script para sincronizar online:',syncUrl||'');
   if(url===null)return;
   syncUrl=url.trim();
   if(syncUrl)localStorage.setItem(SYNC_URL_KEY,syncUrl); else localStorage.removeItem(SYNC_URL_KEY);
@@ -214,119 +430,46 @@ async function configureSync(){
   const sendLocal=confirm('Enviar os dados deste aparelho para a nuvem agora?\\n\\nOK envia local. Cancelar baixa o que estiver na planilha.');
   if(sendLocal){setSyncPending(true);await saveCloudState();} else await syncFromCloud();
 }
-function filteredItems(){
-  const status=$('#statusFilter').value;
-  const month=$('#monthFilter').value;
-  return state.items
-    .filter(i=>status==='todos'||i.status===status)
-    .filter(i=>!month||String(i.date||'').startsWith(month))
-    .sort((a,b)=>String(a.date||'9999').localeCompare(String(b.date||'9999'))||Number(a.id)-Number(b.id));
-}
-function renderList(){
-  const items=filteredItems();
-  $('#itemList').innerHTML=items.length?items.map(i=>{
-    const value=parseMoney(i.value);
-    const valueClass=value<0?'negative':'positive';
-    return `<div class="item-row" data-id="${i.id}">
-      <div class="name"><strong>${escapeHtml(i.desc||'Sem descricao')}</strong><small>${escapeHtml(i.category||'Sem categoria')}${i.note?' - '+escapeHtml(i.note):''}</small></div>
-      <div class="date">${fmtDate(i.date)}</div>
-      <div class="value ${valueClass}">${br(value)}</div>
-      <button class="status-pill ${i.status}" type="button">${labelStatus(i.status)}</button>
-      <div class="row-tools"><button class="icon-btn edit-btn" title="Editar" type="button">E</button><button class="icon-btn delete-btn" title="Excluir" type="button">X</button></div>
-    </div>`;
-  }).join(''):'<div class="empty">Nenhum item encontrado para o filtro atual.</div>';
-}
-function renderTotals(){
-  const items=filteredItems();
-  const active=items.filter(i=>i.status!=='cancelado');
-  $('#openCount').textContent=items.filter(i=>i.status==='aberto').length;
-  $('#doneCount').textContent=items.filter(i=>i.status==='concluido').length;
-  $('#cancelCount').textContent=items.filter(i=>i.status==='cancelado').length;
-  $('#totalValue').textContent=br(active.reduce((sum,i)=>sum+parseMoney(i.value),0));
-}
-function renderAll(){renderList();renderTotals();}
-function labelStatus(st){return st==='concluido'?'Concluido':st==='cancelado'?'Cancelado':'Aberto';}
-function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
-function formObj(){
-  return {
-    id:$('#editingId').value?Number($('#editingId').value):state.nextId++,
-    desc:$('#descInput').value.trim()||'Novo item',
-    category:$('#categoryInput').value.trim()||'Geral',
-    date:$('#dateInput').value,
-    value:moneyInput(parseMoney($('#valueInput').value)),
-    status:$('#statusInput').value,
-    note:$('#noteInput').value.trim()
-  };
-}
-function clearForm(){
-  $('#editingId').value='';
-  $('#formTitle').textContent='Novo item';
-  $('#descInput').value='';
-  $('#categoryInput').value='';
-  $('#dateInput').value=new Date().toISOString().slice(0,10);
-  $('#valueInput').value='';
-  $('#statusInput').value='aberto';
-  $('#noteInput').value='';
-}
-function saveItem(){
-  const item=formObj();
-  const idx=state.items.findIndex(i=>Number(i.id)===Number(item.id));
-  if(idx>=0)state.items[idx]={...state.items[idx],...item}; else state.items.push(item);
-  saveLocal();
-  clearForm();
-  renderAll();
-}
-function editItem(id){
-  const item=state.items.find(i=>Number(i.id)===Number(id));
-  if(!item)return;
-  $('#editingId').value=item.id;
-  $('#formTitle').textContent='Editar item';
-  $('#descInput').value=item.desc||'';
-  $('#categoryInput').value=item.category||'';
-  $('#dateInput').value=item.date||new Date().toISOString().slice(0,10);
-  $('#valueInput').value=item.value||'';
-  $('#statusInput').value=item.status||'aberto';
-  $('#noteInput').value=item.note||'';
-}
-function deleteItem(id){
-  if(!confirm('Excluir este item?'))return;
-  state.items=state.items.filter(i=>Number(i.id)!==Number(id));
-  saveLocal();
-  renderAll();
-}
 function bind(){
   $('#syncBtn').onclick=configureSync;
-  $('#newBtn').onclick=clearForm;
-  $('#saveBtn').onclick=saveItem;
-  $('#clearBtn').onclick=clearForm;
-  $('#statusFilter').onchange=renderAll;
-  $('#monthFilter').onchange=renderAll;
-  $('#valueInput').onblur=()=>{const v=parseMoney($('#valueInput').value);$('#valueInput').value=v?moneyInput(v):'';};
+  $('#clientSelect').onchange=()=>{state.activeClientId=Number($('#clientSelect').value);openCardId=null;openTaskId=null;saveLocal();renderAll();};
+  $$('.tab').forEach(t=>t.onclick=()=>setView(t.dataset.view));
+  $('#quickCardBtn').onclick=()=>{activeView='board';setView('board');openCardId=null;renderCreativePanel({columnId:'subir',status:'rodando',clientId:state.activeClientId});};
+  $('#newClientBtn').onclick=()=>{activeView='clients';setView('clients');openClientId=null;renderClientPanel();};
+  $('#seedBtn').onclick=seedModel;
+  $('#prevMonth').onclick=()=>{plannerDate.setMonth(plannerDate.getMonth()-1);renderPlanner();};
+  $('#nextMonth').onclick=()=>{plannerDate.setMonth(plannerDate.getMonth()+1);renderPlanner();};
+  $('#todayBtn').onclick=()=>{plannerDate=new Date();selectedDate=isoDate(new Date());renderPlanner();};
+  $('#newTaskBtn').onclick=()=>{openTaskId=null;renderTaskPanel();};
   document.body.addEventListener('click',e=>{
-    const row=e.target.closest('.item-row');
-    if(e.target.closest('.edit-btn'))editItem(row.dataset.id);
-    if(e.target.closest('.delete-btn'))deleteItem(row.dataset.id);
+    const add=e.target.closest('[data-add-column]'); if(add){openCardId=null;renderCreativePanel({columnId:add.dataset.addColumn,status:'rodando',clientId:state.activeClientId});}
+    const edit=e.target.closest('.edit-card'); if(edit){openCardId=Number(edit.closest('[data-card]').dataset.card);renderCreativePanel();}
+    const client=e.target.closest('[data-client]'); if(client){state.activeClientId=Number(client.dataset.client);openClientId=Number(client.dataset.client);saveLocal();renderAll();setView('board');}
+    const day=e.target.closest('.day'); if(day&&!e.target.closest('.task')){selectedDate=day.dataset.date;openTaskId=null;renderPlanner();renderTaskPanel();}
+    const taskOpen=e.target.closest('[data-task-open]'); if(taskOpen){openTaskId=Number(taskOpen.dataset.taskOpen);renderTaskPanel();}
   });
-  document.body.addEventListener('dblclick',e=>{
-    const btn=e.target.closest('.status-pill');
-    if(!btn)return;
-    const item=state.items.find(i=>Number(i.id)===Number(btn.closest('.item-row').dataset.id));
-    if(!item)return;
-    item.status=item.status==='concluido'?'aberto':'concluido';
-    saveLocal();
-    renderAll();
+  document.body.addEventListener('dragstart',e=>{
+    const card=e.target.closest('[data-card]'); if(card){card.classList.add('dragging');e.dataTransfer.setData('card',card.dataset.card);}
+    const task=e.target.closest('[data-task]'); if(task){task.classList.add('dragging');e.dataTransfer.setData('task',task.dataset.task);}
   });
-  window.addEventListener('beforeunload',e=>{
-    if(!syncPending)return;
-    e.preventDefault();
-    e.returnValue='Ainda existe alteracao pendente de sincronizacao.';
+  document.body.addEventListener('dragend',e=>{$$('.dragging').forEach(x=>x.classList.remove('dragging'));});
+  document.body.addEventListener('dragover',e=>{if(e.target.closest('.column')||e.target.closest('.day'))e.preventDefault();});
+  document.body.addEventListener('drop',e=>{
+    const cardId=e.dataTransfer.getData('card');
+    const taskId=e.dataTransfer.getData('task');
+    const col=e.target.closest('.column');
+    const day=e.target.closest('.day');
+    if(cardId&&col){e.preventDefault();const target=e.target.closest('[data-card]');moveCard(cardId,col.dataset.column,target?target.dataset.card:null);}
+    if(taskId&&day){e.preventDefault();const task=state.tasks.find(t=>Number(t.id)===Number(taskId));if(task){task.date=day.dataset.date;selectedDate=task.date;saveLocal();renderPlanner();}}
   });
+  window.addEventListener('beforeunload',e=>{if(!syncPending)return;e.preventDefault();e.returnValue='Ainda existe alteracao pendente de sincronizacao.';});
 }
 function init(){
-  $('#monthFilter').value=new Date().toISOString().slice(0,7);
   bind();
-  clearForm();
   renderAll();
+  renderCreativePanel();
+  renderTaskPanel();
+  renderClientPanel();
   syncReady=true;
   setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local',syncPending?'pending':'');
   if(syncUrl)syncFromCloud();

@@ -20,7 +20,7 @@ function doPost(e) {
   const parsed = JSON.parse(body);
   const data = parsed.data || parsed;
 
-  if (!data || !Array.isArray(data.items)) {
+  if (!data || (!Array.isArray(data.items) && !Array.isArray(data.clients) && !Array.isArray(data.cards) && !Array.isArray(data.tasks))) {
     return json_({ ok: false, error: 'invalid_payload' });
   }
 
