@@ -89,7 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
 const STORAGE_KEY='dualizeFinanceStateV3_FINAL';
 const SYNC_URL_KEY='dualizeFinanceSyncUrlV1';
 const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwG8318Daiduvqwt-BxRg4bETjfRi44zu8wiiUwUixsGPUW4gi6Ew6GNcPqFatfWLSSzg/exec';
-let syncUrl=localStorage.getItem(SYNC_URL_KEY)||DEFAULT_SYNC_URL;
+const LEGACY_SYNC_URLS=['https://script.google.com/macros/s/AKfycbzdHciCQMdtt8CdG1IBurNIqE5W17W7kDsVnUlMlyQkN4hKHgcNRuUleBaVjXW-quf1/exec'];
+let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
+if(LEGACY_SYNC_URLS.includes(savedSyncUrl)){ localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL); savedSyncUrl=DEFAULT_SYNC_URL; }
+let syncUrl=savedSyncUrl||DEFAULT_SYNC_URL;
 let syncTimer=null, syncReady=false, applyingRemote=false;
 function loadSavedState(){
   try{
@@ -234,7 +237,7 @@ function normalizeEntry(e){
   return e;
 }
 function maxMonth(){ let max=4; state.entries.forEach(e=>{ if(e.repeticoes>=999) max=Math.max(max,state.currentMonth+3); else max=Math.max(max,e.inicio+e.repeticoes-1); }); return max; }
-function entries(type){ return state.entries.filter(e=>e.tipo===type && visible(e)).filter(e=>{ if(type!=='debito')return true; if(state.debitFilter==='todos')return true; if(state.debitFilter==='pago')return currentStatus(e)==='pago'; if(state.debitFilter==='fixo')return e.original==='fixo'&&currentStatus(e)!=='pago'; if(state.debitFilter==='pendente')return e.original==='pendente'&&currentStatus(e)!=='pago'; return true; }).sort((a,b)=>{ const ao=Number.isFinite(a.ordem)?a.ordem:9999; const bo=Number.isFinite(b.ordem)?b.ordem:9999; if(ao!==bo)return ao-bo; return Number(a.dia)-Number(b.dia)||a.nome.localeCompare(b.nome,'pt-BR'); });}
+function entries(type){ return state.entries.filter(e=>e.tipo===type && visible(e)).filter(e=>{ if(type!=='debito')return true; if(state.debitFilter==='todos')return true; if(state.debitFilter==='pago')return currentStatus(e)==='pago'; if(state.debitFilter==='fixo')return e.original==='fixo'&&currentStatus(e)!=='pago'; if(state.debitFilter==='pendente')return e.original==='pendente'&&currentStatus(e)!=='pago'; return true; }).sort((a,b)=>{ const dayDiff=Number(a.dia)-Number(b.dia); if(dayDiff)return dayDiff; const ao=Number.isFinite(a.ordem)?a.ordem:9999; const bo=Number.isFinite(b.ordem)?b.ordem:9999; if(ao!==bo)return ao-bo; return a.nome.localeCompare(b.nome,'pt-BR'); });}
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.inicio+e.repeticoes-state.currentMonth)}
 function baseStatus(e){ return e.tipo==='receita' ? 'receitaPendente' : (e.original || e.status || 'pendente'); }
 function currentStatus(e){
@@ -363,6 +366,11 @@ function editEntry(id){
   state.cleanForm=formSnapshot();
   validate();
 }
+function nextOrderForDay(entry,excludeId=null){
+  const sameDay=state.entries.filter(e=>e.tipo===entry.tipo && Number(e.dia)===Number(entry.dia) && e.id!==excludeId);
+  const maxOrder=sameDay.reduce((max,e)=>Number.isFinite(e.ordem)?Math.max(max,e.ordem):max,-1);
+  return maxOrder>=0?maxOrder+1:sameDay.length;
+}
 function saveEntry(){
   const obj=formObj();
   const idx=state.entries.findIndex(e=>e.id===obj.id);
@@ -371,11 +379,13 @@ function saveEntry(){
   obj.status=original;
   if(idx>=0){
     const previous=state.entries[idx];
+    if(Number(previous.dia)!==Number(obj.dia) || previous.tipo!==obj.tipo) obj.ordem=nextOrderForDay(obj,previous.id);
     if(obj.valorModo==='branco') obj.valoresMes={...(previous.valoresMes||{}),...(obj.valoresMes||{})};
     if(obj.valorModo==='personalizado' && !obj.valoresParcelas.length) obj.valoresParcelas=previous.valoresParcelas||[];
     obj.statusMes={...(previous.statusMes||{})};
     state.entries[idx]={...previous,...obj,original,status:original,statusMes:obj.statusMes};
   } else {
+    obj.ordem=nextOrderForDay(obj);
     obj.statusMes={};
     state.entries.push(obj);
   }
@@ -446,6 +456,9 @@ function enableDragSorting(){
     if(!draggedRow)return;
     const target=e.target.closest('.entry-row');
     if(!target || target===draggedRow || target.parentElement!==draggedRow.parentElement)return;
+    const draggedEnt=state.entries.find(x=>x.id===Number(draggedRow.dataset.id));
+    const targetEnt=state.entries.find(x=>x.id===Number(target.dataset.id));
+    if(!draggedEnt||!targetEnt||Number(draggedEnt.dia)!==Number(targetEnt.dia))return;
     e.preventDefault();
     const box=target.getBoundingClientRect();
     const after=e.clientY>box.top+box.height/2;
