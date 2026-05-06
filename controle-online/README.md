@@ -9,10 +9,13 @@ Controle em HTML para GitHub Pages, no estilo do `painel-financeiro`, com quadro
 
 ## Uso
 
-- `Quadro`: clientes separados, colunas horizontais e cards arrastaveis.
-- `Planejador`: calendario mensal com tarefas por dia.
-- `Clientes`: cria e edita quadros separados por cliente.
+- Primeira tela: estilo Trello, com areas de trabalho e quadros de clientes.
+- Area de trabalho: mostra dashboard geral, calendario geral por semana ou mes, e filtro por cliente/quadro.
+- Quadro do cliente: mostra somente os lancamentos e cards daquele cliente, com calendario semanal e colunas tipo Trello.
 - Em cada criativo, cole o link do anuncio rodando. Links do Instagram/Reels tentam abrir preview automatico por embed; se alguma rede bloquear, use uma URL direta da midia ou thumbnail.
+- Cards aceitam post publicado ou darkpost, link do criativo postado, upload/URL de capa, video Story e video Reels.
+- No calendario ou dashboard, clique duas vezes em um criativo para alternar entre rodando e inativo. Marcar como subido salva a data no historico.
+- Use o botao de tema para alternar entre visual claro e escuro.
 
 ## Configurar sync
 
