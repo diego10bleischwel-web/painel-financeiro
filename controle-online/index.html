@@ -15,14 +15,14 @@ button{cursor:pointer}
 .brand{display:flex;align-items:center;gap:12px;min-width:260px}.logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:grid;place-items:center;font-weight:950;font-size:22px}.brand h1{font-size:19px;margin:0}.brand small{display:block;color:var(--muted);font-weight:850;margin-top:2px}
 .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 13px;font-weight:900;display:flex;align-items:center;gap:8px;box-shadow:0 10px 28px rgba(31,41,55,.08)}.pill select,.pill input{border:0;outline:0;background:transparent;font-weight:900;color:var(--text);max-width:210px}.sync-pending{background:var(--yellow);color:var(--yellow-text);border-color:#e6ca77}.sync-error{background:var(--red);color:var(--red-text);border-color:#f1b5ae}
 .tabs{display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(223,238,255,.88);border-bottom:1px solid rgba(216,222,232,.75)}.tab{border:1px solid transparent;background:transparent;color:#344054;border-radius:999px;padding:9px 14px;font-weight:950}.tab.active{background:#fff;border-color:var(--line);box-shadow:0 10px 24px rgba(31,41,55,.1);color:var(--blue)}
-.workspace{min-height:0;display:grid;grid-template-columns:1fr 360px;gap:14px;padding:14px 18px 18px}.main{min-width:0;min-height:0}.side{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;min-height:0}
+.workspace{min-height:0;display:grid;grid-template-columns:1fr 360px;gap:14px;padding:14px 18px 18px}.main{min-width:0;min-height:0}.side{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;min-height:0}#boardView{grid-template-columns:1fr}#creativePanel{display:none}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.toolbar h2{margin:0;font-size:22px}.toolbar p{margin:4px 0 0;color:var(--muted);font-size:13px;font-weight:800}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;background:var(--dark);color:#fff;border-radius:999px;padding:11px 14px;font-weight:950}.btn.soft{background:#fff;color:var(--dark);border:1px solid var(--line)}.btn.blue{background:var(--blue)}.btn.warn{background:var(--brown-soft);color:var(--brown)}
-.board{height:calc(100vh - 164px);display:flex;gap:12px;overflow:auto;padding-bottom:14px;scrollbar-color:#aac7e8 transparent}.column{flex:0 0 285px;background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;max-height:100%;box-shadow:0 14px 32px rgba(31,41,55,.08)}.column.drag-over{outline:3px solid rgba(37,99,235,.25)}.col-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--line)}.col-title{font-weight:950;font-size:13px;text-transform:uppercase;letter-spacing:.2px}.count{background:#eef2f7;border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px;font-weight:950}.cards{padding:10px;display:grid;gap:10px;overflow:auto;min-height:90px}.add-card{margin:0 10px 10px;border:1px dashed #b9c4d5;background:#fff;border-radius:10px;padding:10px;color:var(--muted);font-weight:900;text-align:left}
-.creative{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 22px rgba(31,41,55,.08);overflow:hidden}.creative.dragging{opacity:.55}.cover{height:132px;background:#eef2f7;display:grid;place-items:center;color:var(--muted);font-size:12px;font-weight:900;overflow:hidden}.cover img,.cover video{width:100%;height:100%;object-fit:cover;display:block}.cover .play{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;display:grid;place-items:center;font-size:18px}.creative-body{padding:10px;display:grid;gap:8px}.creative-title{font-weight:950;line-height:1.25}.meta{display:flex;gap:6px;flex-wrap:wrap}.tag{border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;background:#eef2f7;color:#475467}.tag.hot{background:var(--orange);color:var(--orange-text)}.tag.cold{background:var(--teal);color:var(--teal-text)}.tag.done{background:var(--green);color:var(--green-text)}.tag.stop{background:var(--red);color:var(--red-text)}.small{font-size:12px;color:var(--muted);font-weight:800;line-height:1.35}.card-actions{display:flex;justify-content:space-between;gap:8px}.link{color:var(--blue);font-weight:950;text-decoration:none;font-size:12px}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px}
+.board{height:calc(100vh - 164px);display:flex;gap:12px;overflow:auto;padding-bottom:14px;scrollbar-color:#aac7e8 transparent}.column{flex:0 0 285px;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;max-height:100%;box-shadow:0 14px 32px rgba(31,41,55,.08)}.column.drag-over{outline:3px solid rgba(37,99,235,.25)}.col-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--line)}.col-title{font-weight:950;font-size:13px;text-transform:uppercase;letter-spacing:.2px}.count{background:#eef2f7;border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px;font-weight:950}.cards{padding:8px;display:grid;gap:8px;overflow:auto;min-height:42px}.add-card{margin:0 8px 8px;border:0;background:transparent;border-radius:10px;padding:9px 10px;color:#667085;font-weight:900;text-align:left}.add-card:hover{background:#e9eef6;color:var(--text)}.composer{padding:0 8px 8px}.composer textarea{width:100%;min-height:58px;border:2px solid #2f80ed;border-radius:10px;padding:10px;background:#fff;resize:vertical;outline:0;font-weight:850}.composer-actions{display:flex;align-items:center;gap:8px;margin-top:8px}.composer-close{border:0;background:transparent;color:var(--muted);font-size:22px;line-height:1}
+.creative{position:relative;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 4px 12px rgba(31,41,55,.10);overflow:hidden}.creative.done{opacity:.78}.creative.dragging{opacity:.55}.creative:hover{outline:2px solid #2f80ed}.cover{height:120px;background:#eef2f7;display:grid;place-items:center;color:var(--muted);font-size:12px;font-weight:900;overflow:hidden}.cover img,.cover video{width:100%;height:100%;object-fit:cover;display:block}.cover .play{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;display:grid;place-items:center;font-size:18px}.creative-body{padding:8px;display:grid;gap:7px}.card-top{display:flex;gap:8px;align-items:flex-start}.check-btn{flex:0 0 22px;width:22px;height:22px;border:2px solid #98a2b3;border-radius:50%;background:#fff;color:#fff;font-weight:950;line-height:17px}.check-btn.done{background:#61bd4f;border-color:#61bd4f}.creative-title{font-weight:850;line-height:1.25;font-size:14px;flex:1}.creative.done .creative-title{text-decoration:line-through;color:#667085}.meta{display:flex;gap:5px;flex-wrap:wrap}.tag{border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950;background:#eef2f7;color:#475467}.tag.hot{background:var(--orange);color:var(--orange-text)}.tag.cold{background:var(--teal);color:var(--teal-text)}.tag.done{background:var(--green);color:var(--green-text)}.tag.stop{background:var(--red);color:var(--red-text)}.small{font-size:12px;color:var(--muted);font-weight:800;line-height:1.35}.quick-card-actions{position:absolute;right:6px;top:6px;display:none;gap:4px}.creative:hover .quick-card-actions{display:flex}.icon-mini{border:1px solid var(--line);background:#fff;border-radius:8px;width:28px;height:28px;font-weight:950;color:#344054}.card-actions{display:flex;justify-content:space-between;gap:8px}.link{color:var(--blue);font-weight:950;text-decoration:none;font-size:12px}.mini-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px;font-weight:950;font-size:12px}
 .panel-head{padding:18px 18px 12px;border-bottom:1px solid var(--line)}.panel-head h3{margin:0;font-size:20px}.panel-head p{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:800;line-height:1.35}.form{padding:16px;display:grid;gap:12px;overflow:auto;max-height:calc(100vh - 190px)}.form label{display:block;font-size:11px;color:var(--muted);font-weight:950;text-transform:uppercase;margin-bottom:6px}.form input,.form select,.form textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff;outline:0;font-weight:850}.form textarea{min-height:82px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hint{background:var(--brown-soft);color:var(--brown);border-radius:14px;padding:12px;font-size:13px;font-weight:850;line-height:1.4}.preview-box{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#f8fafc;min-height:160px;display:grid;place-items:center;color:var(--muted);font-size:13px;font-weight:850}.preview-box img,.preview-box video,.preview-box iframe{width:100%;height:220px;object-fit:cover;border:0}.panel-actions{display:flex;gap:8px;flex-wrap:wrap}.danger{background:var(--red);color:var(--red-text)}
 .planner{height:calc(100vh - 164px);display:grid;grid-template-columns:1fr 310px;gap:14px}.calendar{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-rows:auto 1fr}.cal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-bottom:1px solid var(--line)}.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);min-height:0}.weekday{background:#f8fafc;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px;font-size:12px;font-weight:950;text-align:center}.day{min-height:118px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px;background:#fff;display:flex;flex-direction:column;gap:6px}.day.other{background:#f8fafc;color:#98a2b3}.day.today{background:#eaf3ff;outline:2px solid #2f80ed;outline-offset:-2px}.day-num{font-weight:950;font-size:13px}.task{border:1px solid var(--line);background:#fff;border-left:5px solid var(--blue);border-radius:8px;padding:7px;font-size:12px;font-weight:900;box-shadow:0 6px 14px rgba(31,41,55,.08)}.task.done{border-left-color:var(--green-text);opacity:.78}.task.dragging{opacity:.55}.task-time{display:block;color:var(--muted);font-size:11px;margin-top:2px}.agenda{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}.agenda-list{padding:12px;display:grid;gap:9px;overflow:auto}.agenda-empty{padding:18px;color:var(--muted);font-weight:850;text-align:center}
 .clients{height:calc(100vh - 164px);display:grid;grid-template-columns:1fr 360px;gap:14px}.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;align-content:start;overflow:auto}.client-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.client-banner{height:74px;background:linear-gradient(135deg,#dbeafe,#c7d2fe)}.client-body{padding:14px}.client-body h3{margin:0 0 6px}.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.hidden{display:none!important}
+.modal{position:fixed;inset:0;background:rgba(17,24,39,.62);z-index:50;display:grid;place-items:start center;padding:42px 18px;overflow:auto}.modal-card{width:min(980px,100%);background:#f1f2f4;border-radius:16px;box-shadow:0 28px 90px rgba(0,0,0,.38);display:grid;grid-template-columns:1fr 250px;gap:18px;padding:18px;position:relative}.modal-close{position:absolute;right:14px;top:12px;border:0;background:#e4e7ec;border-radius:50%;width:34px;height:34px;font-size:22px;color:#344054}.modal-main{display:grid;gap:14px}.modal-title{display:flex;gap:10px;align-items:flex-start}.modal-title input{font-size:23px;font-weight:950;border:0;background:transparent;outline:0;width:100%;padding:4px}.modal-section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}.modal-section h4{margin:0 0 10px;font-size:14px}.modal-section input,.modal-section select,.modal-section textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;font-weight:850;outline:0}.modal-section textarea{min-height:84px;resize:vertical}.modal-side{display:grid;align-content:start;gap:8px}.side-title{font-size:12px;color:var(--muted);font-weight:950;text-transform:uppercase;margin:2px 0 4px}.modal-action{border:0;background:#fff;border-radius:9px;padding:10px 11px;text-align:left;font-weight:900;color:#344054;box-shadow:0 2px 6px rgba(31,41,55,.08)}.modal-action:hover{background:#e9eef6}.label-row{display:flex;gap:6px;flex-wrap:wrap}.checklist-row{display:flex;gap:8px;align-items:center;margin:6px 0}.checklist-row input[type=text]{flex:1}.hidden{display:none!important}
 @media(max-width:980px){body{overflow:auto}.app{height:auto;min-height:100vh}.workspace,.planner,.clients{grid-template-columns:1fr;height:auto}.side{min-height:500px}.board{height:70vh}.top,.toolbar,.cal-head{align-items:flex-start;flex-direction:column}.top-actions,.actions,.pill{width:100%}.pill select,.pill input{max-width:100%;width:100%}.summary{grid-template-columns:1fr}.row{grid-template-columns:1fr}.column{flex-basis:270px}.cal-grid{min-width:820px}.calendar{overflow:auto}}
 </style>
 </head>
@@ -79,6 +79,7 @@ button{cursor:pointer}
       <aside class="side" id="clientPanel"></aside>
     </main>
   </section>
+  <div id="cardModal" class="modal hidden"></div>
 </div>
 
 <script>
@@ -111,6 +112,7 @@ let selectedDate=isoDate(new Date());
 let openCardId=null;
 let openTaskId=null;
 let openClientId=null;
+let openComposerColumn=null;
 
 function loadState(){
   try{
@@ -140,7 +142,7 @@ function saveLocal(){
   scheduleCloudSave();
 }
 function currentClient(){return state.clients.find(c=>Number(c.id)===Number(state.activeClientId))||state.clients[0];}
-function cardsFor(columnId){return state.cards.filter(c=>Number(c.clientId)===Number(state.activeClientId)&&c.columnId===columnId).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0)||Number(a.id)-Number(b.id));}
+function cardsFor(columnId){return state.cards.filter(c=>Number(c.clientId)===Number(state.activeClientId)&&c.columnId===columnId&&!c.archived).sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0)||Number(a.id)-Number(b.id));}
 function tasksFor(date){return state.tasks.filter(t=>Number(t.clientId)===Number(state.activeClientId)&&t.date===date).sort((a,b)=>String(a.time||'').localeCompare(String(b.time||''))||Number(a.id)-Number(b.id));}
 function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function isoDate(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10);}
@@ -186,21 +188,50 @@ function renderBoard(){
     return `<section class="column" data-column="${col.id}">
       <div class="col-head"><div class="col-title">${escapeHtml(col.title)}</div><span class="count">${list.length}</span></div>
       <div class="cards">${list.map(renderCard).join('')}</div>
-      <button class="add-card" data-add-column="${col.id}" type="button">+ Adicionar card</button>
+      ${renderComposer(col.id)}
     </section>`;
   }).join('');
-  if(!openCardId)renderCreativePanel();
 }
 function renderCard(card){
-  return `<article class="creative" draggable="true" data-card="${card.id}">
+  return `<article class="creative ${card.done?'done':''}" draggable="true" data-card="${card.id}">
+    <div class="quick-card-actions"><button class="icon-mini edit-card" title="Editar cartao" type="button">E</button><button class="icon-mini archive-card" title="Arquivar" type="button">A</button></div>
     ${cardMedia(card)}
     <div class="creative-body">
-      <div class="creative-title">${escapeHtml(card.title||'Novo criativo')}</div>
+      <div class="card-top"><button class="check-btn ${card.done?'done':''}" data-toggle-card="${card.id}" title="${card.done?'Marcar como incompleto':'Marcar como concluido'}" type="button">${card.done?'V':''}</button><div class="creative-title">${escapeHtml(card.title||'Novo criativo')}</div></div>
       <div class="meta">${statusTag(card)}<span class="tag">${escapeHtml(card.audience||'Publico')}</span></div>
       <div class="small">${escapeHtml(card.note||'')}</div>
       <div class="card-actions"><button class="mini-btn edit-card" type="button">Editar</button>${card.link?`<a class="link" href="${escapeHtml(card.link)}" target="_blank" rel="noreferrer">Abrir link</a>`:''}</div>
     </div>
   </article>`;
+}
+function renderComposer(columnId){
+  if(openComposerColumn!==columnId)return `<button class="add-card" data-add-column="${columnId}" type="button">+ Adicionar um cartao</button>`;
+  return `<div class="composer" data-composer="${columnId}">
+    <textarea class="composer-title" placeholder="Insira um titulo ou cole um link"></textarea>
+    <div class="composer-actions"><button class="btn blue add-inline-card" type="button">Adicionar Cartao</button><button class="composer-close" type="button" title="Fechar">&times;</button></div>
+  </div>`;
+}
+function createCardFromLine(line,columnId){
+  const raw=line.trim();
+  if(!raw)return null;
+  const looksUrl=/^https?:\/\//i.test(raw);
+  let title=raw, link='', mediaUrl='';
+  if(looksUrl){
+    link=raw;
+    try{title=new URL(raw).hostname.replace(/^www\./,'') || 'Criativo colado';}catch(e){title='Criativo colado';}
+    if(isMedia(raw,'image')||isMedia(raw,'video'))mediaUrl=raw;
+  }
+  return {id:state.nextCardId++,clientId:state.activeClientId,columnId,order:cardsFor(columnId).length,title,status:'rodando',audience:'Publico',link,mediaUrl,note:'',done:false,checklist:[]};
+}
+function addInlineCards(columnId){
+  const box=document.querySelector(`[data-composer="${columnId}"] .composer-title`);
+  const lines=(box?.value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  if(!lines.length)return;
+  lines.map(line=>createCardFromLine(line,columnId)).filter(Boolean).forEach(card=>state.cards.push(card));
+  openComposerColumn=columnId;
+  saveLocal();
+  renderBoard();
+  setTimeout(()=>document.querySelector(`[data-composer="${columnId}"] .composer-title`)?.focus(),30);
 }
 function renderCreativePanel(card){
   const c=card||state.cards.find(x=>Number(x.id)===Number(openCardId));
@@ -246,6 +277,97 @@ function deleteCard(){
   state.cards=state.cards.filter(c=>Number(c.id)!==id);
   openCardId=null;
   saveLocal(); renderBoard(); renderCreativePanel();
+}
+function archiveCard(id){
+  const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
+  card.archived=true;
+  if(openCardId===Number(id))closeCardModal();
+  saveLocal(); renderBoard();
+}
+function copyCard(id){
+  const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
+  const copy={...card,id:state.nextCardId++,title:(card.title||'Criativo')+' - copia',order:cardsFor(card.columnId).length,done:false,archived:false};
+  state.cards.push(copy);
+  saveLocal(); renderBoard(); openCardModal(copy.id);
+}
+function moveCardNext(id){
+  const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
+  const idx=columns.findIndex(col=>col.id===card.columnId);
+  const next=columns[Math.min(columns.length-1,idx+1)];
+  card.columnId=next.id;
+  card.order=cardsFor(next.id).length;
+  saveLocal(); renderBoard(); openCardModal(card.id);
+}
+function createTaskFromCard(id){
+  const card=state.cards.find(c=>Number(c.id)===Number(id)); if(!card)return;
+  const date=card.dueDate||isoDate(new Date());
+  state.tasks.push({id:state.nextTaskId++,clientId:state.activeClientId,title:'Revisar: '+(card.title||'Criativo'),date,time:'09:00',status:'aberto',kind:'criativo',note:'Criado a partir do card.'});
+  saveLocal();
+  alert('Tarefa criada no Planejador para '+dateLabel(date)+'.');
+}
+function closeCardModal(){
+  openCardId=null;
+  $('#cardModal').classList.add('hidden');
+  $('#cardModal').innerHTML='';
+}
+function openCardModal(id){
+  openCardId=Number(id);
+  const card=state.cards.find(c=>Number(c.id)===openCardId);
+  if(!card)return;
+  $('#cardModal').classList.remove('hidden');
+  renderCardModal(card);
+}
+function renderCardModal(card){
+  const columnTitle=columns.find(c=>c.id===card.columnId)?.title||'Coluna';
+  const checklist=Array.isArray(card.checklist)?card.checklist:[];
+  $('#cardModal').innerHTML=`<div class="modal-card" data-modal-card="${card.id}">
+    <button class="modal-close" type="button">&times;</button>
+    <div class="modal-main">
+      <div class="modal-title"><button class="check-btn ${card.done?'done':''}" data-modal-toggle type="button">${card.done?'V':''}</button><input id="modalTitle" value="${escapeHtml(card.title||'Novo criativo')}"></div>
+      <div class="small">No quadro <b>${escapeHtml(currentClient().name)}</b> em <b>${escapeHtml(columnTitle)}</b></div>
+      <div class="modal-section"><h4>Etiquetas e status</h4><div class="row"><select id="modalStatus">${['rodando','quente','frio','validado','pausado'].map(s=>`<option ${card.status===s?'selected':''}>${s}</option>`).join('')}</select><input id="modalAudience" value="${escapeHtml(card.audience||'')}" placeholder="Publico"></div><div class="label-row" style="margin-top:10px">${statusTag(card)}<span class="tag">${escapeHtml(card.audience||'Publico')}</span></div></div>
+      <div class="modal-section"><h4>Link e capa</h4><div class="row"><input id="modalLink" value="${escapeHtml(card.link||'')}" placeholder="Link do criativo rodando"><input id="modalMedia" value="${escapeHtml(card.mediaUrl||'')}" placeholder="URL da imagem ou video"></div><div class="preview-box" id="modalPreview" style="margin-top:10px">${panelPreview(card)}</div></div>
+      <div class="modal-section"><h4>Descricao</h4><textarea id="modalNote" placeholder="Gancho, verba, criativo, resultado...">${escapeHtml(card.note||'')}</textarea></div>
+      <div class="modal-section"><h4>Data e checklist</h4><div class="row"><input id="modalDueDate" type="date" value="${escapeHtml(card.dueDate||'')}"><input id="modalChecklistNew" placeholder="Adicionar item de checklist"></div><div id="modalChecklist">${checklist.map((item,i)=>renderChecklistItem(item,i)).join('')}</div><button class="mini-btn" id="addChecklistItem" type="button">Adicionar item</button></div>
+      <div class="modal-section"><h4>Comentario rapido</h4><textarea id="modalComment" placeholder="Digite uma nota de acompanhamento..."></textarea></div>
+    </div>
+    <aside class="modal-side">
+      <div class="side-title">Adicionar ao cartao</div>
+      <button class="modal-action" data-modal-save type="button">Salvar alteracoes</button>
+      ${card.link?'<button class="modal-action" data-open-link type="button">Abrir criativo</button>':''}
+      <button class="modal-action" data-modal-complete type="button">${card.done?'Marcar como incompleto':'Marcar como concluido'}</button>
+      <button class="modal-action" data-modal-next type="button">Mover para proxima coluna</button>
+      <button class="modal-action" data-modal-task type="button">Criar tarefa no Planejador</button>
+      <button class="modal-action" data-modal-copy type="button">Copiar cartao</button>
+      <button class="modal-action" data-modal-copy-link type="button">Copiar link do criativo</button>
+      <button class="modal-action danger" data-modal-archive type="button">Arquivar</button>
+    </aside>
+  </div>`;
+}
+function renderChecklistItem(item,index){
+  const done=!!item.done;
+  return `<div class="checklist-row" data-check-index="${index}"><input type="checkbox" ${done?'checked':''}><input type="text" value="${escapeHtml(item.text||'')}"><button class="mini-btn" type="button">X</button></div>`;
+}
+function saveModalCard(){
+  const card=state.cards.find(c=>Number(c.id)===Number(openCardId)); if(!card)return;
+  card.title=$('#modalTitle').value.trim()||'Novo criativo';
+  card.status=$('#modalStatus').value;
+  card.audience=$('#modalAudience').value.trim();
+  card.link=$('#modalLink').value.trim();
+  card.mediaUrl=$('#modalMedia').value.trim();
+  card.note=$('#modalNote').value.trim();
+  card.dueDate=$('#modalDueDate').value;
+  card.checklist=$$('#modalChecklist .checklist-row').map(row=>({done:row.querySelector('input[type=checkbox]').checked,text:row.querySelector('input[type=text]').value.trim()})).filter(x=>x.text);
+  const comment=$('#modalComment').value.trim();
+  if(comment){card.comments=Array.isArray(card.comments)?card.comments:[];card.comments.push({at:new Date().toISOString(),text:comment});}
+  saveLocal(); renderBoard(); renderCardModal(card);
+}
+function addChecklistFromModal(){
+  const card=state.cards.find(c=>Number(c.id)===Number(openCardId)); if(!card)return;
+  const text=$('#modalChecklistNew').value.trim(); if(!text)return;
+  card.checklist=Array.isArray(card.checklist)?card.checklist:[];
+  card.checklist.push({done:false,text});
+  saveLocal(); renderCardModal(card); renderBoard();
 }
 function moveCard(cardId,columnId,targetId){
   const card=state.cards.find(c=>Number(c.id)===Number(cardId)); if(!card)return;
@@ -434,7 +556,7 @@ function bind(){
   $('#syncBtn').onclick=configureSync;
   $('#clientSelect').onchange=()=>{state.activeClientId=Number($('#clientSelect').value);openCardId=null;openTaskId=null;saveLocal();renderAll();};
   $$('.tab').forEach(t=>t.onclick=()=>setView(t.dataset.view));
-  $('#quickCardBtn').onclick=()=>{activeView='board';setView('board');openCardId=null;renderCreativePanel({columnId:'subir',status:'rodando',clientId:state.activeClientId});};
+  $('#quickCardBtn').onclick=()=>{activeView='board';setView('board');openComposerColumn='subir';renderBoard();setTimeout(()=>document.querySelector('[data-composer="subir"] .composer-title')?.focus(),30);};
   $('#newClientBtn').onclick=()=>{activeView='clients';setView('clients');openClientId=null;renderClientPanel();};
   $('#seedBtn').onclick=seedModel;
   $('#prevMonth').onclick=()=>{plannerDate.setMonth(plannerDate.getMonth()-1);renderPlanner();};
@@ -442,11 +564,38 @@ function bind(){
   $('#todayBtn').onclick=()=>{plannerDate=new Date();selectedDate=isoDate(new Date());renderPlanner();};
   $('#newTaskBtn').onclick=()=>{openTaskId=null;renderTaskPanel();};
   document.body.addEventListener('click',e=>{
-    const add=e.target.closest('[data-add-column]'); if(add){openCardId=null;renderCreativePanel({columnId:add.dataset.addColumn,status:'rodando',clientId:state.activeClientId});}
-    const edit=e.target.closest('.edit-card'); if(edit){openCardId=Number(edit.closest('[data-card]').dataset.card);renderCreativePanel();}
+    const add=e.target.closest('[data-add-column]'); if(add){openComposerColumn=add.dataset.addColumn;renderBoard();setTimeout(()=>document.querySelector(`[data-composer="${openComposerColumn}"] .composer-title`)?.focus(),30);}
+    const inlineAdd=e.target.closest('.add-inline-card'); if(inlineAdd){addInlineCards(inlineAdd.closest('[data-composer]').dataset.composer);}
+    const closeComposer=e.target.closest('.composer-close'); if(closeComposer){openComposerColumn=null;renderBoard();}
+    const toggle=e.target.closest('[data-toggle-card]'); if(toggle){const card=state.cards.find(c=>Number(c.id)===Number(toggle.dataset.toggleCard));if(card){card.done=!card.done;saveLocal();renderBoard();}return;}
+    const archive=e.target.closest('.archive-card'); if(archive){archiveCard(archive.closest('[data-card]').dataset.card);return;}
+    const edit=e.target.closest('.edit-card'); if(edit){openCardModal(edit.closest('[data-card]').dataset.card);return;}
+    const cardClick=e.target.closest('[data-card]'); if(cardClick&&!e.target.closest('a')&&!e.target.closest('button')){openCardModal(cardClick.dataset.card);return;}
     const client=e.target.closest('[data-client]'); if(client){state.activeClientId=Number(client.dataset.client);openClientId=Number(client.dataset.client);saveLocal();renderAll();setView('board');}
     const day=e.target.closest('.day'); if(day&&!e.target.closest('.task')){selectedDate=day.dataset.date;openTaskId=null;renderPlanner();renderTaskPanel();}
     const taskOpen=e.target.closest('[data-task-open]'); if(taskOpen){openTaskId=Number(taskOpen.dataset.taskOpen);renderTaskPanel();}
+    if(e.target.closest('.modal-close')||e.target.id==='cardModal')closeCardModal();
+    if(e.target.closest('[data-modal-save]'))saveModalCard();
+    if(e.target.closest('[data-modal-toggle]')||e.target.closest('[data-modal-complete]')){const card=state.cards.find(c=>Number(c.id)===Number(openCardId));if(card){card.done=!card.done;saveLocal();renderBoard();renderCardModal(card);}}
+    if(e.target.closest('[data-open-link]')){const card=state.cards.find(c=>Number(c.id)===Number(openCardId));if(card?.link)window.open(card.link,'_blank','noopener');}
+    if(e.target.closest('[data-modal-next]'))moveCardNext(openCardId);
+    if(e.target.closest('[data-modal-task]'))createTaskFromCard(openCardId);
+    if(e.target.closest('[data-modal-copy]'))copyCard(openCardId);
+    if(e.target.closest('[data-modal-copy-link]')){const card=state.cards.find(c=>Number(c.id)===Number(openCardId));if(card?.link)navigator.clipboard?.writeText(card.link);}
+    if(e.target.closest('[data-modal-archive]'))archiveCard(openCardId);
+    if(e.target.closest('#addChecklistItem'))addChecklistFromModal();
+    const checkRemove=e.target.closest('#modalChecklist .checklist-row button'); if(checkRemove){checkRemove.closest('.checklist-row').remove();saveModalCard();}
+  });
+  document.body.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!$('#cardModal').classList.contains('hidden'))closeCardModal();
+    if(e.key==='Enter'&&e.target.matches('.composer-title')&&!e.shiftKey){e.preventDefault();addInlineCards(e.target.closest('[data-composer]').dataset.composer);}
+    if(e.key==='Enter'&&e.target.id==='modalChecklistNew'){e.preventDefault();addChecklistFromModal();}
+  });
+  document.body.addEventListener('input',e=>{
+    if(e.target.id==='modalMedia'||e.target.id==='modalLink'){
+      const tmp={mediaUrl:$('#modalMedia')?.value||'',link:$('#modalLink')?.value||''};
+      const box=$('#modalPreview'); if(box)box.innerHTML=panelPreview(tmp);
+    }
   });
   document.body.addEventListener('dragstart',e=>{
     const card=e.target.closest('[data-card]'); if(card){card.classList.add('dragging');e.dataTransfer.setData('card',card.dataset.card);}
@@ -467,7 +616,6 @@ function bind(){
 function init(){
   bind();
   renderAll();
-  renderCreativePanel();
   renderTaskPanel();
   renderClientPanel();
   syncReady=true;
