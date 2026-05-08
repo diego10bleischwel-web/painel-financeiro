@@ -248,6 +248,8 @@ function visible(e){return state.currentMonth>=e.inicio && state.currentMonth<e.
 function monthOffset(e){return Math.max(0,state.currentMonth-Number(e.inicio||0));}
 function displayValue(e){ if(!e)return ''; const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado') return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[off]:'') || ''; if(modo==='branco') return (e.valoresMes&&e.valoresMes[off]) ? e.valoresMes[off] : ''; return e.valor||''; }
 function setDisplayValue(e,formatted){ const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado'){ if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[]; e.valoresParcelas[off]=formatted; } else if(modo==='branco'){ if(!e.valoresMes) e.valoresMes={}; if(formatted)e.valoresMes[off]=formatted; else delete e.valoresMes[off]; } else { e.valor=formatted; } }
+function entryCardName(e){ const name=String(e?.nome||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); const card=state.cards.find(c=>name===String(c.alias||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')||name===String(c.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')); return e?.cardName||card?.name||''; }
+function hasCardProjection(e){ const card=entryCardName(e); return !!(card&&(e.cardName||state.cardTransactions.some(t=>t.card===card))); }
 function normalizeEntry(e){
   if(!e.valorModo) e.valorModo='fixo';
   if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[];
@@ -268,12 +270,14 @@ function normalizeEntry(e){
     e.original=base;
     e.status=base;
   }
+  const card=entryCardName(e);
+  if(card){ e.cardName=card; e.categoria='Cartão Crédito'; e.forma='Cartão'; e.banco=e.banco||state.cards.find(c=>c.name===card)?.bank||e.banco; }
   return e;
 }
 function maxMonth(){ let max=4; state.entries.forEach(e=>{ if(e.repeticoes>=999) max=Math.max(max,state.currentMonth+3); else max=Math.max(max,e.inicio+e.repeticoes-1); }); return max; }
 function entries(type){ return state.entries.filter(e=>e.tipo===type && visible(e)).filter(e=>{ if(type!=='debito')return true; if(state.debitFilter==='todos')return true; if(state.debitFilter==='pago')return currentStatus(e)==='pago'; if(state.debitFilter==='fixo')return e.original==='fixo'&&currentStatus(e)!=='pago'; if(state.debitFilter==='pendente')return e.original==='pendente'&&currentStatus(e)!=='pago'; return true; }).sort((a,b)=>{ const dayDiff=Number(a.dia)-Number(b.dia); if(dayDiff)return dayDiff; const ao=Number.isFinite(a.ordem)?a.ordem:9999; const bo=Number.isFinite(b.ordem)?b.ordem:9999; if(ao!==bo)return ao-bo; return a.nome.localeCompare(b.nome,'pt-BR'); });}
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.inicio+e.repeticoes-state.currentMonth)}
-function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(e.cardName&&e.repeticoes<999)return r===1?'último mês projetado':`${r} meses projetados`; if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${monthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
+function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${monthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
 function baseStatus(e){ return e.tipo==='receita' ? 'receitaPendente' : (e.original || e.status || 'pendente'); }
 function currentStatus(e){
   const key=String(state.currentMonth);
