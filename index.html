@@ -172,7 +172,8 @@ function loadCloudState(){
     if(!syncUrl) return resolve(null);
     const cb='dualizeSyncCb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
     const script=document.createElement('script');
-    const done=(err,data)=>{ delete window[cb]; script.remove(); err?reject(err):resolve(data); };
+    const timer=setTimeout(()=>done(new Error('Tempo esgotado ao confirmar sincronizacao.')),10000);
+    const done=(err,data)=>{ clearTimeout(timer); delete window[cb]; script.remove(); err?reject(err):resolve(data); };
     window[cb]=payload=>done(null,payload&&payload.data?payload.data:payload);
     script.onerror=()=>done(new Error('Falha ao carregar sincronização.'));
     script.src=syncEndpoint('load','&callback='+encodeURIComponent(cb)+'&t='+Date.now());
@@ -219,7 +220,7 @@ async function syncFromCloud(){
       if(syncPending&&Number(state.lastSync||0)>Number(remote?.lastSync||0)) scheduleCloudSave(100);
       else setSyncStatus(syncPending?'Sync pendente':syncSavedLabel(Number(state.lastSync||Date.now())));
     }
-  }catch(err){ console.warn(err); setSyncStatus('Sync erro'); }
+  }catch(err){ console.warn(err); setSyncStatus(syncPending?'Sync pendente':'Sync erro'); if(syncPending)scheduleCloudSave(1000); }
 }
 function scheduleCloudSave(delay=800){
   if(!syncReady||!syncUrl||applyingRemote)return;
@@ -257,18 +258,23 @@ function postCloudState(payload){
     form.submit();
   });
 }
+async function confirmCloudSave(sentAt, attempts=4){
+  for(let i=0;i<attempts;i++){
+    try{
+      await delay(900+(i*450));
+      const remote=await loadCloudState();
+      if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt)return remote;
+    }catch(err){ console.warn(err); }
+  }
+  return null;
+}
 async function saveCloudState(){
   if(!syncUrl)return;
   const sentAt=Number(state.lastSync||Date.now());
   try{
     setSyncStatus('Sync salvando...');
     await postCloudState(statePayload());
-    let remote=null;
-    for(let i=0;i<3;i++){
-      await delay(1200);
-      remote=await loadCloudState();
-      if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt)break;
-    }
+    const remote=await confirmCloudSave(sentAt);
     if(Number(state.lastSync||0)===sentAt&&remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt){
       setSyncPending(false);
       setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
