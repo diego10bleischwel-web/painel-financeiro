@@ -131,6 +131,23 @@ button{cursor:pointer}
 .compact-row .thumb{width:72px!important;height:46px!important}
 @media(max-width:980px){[data-screen="board"] .layout{grid-template-columns:1fr!important}[data-screen="board"] .sidebar{width:auto!important;background:#fff!important}.board-calendar.week{flex-direction:column!important}.board-calendar.week .day{flex-basis:auto!important;width:100%!important;max-height:none!important}.trello-bottom-panels,.trello-summary{grid-template-columns:1fr!important}}
 </style>
+<style>
+/* Ajuste para o modelo abrir e parecer Trello imediatamente */
+[data-screen="board"] .main{padding:12px 14px!important}
+.trello-workbench{min-height:calc(100vh - 82px)!important;grid-template-rows:auto auto auto minmax(130px,auto)!important}
+.trello-head{background:transparent!important}
+.trello-board-shell{padding:10px!important}
+.trello-week-top{margin-bottom:10px!important;min-width:1120px}
+.board-calendar.week{min-width:1120px!important;padding-bottom:8px!important}
+.board-calendar.week .day{flex:0 0 252px!important;height:clamp(390px,calc(100vh - 430px),520px)!important;min-height:390px!important;max-height:520px!important}
+.board-calendar.week .day-content{padding:8px!important}
+.board-calendar.week .week-card{padding:7px!important}
+.board-calendar.week .board-card-media,.board-calendar.week .board-card-media .cover,.board-calendar.week .week-card:hover .board-card-media,.board-calendar.week .week-card:hover .board-card-media .cover{height:68px!important}
+.trello-bottom-panels{margin-top:0!important}
+.trello-bottom-panels .section{max-height:190px!important}
+.trello-bottom-panels .list{max-height:134px!important}
+.board-head .mini[data-home]{display:none!important}
+</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -175,7 +192,7 @@ function netClass(c){const p=(c.platform||detect(c.link).platform||'').toLowerCa
 function cardAccount(c){return c.account||'@conta'}function cardStatus(c){return c.publishedAt?'publicado':(c.status||'agendado')}function statusPill(c){const s=cardStatus(c);return`<span class="status-pill ${esc(s)}" data-publish="${c.id}" title="Clique para marcar como publicado">${esc(s[0].toUpperCase()+s.slice(1))}</span>`}
 function calendarLabels(c){return String(c.labels||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,2).map(x=>`<span class="cal-label">${esc(x)}</span>`).join('')}
 function sidebarMark(){return '<div class="side-rail"><span class="side-logo"><img src="dualize-logo-crop.png" alt="Dualize Digital"></span></div>'}
-function render(){document.body.dataset.screen=activeScreen;renderSide();activeScreen==='home'?renderHome():renderBoardView();renderSync()}
+function render(){if(activeScreen==='home'&&boards().length){state.activeBoardId=state.activeBoardId||boards()[0].id;activeScreen='board'}document.body.dataset.screen=activeScreen;renderSide();activeScreen==='home'?renderHome():renderBoardView();renderSync()}
 function renderSide(){$('.sidebar').dataset.ready='1';$('#workspaceList').innerHTML=sidebarMark()+state.workspaces.map(w=>`<button class="area-btn ${+w.id===+state.activeWorkspaceId?'active':''}" data-workspace="${w.id}"><span class="avatar">${esc((w.name||'A')[0])}</span><span>${esc(w.name)}</span></button>`).join('');$('#sideBoards').innerHTML=boards().map(b=>`<button class="board-mini ${+b.id===+state.activeBoardId?'active':''}" data-open-board="${b.id}">${esc(b.name)}</button>`).join('')}
 function renderHome(){const cs=cards('area'),ds=calendarMode==='week'?weekDates(plannerDate):monthDates(plannerDate),weekCs=cs.filter(c=>inDates(c,ds)),active=cs.filter(c=>c.campaignState==='ativo'),scheduled=weekCs.filter(c=>c.dueDate&&!c.publishedAt),published=cs.filter(c=>c.publishedAt).sort((a,b)=>String(b.publishedAt).localeCompare(String(a.publishedAt))),pending=cs.filter(c=>['rascunho','revisao','ajuste'].includes(c.approvalStatus));$('#boardView').classList.add('hidden');$('#homeView').classList.remove('hidden');$('#homeView').innerHTML=`<div class="toolbar"><div><h2>${esc(workspace().name)}</h2></div><div class="actions"><button class="btn primary" data-new-any>+ Agendar criativo</button></div></div><div class="tabs"><button class="tab active">Dashboard e lancamentos</button></div><div class="summary">${metric('Quadros',boards().length)}${metric('Aguardando',scheduled.length)}${metric('Rodando',active.length)}${metric('Aprovacao',pending.length)}</div><div class="grid2"><main><div class="section"><h3>Quadros dos clientes</h3><div class="board-grid">${boards().map(boardCard).join('')}</div></div><div class="section"><h3>Calendario geral</h3>${calendarTools()}${calendarHtml(ds,cs,'area')}</div></main><aside><div class="section"><h3>Rodando agora</h3><div class="list">${active.map(c=>row(c,'running')).join('')||empty('Nenhum criativo rodando.')}</div></div><div class="section"><h3>Historico de subida <button class="mini history-all" data-history-all>${showAllHistory?'Ver 10':'Ver todos'}</button></h3><div class="list">${published.slice(0,showAllHistory?999:10).map(c=>row(c,'history')).join('')||empty('Historico aparece quando marcar como subido.')}</div></div></aside></div>`}
 function metric(label,value){return`<div class="metric"><b>${value}</b><span>${label}</span></div>`}function empty(text){return`<div class="empty">${text}</div>`}function boardCard(b){const list=state.cards.filter(c=>!c.archived&&+c.boardId===+b.id),todo=list.filter(c=>c.status!=='publicado').length,run=list.filter(c=>c.campaignState==='ativo').length;return`<button class="board-card" data-open-board="${b.id}"><div class="board-banner"><img src="dualize-logo-crop.png" alt="Dualize Digital"></div><div class="board-body"><h3>${esc(b.name)}</h3><p class="small">${esc(b.note||'Quadro do cliente')}</p>${tag(todo+' pendentes','warn')}${tag(run+' rodando','ok')}</div></button>`}
