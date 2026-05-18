@@ -226,12 +226,43 @@ function scheduleCloudSave(delay=800){
   clearTimeout(syncTimer);
   syncTimer=setTimeout(saveCloudState,delay);
 }
+function postCloudState(payload){
+  return new Promise(resolve=>{
+    const id='dualizeSyncFrame_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+    const iframe=document.createElement('iframe');
+    const form=document.createElement('form');
+    const field=document.createElement('textarea');
+    let submitted=false, done=false;
+    const cleanup=()=>{
+      if(done)return;
+      done=true;
+      form.remove();
+      iframe.remove();
+      resolve();
+    };
+    iframe.name=id;
+    iframe.style.display='none';
+    iframe.addEventListener('load',()=>{ if(submitted)setTimeout(cleanup,200); });
+    form.method='POST';
+    form.action=syncUrl;
+    form.target=id;
+    form.style.display='none';
+    field.name='payload';
+    field.value=JSON.stringify({action:'save',data:payload});
+    form.appendChild(field);
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
+    setTimeout(cleanup,4500);
+    submitted=true;
+    form.submit();
+  });
+}
 async function saveCloudState(){
   if(!syncUrl)return;
   const sentAt=Number(state.lastSync||Date.now());
   try{
     setSyncStatus('Sync salvando...');
-    await fetch(syncUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',data:statePayload()})});
+    await postCloudState(statePayload());
     let remote=null;
     for(let i=0;i<3;i++){
       await delay(1200);

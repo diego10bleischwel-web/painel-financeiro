@@ -19,7 +19,9 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    const body = e && e.postData && e.postData.contents ? e.postData.contents : '{}';
+    const body = e && e.parameter && e.parameter.payload
+      ? e.parameter.payload
+      : (e && e.postData && e.postData.contents ? e.postData.contents : '{}');
     const parsed = JSON.parse(body);
     const data = parsed.data || parsed;
 
