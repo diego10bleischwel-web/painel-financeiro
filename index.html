@@ -98,12 +98,13 @@ const STORAGE_KEY='dualizeFinanceStateV3_FINAL';
 const SYNC_URL_KEY='dualizeFinanceSyncUrlV1';
 const PENDING_SYNC_KEY='dualizeFinanceSyncPendingV1';
 const THEME_KEY='dualizeFinanceThemeV1';
+const CLOUD_BACKUP_KEY='dualizeFinanceBackupBeforeCloudV1';
 const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwG8318Daiduvqwt-BxRg4bETjfRi44zu8wiiUwUixsGPUW4gi6Ew6GNcPqFatfWLSSzg/exec';
 const LEGACY_SYNC_URLS=['https://script.google.com/macros/s/AKfycbzdHciCQMdtt8CdG1IBurNIqE5W17W7kDsVnUlMlyQkN4hKHgcNRuUleBaVjXW-quf1/exec'];
 let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
 if(LEGACY_SYNC_URLS.includes(savedSyncUrl)){ localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL); savedSyncUrl=DEFAULT_SYNC_URL; }
 let syncUrl=savedSyncUrl||DEFAULT_SYNC_URL;
-let syncTimer=null, syncReady=false, applyingRemote=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
+let syncTimer=null, syncLoopTimer=null, syncReady=false, applyingRemote=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
 function loadSavedState(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
@@ -183,8 +184,14 @@ function loadCloudState(){
 function saveLocalSnapshot(){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
 }
+function saveCloudApplyBackup(){
+  try{
+    localStorage.setItem(CLOUD_BACKUP_KEY,JSON.stringify({savedAt:Date.now(),data:statePayload()}));
+  }catch(err){ console.warn('Nao foi possivel criar backup local antes da nuvem.',err); }
+}
 function applyCloudState(data){
   if(!data||!Array.isArray(data.entries))return false;
+  saveCloudApplyBackup();
   applyingRemote=true;
   state.currentMonth=currentMonthIndex();
   state.nextId=Number(data.nextId||503);
@@ -221,6 +228,15 @@ async function syncFromCloud(){
       else setSyncStatus(syncPending?'Sync pendente':syncSavedLabel(Number(state.lastSync||Date.now())));
     }
   }catch(err){ console.warn(err); setSyncStatus(syncPending?'Sync pendente':'Sync erro'); if(syncPending)scheduleCloudSave(1000); }
+}
+function startContinuousSync(){
+  clearInterval(syncLoopTimer);
+  if(!syncUrl)return;
+  syncLoopTimer=setInterval(()=>{
+    if(!syncReady||applyingRemote)return;
+    if(syncPending) scheduleCloudSave(100);
+    else syncFromCloud();
+  },5000);
 }
 function scheduleCloudSave(delay=800){
   if(!syncReady||!syncUrl||applyingRemote)return;
@@ -277,8 +293,15 @@ async function configureSync(){
   if(url===null)return;
   syncUrl=url.trim();
   if(syncUrl)localStorage.setItem(SYNC_URL_KEY,syncUrl); else localStorage.removeItem(SYNC_URL_KEY);
+  startContinuousSync();
   if(!syncUrl){ setSyncStatus('Sync local'); return; }
   syncReady=true;
+  if(syncPending){
+    const forceLocal=confirm('Existe sync pendente neste navegador. OK forca o envio destes dados locais para a nuvem agora. Cancelar baixa o que ja estiver na nuvem.');
+    if(forceLocal){ await saveCloudState(); return; }
+    await syncFromCloud();
+    return;
+  }
   const sendLocal=confirm('Sincronização configurada. OK envia os dados deste dispositivo para a nuvem agora. Cancelar baixa o que já estiver na nuvem.');
   if(sendLocal) await saveCloudState(); else await syncFromCloud();
 }
@@ -655,7 +678,7 @@ function enableSyncSafety(){
   });
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(categoriesChanged) saveLocalSnapshot(); bind(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local'); if(syncUrl) syncFromCloud();}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(categoriesChanged) saveLocalSnapshot(); bind(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local'); startContinuousSync(); if(syncUrl) syncFromCloud();}
 init();
 });
 </script>
