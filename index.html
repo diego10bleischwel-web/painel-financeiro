@@ -207,6 +207,11 @@ async function syncFromCloud(){
   try{
     setSyncStatus('Sync baixando...');
     const remote=await loadCloudState();
+    if(syncPending){
+      if(Number(state.lastSync||0)>=Number(remote?.lastSync||0)) scheduleCloudSave(100);
+      setSyncStatus('Sync pendente');
+      return;
+    }
     if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>Number(state.lastSync||0)){
       applyCloudState(remote);
       setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
@@ -227,11 +232,19 @@ async function saveCloudState(){
   try{
     setSyncStatus('Sync salvando...');
     await fetch(syncUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'save',data:statePayload()})});
-    await delay(1200);
-    const remote=await loadCloudState();
-    if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt){
+    let remote=null;
+    for(let i=0;i<3;i++){
+      await delay(1200);
+      remote=await loadCloudState();
+      if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt)break;
+    }
+    if(Number(state.lastSync||0)===sentAt&&remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt){
       setSyncPending(false);
       setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
+    }else if(Number(state.lastSync||0)>sentAt){
+      setSyncPending(true);
+      setSyncStatus('Sync pendente');
+      scheduleCloudSave(500);
     }else{
       setSyncPending(true);
       setSyncStatus('Sync pendente');
