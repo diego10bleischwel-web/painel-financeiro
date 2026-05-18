@@ -159,6 +159,105 @@ body{background:#eef2f7!important}
 .compact-row .mini{font-size:11px!important;padding:6px 8px!important}
 @media(max-width:980px){.layout,[data-screen="board"] .layout{grid-template-columns:1fr!important}.sidebar,[data-screen="board"] .sidebar{background:#071120!important}.board-calendar.week{flex-direction:column!important}.board-calendar.week .day{flex:1 1 auto!important;max-height:none!important}.summary,[data-screen="board"] .summary{grid-template-columns:1fr 1fr!important}}
 </style>
+<style>
+/* Refinos de foco: calendario amplo, logo apenas na lateral escura e dashboard vivo */
+.top .logo{display:none!important}
+.brand{gap:0!important}
+.brand h1{font-size:17px!important}
+.sidebar::before{
+  height:86px!important;
+  border-radius:9px!important;
+  background:#030303 url("dualize-wide.png") center/96% auto no-repeat!important;
+  margin:0 0 14px!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.26)!important;
+}
+#workspaceList{margin-bottom:18px!important}
+#addBoard{margin-top:18px!important}
+#sideBoards::before{margin-top:18px!important}
+.side-rail,.side-logo{display:none!important}
+#homeView .grid2,.board-view>.grid2{display:block!important}
+#homeView .grid2>main,.board-view>.grid2>main{width:100%!important}
+#homeView .grid2>aside,.board-view>.grid2>aside{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+  margin-top:16px!important;
+  padding-top:0!important;
+}
+#homeView .grid2>aside .section,.board-view>.grid2>aside .section{
+  max-height:none!important;
+  margin-bottom:0!important;
+}
+#homeView .grid2>aside .list,.board-view>.grid2>aside .list{
+  max-height:220px!important;
+  overflow:auto!important;
+}
+.board-grid{
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr))!important;
+  align-items:stretch!important;
+}
+.board-card{max-width:280px!important}
+.calendar-shell,.section:has(.area-calendar){width:100%!important}
+.summary .metric{
+  position:relative!important;
+  overflow:hidden!important;
+  border:0!important;
+  animation:metricRise .46s ease both!important;
+}
+.summary .metric:nth-child(1){background:linear-gradient(135deg,#eff6ff,#ffffff)!important}
+.summary .metric:nth-child(2){background:linear-gradient(135deg,#fff7ed,#ffffff)!important;animation-delay:.04s!important}
+.summary .metric:nth-child(3){background:linear-gradient(135deg,#ecfdf5,#ffffff)!important;animation-delay:.08s!important}
+.summary .metric:nth-child(4){background:linear-gradient(135deg,#fdf2ff,#ffffff)!important;animation-delay:.12s!important}
+.summary .metric::after{
+  content:"";
+  position:absolute;
+  width:74px;
+  height:74px;
+  right:-26px;
+  top:-24px;
+  border-radius:50%;
+  opacity:.42;
+}
+.summary .metric:nth-child(1)::after{background:#bfdbfe}
+.summary .metric:nth-child(2)::after{background:#fed7aa}
+.summary .metric:nth-child(3)::after{background:#bbf7d0}
+.summary .metric:nth-child(4)::after{background:#f5d0fe}
+@keyframes metricRise{
+  from{opacity:.55;transform:translateY(8px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.metric b,.metric span{position:relative;z-index:1}
+.area-calendar .hover-cover{
+  left:12px!important;
+  right:auto!important;
+  top:174px!important;
+  width:318px!important;
+  padding:12px!important;
+  border-radius:14px!important;
+  box-shadow:0 24px 55px rgba(15,23,42,.28)!important;
+  z-index:120!important;
+}
+.area-calendar .hover-cover .cover{
+  height:430px!important;
+  border-radius:12px!important;
+}
+.area-calendar .hover-cover .cover iframe{
+  width:580px!important;
+  height:700px!important;
+  transform:translate(-46px,-58px) scale(.62)!important;
+}
+.hover-title{font-size:15px!important}
+.hover-brand{font-size:13px!important}
+.hover-caption{font-size:12px!important}
+.area-calendar.month .day{min-height:150px!important}
+.area-calendar.week .day{min-height:470px!important}
+.compact-row:hover{background:#f8fbff!important}
+@media(max-width:980px){
+  #homeView .grid2>aside,.board-view>.grid2>aside{grid-template-columns:1fr!important}
+  .sidebar::before{height:72px!important}
+  .area-calendar .hover-cover{display:none!important}
+}
+</style>
 </head>
 <body>
 <div class="app" id="app">
