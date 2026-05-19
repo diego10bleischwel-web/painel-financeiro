@@ -313,7 +313,15 @@ function monthOffset(e){return Math.max(0,state.currentMonth-Number(e.inicio||0)
 function displayValue(e){ if(!e)return ''; const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(e.valoresMes&&Object.prototype.hasOwnProperty.call(e.valoresMes,off)) return e.valoresMes[off] || ''; if(modo==='personalizado') return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[off]:'') || ''; if(modo==='branco') return ''; return e.valor||''; }
 function setDisplayValue(e,formatted){ const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado'){ if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[]; e.valoresParcelas[off]=formatted; } else { if(!e.valoresMes) e.valoresMes={}; if(formatted)e.valoresMes[off]=formatted; else delete e.valoresMes[off]; } }
 function hasFutureMonths(e){ return state.currentMonth>=Number(e.inicio||0) && state.currentMonth<Number(e.inicio||0)+Number(e.repeticoes||1)-1; }
-function confirmFutureEdit(e){ return confirm(`Aplicar ajuste de "${e.nome}" tambem para os proximos meses?\n\nOK = mes atual e proximos.\nCancelar = somente este mes.`); }
+function futureEditChoice(e){
+  const answer=prompt(`Aplicar ajuste de "${e.nome}" em quais meses?\n\n1 = somente este mes\n2 = este mes e proximos`, '2');
+  if(answer===null)return null;
+  const clean=String(answer).trim();
+  if(clean==='1')return 'current';
+  if(clean==='2')return 'future';
+  alert('Opcao invalida. Digite 1 ou 2.');
+  return futureEditChoice(e);
+}
 function setValueFromCurrentForward(e,formatted){
   const start=Math.max(state.currentMonth,Number(e.inicio||0)), end=Number(e.inicio||0)+Number(e.repeticoes||1);
   if((e.valorModo||'fixo')==='personalizado'){
@@ -569,7 +577,9 @@ function saveEntry(){
   if(idx>=0){
     const previous=state.entries[idx];
     const editingFuture=hasFutureMonths(previous);
-    if(editingFuture && !confirmFutureEdit(previous)){
+    const editChoice=editingFuture?futureEditChoice(previous):'future';
+    if(editChoice===null)return;
+    if(editingFuture && editChoice==='current'){
       if(obj.valor) setDisplayValue(previous,obj.valor);
       const selectedStatus=$('#statusInput').value;
       const formStatus=obj.tipo==='receita'?selectedStatus:(selectedStatus==='fixo'?'fixo':'pendente');
@@ -600,7 +610,7 @@ function saveEntry(){
   persist(); clearForm(); setTab(obj.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(obj.id);
 }
 function focusEntry(id, blink=false){ setTimeout(()=>{ const el=document.querySelector(`.entry-row[data-id=\"${id}\"]`); if(!el)return; el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('focus-return'); if(blink){ el.classList.remove('import-blink'); void el.offsetWidth; el.classList.add('import-blink'); } el.setAttribute('tabindex','-1'); el.focus({preventScroll:true}); setTimeout(()=>el.classList.remove('focus-return'),1800); if(blink)setTimeout(()=>el.classList.remove('import-blink'),2400); },60);}
-function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(input.closest('.entry-row').dataset.id)); if(!ent)return; const v=parseMoney(input.value), formatted=v?moneyInput(v,ent.tipo):''; if(formatted===displayValue(ent))return; if(hasFutureMonths(ent)){ if(confirmFutureEdit(ent)) setValueFromCurrentForward(ent,formatted); else setDisplayValue(ent,formatted); } else setDisplayValue(ent,formatted); persist(); renderAll(); focusEntry(ent.id);}
+function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(input.closest('.entry-row').dataset.id)); if(!ent)return; const v=parseMoney(input.value), formatted=v?moneyInput(v,ent.tipo):''; if(formatted===displayValue(ent))return; if(hasFutureMonths(ent)){ const choice=futureEditChoice(ent); if(choice===null){ input.value=displayValue(ent); return; } if(choice==='future') setValueFromCurrentForward(ent,formatted); else setDisplayValue(ent,formatted); } else setDisplayValue(ent,formatted); persist(); renderAll(); focusEntry(ent.id);}
 function saveThirdMovement(){
   const v=parseMoney($('#thirdValue').value);
   if(!$('#thirdPerson').value||!v||!$('#thirdBank').value||!$('#thirdType').value)return alert('Preencha pessoa, banco, tipo e valor.');
