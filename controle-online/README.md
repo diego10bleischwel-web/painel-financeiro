@@ -25,7 +25,7 @@ Controle em HTML para GitHub Pages, no estilo do `painel-financeiro`, com quadro
 4. Publique em `Implantar > Nova implantacao > App da Web`.
 5. Use acesso como voce e permita acesso para qualquer pessoa com o link.
 6. Copie a URL `/exec`.
-7. No app, clique em `Sync` e cole a URL.
+7. A URL padrao do Web App ja esta configurada no painel publicado. Use o botao `Sync` apenas se precisar trocar a URL.
 
 Depois disso, o painel salva no navegador a cada alteracao, marca `Sync pendente` e tenta enviar automaticamente para a nuvem. A cada 5 segundos ele envia pendencias locais ou busca atualizacoes do Google Sheets.
 
@@ -33,4 +33,4 @@ O botao de sync mostra estados como `Sync local`, `Sync conectando...`, `Sync ba
 
 Antes de aplicar dados vindos da nuvem, o app salva um backup local em `criativosCloudBackup.v1`. Se houver sync pendente e o usuario tentar fechar a pagina, o navegador mostra um aviso.
 
-Sempre que alterar `apps-script.gs`, publique uma nova implantacao do Web App no Apps Script e use a URL `/exec` atualizada no botao `Sync`.
+Sempre que alterar `apps-script.gs`, publique uma nova implantacao do Web App no Apps Script. Se a URL `/exec` mudar, atualize a constante `DEFAULT_SYNC_URL` no `index.html` ou cole a nova URL no botao `Sync`.

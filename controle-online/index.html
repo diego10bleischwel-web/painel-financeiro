@@ -533,7 +533,8 @@ body{background:#eef2f7!important}
 (()=>{
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 const STORAGE_KEY='criativosState.v6',OLD=['criativosState.v4','criativosState.v2'],SYNC_URL_KEY='criativosSyncUrl.v2',PENDING_SYNC_KEY='criativosSyncPending.v2',CLOUD_BACKUP_KEY='criativosCloudBackup.v1';
-let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'',syncUrl=savedSyncUrl,syncTimer=null,syncLoopTimer=null,syncReady=false,applyingRemote=false,syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
+const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwfAVIZgW-0P5dBOgEoYI95KnrMmTrhudhpurBDLmLHIp61g5dEIEUZx-uUh4EEx30/exec';
+let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'',syncUrl=savedSyncUrl||DEFAULT_SYNC_URL,syncTimer=null,syncLoopTimer=null,syncReady=false,applyingRemote=false,syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
 let state=loadSavedState(),activeScreen='home',calendarMode='month',calendarFilter='all',plannerDate=new Date(),selectedDate=iso(new Date()),openCardId=null,composerColumn='',quickDay='',quickEditId=null,modalTab='titulo',modalDirty=false,showAllHistory=false;
 document.documentElement.dataset.theme=state.theme||'light';
 function blank(){return{version:6,theme:'light',workspaces:[{id:1,name:'TRAFEGO PAGO',note:'Clientes e campanhas de trafego pago',boards:[{id:1,name:'Best MultiMarcas',note:''},{id:2,name:'Solido Sentimento',note:''},{id:3,name:'Dualize Digital',note:''}]}],activeWorkspaceId:1,activeBoardId:null,cards:[],nextWorkspaceId:2,nextBoardId:4,nextCardId:1,updatedAt:0,lastSync:0}}
