@@ -310,8 +310,47 @@ function monthLabel(i){ return new Date(state.baseYear,state.baseMonth+i,1).toLo
 function entryIsoDate(e){ const d=new Date(state.baseYear,state.baseMonth+state.currentMonth,Math.max(1,Number(e.dia)||1)); return d.toISOString().slice(0,10); }
 function visible(e){return state.currentMonth>=e.inicio && state.currentMonth<e.inicio+e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(state.currentMonth)])}
 function monthOffset(e){return Math.max(0,state.currentMonth-Number(e.inicio||0));}
-function displayValue(e){ if(!e)return ''; const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado') return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[off]:'') || ''; if(modo==='branco') return (e.valoresMes&&e.valoresMes[off]) ? e.valoresMes[off] : ''; return e.valor||''; }
-function setDisplayValue(e,formatted){ const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado'){ if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[]; e.valoresParcelas[off]=formatted; } else if(modo==='branco'){ if(!e.valoresMes) e.valoresMes={}; if(formatted)e.valoresMes[off]=formatted; else delete e.valoresMes[off]; } else { e.valor=formatted; } }
+function displayValue(e){ if(!e)return ''; const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(e.valoresMes&&Object.prototype.hasOwnProperty.call(e.valoresMes,off)) return e.valoresMes[off] || ''; if(modo==='personalizado') return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[off]:'') || ''; if(modo==='branco') return ''; return e.valor||''; }
+function setDisplayValue(e,formatted){ const modo=e.valorModo||'fixo'; const off=monthOffset(e); if(modo==='personalizado'){ if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[]; e.valoresParcelas[off]=formatted; } else { if(!e.valoresMes) e.valoresMes={}; if(formatted)e.valoresMes[off]=formatted; else delete e.valoresMes[off]; } }
+function hasFutureMonths(e){ return state.currentMonth>=Number(e.inicio||0) && state.currentMonth<Number(e.inicio||0)+Number(e.repeticoes||1)-1; }
+function confirmFutureEdit(e){ return confirm(`Aplicar ajuste de "${e.nome}" tambem para os proximos meses?\n\nOK = mes atual e proximos.\nCancelar = somente este mes.`); }
+function setValueFromCurrentForward(e,formatted){
+  const start=Math.max(state.currentMonth,Number(e.inicio||0)), end=Number(e.inicio||0)+Number(e.repeticoes||1);
+  if((e.valorModo||'fixo')==='personalizado'){
+    if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[];
+    for(let m=start;m<end;m++) e.valoresParcelas[m-Number(e.inicio||0)]=formatted;
+  }else{
+    if(!e.valoresMes) e.valoresMes={};
+    for(let m=start;m<end;m++) e.valoresMes[m-Number(e.inicio||0)]=formatted;
+  }
+}
+function splitEntryAtMonth(e,month){
+  const start=Number(e.inicio||0), end=start+Number(e.repeticoes||1);
+  if(month<=start||month>=end)return e;
+  const splitOff=month-start, oldValoresMes=e.valoresMes||{}, oldParcelas=Array.isArray(e.valoresParcelas)?e.valoresParcelas:[], oldStatus=e.statusMes||{};
+  const past=structuredClone(e);
+  past.id=state.nextId++;
+  past.repeticoes=splitOff;
+  past.valoresParcelas=oldParcelas.slice(0,splitOff);
+  past.valoresMes={};
+  e.valoresMes={};
+  Object.entries(oldValoresMes).forEach(([off,val])=>{
+    const abs=start+Number(off);
+    if(abs<month) past.valoresMes[off]=val;
+    else e.valoresMes[abs-month]=val;
+  });
+  past.statusMes={};
+  e.statusMes={};
+  Object.entries(oldStatus).forEach(([m,val])=>{
+    if(Number(m)<month) past.statusMes[m]=val;
+    else e.statusMes[m]=val;
+  });
+  e.inicio=month;
+  e.repeticoes=end-month;
+  e.valoresParcelas=oldParcelas.slice(splitOff);
+  state.entries.push(past);
+  return e;
+}
 function entryCardName(e){ const name=String(e?.nome||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); const card=state.cards.find(c=>name===String(c.alias||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')||name===String(c.name||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')); return e?.cardName||card?.name||''; }
 function hasCardProjection(e){ const card=entryCardName(e); return !!(card&&(e.cardName||state.cardTransactions.some(t=>t.card===card))); }
 function normalizeEntry(e){
@@ -350,7 +389,7 @@ function currentStatus(e){
 }
 function statusAtMonth(e,month){ const key=String(month); if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key]; return baseStatus(e); }
 function visibleAtMonth(e,month){ return month>=e.inicio && month<e.inicio+e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(month)]); }
-function displayValueAtMonth(e,month){ const modo=e.valorModo||'fixo', off=Math.max(0,month-Number(e.inicio||0)); if(modo==='personalizado') return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[off]:'') || ''; if(modo==='branco') return (e.valoresMes&&e.valoresMes[off]) ? e.valoresMes[off] : ''; return e.valor||''; }
+function displayValueAtMonth(e,month){ const modo=e.valorModo||'fixo', off=Math.max(0,month-Number(e.inicio||0)); if(e.valoresMes&&Object.prototype.hasOwnProperty.call(e.valoresMes,off)) return e.valoresMes[off] || ''; if(modo==='personalizado') return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[off]:'') || ''; if(modo==='branco') return ''; return e.valor||''; }
 function setCurrentStatus(e,status){
   if(!e.statusMes) e.statusMes={};
   const key=String(state.currentMonth);
@@ -529,6 +568,25 @@ function saveEntry(){
   obj.status=original;
   if(idx>=0){
     const previous=state.entries[idx];
+    const editingFuture=hasFutureMonths(previous);
+    if(editingFuture && !confirmFutureEdit(previous)){
+      if(obj.valor) setDisplayValue(previous,obj.valor);
+      const selectedStatus=$('#statusInput').value;
+      const formStatus=obj.tipo==='receita'?selectedStatus:(selectedStatus==='fixo'?'fixo':'pendente');
+      if(formStatus!==baseStatus(previous)) setCurrentStatus(previous,formStatus);
+      persist(); clearForm(); setTab(previous.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(previous.id);
+      return;
+    }
+    const originalEnd=Number(previous.inicio||0)+Number(previous.repeticoes||1), oldRepeat=Number(previous.repeticoes||1), oldLifetime=oldRepeat>=999;
+    if(editingFuture && state.currentMonth>Number(previous.inicio||0)){
+      splitEntryAtMonth(previous,state.currentMonth);
+      if(!$('#lifetimeInput').checked && Number($('#repeatInput').value||1)===(oldLifetime?1:oldRepeat)) obj.repeticoes=Math.max(1,originalEnd-state.currentMonth);
+      obj.inicio=state.currentMonth;
+    }
+    if(editingFuture&&obj.valorModo==='branco'&&obj.valor){
+      obj.valoresMes={};
+      for(let i=0;i<Number(obj.repeticoes||1);i++) obj.valoresMes[i]=obj.valor;
+    }
     if(Number(previous.dia)!==Number(obj.dia) || previous.tipo!==obj.tipo) obj.ordem=nextOrderForDay(obj,previous.id);
     if(obj.valorModo==='branco') obj.valoresMes={...(previous.valoresMes||{}),...(obj.valoresMes||{})};
     if(obj.valorModo==='personalizado' && !obj.valoresParcelas.length) obj.valoresParcelas=previous.valoresParcelas||[];
@@ -542,7 +600,7 @@ function saveEntry(){
   persist(); clearForm(); setTab(obj.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(obj.id);
 }
 function focusEntry(id, blink=false){ setTimeout(()=>{ const el=document.querySelector(`.entry-row[data-id=\"${id}\"]`); if(!el)return; el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('focus-return'); if(blink){ el.classList.remove('import-blink'); void el.offsetWidth; el.classList.add('import-blink'); } el.setAttribute('tabindex','-1'); el.focus({preventScroll:true}); setTimeout(()=>el.classList.remove('focus-return'),1800); if(blink)setTimeout(()=>el.classList.remove('import-blink'),2400); },60);}
-function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(input.closest('.entry-row').dataset.id)); if(!ent)return; const v=parseMoney(input.value); setDisplayValue(ent,v?moneyInput(v,ent.tipo):''); persist(); renderAll(); focusEntry(ent.id);}
+function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(input.closest('.entry-row').dataset.id)); if(!ent)return; const v=parseMoney(input.value), formatted=v?moneyInput(v,ent.tipo):''; if(formatted===displayValue(ent))return; if(hasFutureMonths(ent)){ if(confirmFutureEdit(ent)) setValueFromCurrentForward(ent,formatted); else setDisplayValue(ent,formatted); } else setDisplayValue(ent,formatted); persist(); renderAll(); focusEntry(ent.id);}
 function saveThirdMovement(){
   const v=parseMoney($('#thirdValue').value);
   if(!$('#thirdPerson').value||!v||!$('#thirdBank').value||!$('#thirdType').value)return alert('Preencha pessoa, banco, tipo e valor.');
