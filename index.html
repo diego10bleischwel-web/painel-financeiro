@@ -119,7 +119,19 @@ function loadSavedState(){
     return saved;
   }catch(err){ console.warn('Não foi possível carregar dados salvos.',err); return null; }
 }
-const savedState=loadSavedState();
+function loadBackupState(){
+  try{
+    const raw=localStorage.getItem(CLOUD_BACKUP_KEY);
+    if(!raw) return null;
+    const backup=JSON.parse(raw);
+    return backup&&backup.data&&Array.isArray(backup.data.entries)?backup.data:null;
+  }catch(err){ console.warn('Não foi possível carregar backup local.',err); return null; }
+}
+function entryCount(data){ return Array.isArray(data?.entries)?data.entries.length:0; }
+const savedStateRaw=loadSavedState();
+const backupState=loadBackupState();
+const recoveredFromBackup=entryCount(backupState)>entryCount(savedStateRaw);
+const savedState=recoveredFromBackup?backupState:savedStateRaw;
 function currentMonthIndex(){ const d=new Date(); return Math.max(0,(d.getFullYear()-2026)*12+(d.getMonth()-3)); }
 const DEFAULT_CARDS=[{name:'Fatura Cartão Black',bank:'PF Sicredi',day:'10',alias:'Fatura Cartão Black'},{name:'Fatura Cartão Santander',bank:'Santander',day:'13',alias:'Fatura Cartão Santander'},{name:'Fatura Cartão Caixa',bank:'Caixa',day:'15',alias:'Fatura Cartão Caixa'},{name:'Fatura Cartão Empresarial',bank:'PJ Sicredi',day:'10',alias:'Fatura Cartão Empresarial'},{name:'Fatura Cartão Nubank',bank:'NuBank',day:'10',alias:'Fatura Cartão Nubank'}];
 const state={
@@ -196,6 +208,14 @@ function saveCloudApplyBackup(){
 }
 function applyCloudState(data){
   if(!data||!Array.isArray(data.entries))return false;
+  const localCount=entryCount(state), remoteCount=entryCount(data);
+  if(localCount>0 && remoteCount===0){
+    console.warn('Sincronização bloqueada: a nuvem veio vazia e o navegador tem lançamentos locais.');
+    setSyncPending(true);
+    setSyncStatus('Sync protegido');
+    scheduleCloudSave(600);
+    return false;
+  }
   saveCloudApplyBackup();
   applyingRemote=true;
   state.currentMonth=currentMonthIndex();
@@ -757,7 +777,7 @@ function enableSyncSafety(){
   });
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(cardsChanged||categoriesChanged) persist(); bind(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local'); startContinuousSync(); if(syncUrl) syncFromCloud();}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(cardsChanged||categoriesChanged) persist(); bind(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local'); startContinuousSync(); if(syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
 init();
 });
 </script>
