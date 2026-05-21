@@ -127,7 +127,7 @@ function loadBackupState(){
     return backup&&backup.data&&Array.isArray(backup.data.entries)?backup.data:null;
   }catch(err){ console.warn('Não foi possível carregar backup local.',err); return null; }
 }
-function entryCount(data){ return Array.isArray(data?.entries)?data.entries.length:0; }
+function entryCount(data){ return (Array.isArray(data?.entries)?data.entries.length:0)+(Array.isArray(data?.cardTransactions)?data.cardTransactions.length:0)+(Array.isArray(data?.transfers)?data.transfers.length:0)+(Array.isArray(data?.thirdMovements)?data.thirdMovements.length:0); }
 const savedStateRaw=loadSavedState();
 const backupState=loadBackupState();
 const recoveredFromBackup=entryCount(backupState)>entryCount(savedStateRaw);
@@ -209,8 +209,8 @@ function saveCloudApplyBackup(){
 function applyCloudState(data){
   if(!data||!Array.isArray(data.entries))return false;
   const localCount=entryCount(state), remoteCount=entryCount(data);
-  if(localCount>0 && remoteCount===0){
-    console.warn('Sincronização bloqueada: a nuvem veio vazia e o navegador tem lançamentos locais.');
+  if(localCount>0 && (remoteCount===0 || remoteCount<localCount*.7)){
+    console.warn('Sincronização bloqueada: a nuvem veio vazia ou muito menor que os dados locais.');
     setSyncPending(true);
     setSyncStatus('Sync protegido');
     scheduleCloudSave(600);
