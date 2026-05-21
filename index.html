@@ -89,6 +89,13 @@ body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b2
 .entry-row{border:2px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,rgba(139,92,246,.44),rgba(34,211,238,.32),rgba(104,211,145,.20)) border-box;box-shadow:0 12px 30px rgba(15,23,42,.06)}
 .entry-row+.entry-row{margin-top:2px}
 body.dark-theme .entry-row{background:linear-gradient(#171c25,#171c25) padding-box,linear-gradient(135deg,rgba(139,92,246,.68),rgba(34,211,238,.48),rgba(104,211,145,.32)) border-box!important}
+.tab{box-shadow:0 0 0 1px rgba(255,255,255,.70) inset,0 0 18px rgba(255,255,255,.18),0 12px 28px rgba(34,211,238,.08)!important}
+.tab:hover{box-shadow:0 0 0 1px rgba(255,255,255,.92) inset,0 0 24px rgba(255,255,255,.28),0 16px 36px rgba(34,211,238,.16)!important}
+.tab.active{box-shadow:0 0 0 1px rgba(255,255,255,.95) inset,0 0 28px rgba(255,255,255,.34),0 16px 38px rgba(34,211,238,.24)!important}
+body.dark-theme .tab{box-shadow:0 0 0 1px rgba(255,255,255,.56) inset,0 0 20px rgba(255,255,255,.16),0 12px 30px rgba(34,211,238,.10)!important}
+body.dark-theme .tab.active{box-shadow:0 0 0 1px rgba(255,255,255,.90) inset,0 0 30px rgba(255,255,255,.30),0 18px 42px rgba(34,211,238,.24)!important}
+.planning-smart.danger{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,#ff7b72,#f4f7fb,#22d3ee) border-box!important;color:var(--red-text)!important;box-shadow:0 0 0 1px rgba(255,255,255,.75) inset,0 0 28px rgba(255,255,255,.24),0 16px 42px rgba(255,123,114,.12)!important}
+body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b25) padding-box,linear-gradient(135deg,#ff7b72,#f4f7fb,#22d3ee) border-box!important;color:#ffb0aa!important;box-shadow:0 0 0 1px rgba(255,255,255,.74) inset,0 0 30px rgba(255,255,255,.20),0 16px 42px rgba(255,123,114,.16)!important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -265,11 +272,20 @@ function applyCloudState(data){
   renderAll();
   return true;
 }
+function remoteHasMoreData(remote){
+  const localCount=entryCount(state), remoteCount=entryCount(remote);
+  return remote&&Array.isArray(remote.entries)&&remoteCount>0&&localCount>0&&remoteCount>localCount*1.3;
+}
 async function syncFromCloud(){
   if(!syncUrl){ setSyncStatus('Sync local'); return; }
   try{
     setSyncStatus('Sync baixando...');
     const remote=await loadCloudState();
+    if(remoteHasMoreData(remote)){
+      applyCloudState(remote);
+      setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
+      return;
+    }
     if(syncPending){
       if(Number(state.lastSync||0)>=Number(remote?.lastSync||0)) scheduleCloudSave(100);
       setSyncStatus('Sync pendente');
@@ -328,6 +344,12 @@ async function saveCloudState(){
   const sentAt=Number(state.lastSync||Date.now());
   try{
     setSyncStatus('Sync salvando...');
+    const before=await loadCloudState().catch(()=>null);
+    if(remoteHasMoreData(before)){
+      applyCloudState(before);
+      setSyncStatus(syncSavedLabel(Number(before.lastSync||Date.now())));
+      return;
+    }
     await postCloudState(statePayload());
     const remote=await confirmCloudSave(sentAt);
     if(Number(state.lastSync||0)===sentAt&&remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt){
