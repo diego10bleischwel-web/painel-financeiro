@@ -274,7 +274,7 @@ function applyCloudState(data){
 }
 function remoteHasMoreData(remote){
   const localCount=entryCount(state), remoteCount=entryCount(remote);
-  return remote&&Array.isArray(remote.entries)&&remoteCount>0&&localCount>0&&remoteCount>localCount*1.3;
+  return remote&&Array.isArray(remote.entries)&&remoteCount>=10&&(localCount===0||remoteCount>localCount*1.3);
 }
 async function syncFromCloud(){
   if(!syncUrl){ setSyncStatus('Sync local'); return; }
