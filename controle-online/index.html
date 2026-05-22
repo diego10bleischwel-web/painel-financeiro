@@ -754,6 +754,121 @@ body{background:#eef2f7!important}
   .section:has(.area-calendar)>h3{border-radius:0!important}
 }
 </style>
+<style>
+/* Ajuste do quadro do cliente: calendario maior e modal mais enxuto */
+[data-screen="board"] .app{min-height:100vh!important}
+[data-screen="board"] .main{min-height:calc(100vh - 54px)!important;overflow:hidden!important}
+[data-screen="board"] .board-view{
+  min-height:calc(100vh - 82px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:10px!important;
+}
+[data-screen="board"] .board-head{
+  flex:0 0 auto!important;
+  min-height:44px!important;
+}
+[data-screen="board"] .board-view>.summary{
+  flex:0 0 auto!important;
+  margin-bottom:8px!important;
+}
+[data-screen="board"] .board-view>.grid2{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+}
+[data-screen="board"] .board-view>.grid2>main{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  display:flex!important;
+}
+[data-screen="board"] .calendar-shell{
+  flex:1 1 auto!important;
+  min-height:560px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  margin-bottom:0!important;
+}
+[data-screen="board"] .board-cal-top{
+  flex:0 0 auto!important;
+}
+[data-screen="board"] .board-calendar.week{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  align-items:stretch!important;
+}
+[data-screen="board"] .board-calendar.week .day{
+  min-height:clamp(560px,calc(100vh - 390px),760px)!important;
+  max-height:none!important;
+}
+[data-screen="board"] .board-calendar.week .day-content{
+  min-height:0!important;
+  flex:1 1 auto!important;
+}
+[data-screen="board"] .board-view>.grid2>aside{
+  flex:0 0 auto!important;
+  margin-top:auto!important;
+  padding-top:0!important;
+  align-self:stretch!important;
+}
+[data-screen="board"] .board-view>.grid2>aside .section{
+  min-height:104px!important;
+  max-height:172px!important;
+}
+[data-screen="board"] .board-view>.grid2>aside .list{
+  max-height:112px!important;
+}
+.modal-nav{gap:7px!important}
+.modal-nav .modal-action{min-height:42px!important}
+.modal-nav .modal-action[data-modal-tab="links"]::after,
+.modal-nav .modal-action[data-modal-tab="midias"]::after{
+  content:"";
+}
+#modal[data-tab="links"] .modal-main .modal-section:nth-child(3),
+#modal[data-tab="midias"] .modal-main .modal-section:nth-child(4){
+  display:block!important;
+}
+#modal[data-tab="links"] [data-modal-tab="links"],
+#modal[data-tab="midias"] [data-modal-tab="midias"]{
+  background:#eef4ff!important;
+  color:#1d4ed8!important;
+  border-color:#bfdbfe!important;
+}
+[data-theme="dark"] #modal[data-tab="links"] [data-modal-tab="links"],
+[data-theme="dark"] #modal[data-tab="midias"] [data-modal-tab="midias"]{
+  background:linear-gradient(135deg,#eaf2ff,#f8fbff)!important;
+  color:#1d4ed8!important;
+}
+.modal-nav [data-modal-tab="etiquetas"],
+.modal-nav [data-modal-tab="status"],
+.modal-nav [data-modal-tab="aprovacao"],
+.modal-nav [data-send-approval],
+.modal-nav [data-approve]{
+  display:none!important;
+}
+.modal-nav [data-modal-tab="quadro"],
+.modal-nav [data-modal-tab="link"],
+.modal-nav [data-modal-tab="darkpost"],
+.modal-nav [data-modal-tab="agenda"]{
+  font-size:0!important;
+}
+.modal-nav [data-modal-tab="quadro"]::after{content:"Quadro, rede e aprovacao";font-size:15px}
+.modal-nav [data-modal-tab="link"]::after{content:"Publico e links";font-size:15px}
+.modal-nav [data-modal-tab="darkpost"]::after{content:"Capas e videos";font-size:15px}
+.modal-nav [data-modal-tab="agenda"]::after{content:"Agendamento";font-size:15px}
+.modal-nav [data-archive]{
+  border-color:rgba(248,113,113,.35)!important;
+  color:#fecaca!important;
+}
+@media(max-width:980px){
+  [data-screen="board"] .main{overflow:visible!important}
+  [data-screen="board"] .board-view{min-height:auto!important}
+  [data-screen="board"] .calendar-shell{min-height:auto!important}
+  [data-screen="board"] .board-calendar.week .day{min-height:420px!important}
+}
+</style>
 </head>
 <body>
 <div class="app" id="app">
