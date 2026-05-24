@@ -955,6 +955,117 @@ body{background:#eef2f7!important}
   z-index:290!important;
 }
 </style>
+<style>
+/* Restaura o comportamento original do calendario geral: preview fixo, vivo e legivel */
+#homeView,
+#homeView .grid2,
+#homeView main,
+#homeView .section:has(.area-calendar),
+#homeView .area-calendar{
+  overflow:visible!important;
+}
+#homeView .area-calendar .week-card{
+  position:relative!important;
+  cursor:pointer!important;
+}
+#homeView .area-calendar .week-card:hover{
+  z-index:360!important;
+  background:rgba(255,255,255,.96)!important;
+  border-color:#93c5fd!important;
+  box-shadow:0 10px 24px rgba(37,99,235,.18)!important;
+}
+#homeView .area-calendar .week-card:hover .cal-main,
+#homeView .area-calendar .week-card:hover .cal-foot{
+  transform:translateX(2px)!important;
+}
+.area-calendar .hover-cover,
+.board-calendar .hover-cover{
+  position:fixed!important;
+  left:14px!important;
+  right:auto!important;
+  top:150px!important;
+  width:306px!important;
+  max-width:calc(100vw - 28px)!important;
+  max-height:calc(100vh - 172px)!important;
+  padding:12px!important;
+  z-index:999!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  border-radius:16px!important;
+  background:linear-gradient(180deg,#071120,#0a1628)!important;
+  color:#e5edf8!important;
+  box-shadow:0 26px 70px rgba(0,0,0,.46),0 0 0 1px rgba(56,189,248,.18)!important;
+  overflow:auto!important;
+}
+.area-calendar .hover-cover .cover,
+.board-calendar .hover-cover .cover{
+  height:min(430px,calc(100vh - 350px))!important;
+  min-height:280px!important;
+  border-radius:13px!important;
+  background:#020617!important;
+  overflow:hidden!important;
+}
+.area-calendar .hover-cover .cover iframe,
+.board-calendar .hover-cover .cover iframe{
+  width:620px!important;
+  height:760px!important;
+  transform:translate(-76px,-68px) scale(.61)!important;
+  transform-origin:top left!important;
+}
+.area-calendar .hover-cover img,
+.area-calendar .hover-cover video,
+.board-calendar .hover-cover img,
+.board-calendar .hover-cover video{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+}
+.hover-title{
+  color:#f8fafc!important;
+  border-bottom:1px solid rgba(255,255,255,.12)!important;
+  padding-bottom:8px!important;
+  margin-bottom:10px!important;
+}
+.hover-client{
+  display:grid!important;
+  gap:4px!important;
+  padding:10px!important;
+  margin:0 0 10px!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,rgba(217,119,6,.26),rgba(37,99,235,.18))!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+.hover-client span{
+  color:#cbd5e1!important;
+  font-size:10px!important;
+  font-weight:950!important;
+  letter-spacing:.04em!important;
+  text-transform:uppercase!important;
+}
+.hover-client b{
+  color:#fff!important;
+  font-size:15px!important;
+  line-height:1.15!important;
+}
+.hover-brand,
+.hover-caption{
+  color:#dbeafe!important;
+}
+.hover-meta .cal-time{
+  background:rgba(255,255,255,.14)!important;
+  color:#e5edf8!important;
+}
+[data-theme="dark"] .area-calendar .hover-cover,
+[data-theme="dark"] .board-calendar .hover-cover{
+  background:linear-gradient(180deg,#020617,#071120)!important;
+  border-color:rgba(96,165,250,.25)!important;
+}
+@media(max-width:980px){
+  .area-calendar .hover-cover,
+  .board-calendar .hover-cover{
+    display:none!important;
+  }
+}
+</style>
 </head>
 <body>
 <div class="app" id="app">
