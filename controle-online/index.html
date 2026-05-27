@@ -1854,6 +1854,120 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
   50%{text-shadow:0 0 16px rgba(96,165,250,.55)}
 }
 </style>
+<style>
+/* Ajustes finais solicitados: rotina, midia, lapis e botoes do calendario */
+.board-title-tools .analysis-btn:not(.done),
+.routine-actions .mini:not(.done){
+  background:linear-gradient(135deg,#fef3c7,#fde68a)!important;
+  border-color:#facc15!important;
+  color:#92400e!important;
+  box-shadow:0 8px 18px rgba(250,204,21,.18)!important;
+}
+.board-title-tools .analysis-btn.done,
+.routine-actions .mini.done{
+  background:linear-gradient(135deg,#16a34a,#14b8a6)!important;
+  border-color:#86efac!important;
+  color:#ecfdf5!important;
+}
+.routine-card .routine-title b{
+  color:#fff!important;
+  text-shadow:0 1px 6px rgba(0,0,0,.38)!important;
+}
+.routine-card .routine-progress{
+  font-size:10px!important;
+  line-height:1!important;
+  padding:3px 7px!important;
+  border-radius:999px!important;
+  max-width:max-content!important;
+}
+.routine-card.pending .routine-progress{
+  background:#fff7ed!important;
+  color:#b45309!important;
+}
+.routine-card.done .routine-progress{
+  background:#dcfce7!important;
+  color:#166534!important;
+}
+.board-calendar .week-card:hover .edit-pencil,
+.board-calendar.week .edit-pencil{
+  width:20px!important;
+  height:20px!important;
+  right:5px!important;
+  top:5px!important;
+  left:auto!important;
+  border-radius:999px!important;
+  background:linear-gradient(135deg,#7c3aed,#2563eb 55%,#14b8a6)!important;
+  border:1px solid rgba(255,255,255,.38)!important;
+  box-shadow:0 8px 18px rgba(124,58,237,.38)!important;
+  color:transparent!important;
+}
+.board-calendar .week-card:hover .edit-pencil:before,
+.board-calendar.week .edit-pencil:before{
+  content:"\270E"!important;
+  color:#fff!important;
+  font-size:11px!important;
+  line-height:1!important;
+}
+.board-calendar.week .board-card-media,
+.board-calendar.week .board-card-media .cover{
+  height:96px!important;
+  min-height:96px!important;
+  aspect-ratio:auto!important;
+  background:#050913!important;
+}
+.board-calendar.week .board-card-media img,
+.board-calendar.week .board-card-media video,
+.board-calendar.week .board-card-media .cover img,
+.board-calendar.week .board-card-media .cover video{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  background:#050913!important;
+}
+.live-preview img,
+.live-preview video,
+.live-preview .cover img,
+.live-preview .cover video{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  background:#020617!important;
+}
+.board-calendar.week .day{
+  position:relative!important;
+}
+.board-calendar.week .day-content{
+  padding-bottom:42px!important;
+}
+.board-calendar.week .day-foot{
+  margin-top:auto!important;
+  position:sticky!important;
+  bottom:0!important;
+  z-index:20!important;
+  padding:8px 0 0!important;
+  border-top:0!important;
+  background:linear-gradient(180deg,rgba(18,27,43,0),rgba(18,27,43,.98) 42%)!important;
+}
+.board-calendar.week .quick-add{
+  opacity:0!important;
+  width:100%!important;
+  min-height:31px!important;
+  border:1px dashed rgba(125,211,252,.55)!important;
+  border-radius:999px!important;
+  background:#12233a!important;
+  color:#dbeafe!important;
+}
+.board-calendar.week .day:hover .quick-add{
+  opacity:1!important;
+}
+.dashboard-flash .metric:nth-child(-n+3){
+  animation:dashboardGlow 5s ease-out 1!important;
+}
+@keyframes dashboardGlow{
+  0%,100%{box-shadow:var(--shadow)}
+  12%,55%{box-shadow:0 0 0 2px rgba(125,211,252,.75),0 0 34px rgba(96,165,250,.56),0 16px 38px rgba(37,99,235,.26)}
+}
+</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -1896,16 +2010,16 @@ function max(a){return a.reduce((m,x)=>Math.max(m,+x.id||0),0)||0}function works
 function statePayload(){return JSON.parse(JSON.stringify(normalize(state)))}function setSyncPending(pending){syncPending=!!pending;if(syncPending)localStorage.setItem(PENDING_SYNC_KEY,'1');else localStorage.removeItem(PENDING_SYNC_KEY);renderSync()}function saveLocalSnapshot(){localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()))}function persistLocalOnly(){try{saveLocalSnapshot();renderSync()}catch(err){console.warn('Nao foi possivel salvar preferencia local.',err)}}function persist(){try{if(!applyingRemote){state.lastSync=Date.now();state.updatedAt=state.lastSync;setSyncPending(true)}saveLocalSnapshot();scheduleCloudSave()}catch(err){console.warn('Nao foi possivel salvar no navegador.',err)}}function save(){persist()}
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}function iso(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10)}function short(v){return v?new Date(v+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}function dateLabel(v){return v?new Date(v+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}):''}function weekStart(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-x.getDay());return x}function weekDates(d){const s=weekStart(d);return Array.from({length:7},(_,i)=>{const x=new Date(s);x.setDate(s.getDate()+i);return x})}function monthDates(d){const first=new Date(d.getFullYear(),d.getMonth(),1),start=new Date(first);start.setDate(first.getDate()-first.getDay());return Array.from({length:42},(_,i)=>{const x=new Date(start);x.setDate(start.getDate()+i);return x})}function monthTitle(d){return new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,m=>m.toUpperCase())}function media(u,t){if(!u)return false;if(t==='video'&&String(u).startsWith('data:video/'))return true;if(t==='image'&&String(u).startsWith('data:image/'))return true;return t==='video'?/\.(mp4|webm|ogg)(\?|$)/i.test(u):/\.(png|jpe?g|gif|webp|avif)(\?|$)/i.test(u)}
 function detect(url){const u=String(url||'').trim(),l=u.toLowerCase();if(!u)return{platform:'',format:'',embed:'',account:''};if(l.includes('instagram.com')){const m=u.match(/instagram\.com\/(?:[^/]+\/)*(reel|reels|p|tv)\/([^/?#]+)/i),profile=u.match(/instagram\.com\/([^/?#]+)\/(?:reel|reels|p|tv)\//i),kind=(m?.[1]||'p').toLowerCase(),f=kind.includes('reel')?'Reel':'Feed',account=profile&& !['reel','reels','p','tv'].includes(profile[1].toLowerCase())?'@'+profile[1]:'';return{platform:'Instagram',format:f,account,embed:m?`https://www.instagram.com/${f==='Reel'?'reel':'p'}/${m[2]}/embed`:u.replace(/\/?(\?.*)?$/,'/embed')}}if(l.includes('facebook.com'))return{platform:'Facebook',format:'Feed',account:''};if(l.includes('tiktok.com'))return{platform:'TikTok',format:'Video',account:''};return{platform:'Link',format:'Criativo',account:''}}
-function cover(c,small=false){const direct=(c.mediaUrl||c.storyUrl||c.reelsUrl||'').trim(),link=(c.link||'').trim(),u=direct||link,soc=detect(link||u);if(direct&&media(direct,'video'))return`<div class="cover"><video src="${esc(direct)}" muted loop playsinline controls preload="auto"></video></div>`;if(direct&&media(direct,'image'))return`<div class="cover"><img src="${esc(direct)}" loading="eager"></div>`;if(!direct&&soc.embed)return`<div class="cover"><iframe src="${esc(soc.embed)}" loading="eager" scrolling="no" style="width:520px;height:520px;border:0;transform:scale(.23);transform-origin:top left;pointer-events:none;overflow:hidden"></iframe></div>`;if(media(u,'video'))return`<div class="cover"><video src="${esc(u)}" muted loop playsinline controls preload="auto"></video></div>`;if(media(u,'image'))return`<div class="cover"><img src="${esc(u)}" loading="eager"></div>`;return small?'':`<div class="cover">${esc(c.format||soc.format||'Preview')}</div>`}function thumb(c){const direct=(c.mediaUrl||c.storyUrl||c.reelsUrl||'').trim(),link=(c.link||'').trim(),u=direct||link,soc=detect(link||u);if(direct&&media(direct,'video'))return`<div class="thumb"><video src="${esc(direct)}" muted loop playsinline preload="auto"></video></div>`;if(direct&&media(direct,'image'))return`<div class="thumb"><img src="${esc(direct)}" loading="eager"></div>`;if(!direct&&soc.embed)return`<div class="thumb"><iframe src="${esc(soc.embed)}" loading="eager" scrolling="no"></iframe></div>`;if(media(u,'video'))return`<div class="thumb"><video src="${esc(u)}" muted loop playsinline preload="auto"></video></div>`;if(media(u,'image'))return`<div class="thumb"><img src="${esc(u)}" loading="eager"></div>`;return`<div class="thumb">${esc(c.format||soc.format||'Criativo')}</div>`}
+function cover(c,small=false){const direct=(c.mediaUrl||c.storyUrl||c.reelsUrl||'').trim(),link=(c.link||'').trim(),u=direct||link,soc=detect(link||u);if(direct&&media(direct,'video'))return`<div class="cover"><video src="${esc(direct)}" muted autoplay loop playsinline controls preload="auto"></video></div>`;if(direct&&media(direct,'image'))return`<div class="cover"><img src="${esc(direct)}" loading="eager"></div>`;if(!direct&&soc.embed)return`<div class="cover"><iframe src="${esc(soc.embed)}" loading="eager" scrolling="no" style="width:520px;height:520px;border:0;transform:scale(.23);transform-origin:top left;pointer-events:none;overflow:hidden"></iframe></div>`;if(media(u,'video'))return`<div class="cover"><video src="${esc(u)}" muted autoplay loop playsinline controls preload="auto"></video></div>`;if(media(u,'image'))return`<div class="cover"><img src="${esc(u)}" loading="eager"></div>`;return small?'':`<div class="cover">${esc(c.format||soc.format||'Preview')}</div>`}function thumb(c){const direct=(c.mediaUrl||c.storyUrl||c.reelsUrl||'').trim(),link=(c.link||'').trim(),u=direct||link,soc=detect(link||u);if(direct&&media(direct,'video'))return`<div class="thumb"><video src="${esc(direct)}" muted autoplay loop playsinline preload="auto"></video></div>`;if(direct&&media(direct,'image'))return`<div class="thumb"><img src="${esc(direct)}" loading="eager"></div>`;if(!direct&&soc.embed)return`<div class="thumb"><iframe src="${esc(soc.embed)}" loading="eager" scrolling="no"></iframe></div>`;if(media(u,'video'))return`<div class="thumb"><video src="${esc(u)}" muted autoplay loop playsinline preload="auto"></video></div>`;if(media(u,'image'))return`<div class="thumb"><img src="${esc(u)}" loading="eager"></div>`;return`<div class="thumb">${esc(c.format||soc.format||'Criativo')}</div>`}
 function prepVideo(v){v.muted=true;v.defaultMuted=true;v.volume=0;v.loop=true;v.autoplay=true;v.playsInline=true;v.preload='auto';v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.setAttribute('loop','');try{v.load()}catch(e){}}function startVideo(v,reset=false){prepVideo(v);if(reset)try{v.currentTime=0}catch(e){}const run=()=>v.play().catch(()=>{});if(v.readyState>=2)run();else{v.addEventListener('loadeddata',run,{once:true});v.addEventListener('canplay',run,{once:true})}setTimeout(run,80);setTimeout(run,360);setTimeout(run,900)}function startVideos(root,reset=false){root?.querySelectorAll('video').forEach(v=>startVideo(v,reset))}
 function tag(text,type=''){return`<span class="tag ${type}">${esc(text)}</span>`}function labelTags(c){return String(c.labels||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>tag(x,'purple')).join('')}function tags(c){return tag(c.platform||detect(c.link).platform||'Rede')+tag(c.format||detect(c.link).format||'Formato')+tag(c.status||'pendente',c.status==='publicado'?'blue':c.status==='agendado'?'warn':c.status==='ajuste'?'bad':'')+tag(c.campaignState==='ativo'?'rodando':'inativo',c.campaignState==='ativo'?'ok':'bad')+labelTags(c)}
 function netClass(c){const p=(c.platform||detect(c.link).platform||'').toLowerCase();if(p.includes('instagram'))return'instagram';if(p.includes('facebook'))return'facebook';if(p.includes('tiktok'))return'tiktok';if(p.includes('youtube'))return'youtube';return''}
 function cardAccount(c){return c.account||''}function cardStatus(c){return c.status==='concluido'||c.done?'concluido':(c.publishedAt?'publicado':(c.status||'pendente'))}function statusPill(c){const s=cardStatus(c);return`<span class="status-pill ${esc(s)}" data-toggle-publish="${c.id}" title="Duplo clique para alternar publicado/pendente">${esc(s[0].toUpperCase()+s.slice(1))}</span>`}
 function calendarLabels(c){return String(c.labels||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,2).map(x=>`<span class="cal-label">${esc(x)}</span>`).join('')}
 function sidebarMark(){return '<div class="side-rail"><span class="side-logo"><img src="dualize-logo-crop.png" alt="Dualize Digital"></span></div>'}
-function render(){document.body.dataset.screen=activeScreen;renderSide();activeScreen==='home'?renderHome():renderBoardView();renderSync()}
+function render(){document.body.dataset.screen=activeScreen;renderSide();activeScreen==='home'?renderHome():renderBoardView();renderSync();setTimeout(()=>startVideos(document,false),80)}
 function renderSide(){$('.sidebar').dataset.ready='1';$('#workspaceList').innerHTML=sidebarMark()+state.workspaces.map(w=>`<button class="area-btn ${+w.id===+state.activeWorkspaceId?'active':''}" data-workspace="${w.id}"><span class="avatar">${esc((w.name||'A')[0])}</span><span>${esc(w.name)}</span></button>`).join('');$('#sideBoards').innerHTML=boards().map(b=>`<button class="board-mini ${+b.id===+state.activeBoardId?'active':''}" data-open-board="${b.id}">${esc(b.name)}</button>`).join('')}
-function renderHome(){const cs=cards('area'),ds=calendarMode==='week'?weekDates(plannerDate):monthDates(plannerDate),weekCs=cs.filter(c=>inDates(c,ds)),active=cs.filter(c=>c.campaignState==='ativo'),scheduled=weekCs.filter(c=>c.dueDate&&!c.publishedAt),published=cs.filter(c=>c.publishedAt).sort((a,b)=>String(b.publishedAt).localeCompare(String(a.publishedAt))),monthStart=iso(new Date(plannerDate.getFullYear(),plannerDate.getMonth(),1)),monthEnd=iso(new Date(plannerDate.getFullYear(),plannerDate.getMonth()+1,0)),publishedMonth=published.filter(c=>c.publishedAt>=monthStart&&c.publishedAt<=monthEnd).length,analysedToday=boards().filter(b=>boardStats(b).analysedToday).length,totalBoards=boards().length;$('#boardView').classList.add('hidden');$('#homeView').classList.remove('hidden');$('#homeView').innerHTML=`<div class="toolbar"><div><h2>${esc(workspace().name)}</h2></div><div class="actions"><button class="btn primary" data-new-any>+ Agendar criativo</button></div></div><div class="tabs"><button class="tab active">Dashboard e lancamentos</button></div><div class="summary">${metric('Analisados hoje',analysedToday+'/'+totalBoards)}${metric('Pendentes',scheduled.length)}${metric('Rodando',active.length)}${metric('Subidos no mes',publishedMonth)}</div><div class="grid2"><main><div class="section"><h3>Quadros dos clientes</h3><div class="board-grid">${boards().map(boardCard).join('')}</div></div><div class="section"><h3>Calendario geral</h3>${calendarTools()}${calendarHtml(ds,cs,'area')}</div></main><aside><div class="section"><h3>Rodando agora</h3><div class="list">${active.map(c=>row(c,'running')).join('')||empty('Nenhum criativo rodando.')}</div></div><div class="section"><h3>Historico de subida <button class="mini history-all" data-history-all>${showAllHistory?'Ver 10':'Ver todos'}</button></h3><div class="list">${published.slice(0,showAllHistory?999:10).map(c=>row(c,'history')).join('')||empty('Historico aparece quando marcar como subido.')}</div></div></aside></div>`}
+function renderHome(){const cs=cards('area'),ds=calendarMode==='week'?weekDates(plannerDate):monthDates(plannerDate),weekCs=cs.filter(c=>inDates(c,ds)),active=cs.filter(c=>c.campaignState==='ativo'),scheduled=weekCs.filter(c=>c.dueDate&&!c.publishedAt),published=cs.filter(c=>c.publishedAt).sort((a,b)=>String(b.publishedAt).localeCompare(String(a.publishedAt))),monthStart=iso(new Date(plannerDate.getFullYear(),plannerDate.getMonth(),1)),monthEnd=iso(new Date(plannerDate.getFullYear(),plannerDate.getMonth()+1,0)),publishedMonth=published.filter(c=>c.publishedAt>=monthStart&&c.publishedAt<=monthEnd).length,analysedToday=boards().filter(b=>boardStats(b).analysedToday).length,totalBoards=boards().length;$('#boardView').classList.add('hidden');$('#homeView').classList.remove('hidden');$('#homeView').innerHTML=`<div class="toolbar"><div><h2>${esc(workspace().name)}</h2></div><div class="actions"><button class="btn primary" data-new-any>+ Agendar criativo</button></div></div><div class="tabs"><button class="tab active" data-dashboard-flash type="button">Dashboard e lancamentos</button></div><div class="summary">${metric('Analisados hoje',analysedToday+'/'+totalBoards)}${metric('Pendentes',scheduled.length)}${metric('Rodando',active.length)}${metric('Subidos no mes',publishedMonth)}</div><div class="grid2"><main><div class="section"><h3>Quadros dos clientes</h3><div class="board-grid">${boards().map(boardCard).join('')}</div></div><div class="section"><h3>Calendario geral</h3>${calendarTools()}${calendarHtml(ds,cs,'area')}</div></main><aside><div class="section"><h3>Rodando agora</h3><div class="list">${active.map(c=>row(c,'running')).join('')||empty('Nenhum criativo rodando.')}</div></div><div class="section"><h3>Historico de subida <button class="mini history-all" data-history-all>${showAllHistory?'Ver 10':'Ver todos'}</button></h3><div class="list">${published.slice(0,showAllHistory?999:10).map(c=>row(c,'history')).join('')||empty('Historico aparece quando marcar como subido.')}</div></div></aside></div>`}
 function metric(label,value){return`<div class="metric"><b>${value}</b><span>${label}</span></div>`}function empty(text){return`<div class="empty">${text}</div>`}function relDate(v){if(!v)return'Nunca';const d=new Date(String(v).includes('T')?v:v+'T12:00:00'),now=new Date(),days=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000);if(days===0)return'Hoje';if(days===1)return'Ontem';return short(iso(d))}function boardStats(b){const list=state.cards.filter(c=>!c.archived&&+c.boardId===+b.id),dates=list.map(c=>c.publishedAt).filter(Boolean).sort(),last=dates.at(-1)||'',run=list.filter(c=>c.campaignState==='ativo').length,todo=list.filter(c=>c.status!=='publicado'&&!c.publishedAt).length,analysed=b.lastAnalysisAt||'';return{list,last,run,todo,analysed,analysedToday:analysed===iso(new Date())}}function boardCard(b){const st=boardStats(b),logo=esc(b.logoUrl||'dualize-logo-crop.png');return`<div class="board-card" data-open-board="${b.id}" role="button" tabindex="0"><div class="board-banner"><img src="${logo}" alt="${esc(b.name)}"></div><div class="board-body"><div class="board-title-line"><h3>${esc(b.name)}</h3><button class="board-edit-btn" data-board-edit="${b.id}" type="button" title="Editar quadro">Editar quadro</button></div><p class="small">${esc(b.note||'Quadro do cliente')}</p><div class="board-health"><div class="board-health-row"><span>Ultimo lancamento</span><b>${esc(relDate(st.last))}</b></div><div class="board-health-row"><span>Analise diaria</span><b>${esc(relDate(st.analysed))}</b></div></div><div class="board-actions">${tag(st.todo+' pendentes','warn')}${tag(st.run+' rodando','ok')}<button class="analysis-btn ${st.analysedToday?'done':''}" data-analysis="${b.id}" type="button">${st.analysedToday?'Analisado hoje':'Marcar analise'}</button></div></div></div>`}
 function calendarTools(){return`<div class="calendar-tools"><div class="board-cal-title"><b>${monthTitle(plannerDate)}</b><button class="round-nav" data-prev title="Anterior" type="button">&larr;</button><button class="today-chip" data-today type="button">Hoje</button><button class="round-nav" data-next title="Proximo" type="button">&rarr;</button><span class="view-toggle"><button class="mini ${calendarMode==='week'?'active':''}" data-mode="week" type="button">Semanal</button><button class="mini ${calendarMode==='month'?'active':''}" data-mode="month" type="button">Mensal</button></span></div><select id="calendarFilter"><option value="all">Todos os quadros</option>${boards().map(b=>`<option value="${b.id}" ${String(calendarFilter)===String(b.id)?'selected':''}>${esc(b.name)}</option>`).join('')}</select></div>`}
 function displayDate(c){return c.publishedAt||c.dueDate}function cardTime(c){return c.publishedTime||c.dueTime||'99:99'}function orderCards(a,b){return cardTime(a).localeCompare(cardTime(b))||(+a.order||0)-(+b.order||0)||(+a.id||0)-(+b.id||0)}function inDates(c,ds){const set=new Set(ds.map(iso));return set.has(displayDate(c))}function calendarHtml(ds,source,scope){const filtered=calendarFilter==='all'?source:source.filter(c=>+c.boardId===+calendarFilter),klass=scope==='board'?(calendarMode==='month'?'month':'week'):(calendarMode==='week'?'week':'month');return`<div class="${klass} ${scope}-calendar">${ds.map(d=>dayHtml(d,filtered,scope)).join('')}</div>`}
@@ -1963,8 +2077,10 @@ function bindBoardEdit(){document.body.addEventListener('click',e=>{const btn=e.
 function bindHomeCardNav(){document.body.addEventListener('dblclick',e=>{const el=e.target.closest('[data-card]');if(!el||activeScreen!=='home')return;const c=state.cards.find(x=>+x.id===+el.dataset.card);if(!c)return;e.preventDefault();e.stopImmediatePropagation();state.activeBoardId=+c.boardId;activeScreen='board';calendarMode='week';selectedDate=displayDate(c)||selectedDate;plannerDate=new Date((selectedDate||iso(new Date()))+'T12:00:00');persistLocalOnly();hideLivePreview(true);render()},true)}
 function bindAnalysis(){document.body.addEventListener('click',e=>{const btn=e.target.closest('[data-analysis]');if(!btn)return;e.preventDefault();e.stopPropagation();const b=boards().find(x=>+x.id===+btn.dataset.analysis);if(!b)return;clearTimeout(bindAnalysis.t);if(e.detail>=2){b.lastAnalysisAt='';b.lastAnalysisTs='';save();render();return}bindAnalysis.t=setTimeout(()=>{b.lastAnalysisAt=iso(new Date());b.lastAnalysisTs=new Date().toISOString();save();render()},220)},true)}
 function bindRoutine(){document.body.addEventListener('click',e=>{const markAnalysis=e.target.closest('[data-mark-analysis]'),markAdjustment=e.target.closest('[data-mark-adjustment]'),boardAnalysis=e.target.closest('[data-analysis]'),saveBtn=e.target.closest('[data-save-routine]');if(markAnalysis){e.preventDefault();e.stopImmediatePropagation();e.detail>=2?openRoutine('analysis',markAnalysis.dataset.markAnalysis,state.activeBoardId):markRoutine('analysis',markAnalysis.dataset.markAnalysis,state.activeBoardId);return}if(markAdjustment){e.preventDefault();e.stopImmediatePropagation();e.detail>=2?openRoutine('adjustment',markAdjustment.dataset.markAdjustment,state.activeBoardId):markRoutine('adjustment',markAdjustment.dataset.markAdjustment,state.activeBoardId);return}if(boardAnalysis){e.preventDefault();e.stopImmediatePropagation();const day=iso(new Date()),boardId=boardAnalysis.dataset.analysis||state.activeBoardId;e.detail>=2?openRoutine('analysis',day,boardId):markRoutine('analysis',day,boardId);return}if(saveBtn){e.preventDefault();e.stopImmediatePropagation();saveRoutine(saveBtn.dataset.saveRoutine);modalDirty=false;return}const closeRoutine=(e.target.closest('[data-close]')||e.target.id==='modal')&&openCardId&&state.cards.some(x=>+x.id===+openCardId&&routineType(x));if(closeRoutine){if(modalDirty&&!confirm('Fechar sem salvar as alteracoes?'))return;e.preventDefault();e.stopImmediatePropagation();const draft=state.cards.find(x=>+x.id===+openCardId&&x.routineDraft);if(draft)state.cards=state.cards.filter(x=>+x.id!==+draft.id);$('#modal').classList.add('hidden');openCardId=null;modalDirty=false;render();return}},true);document.body.addEventListener('change',e=>{const input=e.target.closest('#modal[data-tab="routine"] [data-routine-check]');if(input)modalDirty=true},true)}
+function bindRoutineDoubleChecks(){document.body.addEventListener('click',e=>{const row=e.target.closest('#modal[data-tab="routine"] .routine-check');if(!row)return;e.preventDefault();e.stopImmediatePropagation()},true);document.body.addEventListener('dblclick',e=>{const row=e.target.closest('#modal[data-tab="routine"] .routine-check');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const input=row.querySelector('[data-routine-check]');if(input){input.checked=!input.checked;modalDirty=true}},true)}
+function bindDashboardFlash(){document.body.addEventListener('click',e=>{if(!e.target.closest('[data-dashboard-flash]'))return;const home=$('#homeView');if(!home)return;home.classList.remove('dashboard-flash');void home.offsetWidth;home.classList.add('dashboard-flash');setTimeout(()=>home.classList.remove('dashboard-flash'),5200)},true)}
 function bindEsc(){document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('#modal').classList.contains('hidden')){if(modalDirty&&!confirm('Fechar sem salvar as alteracoes?'))return;const draft=state.cards.find(x=>+x.id===+openCardId&&x.routineDraft);if(draft)state.cards=state.cards.filter(x=>+x.id!==+draft.id);$('#modal').classList.add('hidden');openCardId=null;modalDirty=false;render();return}if(quickDay||quickEditId){quickDay='';quickEditId=null;render();return}if(activeScreen==='board'){activeScreen='home';state.activeBoardId=null;persistLocalOnly();render()}})}
-bindOpenEdit();bindBoardEdit();bindHomeCardNav();bindQuick();bindQuickDropPaste();bindRoutine();bindAnalysis();bind();bindDayAdd();bindEsc();enableSyncSafety();render();syncReady=true;startContinuousSync();if(syncUrl)syncFromCloud();
+bindOpenEdit();bindBoardEdit();bindHomeCardNav();bindQuick();bindQuickDropPaste();bindRoutine();bindRoutineDoubleChecks();bindDashboardFlash();bindAnalysis();bind();bindDayAdd();bindEsc();enableSyncSafety();render();syncReady=true;startContinuousSync();if(syncUrl)syncFromCloud();
 })();
 </script>
 </body>
