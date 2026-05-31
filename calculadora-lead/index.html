@@ -311,6 +311,7 @@ body.manager .funnel-bar.sales{width:19%!important}
 .metric{
   min-height:116px;
   padding:14px 16px 12px;
+  cursor:pointer;
 }
 .metric span{
   display:block;
@@ -331,7 +332,7 @@ body.manager .funnel-bar.sales{width:19%!important}
 .metric.accent strong{color:var(--green)}
 .metric.negative strong{color:var(--bad)}
 .metric small{
-  display:block;
+  display:none;
   color:var(--purple);
   font-size:10.5px;
   line-height:1.28;
@@ -341,6 +342,7 @@ body.manager .funnel-bar.sales{width:19%!important}
   border-radius:7px;
   padding:7px 8px;
 }
+.metric.open small{display:block}
 .metric small b{color:#d8c9ff}
 .diagnosis-wrap{display:grid;gap:14px}
 .diagnosis-title{
@@ -366,6 +368,7 @@ body.manager .funnel-bar.sales{width:19%!important}
   padding:12px 15px;
   font-weight:950;
   line-height:1.25;
+  cursor:pointer;
 }
 .diagnosis-alert.bad{
   border-color:var(--bad-line);
@@ -390,6 +393,7 @@ body.manager .funnel-bar.sales{width:19%!important}
   border-radius:7px;
   padding:8px 10px;
 }
+.diagnosis-alert.open small{display:block}
 .insight{
   padding:22px;
 }
@@ -452,27 +456,27 @@ body.manager .funnel-bar.sales{width:19%!important}
         <form class="form-grid" id="leadForm">
           <div class="field">
             <label for="investment">Verba Investida</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="investment" type="number" min="0" step="0.01" value="595"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="investment" type="number" min="0" step="0.01" value="1000"></div>
           </div>
           <div class="field">
             <label for="currentCpl">Custo por Lead Atual</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="currentCpl" type="number" min="0" step="0.01" value="7.69"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="currentCpl" type="number" min="0" step="0.01" value="10"></div>
           </div>
           <div class="field">
             <label for="totalLeads">Total de Leads</label>
-            <input id="totalLeads" type="number" min="0" step="1" value="77" readonly>
+            <input id="totalLeads" type="number" min="0" step="1" value="100" readonly>
           </div>
           <div class="field">
             <label for="qualifiedLeads">Leads Qualificados</label>
-            <input id="qualifiedLeads" type="number" min="0" step="1" value="20">
+            <input id="qualifiedLeads" type="number" min="0" step="1" value="10">
           </div>
           <div class="field">
             <label for="sales">Vendas</label>
-            <input id="sales" type="number" min="0" step="1" value="3">
+            <input id="sales" type="number" min="0" step="1" value="1">
           </div>
           <div class="field">
             <label for="ticket">Ticket Médio</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="ticket" type="number" min="0" step="0.01" value="3170"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="ticket" type="number" min="0" step="0.01" value="31000"></div>
           </div>
         </form>
       </section>
@@ -776,6 +780,14 @@ document.querySelectorAll(".profile-toggle button").forEach(button => {
     document.body.classList.toggle("manager",button.dataset.mode === "manager");
     update();
   });
+});
+document.querySelector(".metrics").addEventListener("click",event => {
+  const card = event.target.closest(".metric");
+  if(card) card.classList.toggle("open");
+});
+document.querySelector("#diagnosis").addEventListener("click",event => {
+  const alert = event.target.closest(".diagnosis-alert");
+  if(alert) alert.classList.toggle("open");
 });
 Object.values(fields).filter(Boolean).forEach(input => input.addEventListener("input",update));
 update();
