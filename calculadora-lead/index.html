@@ -12,9 +12,9 @@
   --line:#2b333f;
   --text:#f7fbff;
   --muted:#8ea1bd;
-  --green:#33cf88;
-  --green-soft:#0d281f;
-  --green-line:#1e6f4d;
+  --green:#37f29b;
+  --green-soft:#071f17;
+  --green-line:#15945f;
   --blue:#4a9ceb;
   --orange:#ffad23;
   --warning-bg:#2a210f;
@@ -22,7 +22,9 @@
   --purple:#b796ff;
   --purple-soft:#191529;
   --purple-line:#3b2c66;
-  --bad:#ff667a;
+  --bad:#ff3f46;
+  --bad-soft:#251015;
+  --bad-line:#9b252d;
 }
 *{box-sizing:border-box}
 body{
@@ -76,11 +78,16 @@ h1 .green{color:var(--green)}
   padding:12px 18px;
   font-weight:950;
   cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
 }
+.profile-toggle svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .profile-toggle button.active{
   background:var(--green);
   color:#03110b;
-  box-shadow:0 0 0 4px rgba(51,207,136,.12);
+  box-shadow:0 0 0 4px rgba(55,242,155,.14),0 0 24px rgba(55,242,155,.18);
 }
 .screen{
   display:grid;
@@ -253,12 +260,12 @@ body.manager .funnel-bar.sales{width:19%!important}
   padding:22px 20px;
   background:var(--green-soft);
   border-color:var(--green-line);
-  box-shadow:0 0 22px rgba(51,207,136,.15);
+  box-shadow:0 0 22px rgba(55,242,155,.15);
 }
 .status.bad{
-  background:#2d1519;
-  border-color:#83313d;
-  box-shadow:0 0 22px rgba(255,102,122,.11);
+  background:var(--bad-soft);
+  border-color:var(--bad-line);
+  box-shadow:0 0 22px rgba(255,63,70,.13);
 }
 .status-icon{
   width:48px;
@@ -270,8 +277,10 @@ body.manager .funnel-bar.sales{width:19%!important}
   color:#06150e;
   font-weight:950;
   font-size:24px;
+  box-shadow:0 0 24px rgba(55,242,155,.24);
 }
-.status.bad .status-icon{background:var(--bad)}
+.status-icon svg{width:25px;height:25px;stroke:currentColor;stroke-width:2.3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.status.bad .status-icon{background:var(--bad);box-shadow:0 0 24px rgba(255,63,70,.24)}
 .status h2{
   margin:0 0 6px;
   color:var(--green);
@@ -308,10 +317,11 @@ body.manager .funnel-bar.sales{width:19%!important}
 .metric strong{
   display:block;
   margin:7px 0 7px;
-  color:#fff;
+  color:var(--green);
   font-family:"Consolas","Courier New",monospace;
   font-size:20px;
   line-height:1.05;
+  text-shadow:0 0 14px rgba(55,242,155,.12);
 }
 .metric.accent strong{color:var(--green)}
 .metric.negative strong{color:var(--bad)}
@@ -407,8 +417,8 @@ body.manager .funnel-bar.sales{width:19%!important}
     <h1>Calculadora da <span class="green">Fórmula do Lead Qualificado</span><span class="tm">TM</span></h1>
     <p class="subtitle">Descubra se sua campanha é lucrativa, identifique gargalos e veja como leads qualificados impactam suas vendas.</p>
     <div class="profile-toggle" aria-label="Perfil de análise">
-      <button type="button" class="active" data-mode="owner">▣ Sou Empresário</button>
-      <button type="button" data-mode="manager">▥ Sou Gestor de Tráfego</button>
+      <button type="button" class="active" data-mode="owner"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21V7.8A2.8 2.8 0 0 1 10.8 5h2.4A2.8 2.8 0 0 1 16 7.8V21"/><path d="M5 21V10h14v11"/><path d="M9 5V3h6v2"/><path d="M9 13h.01M12 13h.01M15 13h.01"/></svg>Sou Empresário</button>
+      <button type="button" data-mode="manager"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10"/><path d="M10 20V6"/><path d="M15 20v-8"/><path d="M20 20V4"/><path d="M4 20h17"/></svg>Sou Gestor de Tráfego</button>
     </div>
   </header>
 
@@ -488,7 +498,7 @@ body.manager .funnel-bar.sales{width:19%!important}
 
     <div class="right">
       <section class="status" id="statusCard">
-        <div class="status-icon">↗</div>
+        <div class="status-icon" id="statusIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 4 7-7"/><path d="M14 8h6v6"/></svg></div>
         <div>
           <h2 id="statusTitle">Campanha Lucrativa</h2>
           <p id="statusText">Lucro: <strong>R$ 8.915,00</strong> &nbsp; Para cada R$1 investido, você recebe R$ 15,98</p>
@@ -663,6 +673,9 @@ function update(){
 
   const status = document.querySelector("#statusCard");
   status.classList.toggle("bad",profit < 0);
+  document.querySelector("#statusIcon").innerHTML = profit >= 0
+    ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 4 7-7"/><path d="M14 8h6v6"/></svg>`
+    : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l5 5 4-4 7 7"/><path d="M14 16h6v-6"/></svg>`;
   document.querySelector("#statusTitle").textContent = profit >= 0 ? "Campanha Lucrativa" : "Campanha no Prejuízo";
   document.querySelector("#statusText").innerHTML = profit >= 0
     ? `Lucro: <strong>${moneyText(profit)}</strong> &nbsp; Para cada R$1 investido, você recebe ${moneyText(roas)}`
