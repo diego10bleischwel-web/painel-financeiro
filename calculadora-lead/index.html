@@ -347,17 +347,35 @@ body.manager .funnel-bar.sales{width:19%!important}
   letter-spacing:.12em;
 }
 .diagnosis{
-  padding:14px;
-  border-color:var(--warning-line);
+  display:grid;
+  gap:8px;
+  background:transparent;
+  border:0;
+  padding:0;
+}
+.diagnosis-alert{
+  border:1px solid var(--warning-line);
   background:var(--warning-bg);
   color:var(--orange);
+  border-radius:10px;
+  padding:13px 15px;
   font-weight:950;
   line-height:1.45;
 }
-.diagnosis b{display:block;margin-bottom:6px;color:var(--orange)}
-.diagnosis small{
+.diagnosis-alert.bad{
+  border-color:var(--bad-line);
+  background:var(--bad-soft);
+  color:var(--bad);
+}
+.diagnosis-alert.ok{
+  border-color:var(--green-line);
+  background:var(--green-soft);
+  color:var(--green);
+}
+.diagnosis-alert b{display:flex;gap:10px;align-items:center;color:inherit}
+.diagnosis-alert small{
   display:block;
-  color:var(--purple);
+  color:#d8c9ff;
   font-size:12px;
   line-height:1.45;
   font-weight:800;
@@ -547,8 +565,7 @@ body.manager .funnel-bar.sales{width:19%!important}
       <section class="diagnosis-wrap">
         <h2 class="diagnosis-title">Diagnóstico</h2>
         <div class="diagnosis" id="diagnosis">
-          <b>◎ Gargalo principal: Qualificação de Leads</b>
-          <small>A maior perda está entre todos os leads recebidos e os leads realmente prontos para comprar. Cálculo analisado: leads qualificados ÷ total de leads.</small>
+          <div class="diagnosis-alert warn"><b>◎ Gargalo principal: Qualificação de Leads</b><small>Muitos contatos entram, mas poucos parecem prontos para comprar. Cálculo: leads qualificados ÷ total de leads.</small></div>
         </div>
       </section>
 
@@ -587,31 +604,70 @@ function flowFrom(raw){
   return {totalLeads,qualifiedLeads,sales};
 }
 
-function diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCpl,currentCpl}){
-  if(profit < 0) return {
-    title:"◎ Gargalo principal: Rentabilidade da Campanha",
-    detail:"A campanha gera vendas, mas a receita ainda não paga a verba investida. Cálculo analisado: receita - verba investida."
-  };
-  if(qualificationRate < 30) return {
-    title:"◎ Gargalo principal: Qualificação de Leads",
-    detail:"A maior perda está entre todos os leads recebidos e os leads realmente prontos para comprar. Cálculo analisado: leads qualificados ÷ total de leads."
-  };
-  if(conversionRate < 18) return {
-    title:"◎ Gargalo principal: Conversão em Vendas",
-    detail:"Os leads qualificados chegam, mas poucos viram venda. Cálculo analisado: vendas ÷ leads qualificados."
-  };
-  if(roas < 2) return {
-    title:"◎ Gargalo principal: Retorno Sobre Anúncio",
-    detail:"A campanha está positiva, mas o retorno por real investido ainda está apertado. Cálculo analisado: receita ÷ verba investida."
-  };
-  if(currentCpl && qualifiedCpl > currentCpl * 4) return {
-    title:"◎ Gargalo principal: Custo do Lead Qualificado",
-    detail:"O CPL geral parece baixo, mas o lead realmente qualificado está caro. Cálculo analisado: verba ÷ leads qualificados."
-  };
-  return {
-    title:"◎ Funil saudável: escalar mantendo a qualidade",
-    detail:"Os principais pontos do funil estão equilibrados. A próxima leitura é aumentar verba sem piorar qualificação, conversão e ROAS."
-  };
+function diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCpl,currentCpl,cpa,ticket,flow}){
+  const alerts = [];
+  if(profit < 0){
+    alerts.push({
+      tone:"bad",
+      title:"$ Sua campanha não está lucrativa",
+      detail:`A receita ainda não cobre a verba investida. Estimativa: prejuízo de ${moneyText(Math.abs(profit))}.`
+    });
+  }
+  if(qualificationRate < 10){
+    alerts.push({
+      tone:"bad",
+      title:"⚠ Criativo não está gerando interesse suficiente",
+      detail:`De cada 100 leads, só ${percentText(qualificationRate)} viram leads qualificados. Abaixo de 10%, o sinal é de criativo/oferta desalinhados. Cálculo: ${number.format(flow.qualifiedLeads)} ÷ ${number.format(flow.totalLeads)}.`
+    });
+  } else if(qualificationRate < 30){
+    alerts.push({
+      tone:"warn",
+      title:"◎ Gargalo principal: Qualificação de Leads",
+      detail:`Muitos contatos entram, mas poucos parecem prontos para comprar. Cálculo: ${number.format(flow.qualifiedLeads)} qualificados ÷ ${number.format(flow.totalLeads)} leads.`
+    });
+  }
+  if(conversionRate < 10){
+    alerts.push({
+      tone:"warn",
+      title:"⌁ Gargalo principal: Conversão em Vendas",
+      detail:`Vendas abaixo de 10% dos leads qualificados. O comercial/oferta precisa converter melhor. Cálculo: ${number.format(flow.sales)} vendas ÷ ${number.format(flow.qualifiedLeads)} qualificados.`
+    });
+  }
+  if(roas < 1){
+    alerts.push({
+      tone:"bad",
+      title:"$ ROAS abaixo do ponto de equilíbrio",
+      detail:`Para cada R$1 investido, voltou apenas ${moneyText(roas)} em vendas. A campanha está comprando prejuízo.`
+    });
+  } else if(roas < 2){
+    alerts.push({
+      tone:"warn",
+      title:"◎ Retorno ainda apertado",
+      detail:`A campanha está positiva, mas com pouca folga. Cálculo: receita ÷ verba = ${roasText(roas)}.`
+    });
+  }
+  if(ticket && cpa > ticket * 0.35){
+    alerts.push({
+      tone:"warn",
+      title:"◎ CPA alto em relação ao ticket",
+      detail:`Cada venda consome ${percentText(cpa / ticket * 100)} do ticket médio em mídia. Cálculo: CPA ÷ ticket.`
+    });
+  }
+  if(currentCpl && qualifiedCpl > currentCpl * 4){
+    alerts.push({
+      tone:"warn",
+      title:"◎ Custo do lead qualificado está alto",
+      detail:`O CPL geral parece baixo, mas o lead realmente qualificado está caro. Cálculo: verba ÷ leads qualificados.`
+    });
+  }
+  if(!alerts.length){
+    alerts.push({
+      tone:"ok",
+      title:"✓ Funil saudável: escalar mantendo a qualidade",
+      detail:"Os principais pontos do funil estão equilibrados. A próxima leitura é aumentar verba sem piorar qualificação, conversão e ROAS."
+    });
+  }
+  return alerts;
 }
 
 function updateTraffic(raw){
@@ -683,8 +739,8 @@ function update(){
 
   document.querySelector("#profitMetric").classList.toggle("negative",profit < 0);
   document.querySelector("#roasMetric").classList.toggle("negative",roas < 1);
-  const diagnosis = diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCpl,currentCpl:raw.currentCpl});
-  document.querySelector("#diagnosis").innerHTML = `<b>${diagnosis.title}</b><small>${diagnosis.detail}</small>`;
+  const diagnosis = diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCpl,currentCpl:raw.currentCpl,cpa,ticket:raw.ticket,flow});
+  document.querySelector("#diagnosis").innerHTML = diagnosis.map(item => `<div class="diagnosis-alert ${item.tone}"><b>${item.title}</b><small>${item.detail}</small></div>`).join("");
   document.querySelector("#leadValueInsight").innerHTML = `Cada lead qualificado vale em média <strong>${moneyText(leadValue)}</strong> em receita. Se você compra mais leads qualificados mantendo a taxa de conversão, está comprando potencial de faturamento.<small>Cálculo: receita total ÷ leads qualificados. Aqui: ${moneyText(revenue)} ÷ ${number.format(flow.qualifiedLeads)}.</small>`;
 
   const max = Math.max(flow.totalLeads,1);
