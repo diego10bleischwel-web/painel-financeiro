@@ -215,17 +215,11 @@ body.manager .funnel-traffic{display:none}
   min-height:234px;
   align-content:center;
 }
-body.manager .funnel-stage{min-height:500px}
+body.manager .funnel-stage{min-height:430px}
 .manager-funnel{
   display:none;
-  width:100%;
-  justify-items:center;
-  gap:8px;
-  padding-bottom:16px;
-  margin-bottom:8px;
-  border-bottom:1px solid var(--line);
 }
-body.manager .manager-funnel{display:grid}
+body.manager .manager-funnel{display:contents}
 .funnel-bar{
   height:49px;
   border-radius:9px;
@@ -626,8 +620,8 @@ function updateTraffic(raw){
   document.querySelector("#funnelClickLeadRate").textContent = `Leads Estimados · Conv. clique→lead: ${percentText(clickLeadRate)}`;
   const trafficMax = Math.max(impressions,1);
   document.querySelector("#funnelImpressionsBar").style.width = impressions ? "100%" : "0";
-  document.querySelector("#funnelClicksBar").style.width = `${Math.max(18,clicks / trafficMax * 100)}%`;
-  document.querySelector("#funnelEstimatedLeadsBar").style.width = `${Math.max(14,estimatedLeads / trafficMax * 100)}%`;
+  document.querySelector("#funnelClicksBar").style.width = `${Math.max(44,clicks / trafficMax * 100)}%`;
+  document.querySelector("#funnelEstimatedLeadsBar").style.width = `${Math.max(34,estimatedLeads / trafficMax * 100)}%`;
 }
 
 function update(){
