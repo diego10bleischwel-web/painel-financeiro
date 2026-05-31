@@ -234,6 +234,12 @@ body.manager .manager-only{display:grid!important}
 .funnel-bar.estimated{background:var(--purple);color:#061018}
 .funnel-bar.qualified{background:var(--green)}
 .funnel-bar.sales{background:var(--orange)}
+body.manager .funnel-bar.impressions{width:100%!important}
+body.manager .funnel-bar.clicks{width:78%!important}
+body.manager .funnel-bar.estimated{width:62%!important}
+body.manager .funnel-bar.total{width:46%!important}
+body.manager .funnel-bar.qualified{width:31%!important}
+body.manager .funnel-bar.sales{width:19%!important}
 .funnel-label{
   color:var(--muted);
   font-size:12px;
@@ -614,10 +620,9 @@ function updateTraffic(raw){
   document.querySelector("#funnelCpm").textContent = `Impressões · CPM: ${moneyText(cpm)}`;
   document.querySelector("#funnelCtr").textContent = `Cliques · CTR: ${percentText(ctr)}`;
   document.querySelector("#funnelClickLeadRate").textContent = `Leads Estimados · Conv. clique→lead: ${percentText(clickLeadRate)}`;
-  const trafficMax = Math.max(impressions,1);
   document.querySelector("#funnelImpressionsBar").style.width = impressions ? "100%" : "0";
-  document.querySelector("#funnelClicksBar").style.width = `${Math.max(44,clicks / trafficMax * 100)}%`;
-  document.querySelector("#funnelEstimatedLeadsBar").style.width = `${Math.max(34,estimatedLeads / trafficMax * 100)}%`;
+  document.querySelector("#funnelClicksBar").style.width = impressions ? "78%" : "0";
+  document.querySelector("#funnelEstimatedLeadsBar").style.width = impressions ? "62%" : "0";
 }
 
 function update(){
