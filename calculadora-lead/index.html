@@ -312,6 +312,13 @@ body.manager .funnel-bar.sales{width:19%!important}
   min-height:116px;
   padding:14px 16px 12px;
   cursor:pointer;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.metric:hover{
+  transform:translateY(-2px);
+  border-color:rgba(183,150,255,.62);
+  box-shadow:0 14px 30px rgba(0,0,0,.18),0 0 0 1px rgba(183,150,255,.16);
+  background:#1a1f28;
 }
 .metric span{
   display:block;
@@ -369,6 +376,11 @@ body.manager .funnel-bar.sales{width:19%!important}
   font-weight:950;
   line-height:1.25;
   cursor:pointer;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.diagnosis-alert:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(0,0,0,.14);
 }
 .diagnosis-alert.bad{
   border-color:var(--bad-line);
@@ -464,7 +476,7 @@ body.manager .funnel-bar.sales{width:19%!important}
           </div>
           <div class="field">
             <label for="totalLeads">Total de Leads</label>
-            <input id="totalLeads" type="number" min="0" step="1" value="100" readonly>
+            <input id="totalLeads" type="number" min="0" step="1" value="100" readonly tabindex="-1" aria-readonly="true">
           </div>
           <div class="field">
             <label for="qualifiedLeads">Leads Qualificados</label>
@@ -781,15 +793,21 @@ document.querySelectorAll(".profile-toggle button").forEach(button => {
     update();
   });
 });
-document.querySelector(".metrics").addEventListener("click",event => {
+document.querySelector(".metrics").addEventListener("dblclick",event => {
   const card = event.target.closest(".metric");
-  if(card) card.classList.toggle("open");
+  if(card) card.classList.add("open");
 });
-document.querySelector("#diagnosis").addEventListener("click",event => {
+document.querySelector(".metrics").addEventListener("mouseleave",() => {
+  document.querySelectorAll(".metric.open").forEach(card => card.classList.remove("open"));
+},true);
+document.querySelector("#diagnosis").addEventListener("dblclick",event => {
   const alert = event.target.closest(".diagnosis-alert");
-  if(alert) alert.classList.toggle("open");
+  if(alert) alert.classList.add("open");
 });
-Object.values(fields).filter(Boolean).forEach(input => input.addEventListener("input",update));
+document.querySelector("#diagnosis").addEventListener("mouseleave",() => {
+  document.querySelectorAll(".diagnosis-alert.open").forEach(alert => alert.classList.remove("open"));
+});
+Object.entries(fields).filter(([key,input]) => key !== "totalLeads" && input).forEach(([,input]) => input.addEventListener("input",update));
 update();
 </script>
 </body>
