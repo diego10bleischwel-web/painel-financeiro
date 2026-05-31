@@ -149,6 +149,11 @@ input:focus{
   border-color:rgba(51,207,136,.75);
   box-shadow:0 0 0 4px rgba(51,207,136,.10);
 }
+input[readonly]{
+  color:#d8e7ff;
+  cursor:not-allowed;
+  opacity:.9;
+}
 .traffic-grid{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
@@ -358,9 +363,9 @@ body.manager .funnel-bar.sales{width:19%!important}
   background:var(--warning-bg);
   color:var(--orange);
   border-radius:10px;
-  padding:13px 15px;
+  padding:12px 15px;
   font-weight:950;
-  line-height:1.45;
+  line-height:1.25;
 }
 .diagnosis-alert.bad{
   border-color:var(--bad-line);
@@ -372,9 +377,9 @@ body.manager .funnel-bar.sales{width:19%!important}
   background:var(--green-soft);
   color:var(--green);
 }
-.diagnosis-alert b{display:flex;gap:10px;align-items:center;color:inherit}
+.diagnosis-alert b{display:flex;gap:10px;align-items:center;color:inherit;font-size:14px}
 .diagnosis-alert small{
-  display:block;
+  display:none;
   color:#d8c9ff;
   font-size:12px;
   line-height:1.45;
@@ -455,7 +460,7 @@ body.manager .funnel-bar.sales{width:19%!important}
           </div>
           <div class="field">
             <label for="totalLeads">Total de Leads</label>
-            <input id="totalLeads" type="number" min="0" step="1" value="77">
+            <input id="totalLeads" type="number" min="0" step="1" value="77" readonly>
           </div>
           <div class="field">
             <label for="qualifiedLeads">Leads Qualificados</label>
@@ -598,7 +603,8 @@ const roasText = value => `${(Number.isFinite(value) ? value : 0).toFixed(2).rep
 const val = input => Math.max(0,Number(input.value || 0));
 
 function flowFrom(raw){
-  const totalLeads = raw.totalLeads;
+  const calculatedTotalLeads = raw.currentCpl ? Math.round(raw.investment / raw.currentCpl) : 0;
+  const totalLeads = calculatedTotalLeads;
   const qualifiedLeads = Math.min(raw.qualifiedLeads,totalLeads);
   const sales = Math.min(raw.sales,qualifiedLeads);
   return {totalLeads,qualifiedLeads,sales};
@@ -701,6 +707,7 @@ function update(){
     ticket: val(fields.ticket)
   };
   const flow = flowFrom(raw);
+  fields.totalLeads.value = flow.totalLeads;
   const qualificationRate = flow.totalLeads ? flow.qualifiedLeads / flow.totalLeads * 100 : 0;
   const conversionRate = flow.qualifiedLeads ? flow.sales / flow.qualifiedLeads * 100 : 0;
   const revenue = flow.sales * raw.ticket;
