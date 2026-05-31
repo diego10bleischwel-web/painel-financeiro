@@ -216,10 +216,8 @@ body.manager .funnel-traffic{display:none}
   align-content:center;
 }
 body.manager .funnel-stage{min-height:430px}
-.manager-funnel{
-  display:none;
-}
-body.manager .manager-funnel{display:contents}
+.manager-only{display:none!important}
+body.manager .manager-only{display:grid!important}
 .funnel-bar{
   height:49px;
   border-radius:9px;
@@ -466,14 +464,12 @@ body.manager .manager-funnel{display:contents}
       <section class="panel funnel-panel">
         <h2 class="section-title">Funil de Conversão</h2>
         <div class="funnel-stage">
-          <div class="manager-funnel" aria-label="Etapas de tráfego do funil">
-            <div class="funnel-bar impressions" id="funnelImpressionsBar"><span id="funnelImpressions">0</span></div>
-            <div class="funnel-label" id="funnelCpm">Impressões · CPM: R$ 0,00</div>
-            <div class="funnel-bar clicks" id="funnelClicksBar"><span id="funnelClicks">0</span></div>
-            <div class="funnel-label" id="funnelCtr">Cliques · CTR: 0,0%</div>
-            <div class="funnel-bar estimated" id="funnelEstimatedLeadsBar"><span id="funnelEstimatedLeads">0</span></div>
-            <div class="funnel-label" id="funnelClickLeadRate">Leads Estimados · Conv. clique→lead: 0,0%</div>
-          </div>
+          <div class="funnel-bar impressions manager-only" id="funnelImpressionsBar"><span id="funnelImpressions">0</span></div>
+          <div class="funnel-label manager-only" id="funnelCpm">Impressões · CPM: R$ 0,00</div>
+          <div class="funnel-bar clicks manager-only" id="funnelClicksBar"><span id="funnelClicks">0</span></div>
+          <div class="funnel-label manager-only" id="funnelCtr">Cliques · CTR: 0,0%</div>
+          <div class="funnel-bar estimated manager-only" id="funnelEstimatedLeadsBar"><span id="funnelEstimatedLeads">0</span></div>
+          <div class="funnel-label manager-only" id="funnelClickLeadRate">Leads Estimados · Conv. clique→lead: 0,0%</div>
           <div class="funnel-bar total" id="totalBar">77</div>
           <div class="funnel-label">Leads Totais</div>
           <div class="funnel-bar qualified" id="qualifiedBar">20</div>
