@@ -178,7 +178,7 @@ body.manager .funnel-panel{padding-bottom:36px}
   gap:12px;
   margin:-6px 0 24px;
 }
-body.manager .funnel-traffic{display:grid}
+body.manager .funnel-traffic{display:none}
 .funnel-traffic-card{
   min-height:82px;
   border:1px solid var(--line);
@@ -215,6 +215,17 @@ body.manager .funnel-traffic{display:grid}
   min-height:234px;
   align-content:center;
 }
+body.manager .funnel-stage{min-height:500px}
+.manager-funnel{
+  display:none;
+  width:100%;
+  justify-items:center;
+  gap:8px;
+  padding-bottom:16px;
+  margin-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+body.manager .manager-funnel{display:grid}
 .funnel-bar{
   height:49px;
   border-radius:9px;
@@ -226,6 +237,9 @@ body.manager .funnel-traffic{display:grid}
   transition:width .2s ease;
 }
 .funnel-bar.total{width:100%;background:var(--blue)}
+.funnel-bar.impressions{width:100%;background:var(--blue)}
+.funnel-bar.clicks{background:#6f8cff;color:#061018}
+.funnel-bar.estimated{background:var(--purple);color:#061018}
 .funnel-bar.qualified{background:var(--green)}
 .funnel-bar.sales{background:var(--orange)}
 .funnel-label{
@@ -457,24 +471,15 @@ body.manager .funnel-traffic{display:grid}
 
       <section class="panel funnel-panel">
         <h2 class="section-title">Funil de Conversão</h2>
-        <div class="funnel-traffic" aria-label="Resumo do tráfego no funil">
-          <div class="funnel-traffic-card">
-            <span>Impressões</span>
-            <strong id="funnelImpressions">0</strong>
-            <small id="funnelCpm">CPM: R$ 0,00</small>
-          </div>
-          <div class="funnel-traffic-card">
-            <span>Cliques</span>
-            <strong id="funnelClicks">0</strong>
-            <small id="funnelCtr">CTR: 0,0%</small>
-          </div>
-          <div class="funnel-traffic-card">
-            <span>Leads Estimados</span>
-            <strong id="funnelEstimatedLeads">0</strong>
-            <small id="funnelClickLeadRate">Conv. clique→lead: 0,0%</small>
-          </div>
-        </div>
         <div class="funnel-stage">
+          <div class="manager-funnel" aria-label="Etapas de tráfego do funil">
+            <div class="funnel-bar impressions" id="funnelImpressionsBar"><span id="funnelImpressions">0</span></div>
+            <div class="funnel-label" id="funnelCpm">Impressões · CPM: R$ 0,00</div>
+            <div class="funnel-bar clicks" id="funnelClicksBar"><span id="funnelClicks">0</span></div>
+            <div class="funnel-label" id="funnelCtr">Cliques · CTR: 0,0%</div>
+            <div class="funnel-bar estimated" id="funnelEstimatedLeadsBar"><span id="funnelEstimatedLeads">0</span></div>
+            <div class="funnel-label" id="funnelClickLeadRate">Leads Estimados · Conv. clique→lead: 0,0%</div>
+          </div>
           <div class="funnel-bar total" id="totalBar">77</div>
           <div class="funnel-label">Leads Totais</div>
           <div class="funnel-bar qualified" id="qualifiedBar">20</div>
@@ -616,9 +621,13 @@ function updateTraffic(raw){
   document.querySelector("#funnelImpressions").textContent = number.format(impressions);
   document.querySelector("#funnelClicks").textContent = number.format(clicks);
   document.querySelector("#funnelEstimatedLeads").textContent = number.format(estimatedLeads);
-  document.querySelector("#funnelCpm").textContent = `CPM: ${moneyText(cpm)}`;
-  document.querySelector("#funnelCtr").textContent = `CTR: ${percentText(ctr)}`;
-  document.querySelector("#funnelClickLeadRate").textContent = `Conv. clique→lead: ${percentText(clickLeadRate)}`;
+  document.querySelector("#funnelCpm").textContent = `Impressões · CPM: ${moneyText(cpm)}`;
+  document.querySelector("#funnelCtr").textContent = `Cliques · CTR: ${percentText(ctr)}`;
+  document.querySelector("#funnelClickLeadRate").textContent = `Leads Estimados · Conv. clique→lead: ${percentText(clickLeadRate)}`;
+  const trafficMax = Math.max(impressions,1);
+  document.querySelector("#funnelImpressionsBar").style.width = impressions ? "100%" : "0";
+  document.querySelector("#funnelClicksBar").style.width = `${Math.max(18,clicks / trafficMax * 100)}%`;
+  document.querySelector("#funnelEstimatedLeadsBar").style.width = `${Math.max(14,estimatedLeads / trafficMax * 100)}%`;
 }
 
 function update(){
