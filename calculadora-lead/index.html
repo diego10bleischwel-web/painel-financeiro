@@ -149,10 +149,11 @@ input:focus{
   border-color:rgba(51,207,136,.75);
   box-shadow:0 0 0 4px rgba(51,207,136,.10);
 }
-input[readonly]{
+input[readonly],input[disabled]{
   color:#d8e7ff;
   cursor:not-allowed;
   opacity:.9;
+  pointer-events:none;
 }
 .traffic-grid{
   display:grid;
@@ -476,7 +477,7 @@ body.manager .funnel-bar.sales{width:19%!important}
           </div>
           <div class="field">
             <label for="totalLeads">Total de Leads</label>
-            <input id="totalLeads" type="number" min="0" step="1" value="100" readonly tabindex="-1" aria-readonly="true">
+            <input id="totalLeads" type="number" min="0" step="1" value="100" readonly disabled tabindex="-1" aria-readonly="true">
           </div>
           <div class="field">
             <label for="qualifiedLeads">Leads Qualificados</label>
@@ -764,6 +765,7 @@ function update(){
   document.querySelector("#roasMetric").classList.toggle("negative",roas < 1);
   const diagnosis = diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCpl,currentCpl:raw.currentCpl,cpa,ticket:raw.ticket,flow});
   document.querySelector("#diagnosis").innerHTML = diagnosis.map(item => `<div class="diagnosis-alert ${item.tone}"><b>${item.title}</b><small>${item.detail}</small></div>`).join("");
+  bindTwoClickReveal(".diagnosis-alert");
   document.querySelector("#leadValueInsight").innerHTML = `Cada lead qualificado vale em média <strong>${moneyText(leadValue)}</strong> em receita. Se você compra mais leads qualificados mantendo a taxa de conversão, está comprando potencial de faturamento.<small>Cálculo: receita total ÷ leads qualificados. Aqui: ${moneyText(revenue)} ÷ ${number.format(flow.qualifiedLeads)}.</small>`;
 
   const max = Math.max(flow.totalLeads,1);
@@ -793,20 +795,24 @@ document.querySelectorAll(".profile-toggle button").forEach(button => {
     update();
   });
 });
-document.querySelector(".metrics").addEventListener("dblclick",event => {
-  const card = event.target.closest(".metric");
-  if(card) card.classList.add("open");
-});
-document.querySelector(".metrics").addEventListener("mouseleave",() => {
-  document.querySelectorAll(".metric.open").forEach(card => card.classList.remove("open"));
-},true);
-document.querySelector("#diagnosis").addEventListener("dblclick",event => {
-  const alert = event.target.closest(".diagnosis-alert");
-  if(alert) alert.classList.add("open");
-});
-document.querySelector("#diagnosis").addEventListener("mouseleave",() => {
-  document.querySelectorAll(".diagnosis-alert.open").forEach(alert => alert.classList.remove("open"));
-});
+function bindTwoClickReveal(selector){
+  document.querySelectorAll(selector).forEach(item => {
+    if(item.dataset.revealBound) return;
+    item.dataset.revealBound = "true";
+    item.dataset.lastClick = "0";
+    item.addEventListener("click",() => {
+      const now = Date.now();
+      const last = Number(item.dataset.lastClick || 0);
+      item.dataset.lastClick = String(now);
+      if(now - last < 420) item.classList.add("open");
+    });
+    item.addEventListener("mouseleave",() => {
+      item.classList.remove("open");
+      item.dataset.lastClick = "0";
+    });
+  });
+}
+bindTwoClickReveal(".metric");
 Object.entries(fields).filter(([key,input]) => key !== "totalLeads" && input).forEach(([,input]) => input.addEventListener("input",update));
 update();
 </script>
