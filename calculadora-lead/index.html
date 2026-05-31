@@ -170,14 +170,53 @@ input:focus{
 }
 .traffic-panel{display:none}
 body.manager .traffic-panel{display:block}
+.funnel-panel{padding-bottom:30px}
+body.manager .funnel-panel{padding-bottom:36px}
+.funnel-traffic{
+  display:none;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:-6px 0 24px;
+}
+body.manager .funnel-traffic{display:grid}
+.funnel-traffic-card{
+  min-height:82px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--input);
+  padding:13px 14px;
+}
+.funnel-traffic-card span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.funnel-traffic-card strong{
+  display:block;
+  margin:7px 0 4px;
+  color:#fff;
+  font-family:"Consolas","Courier New",monospace;
+  font-size:17px;
+}
+.funnel-traffic-card small{
+  color:var(--purple);
+  font-size:10.5px;
+  line-height:1.3;
+  font-weight:800;
+}
 .funnel-stage{
   display:grid;
   justify-items:center;
-  gap:7px;
+  gap:8px;
   margin-top:4px;
+  min-height:234px;
+  align-content:center;
 }
 .funnel-bar{
-  height:48px;
+  height:49px;
   border-radius:9px;
   display:grid;
   place-items:center;
@@ -343,7 +382,7 @@ body.manager .traffic-panel{display:block}
 }
 @media(max-width:620px){
   .app{padding:28px 12px 42px}
-  .form-grid,.metrics,.traffic-grid,.traffic-summary{grid-template-columns:1fr}
+  .form-grid,.metrics,.traffic-grid,.traffic-summary,.funnel-traffic{grid-template-columns:1fr}
   .panel{padding:22px 18px}
   .status{grid-template-columns:1fr}
   .profile-toggle{display:grid}
@@ -398,15 +437,15 @@ body.manager .traffic-panel{display:block}
         <div class="traffic-grid">
           <div class="field">
             <label for="cpm">CPM (R$)</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="cpm" type="number" min="0" step="0.01" value=""></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="cpm" type="number" min="0" step="0.01" value="23.68"></div>
           </div>
           <div class="field">
             <label for="ctr">CTR</label>
-            <input id="ctr" type="number" min="0" step="0.01" value="">
+            <input id="ctr" type="number" min="0" step="0.01" value="2.36">
           </div>
           <div class="field">
             <label for="clickLeadRate">Conv. Clique→Lead</label>
-            <input id="clickLeadRate" type="number" min="0" step="0.01" value="">
+            <input id="clickLeadRate" type="number" min="0" step="0.01" value="13.25">
           </div>
         </div>
         <div class="traffic-summary">
@@ -416,8 +455,25 @@ body.manager .traffic-panel{display:block}
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel funnel-panel">
         <h2 class="section-title">Funil de Conversão</h2>
+        <div class="funnel-traffic" aria-label="Resumo do tráfego no funil">
+          <div class="funnel-traffic-card">
+            <span>Impressões</span>
+            <strong id="funnelImpressions">0</strong>
+            <small id="funnelCpm">CPM: R$ 0,00</small>
+          </div>
+          <div class="funnel-traffic-card">
+            <span>Cliques</span>
+            <strong id="funnelClicks">0</strong>
+            <small id="funnelCtr">CTR: 0,0%</small>
+          </div>
+          <div class="funnel-traffic-card">
+            <span>Leads Estimados</span>
+            <strong id="funnelEstimatedLeads">0</strong>
+            <small id="funnelClickLeadRate">Conv. clique→lead: 0,0%</small>
+          </div>
+        </div>
         <div class="funnel-stage">
           <div class="funnel-bar total" id="totalBar">77</div>
           <div class="funnel-label">Leads Totais</div>
@@ -557,6 +613,12 @@ function updateTraffic(raw){
   document.querySelector("#impressions").textContent = number.format(impressions);
   document.querySelector("#clicks").textContent = number.format(clicks);
   document.querySelector("#estimatedLeads").textContent = number.format(estimatedLeads);
+  document.querySelector("#funnelImpressions").textContent = number.format(impressions);
+  document.querySelector("#funnelClicks").textContent = number.format(clicks);
+  document.querySelector("#funnelEstimatedLeads").textContent = number.format(estimatedLeads);
+  document.querySelector("#funnelCpm").textContent = `CPM: ${moneyText(cpm)}`;
+  document.querySelector("#funnelCtr").textContent = `CTR: ${percentText(ctr)}`;
+  document.querySelector("#funnelClickLeadRate").textContent = `Conv. clique→lead: ${percentText(clickLeadRate)}`;
 }
 
 function update(){
