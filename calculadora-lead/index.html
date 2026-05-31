@@ -677,9 +677,15 @@ function update(){
   const max = Math.max(flow.totalLeads,1);
   const qualifiedWidth = Math.max(20,flow.qualifiedLeads / max * 100);
   const salesWidth = Math.max(14,flow.sales / max * 100);
-  document.querySelector("#totalBar").style.width = flow.totalLeads ? "100%" : "0";
-  document.querySelector("#qualifiedBar").style.width = `${qualifiedWidth}%`;
-  document.querySelector("#salesBar").style.width = `${salesWidth}%`;
+  if(document.body.classList.contains("manager")){
+    document.querySelector("#totalBar").style.width = flow.totalLeads ? "46%" : "0";
+    document.querySelector("#qualifiedBar").style.width = flow.qualifiedLeads ? "31%" : "0";
+    document.querySelector("#salesBar").style.width = flow.sales ? "19%" : "0";
+  } else {
+    document.querySelector("#totalBar").style.width = flow.totalLeads ? "100%" : "0";
+    document.querySelector("#qualifiedBar").style.width = `${qualifiedWidth}%`;
+    document.querySelector("#salesBar").style.width = `${salesWidth}%`;
+  }
   document.querySelector("#totalBar").textContent = number.format(flow.totalLeads);
   document.querySelector("#qualifiedBar").textContent = number.format(flow.qualifiedLeads);
   document.querySelector("#salesBar").textContent = number.format(flow.sales);
@@ -692,6 +698,7 @@ document.querySelectorAll(".profile-toggle button").forEach(button => {
     document.querySelectorAll(".profile-toggle button").forEach(item => item.classList.remove("active"));
     button.classList.add("active");
     document.body.classList.toggle("manager",button.dataset.mode === "manager");
+    update();
   });
 });
 Object.values(fields).filter(Boolean).forEach(input => input.addEventListener("input",update));
