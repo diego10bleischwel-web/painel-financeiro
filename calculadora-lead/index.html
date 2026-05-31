@@ -331,13 +331,12 @@ body.manager .funnel-bar.sales{width:19%!important}
 .metric strong{
   display:block;
   margin:7px 0 7px;
-  color:var(--green);
+  color:#fff;
   font-family:"Consolas","Courier New",monospace;
   font-size:20px;
   line-height:1.05;
-  text-shadow:0 0 14px rgba(55,242,155,.12);
 }
-.metric.accent strong{color:var(--green)}
+.metric.accent strong{color:var(--green);text-shadow:0 0 14px rgba(55,242,155,.12)}
 .metric.negative strong{color:var(--bad)}
 .metric small{
   display:none;
@@ -409,7 +408,10 @@ body.manager .funnel-bar.sales{width:19%!important}
 .diagnosis-alert.open small{display:block}
 .insight{
   padding:22px;
+  cursor:pointer;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
 }
+.insight:hover{transform:translateY(-2px);border-color:rgba(183,150,255,.62);box-shadow:0 14px 30px rgba(0,0,0,.18),0 0 0 1px rgba(183,150,255,.16);background:#1a1f28}
 .insight h3{
   margin:0 0 13px;
   color:var(--muted);
@@ -426,7 +428,7 @@ body.manager .funnel-bar.sales{width:19%!important}
 }
 .insight strong{color:var(--green)}
 .insight small{
-  display:block;
+  display:none;
   margin-top:9px;
   color:var(--purple);
   font-size:12px;
@@ -437,6 +439,7 @@ body.manager .funnel-bar.sales{width:19%!important}
   border-radius:7px;
   padding:8px 10px;
 }
+.insight.open small{display:block}
 @media(max-width:980px){
   .screen{grid-template-columns:1fr}
   .profile-toggle{width:100%}
@@ -490,6 +493,10 @@ body.manager .funnel-bar.sales{width:19%!important}
           <div class="field">
             <label for="ticket">Ticket Médio</label>
             <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="ticket" type="number" min="0" step="0.01" value="31000"></div>
+          </div>
+          <div class="field">
+            <label for="campaignBudget">Verba Total da Campanha</label>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="campaignBudget" type="number" min="0" step="0.01" placeholder="Opcional"></div>
           </div>
         </form>
       </section>
@@ -607,6 +614,7 @@ const fields = {
   qualifiedLeads: document.querySelector("#qualifiedLeads"),
   sales: document.querySelector("#sales"),
   ticket: document.querySelector("#ticket"),
+  campaignBudget: document.querySelector("#campaignBudget"),
   cpm: document.querySelector("#cpm"),
   ctr: document.querySelector("#ctr"),
   clickLeadRate: document.querySelector("#clickLeadRate")
@@ -642,12 +650,8 @@ function diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCp
       title:"⚠ Criativo não está gerando interesse suficiente",
       detail:`De cada 100 leads, só ${percentText(qualificationRate)} viram leads qualificados. Abaixo de 10%, o sinal é de criativo/oferta desalinhados. Cálculo: ${number.format(flow.qualifiedLeads)} ÷ ${number.format(flow.totalLeads)}.`
     });
-  } else if(qualificationRate < 30){
-    alerts.push({
-      tone:"warn",
-      title:"◎ Gargalo principal: Qualificação de Leads",
-      detail:`Muitos contatos entram, mas poucos parecem prontos para comprar. Cálculo: ${number.format(flow.qualifiedLeads)} qualificados ÷ ${number.format(flow.totalLeads)} leads.`
-    });
+  } else if(qualificationRate > 50){
+    alerts.push({tone:"ok",title:"✓ Qualificação excelente",detail:`Mais de 50% dos leads viram qualificados. Cálculo: ${number.format(flow.qualifiedLeads)} ÷ ${number.format(flow.totalLeads)}.`});
   }
   if(conversionRate < 10){
     alerts.push({
@@ -655,32 +659,14 @@ function diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCp
       title:"⌁ Gargalo principal: Conversão em Vendas",
       detail:`Vendas abaixo de 10% dos leads qualificados. O comercial/oferta precisa converter melhor. Cálculo: ${number.format(flow.sales)} vendas ÷ ${number.format(flow.qualifiedLeads)} qualificados.`
     });
+  } else if(conversionRate > 50){
+    alerts.push({tone:"ok",title:"✓ Conversão em vendas excelente",detail:`Mais de 50% dos leads qualificados viraram venda. Cálculo: ${number.format(flow.sales)} ÷ ${number.format(flow.qualifiedLeads)}.`});
   }
   if(roas < 1){
     alerts.push({
       tone:"bad",
       title:"$ ROAS abaixo do ponto de equilíbrio",
       detail:`Para cada R$1 investido, voltou apenas ${moneyText(roas)} em vendas. A campanha está comprando prejuízo.`
-    });
-  } else if(roas < 2){
-    alerts.push({
-      tone:"warn",
-      title:"◎ Retorno ainda apertado",
-      detail:`A campanha está positiva, mas com pouca folga. Cálculo: receita ÷ verba = ${roasText(roas)}.`
-    });
-  }
-  if(ticket && cpa > ticket * 0.35){
-    alerts.push({
-      tone:"warn",
-      title:"◎ CPA alto em relação ao ticket",
-      detail:`Cada venda consome ${percentText(cpa / ticket * 100)} do ticket médio em mídia. Cálculo: CPA ÷ ticket.`
-    });
-  }
-  if(currentCpl && qualifiedCpl > currentCpl * 4){
-    alerts.push({
-      tone:"warn",
-      title:"◎ Custo do lead qualificado está alto",
-      detail:`O CPL geral parece baixo, mas o lead realmente qualificado está caro. Cálculo: verba ÷ leads qualificados.`
     });
   }
   if(!alerts.length){
@@ -721,7 +707,8 @@ function update(){
     totalLeads: val(fields.totalLeads),
     qualifiedLeads: val(fields.qualifiedLeads),
     sales: val(fields.sales),
-    ticket: val(fields.ticket)
+    ticket: val(fields.ticket),
+    campaignBudget: val(fields.campaignBudget)
   };
   const flow = flowFrom(raw);
   fields.totalLeads.value = flow.totalLeads;
@@ -766,7 +753,16 @@ function update(){
   const diagnosis = diagnosisData({qualificationRate,conversionRate,profit,roas,qualifiedCpl,currentCpl:raw.currentCpl,cpa,ticket:raw.ticket,flow});
   document.querySelector("#diagnosis").innerHTML = diagnosis.map(item => `<div class="diagnosis-alert ${item.tone}"><b>${item.title}</b><small>${item.detail}</small></div>`).join("");
   bindTwoClickReveal(".diagnosis-alert");
-  document.querySelector("#leadValueInsight").innerHTML = `Cada lead qualificado vale em média <strong>${moneyText(leadValue)}</strong> em receita. Se você compra mais leads qualificados mantendo a taxa de conversão, está comprando potencial de faturamento.<small>Cálculo: receita total ÷ leads qualificados. Aqui: ${moneyText(revenue)} ÷ ${number.format(flow.qualifiedLeads)}.</small>`;
+  const scaleBase = raw.campaignBudget || raw.investment;
+  const scaledInvestment = scaleBase * 1.2;
+  const projectedTotalLeads = raw.currentCpl ? Math.round(scaledInvestment / raw.currentCpl) : 0;
+  const projectedQualified = Math.round(projectedTotalLeads * (qualificationRate / 100));
+  const projectedSales = Math.round(projectedQualified * (conversionRate / 100));
+  const projectedRevenue = projectedSales * raw.ticket;
+  const projectionCopy = raw.campaignBudget
+    ? ` Com uma verba total de ${moneyText(raw.campaignBudget)} e aumento permitido de 20%, a simulação vai para ${moneyText(scaledInvestment)}, estimando ${number.format(projectedTotalLeads)} leads, ${number.format(projectedQualified)} qualificados, ${number.format(projectedSales)} vendas e ${moneyText(projectedRevenue)} em receita.`
+    : ` Se aumentar a verba atual em 20%, a simulação vai para ${moneyText(scaledInvestment)}, estimando ${number.format(projectedTotalLeads)} leads, ${number.format(projectedQualified)} qualificados, ${number.format(projectedSales)} vendas e ${moneyText(projectedRevenue)} em receita.`;
+  document.querySelector("#leadValueInsight").innerHTML = `Cada lead qualificado vale em média <strong>${moneyText(leadValue)}</strong> em receita.${projectionCopy}<small>Cálculo: receita total ÷ leads qualificados. Aqui: ${moneyText(revenue)} ÷ ${number.format(flow.qualifiedLeads)}. Projeção: verba × 1,2 mantendo as taxas atuais do funil.</small>`;
 
   const max = Math.max(flow.totalLeads,1);
   const qualifiedWidth = Math.max(20,flow.qualifiedLeads / max * 100);
@@ -801,18 +797,20 @@ function bindTwoClickReveal(selector){
     item.dataset.revealBound = "true";
     item.dataset.lastClick = "0";
     item.addEventListener("click",() => {
+      if(item.classList.contains("open")){
+        item.classList.remove("open");
+        item.dataset.lastClick = "0";
+        return;
+      }
       const now = Date.now();
       const last = Number(item.dataset.lastClick || 0);
       item.dataset.lastClick = String(now);
       if(now - last < 420) item.classList.add("open");
     });
-    item.addEventListener("mouseleave",() => {
-      item.classList.remove("open");
-      item.dataset.lastClick = "0";
-    });
   });
 }
 bindTwoClickReveal(".metric");
+bindTwoClickReveal(".insight");
 Object.entries(fields).filter(([key,input]) => key !== "totalLeads" && input).forEach(([,input]) => input.addEventListener("input",update));
 update();
 </script>
