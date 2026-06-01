@@ -102,13 +102,38 @@ h1 .green{color:var(--green)}
   border-radius:10px;
 }
 .panel{padding:26px 24px}
-.section-title{
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
   margin:0 0 26px;
+}
+.section-title{
+  margin:0;
   color:var(--muted);
   font-size:15px;
   font-weight:950;
   text-transform:uppercase;
   letter-spacing:.12em;
+}
+.panel > .section-title{margin:0 0 26px}
+.panel-head .section-title{margin:0}
+.reset-btn{
+  border:1px solid rgba(183,150,255,.45);
+  border-radius:8px;
+  background:var(--purple-soft);
+  color:#d8c9ff;
+  padding:9px 12px;
+  font-size:11px;
+  font-weight:950;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  cursor:pointer;
+}
+.reset-btn:hover{
+  border-color:rgba(183,150,255,.8);
+  box-shadow:0 0 18px rgba(183,150,255,.14);
 }
 .form-grid{
   display:grid;
@@ -450,6 +475,9 @@ body.manager .funnel-bar.sales{width:19%!important}
   padding:8px 10px;
 }
 .insight.open small{display:block}
+.is-empty #statusCard,
+.is-empty .diagnosis-wrap,
+.is-empty .insight{display:none}
 @media(max-width:980px){
   .screen{grid-template-columns:1fr}
   .profile-toggle{width:100%}
@@ -458,13 +486,14 @@ body.manager .funnel-bar.sales{width:19%!important}
 @media(max-width:620px){
   .app{padding:28px 12px 42px}
   .form-grid,.metrics,.traffic-grid,.traffic-summary,.funnel-traffic{grid-template-columns:1fr}
+  .panel-head{align-items:flex-start;flex-direction:column}
   .panel{padding:22px 18px}
   .status{grid-template-columns:1fr}
   .profile-toggle{display:grid}
 }
 </style>
 </head>
-<body>
+<body class="is-empty">
 <main class="app">
   <header class="hero">
     <h1>Calculadora da <span class="green">Fórmula do Lead Qualificado</span><span class="tm">TM</span></h1>
@@ -478,35 +507,38 @@ body.manager .funnel-bar.sales{width:19%!important}
   <section class="screen">
     <div class="left">
       <section class="panel">
-        <h2 class="section-title">Dados da Campanha</h2>
-        <form class="form-grid" id="leadForm">
+        <div class="panel-head">
+          <h2 class="section-title">Dados da Campanha</h2>
+          <button class="reset-btn" id="resetCalculator" type="button">Zerar</button>
+        </div>
+        <form class="form-grid" id="leadForm" autocomplete="off">
           <div class="field">
             <label for="investment">Verba Investida</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="investment" type="number" min="0" step="0.01" value="1000"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="investment" type="number" min="0" step="0.01" autocomplete="off"></div>
           </div>
           <div class="field">
             <label for="currentCpl">Custo por Lead Atual</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="currentCpl" type="number" min="0" step="0.01" value="10"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="currentCpl" type="number" min="0" step="0.01" autocomplete="off"></div>
           </div>
           <div class="field">
             <label for="totalLeads">Total de Leads</label>
-            <input id="totalLeads" type="number" min="0" step="1" value="100" readonly disabled tabindex="-1" aria-readonly="true">
+            <input id="totalLeads" type="number" min="0" step="1" value="0" readonly disabled tabindex="-1" aria-readonly="true">
           </div>
           <div class="field">
             <label for="qualifiedLeads">Leads Qualificados</label>
-            <input id="qualifiedLeads" type="number" min="0" step="1" value="10">
+            <input id="qualifiedLeads" type="number" min="0" step="1" autocomplete="off">
           </div>
           <div class="field">
             <label for="sales">Vendas</label>
-            <input id="sales" type="number" min="0" step="1" value="1">
+            <input id="sales" type="number" min="0" step="1" autocomplete="off">
           </div>
           <div class="field">
             <label for="ticket">Ticket Médio</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="ticket" type="number" min="0" step="0.01" value="31000"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="ticket" type="number" min="0" step="0.01" autocomplete="off"></div>
           </div>
           <div class="field">
             <label for="campaignBudget">Verba Total da Campanha</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="campaignBudget" type="number" min="0" step="0.01" placeholder="Opcional"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="campaignBudget" type="number" min="0" step="0.01" placeholder="Opcional" autocomplete="off"></div>
           </div>
         </form>
       </section>
@@ -516,15 +548,15 @@ body.manager .funnel-bar.sales{width:19%!important}
         <div class="traffic-grid">
           <div class="field">
             <label for="cpm">CPM (R$)</label>
-            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="cpm" type="number" min="0" step="0.01" value="23.68"></div>
+            <div class="input-wrap"><span class="prefix">R$</span><input class="money" id="cpm" type="number" min="0" step="0.01" autocomplete="off"></div>
           </div>
           <div class="field">
             <label for="ctr">CTR</label>
-            <input id="ctr" type="number" min="0" step="0.01" value="2.36">
+            <input id="ctr" type="number" min="0" step="0.01" autocomplete="off">
           </div>
           <div class="field">
             <label for="clickLeadRate">Conv. Clique→Lead</label>
-            <input id="clickLeadRate" type="number" min="0" step="0.01" value="13.25">
+            <input id="clickLeadRate" type="number" min="0" step="0.01" autocomplete="off">
           </div>
         </div>
         <div class="traffic-summary">
@@ -543,11 +575,11 @@ body.manager .funnel-bar.sales{width:19%!important}
           <div class="funnel-label manager-only" id="funnelCtr">Cliques · CTR: 0,0%</div>
           <div class="funnel-bar estimated manager-only" id="funnelEstimatedLeadsBar"><span id="funnelEstimatedLeads">0</span></div>
           <div class="funnel-label manager-only" id="funnelClickLeadRate">Leads Estimados · Conv. clique→lead: 0,0%</div>
-          <div class="funnel-bar total" id="totalBar">77</div>
+          <div class="funnel-bar total" id="totalBar">0</div>
           <div class="funnel-label">Leads Totais</div>
-          <div class="funnel-bar qualified" id="qualifiedBar">20</div>
+          <div class="funnel-bar qualified" id="qualifiedBar">0</div>
           <div class="funnel-label">Leads Qualificados</div>
-          <div class="funnel-bar sales" id="salesBar">3</div>
+          <div class="funnel-bar sales" id="salesBar">0</div>
           <div class="funnel-label">Vendas</div>
         </div>
       </section>
@@ -566,37 +598,37 @@ body.manager .funnel-bar.sales{width:19%!important}
       <section class="metrics">
         <article class="metric">
           <span>Taxa de Qualificação</span>
-          <strong id="qualificationRate">26.0%</strong>
+          <strong id="qualificationRate">0,0%</strong>
           <small id="qualificationHelp"><b>O que é:</b> de cada 100 contatos, 26 eram leads quentes. <b>Cálculo:</b> leads qualificados ÷ total de leads.</small>
         </article>
         <article class="metric">
           <span>Taxa de Conversão</span>
-          <strong id="conversionRate">15.0%</strong>
+          <strong id="conversionRate">0,0%</strong>
           <small id="conversionHelp"><b>O que é:</b> de cada 100 leads qualificados, 15 viraram venda. <b>Cálculo:</b> vendas ÷ leads qualificados.</small>
         </article>
         <article class="metric accent">
           <span>Receita</span>
-          <strong id="revenue">R$ 9.510,00</strong>
+          <strong id="revenue">R$ 0,00</strong>
           <small id="revenueHelp"><b>O que é:</b> total faturado pelas vendas dos anúncios. <b>Cálculo:</b> vendas × ticket médio.</small>
         </article>
         <article class="metric accent" id="profitMetric">
           <span>Lucro</span>
-          <strong id="profit">R$ 8.915,00</strong>
+          <strong id="profit">R$ 0,00</strong>
           <small id="profitHelp"><b>O que é:</b> dinheiro que sobrou após a mídia. <b>Cálculo:</b> receita - verba investida.</small>
         </article>
         <article class="metric accent" id="roasMetric">
           <span>ROAS</span>
-          <strong id="roas">15.98x</strong>
+          <strong id="roas">0,00x</strong>
           <small id="roasHelp"><b>O que é:</b> para cada R$1 investido, voltou R$ 15,98 em vendas. <b>Cálculo:</b> receita ÷ verba.</small>
         </article>
         <article class="metric">
           <span>CPA</span>
-          <strong id="cpa">R$ 198,33</strong>
+          <strong id="cpa">R$ 0,00</strong>
           <small id="cpaHelp"><b>O que é:</b> cada venda custou R$ 198,33 em anúncios. <b>Cálculo:</b> verba ÷ vendas.</small>
         </article>
         <article class="metric">
           <span>CPL Qualificado</span>
-          <strong id="qualifiedCpl">R$ 29,75</strong>
+          <strong id="qualifiedCpl">R$ 0,00</strong>
           <small id="qualifiedCplHelp"><b>O que é:</b> custo de cada lead com real interesse. <b>Cálculo:</b> verba ÷ leads qualificados.</small>
         </article>
       </section>
@@ -720,6 +752,8 @@ function update(){
     ticket: val(fields.ticket),
     campaignBudget: val(fields.campaignBudget)
   };
+  const hasData = raw.investment > 0 || raw.currentCpl > 0 || raw.qualifiedLeads > 0 || raw.sales > 0 || raw.ticket > 0 || raw.campaignBudget > 0 || val(fields.cpm) > 0 || val(fields.ctr) > 0 || val(fields.clickLeadRate) > 0;
+  document.body.classList.toggle("is-empty",!hasData);
   const flow = flowFrom(raw);
   fields.totalLeads.value = flow.totalLeads;
   const qualificationRate = flow.totalLeads ? flow.qualifiedLeads / flow.totalLeads * 100 : 0;
@@ -749,7 +783,7 @@ function update(){
   document.querySelector("#qualifiedCplHelp").innerHTML = `<b>O que é:</b> custo de cada lead com real interesse. <b>Cálculo:</b> ${moneyText(raw.investment)} ÷ ${number.format(flow.qualifiedLeads)}.`;
 
   const status = document.querySelector("#statusCard");
-  status.classList.toggle("bad",profit < 0);
+  status.classList.toggle("bad",hasData && profit < 0);
   document.querySelector("#statusIcon").innerHTML = profit >= 0
     ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16l5-5 4 4 7-7"/><path d="M14 8h6v6"/></svg>`
     : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l5 5 4-4 7 7"/><path d="M14 16h6v-6"/></svg>`;
@@ -758,9 +792,9 @@ function update(){
     ? `Lucro: <strong>${moneyText(profit)}</strong> &nbsp; Para cada R$1 investido, você recebe ${moneyText(roas)}`
     : `Prejuízo: <strong>${moneyText(Math.abs(profit))}</strong> &nbsp; Para cada R$1 investido, você recebe ${moneyText(roas)}`;
 
-  document.querySelector("#profitMetric").classList.toggle("negative",profit < 0);
-  document.querySelector("#roasMetric").classList.toggle("negative",roas < 1);
-  const diagnosis = diagnosisData({qualificationRate,conversionRate,profit,roas,flow});
+  document.querySelector("#profitMetric").classList.toggle("negative",hasData && profit < 0);
+  document.querySelector("#roasMetric").classList.toggle("negative",hasData && roas < 1);
+  const diagnosis = hasData ? diagnosisData({qualificationRate,conversionRate,profit,roas,flow}) : [];
   document.querySelector("#diagnosis").innerHTML = diagnosis.map(item => `<div class="diagnosis-alert ${item.tone}"><b>${item.title}</b><small>${item.detail}</small></div>`).join("");
   bindTwoClickReveal(".diagnosis-alert");
   const scaleBase = raw.campaignBudget || raw.investment;
@@ -777,7 +811,11 @@ function update(){
   const max = Math.max(flow.totalLeads,1);
   const qualifiedWidth = Math.max(20,flow.qualifiedLeads / max * 100);
   const salesWidth = Math.max(14,flow.sales / max * 100);
-  if(document.body.classList.contains("manager")){
+  if(!hasData){
+    document.querySelector("#totalBar").style.width = "100%";
+    document.querySelector("#qualifiedBar").style.width = "14%";
+    document.querySelector("#salesBar").style.width = "14%";
+  } else if(document.body.classList.contains("manager")){
     document.querySelector("#totalBar").style.width = flow.totalLeads ? "46%" : "0";
     document.querySelector("#qualifiedBar").style.width = flow.qualifiedLeads ? "31%" : "0";
     document.querySelector("#salesBar").style.width = flow.sales ? "19%" : "0";
@@ -791,6 +829,20 @@ function update(){
   document.querySelector("#salesBar").textContent = number.format(flow.sales);
 
   updateTraffic(raw);
+  if(!hasData){
+    document.querySelector("#funnelImpressionsBar").style.width = "100%";
+    document.querySelector("#funnelClicksBar").style.width = "78%";
+    document.querySelector("#funnelEstimatedLeadsBar").style.width = "62%";
+  }
+}
+
+function resetCalculator(){
+  Object.entries(fields).forEach(([key,input]) => {
+    if(!input) return;
+    input.value = key === "totalLeads" ? "0" : "";
+  });
+  document.querySelectorAll(".open").forEach(item => item.classList.remove("open"));
+  update();
 }
 
 document.querySelectorAll(".profile-toggle button").forEach(button => {
@@ -819,7 +871,14 @@ function bindTwoClickReveal(selector){
 bindTwoClickReveal(".metric");
 bindTwoClickReveal(".insight");
 Object.entries(fields).filter(([key,input]) => key !== "totalLeads" && input).forEach(([,input]) => input.addEventListener("input",update));
-update();
+document.querySelector("#resetCalculator").addEventListener("click",resetCalculator);
+window.addEventListener("pageshow",resetCalculator);
+window.addEventListener("beforeunload",() => {
+  Object.entries(fields).forEach(([key,input]) => {
+    if(input) input.value = key === "totalLeads" ? "0" : "";
+  });
+});
+resetCalculator();
 </script>
 </body>
 </html>
