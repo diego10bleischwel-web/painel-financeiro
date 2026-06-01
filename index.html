@@ -149,7 +149,7 @@ const LEGACY_SYNC_URLS=['https://script.google.com/macros/s/AKfycbzdHciCQMdtt8Cd
 let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
 if(LEGACY_SYNC_URLS.includes(savedSyncUrl)){ localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL); savedSyncUrl=DEFAULT_SYNC_URL; }
 let syncUrl=savedSyncUrl||DEFAULT_SYNC_URL;
-let syncTimer=null, syncLoopTimer=null, syncReady=false, applyingRemote=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
+let syncTimer=null, syncLoopTimer=null, syncReady=false, applyingRemote=false, syncSaving=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
 function loadSavedState(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
@@ -186,6 +186,7 @@ const state={
   cardTransactions:Array.isArray(savedState?.cardTransactions)?structuredClone(savedState.cardTransactions):[],
   cards:Array.isArray(savedState?.cards)?structuredClone(savedState.cards):structuredClone(DEFAULT_CARDS),
   lastSync:Number(savedState?.lastSync||0),
+  syncRevision:String(savedState?.syncRevision||''),
   cleanForm:''
 };
 state.entries.forEach(normalizeEntry);
@@ -198,12 +199,13 @@ function statePayload(){
     thirdMovements:state.thirdMovements,
     cardTransactions:state.cardTransactions,
     cards:state.cards,
-    lastSync:state.lastSync
+    lastSync:state.lastSync,
+    syncRevision:state.syncRevision
   };
 }
 function persist(){
   try{
-    if(!applyingRemote){ state.lastSync=Date.now(); setSyncPending(true); }
+    if(!applyingRemote){ state.lastSync=Date.now(); state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2); setSyncPending(true); }
     localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
     scheduleCloudSave();
   }catch(err){ console.warn('Não foi possível salvar no navegador.',err); }
@@ -266,6 +268,7 @@ function applyCloudState(data){
   state.cardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
   state.lastSync=Number(data.lastSync||Date.now());
+  state.syncRevision=String(data.syncRevision||'');
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
@@ -287,6 +290,7 @@ function applyRecoveredState(data, uploadNow=false){
   state.cardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
   state.lastSync=Date.now();
+  state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2);
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
@@ -367,19 +371,23 @@ function postCloudState(payload){
     })
     .finally(()=>clearTimeout(timer));
 }
-async function confirmCloudSave(sentAt, attempts=4){
+async function confirmCloudSave(sentAt, revision, attempts=8){
   for(let i=0;i<attempts;i++){
     try{
-      await delay(900+(i*450));
+      await delay(900+(i*550));
       const remote=await loadCloudState();
-      if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt)return remote;
+      if(remote&&Array.isArray(remote.entries)&&String(remote.syncRevision||'')===String(revision||''))return remote;
+      if(!revision&&remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt)return remote;
     }catch(err){ console.warn(err); }
   }
   return null;
 }
 async function saveCloudState(){
   if(!syncUrl)return;
+  if(syncSaving){ scheduleCloudSave(1200); return; }
   const sentAt=Number(state.lastSync||Date.now());
+  const sentRevision=String(state.syncRevision||'');
+  syncSaving=true;
   try{
     setSyncStatus('Sync salvando...');
     const before=await loadCloudState().catch(()=>null);
@@ -389,8 +397,9 @@ async function saveCloudState(){
       return;
     }
     await postCloudState(statePayload());
-    const remote=await confirmCloudSave(sentAt);
-    if(Number(state.lastSync||0)===sentAt&&remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>=sentAt){
+    setSyncStatus('Sync confirmando...');
+    const remote=await confirmCloudSave(sentAt,sentRevision);
+    if(Number(state.lastSync||0)===sentAt&&String(state.syncRevision||'')===sentRevision&&remote&&Array.isArray(remote.entries)&&String(remote.syncRevision||'')===sentRevision){
       setSyncPending(false);
       setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
     }else if(Number(state.lastSync||0)>sentAt){
@@ -398,10 +407,12 @@ async function saveCloudState(){
       setSyncStatus('Sync pendente');
       scheduleCloudSave(500);
     }else{
-      setSyncPending(false);
-      setSyncStatus('Sync enviado '+syncTime(sentAt));
+      setSyncPending(true);
+      setSyncStatus('Sync pendente');
+      scheduleCloudSave(3000);
     }
   }catch(err){ console.warn(err); setSyncPending(true); setSyncStatus('Sync pendente'); scheduleCloudSave(5000); }
+  finally{ syncSaving=false; }
 }
 async function configureSync(){
   const url=prompt('Cole a URL do Web App do Google Apps Script para sincronizar online. Deixe vazio para usar somente este navegador.',syncUrl);
