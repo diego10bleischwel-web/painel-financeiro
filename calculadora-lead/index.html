@@ -801,7 +801,7 @@ function update(){
   bindTwoClickReveal(".diagnosis-alert");
   const scaleBase = raw.campaignBudget || raw.investment;
   const scaledInvestment = scaleBase * 1.2;
-  const projectedTotalLeads = raw.currentCpl ? Math.round(scaledInvestment / raw.currentCpl) : 0;
+  const projectedTotalLeads = raw.currentCpl ? Math.floor(scaledInvestment / raw.currentCpl) : 0;
   const projectedQualified = Math.round(projectedTotalLeads * (qualificationRate / 100));
   const projectedSales = Math.round(projectedQualified * (conversionRate / 100));
   const projectedRevenue = projectedSales * raw.ticket;
