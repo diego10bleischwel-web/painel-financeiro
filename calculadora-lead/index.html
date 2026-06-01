@@ -208,8 +208,7 @@ input[readonly],input[disabled]{
 }
 .traffic-panel{display:none}
 body.manager .traffic-panel{display:block}
-.funnel-panel{padding-bottom:30px}
-body.manager .funnel-panel{padding-bottom:36px}
+.funnel-panel{padding-bottom:36px}
 .funnel-traffic{
   display:none;
   grid-template-columns:repeat(3,1fr);
@@ -250,7 +249,7 @@ body.manager .funnel-traffic{display:none}
   justify-items:center;
   gap:8px;
   margin-top:4px;
-  min-height:234px;
+  min-height:300px;
   align-content:center;
 }
 body.manager .funnel-stage{min-height:430px}
@@ -266,7 +265,7 @@ body.manager .manager-only{display:grid!important}
   font-weight:950;
   transition:width .2s ease;
 }
-.funnel-bar.total{width:100%;background:var(--blue)}
+.funnel-bar.total{background:var(--blue)}
 .funnel-bar.impressions{width:100%;background:var(--blue)}
 .funnel-bar.clicks{background:#6f8cff;color:#061018}
 .funnel-bar.estimated{background:var(--purple);color:#061018}
@@ -275,9 +274,12 @@ body.manager .manager-only{display:grid!important}
 body.manager .funnel-bar.impressions{width:100%!important}
 body.manager .funnel-bar.clicks{width:78%!important}
 body.manager .funnel-bar.estimated{width:62%!important}
-body.manager .funnel-bar.total{width:46%!important}
-body.manager .funnel-bar.qualified{width:31%!important}
-body.manager .funnel-bar.sales{width:19%!important}
+.funnel-bar.total{width:46%}
+.funnel-bar.qualified{width:31%}
+.funnel-bar.sales{width:19%}
+body.owner .funnel-bar.total{width:100%}
+body.owner .funnel-bar.qualified{width:31%}
+body.owner .funnel-bar.sales{width:19%}
 .funnel-label{
   color:var(--muted);
   font-size:12px;
@@ -493,7 +495,7 @@ body.manager .funnel-bar.sales{width:19%!important}
 }
 </style>
 </head>
-<body class="is-empty">
+<body class="owner is-empty">
 <main class="app">
   <header class="hero">
     <h1>Calculadora da <span class="green">Fórmula do Lead Qualificado</span><span class="tm">TM</span></h1>
@@ -670,7 +672,7 @@ const roasText = value => `${(Number.isFinite(value) ? value : 0).toFixed(2).rep
 const val = input => Math.max(0,Number(input.value || 0));
 
 function flowFrom(raw){
-  const calculatedTotalLeads = raw.currentCpl ? Math.round(raw.investment / raw.currentCpl) : 0;
+  const calculatedTotalLeads = raw.currentCpl ? Math.floor(raw.investment / raw.currentCpl) : 0;
   const totalLeads = calculatedTotalLeads;
   const qualifiedLeads = Math.min(raw.qualifiedLeads,totalLeads);
   const sales = Math.min(raw.sales,qualifiedLeads);
@@ -812,9 +814,9 @@ function update(){
   const qualifiedWidth = Math.max(20,flow.qualifiedLeads / max * 100);
   const salesWidth = Math.max(14,flow.sales / max * 100);
   if(!hasData){
-    document.querySelector("#totalBar").style.width = "100%";
-    document.querySelector("#qualifiedBar").style.width = "14%";
-    document.querySelector("#salesBar").style.width = "14%";
+    document.querySelector("#totalBar").style.width = document.body.classList.contains("manager") ? "46%" : "100%";
+    document.querySelector("#qualifiedBar").style.width = "31%";
+    document.querySelector("#salesBar").style.width = "19%";
   } else if(document.body.classList.contains("manager")){
     document.querySelector("#totalBar").style.width = flow.totalLeads ? "46%" : "0";
     document.querySelector("#qualifiedBar").style.width = flow.qualifiedLeads ? "31%" : "0";
@@ -849,7 +851,9 @@ document.querySelectorAll(".profile-toggle button").forEach(button => {
   button.addEventListener("click",() => {
     document.querySelectorAll(".profile-toggle button").forEach(item => item.classList.remove("active"));
     button.classList.add("active");
-    document.body.classList.toggle("manager",button.dataset.mode === "manager");
+    const isManager = button.dataset.mode === "manager";
+    document.body.classList.toggle("manager",isManager);
+    document.body.classList.toggle("owner",!isManager);
     update();
   });
 });
