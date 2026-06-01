@@ -277,7 +277,7 @@ body.manager .funnel-bar.estimated{width:62%!important}
 .funnel-bar.total{width:46%}
 .funnel-bar.qualified{width:31%}
 .funnel-bar.sales{width:19%}
-body.owner .funnel-bar.total{width:100%}
+body.owner .funnel-bar.total{width:46%}
 body.owner .funnel-bar.qualified{width:31%}
 body.owner .funnel-bar.sales{width:19%}
 .funnel-label{
@@ -810,21 +810,14 @@ function update(){
     : ` Se aumentar a verba atual em 20%, a simulação vai para ${moneyText(scaledInvestment)}, estimando ${number.format(projectedTotalLeads)} leads, ${number.format(projectedQualified)} qualificados, ${number.format(projectedSales)} vendas e ${moneyText(projectedRevenue)} em receita.`;
   document.querySelector("#leadValueInsight").innerHTML = `Cada lead qualificado vale em média <strong>${moneyText(leadValue)}</strong> em receita.<small>Cálculo: receita total ÷ leads qualificados. Aqui: ${moneyText(revenue)} ÷ ${number.format(flow.qualifiedLeads)}.${projectionCopy} Projeção: verba × 1,2 mantendo as taxas atuais do funil.</small>`;
 
-  const max = Math.max(flow.totalLeads,1);
-  const qualifiedWidth = Math.max(20,flow.qualifiedLeads / max * 100);
-  const salesWidth = Math.max(14,flow.sales / max * 100);
   if(!hasData){
-    document.querySelector("#totalBar").style.width = document.body.classList.contains("manager") ? "46%" : "100%";
+    document.querySelector("#totalBar").style.width = "46%";
     document.querySelector("#qualifiedBar").style.width = "31%";
     document.querySelector("#salesBar").style.width = "19%";
-  } else if(document.body.classList.contains("manager")){
+  } else {
     document.querySelector("#totalBar").style.width = flow.totalLeads ? "46%" : "0";
     document.querySelector("#qualifiedBar").style.width = flow.qualifiedLeads ? "31%" : "0";
     document.querySelector("#salesBar").style.width = flow.sales ? "19%" : "0";
-  } else {
-    document.querySelector("#totalBar").style.width = flow.totalLeads ? "100%" : "0";
-    document.querySelector("#qualifiedBar").style.width = `${qualifiedWidth}%`;
-    document.querySelector("#salesBar").style.width = `${salesWidth}%`;
   }
   document.querySelector("#totalBar").textContent = number.format(flow.totalLeads);
   document.querySelector("#qualifiedBar").textContent = number.format(flow.qualifiedLeads);
