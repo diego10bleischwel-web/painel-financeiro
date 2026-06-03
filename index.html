@@ -248,6 +248,42 @@ function saveCloudApplyBackup(){
     localStorage.setItem(CLOUD_BACKUP_KEY,JSON.stringify({savedAt:Date.now(),data:statePayload()}));
   }catch(err){ console.warn('Nao foi possivel criar backup local antes da nuvem.',err); }
 }
+function mergeByKey(local,remote,keyFn){
+  const map=new Map(), localKeys=new Set();
+  (Array.isArray(local)?local:[]).forEach(item=>{ const key=keyFn(item); if(key){ localKeys.add(key); map.set(key,item); } });
+  (Array.isArray(remote)?remote:[]).forEach(item=>{ const key=keyFn(item); if(key&&!map.has(key)) map.set(key,item); });
+  return {items:[...map.values()],changed:[...map.keys()].some(key=>!localKeys.has(key))};
+}
+function mergeCloudIntoLocal(remote){
+  if(!remote||!Array.isArray(remote.entries))return false;
+  const before=entryCount(state);
+  saveCloudApplyBackup();
+  const entries=mergeByKey(state.entries,remote.entries,e=>'entry:'+(e.id??String(e.nome||'')+'|'+String(e.dia||'')+'|'+String(e.inicio||'')));
+  const transfers=mergeByKey(state.transfers,remote.transfers,t=>'transfer:'+(t.id??[t.kind,t.from,t.to,t.valor,t.date,t.note].join('|')));
+  const third=mergeByKey(state.thirdMovements,remote.thirdMovements,m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')));
+  const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
+  const cardTx=mergeByKey(state.cardTransactions,remote.cardTransactions,t=>'cardtx:'+(t.key||cardTxKey(t)));
+  const changed=entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed;
+  if(!changed)return false;
+  applyingRemote=true;
+  state.entries=entries.items;
+  state.transfers=transfers.items;
+  state.thirdMovements=third.items;
+  state.cards=cards.items.length?cards.items:state.cards;
+  state.cardTransactions=cardTx.items;
+  state.nextId=Math.max(Number(state.nextId||503),Number(remote.nextId||503),...state.entries.map(e=>Number(e.id||0)+1));
+  state.lastSync=Date.now();
+  state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2);
+  state.entries.forEach(normalizeEntry);
+  recategorizeCardTransactions();
+  if(state.cardTransactions.length) rebuildCardEntries();
+  saveLocalSnapshot();
+  applyingRemote=false;
+  setSyncPending(true);
+  console.warn('Sync mesclado para evitar perda de dados.',{antes:before,depois:entryCount(state)});
+  renderAll();
+  return true;
+}
 function applyCloudState(data){
   if(!data||!Array.isArray(data.entries))return false;
   const localCount=entryCount(state), remoteCount=entryCount(data);
@@ -385,17 +421,21 @@ async function confirmCloudSave(sentAt, revision, attempts=8){
 async function saveCloudState(){
   if(!syncUrl)return;
   if(syncSaving){ scheduleCloudSave(1200); return; }
-  const sentAt=Number(state.lastSync||Date.now());
-  const sentRevision=String(state.syncRevision||'');
   syncSaving=true;
   try{
     setSyncStatus('Sync salvando...');
     const before=await loadCloudState().catch(()=>null);
+    if(before&&Array.isArray(before.entries)&&String(before.syncRevision||'')!==String(state.syncRevision||'')){
+      const merged=mergeCloudIntoLocal(before);
+      if(merged) setSyncStatus('Sync mesclando...');
+    }
     if(remoteHasMoreData(before)){
       applyCloudState(before);
       setSyncStatus(syncSavedLabel(Number(before.lastSync||Date.now())));
       return;
     }
+    const sentAt=Number(state.lastSync||Date.now());
+    const sentRevision=String(state.syncRevision||'');
     await postCloudState(statePayload());
     setSyncStatus('Sync confirmando...');
     const remote=await confirmCloudSave(sentAt,sentRevision);
@@ -749,7 +789,7 @@ function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(i
 function saveThirdMovement(){
   const v=parseMoney($('#thirdValue').value);
   if(!$('#thirdPerson').value||!v||!$('#thirdBank').value||!$('#thirdType').value)return alert('Preencha pessoa, banco, tipo e valor.');
-  state.thirdMovements.push({person:$('#thirdPerson').value,date:$('#thirdDate').value,bank:$('#thirdBank').value,type:$('#thirdType').value,valor:br(v),note:$('#thirdNote').value});
+  state.thirdMovements.push({id:'third-'+Date.now()+'-'+Math.random().toString(36).slice(2),person:$('#thirdPerson').value,date:$('#thirdDate').value,bank:$('#thirdBank').value,type:$('#thirdType').value,valor:br(v),note:$('#thirdNote').value});
   $('#thirdPerson').value='';
   $('#thirdValue').value='';
   $('#thirdNote').value='';
@@ -814,7 +854,7 @@ function saveTransferMovement(){
   const from=kind==='entrada'?'':$('#transferFrom').value;
   const to=kind==='saida'?'':$('#transferTo').value;
   if(kind==='transferencia'&&from===to)return alert('Escolha bancos diferentes para transferir.');
-  state.transfers.push({kind,from,to,valor:br(v),note:$('#transferNote').value,date:new Date().toISOString().slice(0,10)});
+  state.transfers.push({id:'transfer-'+Date.now()+'-'+Math.random().toString(36).slice(2),kind,from,to,valor:br(v),note:$('#transferNote').value,date:new Date().toISOString().slice(0,10)});
   $('#transferValue').value='';
   $('#transferNote').value='';
   persist();
