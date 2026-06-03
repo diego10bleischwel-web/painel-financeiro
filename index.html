@@ -101,6 +101,8 @@ body.dark-theme .tab.active{box-shadow:0 0 0 1px rgba(255,255,255,.90) inset,0 0
 body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b25) padding-box,linear-gradient(135deg,#ff7b72,#f4f7fb,#22d3ee) border-box!important;color:#ffb0aa!important;box-shadow:0 0 0 1px rgba(255,255,255,.74) inset,0 0 30px rgba(255,255,255,.20),0 16px 42px rgba(255,123,114,.16)!important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 </head>
 <body id="app">
 <div class="app">
@@ -145,12 +147,23 @@ const PENDING_SYNC_KEY='dualizeFinanceSyncPendingV1';
 const THEME_KEY='dualizeFinanceThemeV1';
 const CLOUD_BACKUP_KEY='dualizeFinanceBackupBeforeCloudV1';
 const CLOUD_BACKUP_KEY_2='dualizeFinanceBackupBeforeCloudV2';
+const FIRESTORE_COLLECTION='painel_financeiro';
+const FIRESTORE_DOC='estado_principal';
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",
+  authDomain:"dualize-projeto.firebaseapp.com",
+  projectId:"dualize-projeto",
+  storageBucket:"dualize-projeto.firebasestorage.app",
+  messagingSenderId:"1098441288739",
+  appId:"1:1098441288739:web:8e210b6d329ee779bc1596"
+};
 const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwG8318Daiduvqwt-BxRg4bETjfRi44zu8wiiUwUixsGPUW4gi6Ew6GNcPqFatfWLSSzg/exec';
 const LEGACY_SYNC_URLS=['https://script.google.com/macros/s/AKfycbzdHciCQMdtt8CdG1IBurNIqE5W17W7kDsVnUlMlyQkN4hKHgcNRuUleBaVjXW-quf1/exec'];
 let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
 if(LEGACY_SYNC_URLS.includes(savedSyncUrl)){ localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL); savedSyncUrl=DEFAULT_SYNC_URL; }
 let syncUrl=savedSyncUrl||DEFAULT_SYNC_URL;
 let syncTimer=null, syncLoopTimer=null, syncReady=false, applyingRemote=false, syncSaving=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
+let firestoreDb=null, firestoreDocRef=null, firestoreUnsubscribe=null, firestoreReady=false, firestoreSnapshotStarted=false;
 function loadSavedState(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
@@ -228,7 +241,59 @@ function setSyncPending(pending){
 }
 function syncSavedLabel(ts=Date.now()){ return 'Sync salvo '+syncTime(ts); }
 function delay(ms){ return new Promise(resolve=>setTimeout(resolve,ms)); }
+function firestorePayload(docData){
+  if(!docData)return null;
+  return docData.payload&&Array.isArray(docData.payload.entries)?docData.payload:docData;
+}
+function setupFirestoreSync(){
+  if(firestoreReady)return true;
+  if(!window.firebase||!window.firebase.firestore)return false;
+  try{
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    firestoreDb=firebase.firestore();
+    firestoreDocRef=firestoreDb.collection(FIRESTORE_COLLECTION).doc(FIRESTORE_DOC);
+    firestoreReady=true;
+    return true;
+  }catch(err){
+    console.warn('Nao foi possivel iniciar Firestore.',err);
+    firestoreReady=false;
+    return false;
+  }
+}
+function startFirestoreRealtime(){
+  if(!firestoreReady||firestoreSnapshotStarted||!firestoreDocRef)return;
+  firestoreSnapshotStarted=true;
+  firestoreUnsubscribe=firestoreDocRef.onSnapshot({includeMetadataChanges:true},snapshot=>{
+    if(snapshot.metadata&&snapshot.metadata.hasPendingWrites)return;
+    const remote=snapshot.exists?firestorePayload(snapshot.data()):null;
+    if(!remote||!Array.isArray(remote.entries)){
+      if(entryCount(state)>0&&syncReady) scheduleCloudSave(500);
+      return;
+    }
+    const remoteRevision=String(remote.syncRevision||'');
+    const localRevision=String(state.syncRevision||'');
+    if(remoteRevision&&remoteRevision===localRevision){
+      setSyncPending(false);
+      setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
+      return;
+    }
+    if(syncPending){
+      mergeCloudIntoLocal(remote);
+      scheduleCloudSave(200);
+      setSyncStatus('Sync mesclando...');
+      return;
+    }
+    applyCloudState(remote);
+    setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
+  },err=>{
+    console.warn('Firestore realtime falhou.',err);
+    setSyncStatus(syncPending?'Sync pendente':'Sync erro');
+  });
+}
 function loadCloudState(){
+  if(firestoreReady&&firestoreDocRef){
+    return firestoreDocRef.get().then(snapshot=>snapshot.exists?firestorePayload(snapshot.data()):null);
+  }
   return new Promise((resolve,reject)=>{
     if(!syncUrl) return resolve(null);
     const cb='dualizeSyncCb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
@@ -358,7 +423,7 @@ function remoteHasMoreData(remote){
   return remote&&Array.isArray(remote.entries)&&remoteCount>=10&&(localCount===0||remoteCount>localCount*1.3);
 }
 async function syncFromCloud(){
-  if(!syncUrl){ setSyncStatus('Sync local'); return; }
+  if(!firestoreReady&&!syncUrl){ setSyncStatus('Sync local'); return; }
   try{
     setSyncStatus('Sync baixando...');
     const remote=await loadCloudState();
@@ -388,6 +453,11 @@ async function syncFromCloud(){
 }
 function startContinuousSync(){
   clearInterval(syncLoopTimer);
+  if(firestoreReady){
+    startFirestoreRealtime();
+    if(syncPending) scheduleCloudSave(100);
+    return;
+  }
   if(!syncUrl)return;
   syncLoopTimer=setInterval(()=>{
     if(!syncReady||applyingRemote)return;
@@ -396,11 +466,19 @@ function startContinuousSync(){
   },3000);
 }
 function scheduleCloudSave(delay=800){
-  if(!syncReady||!syncUrl||applyingRemote)return;
+  if(!syncReady||(!firestoreReady&&!syncUrl)||applyingRemote)return;
   clearTimeout(syncTimer);
   syncTimer=setTimeout(saveCloudState,delay);
 }
 function postCloudState(payload){
+  if(firestoreReady&&firestoreDocRef){
+    return firestoreDocRef.set({
+      payload,
+      syncRevision:String(payload.syncRevision||''),
+      lastSync:Number(payload.lastSync||Date.now()),
+      updatedAt:Date.now()
+    }).then(()=>true);
+  }
   const body=JSON.stringify({action:'save',data:payload});
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),15000);
@@ -427,7 +505,7 @@ async function confirmCloudSave(sentAt, revision, attempts=8){
   return null;
 }
 async function saveCloudState(){
-  if(!syncUrl)return;
+  if(!firestoreReady&&!syncUrl)return;
   if(syncSaving){ scheduleCloudSave(1200); return; }
   syncSaving=true;
   try{
@@ -946,7 +1024,7 @@ function enableDebitStatusShortcuts(){
   },true);
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(cardsChanged||categoriesChanged) saveLocalSnapshot(); bind(); enableDebitStatusShortcuts(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local'); startContinuousSync(); if(syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(cardsChanged||categoriesChanged) saveLocalSnapshot(); bind(); enableDebitStatusShortcuts(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
 init();
 });
 </script>
