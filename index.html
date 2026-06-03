@@ -369,6 +369,11 @@ async function syncFromCloud(){
       setSyncStatus('Sync pendente');
       return;
     }
+    if(remote&&Array.isArray(remote.entries)&&String(remote.syncRevision||'')&&String(remote.syncRevision||'')!==String(state.syncRevision||'')){
+      applyCloudState(remote);
+      setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
+      return;
+    }
     if(remote&&Array.isArray(remote.entries)&&Number(remote.lastSync||0)>Number(state.lastSync||0)){
       applyCloudState(remote);
       setSyncStatus(syncSavedLabel(Number(remote.lastSync||Date.now())));
