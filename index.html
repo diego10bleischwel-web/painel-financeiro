@@ -291,7 +291,7 @@ function openModule(id){
   $('#workspaceTitle').textContent=mod.title;
   $('#openExternal').href=mod.url;
   $('#frameWrap').classList.add('loading');
-  $('#moduleFrame').src=mod.url+(mod.url.includes('?')?'&':'?')+'embedded=1&v=1a31cd8';
+  $('#moduleFrame').src=mod.url+(mod.url.includes('?')?'&':'?')+'embedded=1&t='+Date.now();
 }
 function setupEvents(){
   document.body.addEventListener('click',e=>{
