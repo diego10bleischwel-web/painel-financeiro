@@ -33,33 +33,21 @@ body{
 button,a{font:inherit}
 .app{
   min-height:100vh;
-  width:min(1320px,100%);
+  width:min(1380px,100%);
   margin:auto;
-  padding:28px 28px 42px;
+  padding:26px 28px 42px;
   display:grid;
   grid-template-rows:auto 1fr;
-  gap:22px;
+  gap:10px;
 }
 .top{
   display:flex;
-  justify-content:space-between;
+  justify-content:flex-end;
   align-items:flex-start;
   gap:18px;
 }
 .brand{
-  display:flex;
-  align-items:center;
-  min-width:0;
-}
-.brand-logo{
-  width:min(510px,46vw);
-  max-height:170px;
-  object-fit:contain;
-  object-position:left center;
-  filter:
-    drop-shadow(0 0 20px rgba(130,188,255,.28))
-    drop-shadow(0 0 34px rgba(112,214,162,.18));
-  animation:logoGlow 4.8s ease-in-out infinite;
+  display:none;
 }
 .statusbar{
   display:flex;
@@ -88,35 +76,37 @@ button,a{font:inherit}
 }
 .hero{
   display:grid;
-  gap:24px;
+  gap:30px;
   align-content:start;
 }
 .hero-brand{
-  min-height:170px;
+  min-height:330px;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:14px 0 4px;
+  padding:10px 0 0;
   position:relative;
 }
 .hero-brand:before{
   content:"";
   position:absolute;
-  width:min(620px,82vw);
-  height:190px;
+  width:min(900px,88vw);
+  height:320px;
   border-radius:999px;
-  background:radial-gradient(circle,rgba(130,188,255,.18),rgba(112,214,162,.10) 38%,transparent 72%);
-  filter:blur(16px);
+  background:
+    radial-gradient(circle at 50% 48%,rgba(255,255,255,.13),transparent 22%),
+    radial-gradient(circle,rgba(130,188,255,.25),rgba(112,214,162,.13) 42%,transparent 72%);
+  filter:blur(18px);
 }
 .hero-logo{
   position:relative;
-  width:min(700px,78vw);
-  max-height:230px;
+  width:min(900px,82vw);
+  max-height:360px;
   object-fit:contain;
   filter:
-    drop-shadow(0 0 22px rgba(255,255,255,.16))
-    drop-shadow(0 0 46px rgba(130,188,255,.24))
-    drop-shadow(0 0 60px rgba(112,214,162,.16));
+    drop-shadow(0 0 18px rgba(255,255,255,.20))
+    drop-shadow(0 0 54px rgba(130,188,255,.30))
+    drop-shadow(0 0 82px rgba(112,214,162,.22));
   animation:logoFloat 6s ease-in-out infinite;
 }
 .module-grid{
@@ -128,7 +118,7 @@ button,a{font:inherit}
 .module-card{
   position:relative;
   overflow:hidden;
-  min-height:286px;
+  min-height:300px;
   border:1px solid transparent;
   border-radius:30px;
   padding:24px;
@@ -136,7 +126,7 @@ button,a{font:inherit}
     radial-gradient(circle at 18% 8%,rgba(255,255,255,.12),transparent 38%),
     linear-gradient(150deg,rgba(22,31,48,.96),rgba(12,19,30,.94)) padding-box,
     linear-gradient(135deg,rgba(143,107,255,.95),rgba(130,188,255,.78),rgba(112,214,162,.66)) border-box;
-  box-shadow:0 24px 70px rgba(0,0,0,.44),0 0 34px rgba(255,255,255,.06);
+  box-shadow:0 28px 82px rgba(0,0,0,.48),0 0 38px rgba(130,188,255,.08);
   cursor:pointer;
   text-align:left;
   color:var(--text);
@@ -166,8 +156,8 @@ button,a{font:inherit}
 }
 .module-card:hover{
   animation:none;
-  transform:translateY(-7px) rotateX(1.5deg);
-  box-shadow:0 0 0 1px rgba(255,255,255,.72) inset,0 0 42px rgba(255,255,255,.18),var(--shadow);
+  transform:translateY(-12px) rotateX(2deg) scale(1.012);
+  box-shadow:0 0 0 1px rgba(255,255,255,.78) inset,0 0 48px rgba(130,188,255,.24),0 0 70px rgba(112,214,162,.14),var(--shadow);
   filter:saturate(1.08);
 }
 .module-card:nth-child(1){animation:cardFloat 6.8s ease-in-out infinite}
@@ -213,14 +203,14 @@ button,a{font:inherit}
   font-size:29px;
   letter-spacing:-.4px;
   color:transparent;
-  background:linear-gradient(135deg,#f7fbff 8%,var(--blue) 48%,var(--green) 92%);
+  background:linear-gradient(135deg,#ffffff 5%,#8dd0ff 38%,#6ff0b2 76%,#f5d38a 100%);
   -webkit-background-clip:text;
   background-clip:text;
   text-shadow:0 0 24px rgba(130,188,255,.18);
 }
 .module-card p{
   margin:10px 0 0;
-  color:#b9d1ef;
+  color:#c7ddff;
   font-weight:760;
   line-height:1.45;
 }
@@ -265,7 +255,7 @@ button,a{font:inherit}
   margin:0 0 14px;
   font-size:20px;
   color:transparent;
-  background:linear-gradient(135deg,var(--blue),var(--green) 55%,#f4f8ff);
+  background:linear-gradient(135deg,#8dccff 0,#70d6a2 45%,#f6c56f 78%,#ffffff 100%);
   -webkit-background-clip:text;
   background-clip:text;
   text-shadow:0 0 26px rgba(130,188,255,.22);
@@ -279,7 +269,10 @@ button,a{font:inherit}
   border:1px solid rgba(255,255,255,.12);
   border-radius:20px;
   padding:16px;
-  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+  background:
+    radial-gradient(circle at 15% 10%,rgba(130,188,255,.16),transparent 42%),
+    linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.045));
+  box-shadow:0 14px 36px rgba(0,0,0,.18),0 0 22px rgba(130,188,255,.06) inset;
 }
 .kpi span{
   display:block;
@@ -317,7 +310,9 @@ button,a{font:inherit}
   border:1px solid rgba(255,255,255,.10);
   border-radius:16px;
   padding:12px 14px;
-  background:rgba(255,255,255,.04);
+  background:
+    radial-gradient(circle at 0 50%,rgba(130,188,255,.14),transparent 35%),
+    rgba(255,255,255,.045);
   color:#b8c9e4;
   font-weight:850;
 }
@@ -393,9 +388,8 @@ iframe{
   .app{padding:18px}
   .top{flex-direction:column}
   .statusbar{justify-content:flex-start}
-  .brand-logo{width:min(420px,84vw)}
-  .hero-brand{min-height:130px}
-  .hero-logo{width:min(560px,90vw)}
+  .hero-brand{min-height:210px}
+  .hero-logo{width:min(640px,92vw)}
 }
 @keyframes logoGlow{
   0%,100%{filter:drop-shadow(0 0 20px rgba(130,188,255,.22)) drop-shadow(0 0 34px rgba(112,214,162,.16))}
@@ -403,11 +397,11 @@ iframe{
 }
 @keyframes logoFloat{
   0%,100%{transform:translateY(0) scale(1)}
-  50%{transform:translateY(-6px) scale(1.012)}
+  50%{transform:translateY(-10px) scale(1.018)}
 }
 @keyframes cardFloat{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-8px)}
+  0%,100%{transform:translateY(0) rotateX(0)}
+  50%{transform:translateY(-12px) rotateX(1.2deg)}
 }
 @media(prefers-reduced-motion:reduce){
   .brand-logo,.hero-logo,.module-card{animation:none!important}
@@ -420,7 +414,7 @@ iframe{
 <main class="app">
   <header class="top">
     <div class="brand">
-      <img class="brand-logo" src="dualize-logo.png" alt="Dualize Digital">
+      <img class="brand-logo" src="dualize-logo-crop.png" alt="Dualize Digital">
     </div>
     <div class="statusbar">
       <div class="pill"><span class="dot"></span><span id="syncStatus">Conectando Firebase...</span></div>
@@ -430,7 +424,7 @@ iframe{
 
   <section class="hero">
     <div class="hero-brand" aria-label="Dualize Digital - painel geral de módulos">
-      <img class="hero-logo" src="dualize-logo.png" alt="Dualize Digital">
+      <img class="hero-logo" src="dualize-logo-crop.png" alt="Dualize Digital">
     </div>
 
     <div class="module-grid" id="moduleCards"></div>
