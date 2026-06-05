@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dualize Digital OS</title>
+<title>Dualize Digital</title>
 <style>
 :root{
   --bg:#070b12;
@@ -126,18 +126,20 @@ button,a{font:inherit}
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:18px;
+  perspective:1200px;
 }
 .module-card{
   position:relative;
   overflow:hidden;
-  min-height:278px;
+  min-height:286px;
   border:1px solid transparent;
   border-radius:30px;
   padding:24px;
   background:
-    linear-gradient(rgba(17,24,36,.92),rgba(17,24,36,.92)) padding-box,
+    radial-gradient(circle at 18% 8%,rgba(255,255,255,.12),transparent 38%),
+    linear-gradient(150deg,rgba(22,31,48,.96),rgba(12,19,30,.94)) padding-box,
     linear-gradient(135deg,rgba(143,107,255,.95),rgba(130,188,255,.78),rgba(112,214,162,.66)) border-box;
-  box-shadow:var(--shadow),0 0 34px rgba(255,255,255,.06);
+  box-shadow:0 24px 70px rgba(0,0,0,.44),0 0 34px rgba(255,255,255,.06);
   cursor:pointer;
   text-align:left;
   color:var(--text);
@@ -145,6 +147,7 @@ button,a{font:inherit}
   flex-direction:column;
   justify-content:space-between;
   gap:24px;
+  transition:transform .22s ease,box-shadow .22s ease,filter .22s ease;
 }
 .module-card:before{
   content:"";
@@ -154,9 +157,20 @@ button,a{font:inherit}
   pointer-events:none;
   box-shadow:0 0 0 1px rgba(255,255,255,.18) inset;
 }
+.module-card:after{
+  content:"";
+  position:absolute;
+  inset:auto 18px -46px 18px;
+  height:80px;
+  border-radius:50%;
+  background:linear-gradient(90deg,rgba(143,107,255,.25),rgba(130,188,255,.16),rgba(112,214,162,.22));
+  filter:blur(22px);
+  pointer-events:none;
+}
 .module-card:hover{
-  transform:translateY(-3px);
+  transform:translateY(-7px) rotateX(1.5deg);
   box-shadow:0 0 0 1px rgba(255,255,255,.72) inset,0 0 42px rgba(255,255,255,.18),var(--shadow);
+  filter:saturate(1.08);
 }
 .module-top{
   display:flex;
@@ -165,17 +179,25 @@ button,a{font:inherit}
   gap:12px;
 }
 .module-icon{
-  width:58px;
-  height:58px;
+  width:62px;
+  height:62px;
   border-radius:20px;
   display:grid;
   place-items:center;
   background:linear-gradient(135deg,var(--blue),var(--green));
   color:#071018;
-  font-size:25px;
-  font-weight:1000;
   box-shadow:0 0 0 1px rgba(255,255,255,.62) inset,0 18px 44px rgba(112,214,162,.18);
 }
+.module-icon svg{
+  width:34px;
+  height:34px;
+  stroke:currentColor;
+  stroke-width:2.2;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.module-icon .fill-icon{fill:currentColor;stroke:none}
 .module-badge{
   border:1px solid rgba(255,255,255,.12);
   border-radius:999px;
@@ -187,7 +209,7 @@ button,a{font:inherit}
 }
 .module-card h3{
   margin:0;
-  font-size:28px;
+  font-size:29px;
   letter-spacing:-.4px;
 }
 .module-card p{
@@ -228,6 +250,9 @@ button,a{font:inherit}
     linear-gradient(rgba(17,24,36,.84),rgba(17,24,36,.84)) padding-box,
     linear-gradient(135deg,rgba(143,107,255,.8),rgba(130,188,255,.58),rgba(112,214,162,.44)) border-box;
   box-shadow:0 18px 55px rgba(0,0,0,.24);
+}
+.panel:hover{
+  box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 22px 62px rgba(0,0,0,.28);
 }
 .panel h3{
   margin:0 0 14px;
@@ -319,7 +344,7 @@ button,a{font:inherit}
 .action.primary{background:linear-gradient(135deg,var(--blue),var(--green));color:#071018}
 .frame-wrap{position:relative;min-height:0}
 .frame-wrap.loading:before{
-  content:"Carregando modulo...";
+  content:"Carregando módulo...";
   position:absolute;
   inset:0;
   display:grid;
@@ -352,7 +377,7 @@ iframe{
       <div class="brand-mark">D</div>
       <div>
         <small>Central operacional</small>
-        <h1>Dualize Digital OS</h1>
+        <h1>Dualize Digital</h1>
       </div>
     </div>
     <div class="statusbar">
@@ -363,8 +388,8 @@ iframe{
 
   <section class="hero">
     <div class="hero-copy">
-      <h2>Escolha seu modulo de trabalho.</h2>
-      <p>Financeiro, tarefas e calculadora LED em uma entrada unica, com visual limpo e sincronizacao em tempo real onde importa.</p>
+      <h2>Painel geral de módulos.</h2>
+      <p>Financeiro, tarefas e calculadora de LEADs em uma entrada única, com visual limpo e sincronização em tempo real onde importa.</p>
     </div>
 
     <div class="module-grid" id="moduleCards"></div>
@@ -374,14 +399,14 @@ iframe{
         <h3>Resumo ao vivo</h3>
         <div class="kpis">
           <div class="kpi"><span>Financeiro</span><strong id="financeEntries">--</strong><small id="financeSync">Aguardando Firestore</small></div>
-          <div class="kpi"><span>Cartoes</span><strong id="financeCards">--</strong><small>Transacoes importadas</small></div>
+          <div class="kpi"><span>Cartões</span><strong id="financeCards">--</strong><small>Transações importadas</small></div>
           <div class="kpi"><span>Tarefas</span><strong id="taskCards">--</strong><small id="taskSync">Aguardando Firestore</small></div>
-          <div class="kpi"><span>Calculadora LED</span><strong>Pronta</strong><small>Modulo disponivel</small></div>
+          <div class="kpi"><span>Calculadora de LEADs</span><strong>Pronta</strong><small>Módulo disponível</small></div>
         </div>
       </section>
 
       <section class="panel">
-        <h3>Ultimas atividades</h3>
+        <h3>Últimas atividades</h3>
         <div class="activity">
           <div class="activity-line"><b>Firebase</b><span id="activitySync">Aguardando dados</span></div>
           <div class="activity-line"><b>Financeiro</b><span id="activityFinance">Conectando</span></div>
@@ -394,7 +419,7 @@ iframe{
 
 <section class="workspace" id="workspace">
   <div class="workspace-head">
-    <b id="workspaceTitle">Modulo</b>
+    <b id="workspaceTitle">Módulo</b>
     <div class="workspace-actions">
       <button class="action" id="closeWorkspace" type="button">Voltar</button>
       <button class="action" id="reloadFrame" type="button">Recarregar</button>
@@ -402,7 +427,7 @@ iframe{
     </div>
   </div>
   <div class="frame-wrap loading" id="frameWrap">
-    <iframe id="moduleFrame" title="Modulo Dualize"></iframe>
+    <iframe id="moduleFrame" title="Módulo Dualize"></iframe>
   </div>
 </section>
 
@@ -416,18 +441,26 @@ const firebaseConfig={
   appId:"1:1098441288739:web:8e210b6d329ee779bc1596"
 };
 const modules=[
-  {id:'financeiro',icon:'$',title:'Financeiro',desc:'Lancamentos, cartoes, bancos, terceiros e planejamento.',url:'financeiro.html',status:'Tempo real Firebase',metric:'Controle mensal'},
-  {id:'tarefas',icon:'OK',title:'Tarefas',desc:'Quadro operacional, criativos, rotinas e calendario de clientes.',url:'controle-online/index.html',status:'Tempo real Firebase',metric:'Operacao diaria'},
-  {id:'led',icon:'LED',title:'Calculadora LED',desc:'Formula do lead qualificado e simulacoes comerciais.',url:'calculadora-lead/index.html',status:'Modulo comercial',metric:'Simulador'}
+  {id:'financeiro',icon:'finance',title:'Financeiro',desc:'Lançamentos, cartões, bancos, terceiros e planejamento.',url:'financeiro.html',status:'Tempo real Firebase',metric:'Controle mensal'},
+  {id:'tarefas',icon:'control',title:'Tarefas',desc:'Quadro operacional, criativos, rotinas e calendário de clientes.',url:'controle-online/index.html',status:'Tempo real Firebase',metric:'Operação diária'},
+  {id:'leads',icon:'calculator',title:'Calculadora de LEADs',desc:'Fórmula do lead qualificado e simulações comerciais.',url:'calculadora-lead/index.html',status:'Módulo comercial',metric:'Simulador'}
 ];
 const $=s=>document.querySelector(s);
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+function moduleIcon(type){
+  const icons={
+    finance:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M17 7.5c-.9-1.1-2.4-1.7-4.3-1.7-2.4 0-4 .9-4 2.6 0 4.1 8.6 1.8 8.6 6.1 0 1.8-1.7 3-4.4 3-2.2 0-4-.7-5-2"/></svg>',
+    control:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7"/><path d="M15 7h5"/><path d="M9 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/><path d="M4 17h3"/><path d="M11 17h9"/><path d="M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/></svg>',
+    calculator:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8"/><path d="M8 11h.01"/><path d="M12 11h.01"/><path d="M16 11h.01"/><path d="M8 15h.01"/><path d="M12 15h.01"/><path d="M16 15h.01"/><path d="M8 18h.01"/><path d="M12 18h4"/></svg>'
+  };
+  return icons[type]||icons.control;
+}
 function renderModules(){
   $('#moduleCards').innerHTML=modules.map(m=>`<button class="module-card" type="button" data-module="${m.id}">
-    <div class="module-top"><div class="module-icon">${esc(m.icon)}</div><span class="module-badge">${esc(m.status)}</span></div>
+    <div class="module-top"><div class="module-icon">${moduleIcon(m.icon)}</div><span class="module-badge">${esc(m.status)}</span></div>
     <div><h3>${esc(m.title)}</h3><p>${esc(m.desc)}</p></div>
-    <div class="module-footer"><span class="module-metric">${esc(m.metric)}</span><span class="open-chip">Abrir modulo</span></div>
+    <div class="module-footer"><span class="module-metric">${esc(m.metric)}</span><span class="open-chip">Abrir módulo</span></div>
   </button>`).join('');
 }
 function openModule(id){
@@ -471,7 +504,7 @@ function setupFirebaseSummary(){
       $('#activityFinance').textContent='Atualizado '+when;
     },err=>{
       console.warn(err);
-      $('#syncStatus').textContent='Firebase indisponivel';
+      $('#syncStatus').textContent='Firebase indisponível';
     });
     db.collection('tarefas').doc('estado_principal').onSnapshot(snapshot=>{
       if(!snapshot.exists)return;
