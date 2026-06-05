@@ -35,10 +35,10 @@ button,a{font:inherit}
   min-height:100vh;
   width:min(1320px,100%);
   margin:auto;
-  padding:28px;
+  padding:28px 28px 42px;
   display:grid;
   grid-template-rows:auto 1fr;
-  gap:28px;
+  gap:22px;
 }
 .top{
   display:flex;
@@ -49,32 +49,17 @@ button,a{font:inherit}
 .brand{
   display:flex;
   align-items:center;
-  gap:14px;
+  min-width:0;
 }
-.brand-mark{
-  width:52px;
-  height:52px;
-  border-radius:18px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,var(--blue),var(--green));
-  color:#071018;
-  font-weight:1000;
-  box-shadow:0 0 0 1px rgba(255,255,255,.62) inset,0 18px 46px rgba(112,214,162,.22);
-}
-.brand small{
-  display:block;
-  color:var(--amber);
-  font-size:10px;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  font-weight:950;
-}
-.brand h1{
-  margin:4px 0 0;
-  font-size:clamp(26px,3.8vw,54px);
-  line-height:.95;
-  letter-spacing:-1px;
+.brand-logo{
+  width:min(510px,46vw);
+  max-height:170px;
+  object-fit:contain;
+  object-position:left center;
+  filter:
+    drop-shadow(0 0 20px rgba(130,188,255,.28))
+    drop-shadow(0 0 34px rgba(112,214,162,.18));
+  animation:logoGlow 4.8s ease-in-out infinite;
 }
 .statusbar{
   display:flex;
@@ -103,24 +88,36 @@ button,a{font:inherit}
 }
 .hero{
   display:grid;
-  gap:22px;
+  gap:24px;
   align-content:start;
 }
-.hero-copy{
-  max-width:760px;
+.hero-brand{
+  min-height:170px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px 0 4px;
+  position:relative;
 }
-.hero-copy h2{
-  margin:0;
-  font-size:clamp(31px,5vw,74px);
-  line-height:.94;
-  letter-spacing:-2px;
+.hero-brand:before{
+  content:"";
+  position:absolute;
+  width:min(620px,82vw);
+  height:190px;
+  border-radius:999px;
+  background:radial-gradient(circle,rgba(130,188,255,.18),rgba(112,214,162,.10) 38%,transparent 72%);
+  filter:blur(16px);
 }
-.hero-copy p{
-  margin:16px 0 0;
-  color:var(--muted);
-  font-size:17px;
-  line-height:1.5;
-  font-weight:750;
+.hero-logo{
+  position:relative;
+  width:min(700px,78vw);
+  max-height:230px;
+  object-fit:contain;
+  filter:
+    drop-shadow(0 0 22px rgba(255,255,255,.16))
+    drop-shadow(0 0 46px rgba(130,188,255,.24))
+    drop-shadow(0 0 60px rgba(112,214,162,.16));
+  animation:logoFloat 6s ease-in-out infinite;
 }
 .module-grid{
   display:grid;
@@ -168,10 +165,14 @@ button,a{font:inherit}
   pointer-events:none;
 }
 .module-card:hover{
+  animation:none;
   transform:translateY(-7px) rotateX(1.5deg);
   box-shadow:0 0 0 1px rgba(255,255,255,.72) inset,0 0 42px rgba(255,255,255,.18),var(--shadow);
   filter:saturate(1.08);
 }
+.module-card:nth-child(1){animation:cardFloat 6.8s ease-in-out infinite}
+.module-card:nth-child(2){animation:cardFloat 7.2s ease-in-out .7s infinite}
+.module-card:nth-child(3){animation:cardFloat 6.5s ease-in-out 1.25s infinite}
 .module-top{
   display:flex;
   justify-content:space-between;
@@ -211,10 +212,15 @@ button,a{font:inherit}
   margin:0;
   font-size:29px;
   letter-spacing:-.4px;
+  color:transparent;
+  background:linear-gradient(135deg,#f7fbff 8%,var(--blue) 48%,var(--green) 92%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  text-shadow:0 0 24px rgba(130,188,255,.18);
 }
 .module-card p{
   margin:10px 0 0;
-  color:var(--muted);
+  color:#b9d1ef;
   font-weight:760;
   line-height:1.45;
 }
@@ -225,9 +231,10 @@ button,a{font:inherit}
   gap:12px;
 }
 .module-metric{
-  color:var(--text);
+  color:#d7fff0;
   font-size:15px;
   font-weight:950;
+  text-shadow:0 0 18px rgba(112,214,162,.18);
 }
 .open-chip{
   color:#071018;
@@ -257,6 +264,11 @@ button,a{font:inherit}
 .panel h3{
   margin:0 0 14px;
   font-size:20px;
+  color:transparent;
+  background:linear-gradient(135deg,var(--blue),var(--green) 55%,#f4f8ff);
+  -webkit-background-clip:text;
+  background-clip:text;
+  text-shadow:0 0 26px rgba(130,188,255,.22);
 }
 .kpis{
   display:grid;
@@ -271,21 +283,27 @@ button,a{font:inherit}
 }
 .kpi span{
   display:block;
-  color:var(--muted);
+  color:#89c7ff;
   font-size:11px;
   text-transform:uppercase;
   letter-spacing:.7px;
   font-weight:950;
+  text-shadow:0 0 18px rgba(130,188,255,.24);
 }
 .kpi strong{
   display:block;
   margin-top:10px;
   font-size:24px;
+  color:transparent;
+  background:linear-gradient(135deg,#ffffff 0,var(--green) 44%,var(--blue) 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  text-shadow:0 0 28px rgba(112,214,162,.18);
 }
 .kpi small{
   display:block;
   margin-top:7px;
-  color:var(--muted);
+  color:#b8c9e4;
   font-weight:800;
 }
 .activity{
@@ -300,10 +318,20 @@ button,a{font:inherit}
   border-radius:16px;
   padding:12px 14px;
   background:rgba(255,255,255,.04);
-  color:var(--muted);
+  color:#b8c9e4;
   font-weight:850;
 }
-.activity-line b{color:var(--text)}
+.activity-line b{
+  color:transparent;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  -webkit-background-clip:text;
+  background-clip:text;
+  text-shadow:0 0 18px rgba(130,188,255,.22);
+}
+.activity-line span{
+  color:#f2c777;
+  text-shadow:0 0 18px rgba(242,188,102,.16);
+}
 .workspace{
   position:fixed;
   inset:18px;
@@ -365,6 +393,24 @@ iframe{
   .app{padding:18px}
   .top{flex-direction:column}
   .statusbar{justify-content:flex-start}
+  .brand-logo{width:min(420px,84vw)}
+  .hero-brand{min-height:130px}
+  .hero-logo{width:min(560px,90vw)}
+}
+@keyframes logoGlow{
+  0%,100%{filter:drop-shadow(0 0 20px rgba(130,188,255,.22)) drop-shadow(0 0 34px rgba(112,214,162,.16))}
+  50%{filter:drop-shadow(0 0 30px rgba(130,188,255,.42)) drop-shadow(0 0 54px rgba(112,214,162,.28))}
+}
+@keyframes logoFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-6px) scale(1.012)}
+}
+@keyframes cardFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .brand-logo,.hero-logo,.module-card{animation:none!important}
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -374,11 +420,7 @@ iframe{
 <main class="app">
   <header class="top">
     <div class="brand">
-      <div class="brand-mark">D</div>
-      <div>
-        <small>Central operacional</small>
-        <h1>Dualize Digital</h1>
-      </div>
+      <img class="brand-logo" src="dualize-logo.png" alt="Dualize Digital">
     </div>
     <div class="statusbar">
       <div class="pill"><span class="dot"></span><span id="syncStatus">Conectando Firebase...</span></div>
@@ -387,9 +429,8 @@ iframe{
   </header>
 
   <section class="hero">
-    <div class="hero-copy">
-      <h2>Painel geral de módulos.</h2>
-      <p>Financeiro, tarefas e calculadora de LEADs em uma entrada única, com visual limpo e sincronização em tempo real onde importa.</p>
+    <div class="hero-brand" aria-label="Dualize Digital - painel geral de módulos">
+      <img class="hero-logo" src="dualize-logo.png" alt="Dualize Digital">
     </div>
 
     <div class="module-grid" id="moduleCards"></div>
