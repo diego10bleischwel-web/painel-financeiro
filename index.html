@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dualize Digital - Central</title>
+<title>Dualize Digital OS</title>
 <style>
 :root{
   --bg:#070b12;
   --panel:#111824;
-  --panel-soft:#151e2c;
-  --text:#f6f9ff;
+  --panel-2:#172131;
+  --text:#f7fbff;
   --muted:#9aa8bd;
-  --line:#253246;
+  --line:#263449;
   --blue:#82bcff;
   --green:#70d6a2;
   --purple:#8f6bff;
   --amber:#f2bc66;
   --red:#ff6b73;
-  --shadow:0 24px 80px rgba(0,0,0,.38);
+  --shadow:0 24px 80px rgba(0,0,0,.42);
 }
 *{box-sizing:border-box}
 body{
@@ -26,147 +26,285 @@ body{
   font-family:Inter,Arial,sans-serif;
   color:var(--text);
   background:
-    radial-gradient(circle at top left,rgba(71,118,255,.22),transparent 32rem),
-    radial-gradient(circle at top right,rgba(112,214,162,.16),transparent 30rem),
-    linear-gradient(135deg,#111a2a 0,#070b12 46%,#05070c 100%);
+    radial-gradient(circle at 15% 0,rgba(143,107,255,.22),transparent 34rem),
+    radial-gradient(circle at 95% 10%,rgba(112,214,162,.16),transparent 30rem),
+    linear-gradient(135deg,#111a2a 0,#070b12 48%,#05070c 100%);
 }
-button,a,input{font:inherit}
-.shell{min-height:100vh;display:grid;grid-template-columns:292px 1fr}
-.side{
-  position:sticky;
-  top:0;
-  height:100vh;
-  padding:24px 18px;
-  background:rgba(10,15,24,.72);
-  border-right:1px solid rgba(255,255,255,.10);
-  backdrop-filter:blur(22px);
-}
-.brand{display:flex;gap:14px;align-items:center;margin-bottom:28px}
-.brand-mark{
-  width:46px;
-  height:46px;
-  border-radius:16px;
+button,a{font:inherit}
+.app{
+  min-height:100vh;
+  width:min(1320px,100%);
+  margin:auto;
+  padding:28px;
   display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,var(--blue),var(--green));
-  color:#071018;
-  font-weight:1000;
-  box-shadow:0 0 0 1px rgba(255,255,255,.55) inset,0 18px 46px rgba(112,214,162,.22);
+  grid-template-rows:auto 1fr;
+  gap:28px;
 }
-.brand small{display:block;color:var(--amber);text-transform:uppercase;letter-spacing:2px;font-size:10px;font-weight:950}
-.brand strong{display:block;font-size:20px;line-height:1.05}
-.nav{display:grid;gap:10px}
-.nav button{
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:18px;
-  background:rgba(17,24,36,.72);
-  color:var(--muted);
-  padding:14px;
-  text-align:left;
-  cursor:pointer;
-  display:grid;
-  grid-template-columns:36px 1fr;
-  gap:12px;
-  align-items:center;
-  box-shadow:0 10px 26px rgba(0,0,0,.14);
-}
-.nav button.active{
-  color:#071018;
-  background:linear-gradient(135deg,var(--blue),var(--green));
-  border-color:rgba(255,255,255,.55);
-  box-shadow:0 0 0 1px rgba(255,255,255,.90) inset,0 0 28px rgba(255,255,255,.22),0 18px 42px rgba(112,214,162,.22);
-}
-.nav b{display:block;font-size:14px}.nav span:last-child{display:block;font-size:11px;margin-top:3px;font-weight:800}
-.side-footer{
-  position:absolute;
-  left:18px;
-  right:18px;
-  bottom:18px;
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:20px;
-  padding:14px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.4;
-  background:rgba(17,24,36,.58);
-}
-.main{padding:24px;display:grid;grid-template-rows:auto 1fr;gap:18px;min-width:0}
 .top{
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  gap:16px;
-  min-width:0;
+  align-items:flex-start;
+  gap:18px;
 }
-.top h1{margin:0;font-size:clamp(26px,3vw,44px);line-height:.98;letter-spacing:-1px}
-.top p{margin:8px 0 0;color:var(--muted);font-weight:750}
-.statusbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.pill{
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(17,24,36,.76);
-  color:var(--text);
-  border-radius:999px;
-  padding:11px 15px;
-  font-weight:950;
-  box-shadow:0 10px 30px rgba(0,0,0,.18);
-  white-space:nowrap;
-}
-.dot{display:inline-block;width:8px;height:8px;border-radius:99px;background:var(--green);box-shadow:0 0 16px var(--green);margin-right:8px}
-.hub{display:grid;grid-template-columns:1fr 1.1fr;gap:18px;align-items:start}
-.cards{display:grid;gap:14px}
-.module-card,.insight,.workspace{
-  border:1px solid transparent;
-  background:
-    linear-gradient(rgba(17,24,36,.90),rgba(17,24,36,.90)) padding-box,
-    linear-gradient(135deg,rgba(143,107,255,.95),rgba(130,188,255,.75),rgba(112,214,162,.62)) border-box;
-  border-radius:24px;
-  box-shadow:var(--shadow),0 0 30px rgba(255,255,255,.06);
-}
-.module-card{
-  padding:18px;
-  cursor:pointer;
-  display:grid;
-  grid-template-columns:52px 1fr auto;
-  gap:14px;
+.brand{
+  display:flex;
   align-items:center;
+  gap:14px;
 }
-.module-card:hover,.module-card.active{box-shadow:0 0 0 1px rgba(255,255,255,.72) inset,0 0 34px rgba(255,255,255,.18),var(--shadow)}
-.module-icon{
+.brand-mark{
   width:52px;
   height:52px;
   border-radius:18px;
   display:grid;
   place-items:center;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  color:#071018;
+  font-weight:1000;
+  box-shadow:0 0 0 1px rgba(255,255,255,.62) inset,0 18px 46px rgba(112,214,162,.22);
+}
+.brand small{
+  display:block;
+  color:var(--amber);
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  font-weight:950;
+}
+.brand h1{
+  margin:4px 0 0;
+  font-size:clamp(26px,3.8vw,54px);
+  line-height:.95;
+  letter-spacing:-1px;
+}
+.statusbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.pill{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(17,24,36,.74);
+  color:var(--text);
+  border-radius:999px;
+  padding:11px 15px;
+  font-weight:950;
+  white-space:nowrap;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
+}
+.dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:99px;
+  background:var(--green);
+  box-shadow:0 0 18px var(--green);
+  margin-right:8px;
+}
+.hero{
+  display:grid;
+  gap:22px;
+  align-content:start;
+}
+.hero-copy{
+  max-width:760px;
+}
+.hero-copy h2{
+  margin:0;
+  font-size:clamp(31px,5vw,74px);
+  line-height:.94;
+  letter-spacing:-2px;
+}
+.hero-copy p{
+  margin:16px 0 0;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.5;
+  font-weight:750;
+}
+.module-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+}
+.module-card{
+  position:relative;
+  overflow:hidden;
+  min-height:278px;
+  border:1px solid transparent;
+  border-radius:30px;
+  padding:24px;
+  background:
+    linear-gradient(rgba(17,24,36,.92),rgba(17,24,36,.92)) padding-box,
+    linear-gradient(135deg,rgba(143,107,255,.95),rgba(130,188,255,.78),rgba(112,214,162,.66)) border-box;
+  box-shadow:var(--shadow),0 0 34px rgba(255,255,255,.06);
+  cursor:pointer;
+  text-align:left;
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:24px;
+}
+.module-card:before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:29px;
+  pointer-events:none;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18) inset;
+}
+.module-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.72) inset,0 0 42px rgba(255,255,255,.18),var(--shadow);
+}
+.module-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.module-icon{
+  width:58px;
+  height:58px;
+  border-radius:20px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  color:#071018;
+  font-size:25px;
+  font-weight:1000;
+  box-shadow:0 0 0 1px rgba(255,255,255,.62) inset,0 18px 44px rgba(112,214,162,.18);
+}
+.module-badge{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.05);
+  color:var(--green);
+  font-size:11px;
+  font-weight:950;
+}
+.module-card h3{
+  margin:0;
+  font-size:28px;
+  letter-spacing:-.4px;
+}
+.module-card p{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-weight:760;
+  line-height:1.45;
+}
+.module-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.module-metric{
+  color:var(--text);
+  font-size:15px;
+  font-weight:950;
+}
+.open-chip{
   color:#071018;
   background:linear-gradient(135deg,var(--blue),var(--green));
-  font-size:24px;
+  border-radius:999px;
+  padding:10px 13px;
+  font-size:12px;
   font-weight:1000;
 }
-.module-card h2{margin:0 0 5px;font-size:19px}.module-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.35;font-weight:750}
-.module-card small{color:var(--green);font-weight:950}
-.insight{padding:18px}
-.insight h3{margin:0 0 12px;font-size:18px}.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.summary{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:18px;
+}
+.panel{
+  border:1px solid transparent;
+  border-radius:28px;
+  padding:22px;
+  background:
+    linear-gradient(rgba(17,24,36,.84),rgba(17,24,36,.84)) padding-box,
+    linear-gradient(135deg,rgba(143,107,255,.8),rgba(130,188,255,.58),rgba(112,214,162,.44)) border-box;
+  box-shadow:0 18px 55px rgba(0,0,0,.24);
+}
+.panel h3{
+  margin:0 0 14px;
+  font-size:20px;
+}
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
 .kpi{
-  min-height:104px;
+  border:1px solid rgba(255,255,255,.12);
   border-radius:20px;
   padding:16px;
   background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
-  border:1px solid rgba(255,255,255,.12);
-  backdrop-filter:blur(16px);
 }
-.kpi span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:950}
-.kpi strong{display:block;margin-top:10px;font-size:24px}.kpi small{display:block;margin-top:7px;color:var(--muted);font-weight:800}
-.workspace{overflow:hidden;min-height:calc(100vh - 170px);display:grid;grid-template-rows:auto 1fr}
+.kpi span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  font-weight:950;
+}
+.kpi strong{
+  display:block;
+  margin-top:10px;
+  font-size:24px;
+}
+.kpi small{
+  display:block;
+  margin-top:7px;
+  color:var(--muted);
+  font-weight:800;
+}
+.activity{
+  display:grid;
+  gap:10px;
+}
+.activity-line{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  padding:12px 14px;
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  font-weight:850;
+}
+.activity-line b{color:var(--text)}
+.workspace{
+  position:fixed;
+  inset:18px;
+  z-index:20;
+  display:none;
+  grid-template-rows:auto 1fr;
+  border:1px solid transparent;
+  border-radius:28px;
+  overflow:hidden;
+  background:
+    linear-gradient(#0e141f,#0e141f) padding-box,
+    linear-gradient(135deg,var(--purple),var(--blue),var(--green)) border-box;
+  box-shadow:0 28px 100px rgba(0,0,0,.65),0 0 42px rgba(255,255,255,.18);
+}
+.workspace.active{display:grid}
 .workspace-head{
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:12px;
-  padding:15px;
+  padding:14px 16px;
+  background:rgba(10,15,24,.88);
   border-bottom:1px solid rgba(255,255,255,.10);
-  background:rgba(10,15,24,.58);
 }
-.workspace-head b{font-size:18px}.workspace-actions{display:flex;gap:8px;flex-wrap:wrap}
+.workspace-head b{font-size:18px}
+.workspace-actions{display:flex;gap:8px;flex-wrap:wrap}
 .action{
   border:1px solid rgba(255,255,255,.12);
   background:rgba(255,255,255,.06);
@@ -179,8 +317,8 @@ button,a,input{font:inherit}
   cursor:pointer;
 }
 .action.primary{background:linear-gradient(135deg,var(--blue),var(--green));color:#071018}
-iframe{width:100%;height:100%;border:0;background:#0e1117}
-.frame-wrap{position:relative;min-height:650px}.frame-wrap.loading:before{
+.frame-wrap{position:relative;min-height:0}
+.frame-wrap.loading:before{
   content:"Carregando modulo...";
   position:absolute;
   inset:0;
@@ -188,80 +326,86 @@ iframe{width:100%;height:100%;border:0;background:#0e1117}
   place-items:center;
   color:var(--muted);
   background:#0e1117;
-  z-index:1;
+  z-index:2;
   font-weight:950;
 }
-@media(max-width:1050px){
-  .shell{grid-template-columns:1fr}
-  .side{height:auto;position:relative}
-  .side-footer{position:static;margin-top:16px}
-  .main{padding:16px}
-  .hub{grid-template-columns:1fr}
+iframe{
+  width:100%;
+  height:100%;
+  border:0;
+  background:#0e1117;
 }
-@media(max-width:650px){
-  .top{align-items:flex-start;flex-direction:column}
+@media(max-width:1050px){
+  .module-grid,.summary,.kpis{grid-template-columns:1fr}
+  .app{padding:18px}
+  .top{flex-direction:column}
   .statusbar{justify-content:flex-start}
-  .module-card{grid-template-columns:44px 1fr}
-  .module-card small{grid-column:2}
-  .module-icon{width:44px;height:44px}
-  .kpis{grid-template-columns:1fr}
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 </head>
 <body>
-<div class="shell">
-  <aside class="side">
+<main class="app">
+  <header class="top">
     <div class="brand">
       <div class="brand-mark">D</div>
-      <div><small>Central operacional</small><strong>Dualize Digital</strong></div>
-    </div>
-    <nav class="nav" id="moduleNav"></nav>
-    <div class="side-footer">
-      <b>Firebase ativo</b><br>
-      Financeiro em tempo real. Tarefas e calculadora ficam centralizadas aqui e entram na mesma base Firebase na próxima evolução.
-    </div>
-  </aside>
-  <main class="main">
-    <header class="top">
       <div>
-        <h1>Central Dualize</h1>
-        <p>Um painel único para operar financeiro, tarefas e calculadora LED.</p>
+        <small>Central operacional</small>
+        <h1>Dualize Digital OS</h1>
       </div>
-      <div class="statusbar">
-        <div class="pill"><span class="dot"></span><span id="syncStatus">Conectando Firebase...</span></div>
-        <div class="pill" id="todayPill"></div>
-      </div>
-    </header>
-    <section class="hub">
-      <div class="cards">
-        <div id="moduleCards"></div>
-        <div class="insight">
-          <h3>Resumo ao vivo</h3>
-          <div class="kpis">
-            <div class="kpi"><span>Lancamentos financeiros</span><strong id="financeEntries">--</strong><small id="financeSync">Aguardando Firestore</small></div>
-            <div class="kpi"><span>Cartoes importados</span><strong id="financeCards">--</strong><small>Transacoes de fatura</small></div>
-            <div class="kpi"><span>Tarefas</span><strong>Modulo</strong><small>Pronto para migrar ao Firestore</small></div>
-            <div class="kpi"><span>Calculadora LED</span><strong>Modulo</strong><small>Disponivel na central</small></div>
-          </div>
+    </div>
+    <div class="statusbar">
+      <div class="pill"><span class="dot"></span><span id="syncStatus">Conectando Firebase...</span></div>
+      <div class="pill" id="todayPill"></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <h2>Escolha seu modulo de trabalho.</h2>
+      <p>Financeiro, tarefas e calculadora LED em uma entrada unica, com visual limpo e sincronizacao em tempo real onde importa.</p>
+    </div>
+
+    <div class="module-grid" id="moduleCards"></div>
+
+    <div class="summary">
+      <section class="panel">
+        <h3>Resumo ao vivo</h3>
+        <div class="kpis">
+          <div class="kpi"><span>Financeiro</span><strong id="financeEntries">--</strong><small id="financeSync">Aguardando Firestore</small></div>
+          <div class="kpi"><span>Cartoes</span><strong id="financeCards">--</strong><small>Transacoes importadas</small></div>
+          <div class="kpi"><span>Tarefas</span><strong id="taskCards">--</strong><small id="taskSync">Aguardando Firestore</small></div>
+          <div class="kpi"><span>Calculadora LED</span><strong>Pronta</strong><small>Modulo disponivel</small></div>
         </div>
-      </div>
-      <div class="workspace">
-        <div class="workspace-head">
-          <b id="workspaceTitle">Financeiro</b>
-          <div class="workspace-actions">
-            <button class="action" id="reloadFrame" type="button">Recarregar</button>
-            <a class="action primary" id="openExternal" target="_blank" rel="noopener">Abrir em tela cheia</a>
-          </div>
+      </section>
+
+      <section class="panel">
+        <h3>Ultimas atividades</h3>
+        <div class="activity">
+          <div class="activity-line"><b>Firebase</b><span id="activitySync">Aguardando dados</span></div>
+          <div class="activity-line"><b>Financeiro</b><span id="activityFinance">Conectando</span></div>
+          <div class="activity-line"><b>Tarefas</b><span id="activityTasks">Conectando</span></div>
         </div>
-        <div class="frame-wrap loading" id="frameWrap">
-          <iframe id="moduleFrame" title="Modulo Dualize"></iframe>
-        </div>
-      </div>
-    </section>
-  </main>
-</div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<section class="workspace" id="workspace">
+  <div class="workspace-head">
+    <b id="workspaceTitle">Modulo</b>
+    <div class="workspace-actions">
+      <button class="action" id="closeWorkspace" type="button">Voltar</button>
+      <button class="action" id="reloadFrame" type="button">Recarregar</button>
+      <a class="action primary" id="openExternal" target="_blank" rel="noopener">Abrir em tela cheia</a>
+    </div>
+  </div>
+  <div class="frame-wrap loading" id="frameWrap">
+    <iframe id="moduleFrame" title="Modulo Dualize"></iframe>
+  </div>
+</section>
+
 <script>
 const firebaseConfig={
   apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",
@@ -272,24 +416,25 @@ const firebaseConfig={
   appId:"1:1098441288739:web:8e210b6d329ee779bc1596"
 };
 const modules=[
-  {id:'financeiro',icon:'$',title:'Financeiro',desc:'Lancamentos, cartoes, bancos, terceiros e planejamento.',url:'financeiro.html',status:'Tempo real Firebase'},
-  {id:'tarefas',icon:'✓',title:'Tarefas',desc:'Quadro operacional, criativos, rotinas e calendario de clientes.',url:'controle-online/index.html',status:'Modulo individual'},
-  {id:'led',icon:'∑',title:'Calculadora LED',desc:'Formula do lead qualificado e simulacoes comerciais.',url:'calculadora-lead/index.html',status:'Modulo individual'}
+  {id:'financeiro',icon:'$',title:'Financeiro',desc:'Lancamentos, cartoes, bancos, terceiros e planejamento.',url:'financeiro.html',status:'Tempo real Firebase',metric:'Controle mensal'},
+  {id:'tarefas',icon:'OK',title:'Tarefas',desc:'Quadro operacional, criativos, rotinas e calendario de clientes.',url:'controle-online/index.html',status:'Tempo real Firebase',metric:'Operacao diaria'},
+  {id:'led',icon:'LED',title:'Calculadora LED',desc:'Formula do lead qualificado e simulacoes comerciais.',url:'calculadora-lead/index.html',status:'Modulo comercial',metric:'Simulador'}
 ];
 const $=s=>document.querySelector(s);
-let activeModule=localStorage.getItem('dualizeCentralModule')||'financeiro';
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function renderModules(){
-  $('#moduleNav').innerHTML=modules.map(m=>`<button type="button" data-module="${m.id}" class="${m.id===activeModule?'active':''}"><span>${esc(m.icon)}</span><span><b>${esc(m.title)}</b><span>${esc(m.status)}</span></span></button>`).join('');
-  $('#moduleCards').innerHTML=modules.map(m=>`<article class="module-card ${m.id===activeModule?'active':''}" data-module="${m.id}"><div class="module-icon">${esc(m.icon)}</div><div><h2>${esc(m.title)}</h2><p>${esc(m.desc)}</p></div><small>${esc(m.status)}</small></article>`).join('');
+  $('#moduleCards').innerHTML=modules.map(m=>`<button class="module-card" type="button" data-module="${m.id}">
+    <div class="module-top"><div class="module-icon">${esc(m.icon)}</div><span class="module-badge">${esc(m.status)}</span></div>
+    <div><h3>${esc(m.title)}</h3><p>${esc(m.desc)}</p></div>
+    <div class="module-footer"><span class="module-metric">${esc(m.metric)}</span><span class="open-chip">Abrir modulo</span></div>
+  </button>`).join('');
 }
 function openModule(id){
   const mod=modules.find(m=>m.id===id)||modules[0];
-  activeModule=mod.id;
-  localStorage.setItem('dualizeCentralModule',activeModule);
-  renderModules();
   $('#workspaceTitle').textContent=mod.title;
   $('#openExternal').href=mod.url;
+  $('#workspace').classList.add('active');
   $('#frameWrap').classList.add('loading');
   $('#moduleFrame').src=mod.url+(mod.url.includes('?')?'&':'?')+'embedded=1&t='+Date.now();
 }
@@ -298,6 +443,7 @@ function setupEvents(){
     const target=e.target.closest('[data-module]');
     if(target) openModule(target.dataset.module);
   });
+  $('#closeWorkspace').onclick=()=>$('#workspace').classList.remove('active');
   $('#reloadFrame').onclick=()=>{
     const frame=$('#moduleFrame');
     $('#frameWrap').classList.add('loading');
@@ -305,7 +451,6 @@ function setupEvents(){
   };
   $('#moduleFrame').onload=()=>$('#frameWrap').classList.remove('loading');
 }
-function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function setupFirebaseSummary(){
   try{
     firebase.initializeApp(firebaseConfig);
@@ -317,13 +462,25 @@ function setupFirebaseSummary(){
       }
       const data=snapshot.data();
       const payload=data.payload||data;
-      $('#syncStatus').textContent='Firebase ao vivo '+syncTime(payload.lastSync||data.updatedAt);
+      const when=syncTime(payload.lastSync||data.updatedAt);
+      $('#syncStatus').textContent='Firebase ao vivo '+when;
       $('#financeEntries').textContent=Array.isArray(payload.entries)?payload.entries.length:'0';
       $('#financeCards').textContent=Array.isArray(payload.cardTransactions)?payload.cardTransactions.length:'0';
-      $('#financeSync').textContent='Atualizado '+syncTime(payload.lastSync||data.updatedAt);
+      $('#financeSync').textContent='Atualizado '+when;
+      $('#activitySync').textContent='Ao vivo '+when;
+      $('#activityFinance').textContent='Atualizado '+when;
     },err=>{
       console.warn(err);
       $('#syncStatus').textContent='Firebase indisponivel';
+    });
+    db.collection('tarefas').doc('estado_principal').onSnapshot(snapshot=>{
+      if(!snapshot.exists)return;
+      const data=snapshot.data();
+      const payload=data.payload||data;
+      const when=syncTime(payload.lastSync||data.updatedAt);
+      $('#taskCards').textContent=Array.isArray(payload.cards)?payload.cards.length:'0';
+      $('#taskSync').textContent='Atualizado '+when;
+      $('#activityTasks').textContent='Atualizado '+when;
     });
   }catch(err){
     console.warn(err);
@@ -334,7 +491,6 @@ $('#todayPill').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'shor
 renderModules();
 setupEvents();
 setupFirebaseSummary();
-openModule(activeModule);
 </script>
 </body>
 </html>
