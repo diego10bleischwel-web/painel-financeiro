@@ -120,6 +120,60 @@ body.dark-theme .tab{box-shadow:0 0 0 1px rgba(255,255,255,.56) inset,0 0 20px r
 body.dark-theme .tab.active{box-shadow:0 0 0 1px rgba(255,255,255,.90) inset,0 0 30px rgba(255,255,255,.30),0 18px 42px rgba(34,211,238,.24)!important}
 .planning-smart.danger{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,#ff7b72,#f4f7fb,#22d3ee) border-box!important;color:var(--red-text)!important;box-shadow:0 0 0 1px rgba(255,255,255,.75) inset,0 0 28px rgba(255,255,255,.24),0 16px 42px rgba(255,123,114,.12)!important}
 body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b25) padding-box,linear-gradient(135deg,#ff7b72,#f4f7fb,#22d3ee) border-box!important;color:#ffb0aa!important;box-shadow:0 0 0 1px rgba(255,255,255,.74) inset,0 0 30px rgba(255,255,255,.20),0 16px 42px rgba(255,123,114,.16)!important}
+@media(max-width:760px){
+  html,body{width:100%;overflow-x:hidden}
+  body.mobile-view .app{max-width:none;width:100%;padding:12px 10px 72px!important}
+  body.mobile-view header{gap:12px;margin-bottom:14px}
+  body.mobile-view .brand small{font-size:10px}
+  body.mobile-view h1{font-size:34px!important;line-height:.96}
+  body.mobile-view .topbar{display:grid;grid-template-columns:1fr;gap:8px}
+  body.mobile-view .view-toggle{display:none}
+  body.mobile-view .theme-toggle,
+  body.mobile-view .pill,
+  body.mobile-view #syncBtn{min-height:44px;justify-content:center}
+  body.mobile-view .summary{grid-template-columns:1fr!important;gap:10px;margin:12px 0}
+  body.mobile-view .kpi{min-height:104px;padding:16px}
+  body.mobile-view .tabs{gap:8px;margin:12px 0;padding-bottom:8px;scroll-snap-type:x proximity}
+  body.mobile-view .tab{scroll-snap-align:start;min-height:42px}
+  body.mobile-view .grid,
+  body.mobile-view .exec-kpis-v3,
+  body.mobile-view .exec-layout-v3,
+  body.mobile-view .exec-chart-v3,
+  body.mobile-view .exec-bank-grid-v3,
+  body.mobile-view .saas-kpis,
+  body.mobile-view .saas-main,
+  body.mobile-view .bank-grid,
+  body.mobile-view .transfer-grid,
+  body.mobile-view .third-grid,
+  body.mobile-view .card-import-target,
+  body.mobile-view .plan-actions{grid-template-columns:1fr!important}
+  body.mobile-view .card{border-radius:22px}
+  body.mobile-view .card-head{padding:16px;gap:12px}
+  body.mobile-view .card-head h2{font-size:22px}
+  body.mobile-view .month-list{padding:12px;gap:10px}
+  body.mobile-view .entry-row{grid-template-columns:28px minmax(0,1fr)!important;gap:10px;padding:14px 46px 14px 12px!important;min-height:0}
+  body.mobile-view .entry-row .day,
+  body.mobile-view .entry-row .value,
+  body.mobile-view .entry-row .status-pill{grid-column:2!important;width:100%}
+  body.mobile-view .name strong{font-size:16px;line-height:1.15}
+  body.mobile-view .row-tools{right:8px;top:8px}
+  body.mobile-view .form{padding:14px}
+  body.mobile-view .form .row{grid-template-columns:1fr!important}
+  body.mobile-view .bank-table,
+  body.mobile-view .saas-table{display:block;overflow-x:auto;white-space:nowrap}
+  body.mobile-view .exec-hero-v3,
+  body.mobile-view .exec-panel-title-v3,
+  body.mobile-view .transfer-shell-head{flex-direction:column;align-items:flex-start}
+  body.mobile-view .exec-panel-v3,
+  body.mobile-view .exec-kpi-v3{border-radius:22px;padding:16px}
+  body.mobile-view .exec-total-v3{font-size:24px}
+  body.mobile-view .exec-donut-v3{width:160px;height:160px;margin:auto}
+  body.mobile-view .exec-donut-v3::before{width:98px;height:98px}
+  body.mobile-view .exec-bar-v3{grid-template-columns:78px 1fr 44px;font-size:13px}
+  body.mobile-view .third-insight,
+  body.mobile-view .planning-smart,
+  body.mobile-view .suggestion{border-radius:18px}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -769,7 +823,9 @@ function renderBankMovements(force=false){ const table=$('#bankMovementTable'); 
 function renderThird(force=false){ const people=[...new Set(state.thirdMovements.map(m=>m.person))].sort(); const old=force?($('#thirdPersonFilter').value||'nenhum'):'nenhum'; $('#thirdPeopleList').innerHTML=people.map(p=>`<option value="${p}"></option>`).join(''); $('#thirdPersonFilter').innerHTML='<option value="nenhum">Nenhum</option><option value="todos">Todas as pessoas</option>'+people.map(p=>`<option value="${p}">${p}</option>`).join(''); $('#thirdPersonFilter').value=people.includes(old)||old==='todos'||old==='nenhum'?old:'nenhum'; const f=$('#thirdPersonFilter').value; let moves=[]; if(force){ moves=state.thirdMovements.slice(); if(f==='nenhum')moves=[]; else if(f!=='todos')moves=moves.filter(m=>m.person===f); const from=$('#thirdDateFrom').value, to=$('#thirdDateTo').value; if(from)moves=moves.filter(m=>!m.date||m.date>=from); if(to)moves=moves.filter(m=>!m.date||m.date<=to); } let entrada=0,saida=0; moves.forEach(m=>m.type==='entrada'?entrada+=parseMoney(m.valor):saida+=parseMoney(m.valor)); const saldoTerceiros=entrada-saida; const insightClass=!force?'ok':(saldoTerceiros>0?'warn':(saldoTerceiros<0?'danger':'ok')); const insightText=!force?'Selecione uma pessoa e clique em Pesquisar.':(saldoTerceiros>0?'Você ainda tem valor de terceiros para devolver.':(saldoTerceiros<0?'Você repassou mais do que recebeu. Confira os lançamentos.':'Terceiros equilibrado no período.')); $('#thirdSummaryCards').innerHTML=`<div class="bank-card ${entrada>0?'positive':'neutral'}"><span>Total recebido</span><strong>${br(entrada)}</strong><small>entradas de terceiros</small></div><div class="bank-card ${saida>0?'negative':'neutral'}"><span>Total repassado</span><strong>${br(saida)}</strong><small>saídas para terceiros</small></div><div class="bank-card ${saldoTerceiros>0?'negative':(saldoTerceiros<0?'negative':'positive')}"><span>Saldo a devolver</span><strong>${br(saldoTerceiros)}</strong><small>controle em aberto</small></div><div class="third-insight ${insightClass}" style="grid-column:1/-1">${insightText}</div>`; $('#thirdMovementTable').innerHTML='<tr><td><b>Data</b></td><td><b>Pessoa</b></td><td><b>Banco</b></td><td><b>Tipo</b></td><td><b>Valor</b></td><td><b>Obs.</b></td></tr>'+moves.map(m=>{ const kind=m.type==='entrada'?'entrada':'saida'; return `<tr><td>${m.date||'-'}</td><td>${m.person}</td><td>${m.bank}</td><td class="third-kind ${kind}">${m.type}</td><td class="third-value ${kind}">${m.valor}</td><td>${m.note||'-'}</td></tr>`; }).join('')+(!moves.length?'<tr><td colspan="6">Nenhum resultado pesquisado.</td></tr>':''); }
 function renderAll(){ recategorizeCardTransactions(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); }
 function setTab(id){ $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id)); $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id)); }
-function setView(mode){ document.body.classList.toggle('mobile-view',mode==='mobile'); $('#btnDesktop').classList.toggle('active',mode==='desktop'); $('#btnMobile').classList.toggle('active',mode==='mobile'); localStorage.setItem('dualizeViewMode',mode); }
+function autoViewMode(){return window.matchMedia('(max-width: 760px)').matches?'mobile':'desktop'}
+function setView(mode,manual=true){ document.body.classList.toggle('mobile-view',mode==='mobile'); $('#btnDesktop').classList.toggle('active',mode==='desktop'); $('#btnMobile').classList.toggle('active',mode==='mobile'); if(manual)localStorage.setItem('dualizeViewMode',mode); }
+function applyAutoView(){setView(autoViewMode(),false)}
 function setTheme(theme){ const dark=theme==='dark'; document.body.classList.toggle('dark-theme',dark); localStorage.setItem(THEME_KEY,dark?'dark':'light'); const btn=$('#themeToggle'); if(btn)btn.textContent=dark?'☀ Tema claro':'🌙 Tema escuro'; }
 function toggleTheme(){ setTheme(document.body.classList.contains('dark-theme')?'light':'dark'); }
 function syncCategory(){ const current=$('#categoryInput').value; const opts=$('#typeInput').value==='receita'?['Cliente','Empresa','Extra']:['Outros','Loja','Loja Online','Mercado','Restaurante','Farmacia','Farmácia','Jogos','Jogo','Lazer','Transporte','Assinatura','Anuidade','Pet','Juros','Taxas','Financiamento','Estudo','Cartão Crédito','Mecânica','Escola','Empresa','Casa','Água/Luz/Internet']; $('#categoryInput').innerHTML=opts.map(o=>`<option>${o}</option>`).join(''); if(opts.includes(current)) $('#categoryInput').value=current;}
@@ -1045,7 +1101,7 @@ function enableDebitStatusShortcuts(){
   },true);
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(cardsChanged||categoriesChanged) saveLocalSnapshot(); bind(); enableDebitStatusShortcuts(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); setView(localStorage.getItem('dualizeViewMode') || 'desktop'); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); if(state.cardTransactions.length) rebuildCardEntries(); if(cardsChanged||categoriesChanged) saveLocalSnapshot(); bind(); enableDebitStatusShortcuts(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
 init();
 });
 </script>

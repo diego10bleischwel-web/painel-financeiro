@@ -391,6 +391,114 @@ iframe{
   .hero-brand{min-height:210px}
   .hero-logo{width:min(640px,92vw)}
 }
+@media(max-width:640px){
+  body{overflow-x:hidden}
+  .app{
+    min-height:100svh;
+    width:100%;
+    padding:12px 12px 28px;
+    gap:12px;
+  }
+  .top{align-items:stretch}
+  .statusbar{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+  .pill{
+    width:100%;
+    justify-content:center;
+    padding:10px 12px;
+    font-size:13px;
+  }
+  .hero{gap:16px}
+  .hero-brand{
+    min-height:170px;
+    padding-top:0;
+  }
+  .hero-brand:before{
+    width:94vw;
+    height:170px;
+  }
+  .hero-logo{
+    width:96vw;
+    max-height:180px;
+  }
+  .module-grid{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .module-card{
+    min-height:214px;
+    border-radius:24px;
+    padding:18px;
+    gap:16px;
+  }
+  .module-card h3{font-size:25px}
+  .module-card p{font-size:14px}
+  .module-icon{
+    width:54px;
+    height:54px;
+    border-radius:17px;
+  }
+  .module-badge{font-size:10px}
+  .module-footer{align-items:flex-end}
+  .open-chip{padding:9px 12px}
+  .summary{gap:14px}
+  .panel{
+    border-radius:22px;
+    padding:16px;
+  }
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi{padding:13px}
+  .kpi strong{font-size:22px}
+  .activity-line{
+    display:grid;
+    gap:4px;
+  }
+  .workspace{
+    inset:0;
+    border-radius:0;
+    border:0;
+  }
+  .workspace-head{
+    align-items:flex-start;
+    flex-direction:column;
+    padding:10px;
+  }
+  .workspace-actions{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .workspace-actions .action{
+    text-align:center;
+    justify-content:center;
+  }
+  #openExternal{grid-column:1/3}
+}
+@media(max-width:430px){
+  .app{padding:10px 10px 24px}
+  .hero-brand{min-height:150px}
+  .hero-brand:before{height:145px;filter:blur(16px)}
+  .hero-logo{width:100%;max-height:150px;object-fit:contain}
+  .module-card{
+    min-height:196px;
+    padding:16px;
+  }
+  .module-card:hover{transform:none}
+  .module-card h3{font-size:23px}
+  .module-footer{
+    align-items:stretch;
+    flex-direction:column;
+    gap:10px;
+  }
+  .open-chip{width:100%;text-align:center}
+  .kpis{grid-template-columns:1fr}
+  .workspace-actions{grid-template-columns:1fr}
+  #openExternal{grid-column:auto}
+}
 @keyframes logoGlow{
   0%,100%{filter:drop-shadow(0 0 20px rgba(130,188,255,.22)) drop-shadow(0 0 34px rgba(112,214,162,.16))}
   50%{filter:drop-shadow(0 0 30px rgba(130,188,255,.42)) drop-shadow(0 0 54px rgba(112,214,162,.28))}
