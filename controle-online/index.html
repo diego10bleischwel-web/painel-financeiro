@@ -2257,6 +2257,113 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
   .hover-cover{display:none!important}
 }
 </style>
+<style>
+/* Fix final do quadro: card compacto, lapis centralizado e data clicavel. */
+.board-calendar.week .week-card:hover .board-card-media,
+.board-calendar .week-card:hover .board-card-media{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:86px!important;
+  min-height:86px!important;
+  transform:none!important;
+  border:0!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+  pointer-events:auto!important;
+  overflow:hidden!important;
+}
+.board-calendar.week .week-card:hover .board-card-media .cover,
+.board-calendar .week-card:hover .board-card-media .cover{
+  height:86px!important;
+  min-height:86px!important;
+}
+.board-calendar.week .week-card:hover .board-card-media img,
+.board-calendar.week .week-card:hover .board-card-media video,
+.board-calendar .week-card:hover .board-card-media img,
+.board-calendar .week-card:hover .board-card-media video{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+.board-calendar.week .week-card:hover .board-card-media iframe,
+.board-calendar.week .week-card:hover .board-card-media .cover iframe,
+.board-calendar .week-card:hover .board-card-media iframe,
+.board-calendar .week-card:hover .board-card-media .cover iframe{
+  width:520px!important;
+  height:620px!important;
+  transform:translate(-66px,-108px) scale(.34)!important;
+  transform-origin:top left!important;
+}
+.board-calendar .week-card:hover .edit-pencil,
+.board-calendar.week .edit-pencil{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  padding:0!important;
+  line-height:0!important;
+  font-size:0!important;
+  text-indent:0!important;
+  overflow:hidden!important;
+}
+.board-calendar .week-card:hover .edit-pencil:before,
+.board-calendar.week .edit-pencil:before{
+  content:"\270E"!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  margin:0!important;
+  transform:translate(-50%,-50%)!important;
+  color:#fff!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+.modal-card-date-field{
+  position:relative!important;
+}
+.modal-day-picker{
+  display:none;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:6px;
+  margin-top:9px;
+  padding:10px;
+  border:1px solid rgba(125,92,255,.45);
+  border-radius:14px;
+  background:linear-gradient(135deg,rgba(124,58,237,.16),rgba(20,184,166,.10));
+  box-shadow:0 14px 34px rgba(79,70,229,.18);
+}
+.modal-card-date-field.open .modal-day-picker{
+  display:grid;
+}
+.modal-day-picker button{
+  border:1px solid rgba(148,163,184,.30);
+  border-radius:10px;
+  background:rgba(15,23,42,.70);
+  color:#dbeafe;
+  min-height:34px;
+  font-weight:950;
+  cursor:pointer;
+}
+.modal-day-picker button:hover,
+.modal-day-picker button.active{
+  color:#03101b;
+  border-color:rgba(255,255,255,.65);
+  background:linear-gradient(135deg,#93c5fd,#8b5cf6 48%,#34d399);
+  box-shadow:0 0 18px rgba(147,197,253,.32);
+}
+</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -2360,9 +2467,18 @@ function saveModal(silent=false){const c=state.cards.find(x=>+x.id===openCardId)
 function publish(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;const date=publishDateForCard(c);c.dueDate=c.dueDate||date;c.publishedAt=date;c.publishedTime=publishTimeForCard(c,date);c.status='publicado';c.campaignState='ativo';c.columnId='running';c.publishHistory.push({at:new Date().toISOString(),date:c.publishedAt,time:c.publishedTime});save();render();if(openCardId===+id)openModal(id)}function unpublish(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;c.publishedAt='';c.publishedTime='';c.status='pendente';c.campaignState='inativo';c.columnId='scheduled';c.publishHistory.push({at:new Date().toISOString(),date:'',time:'',state:'pendente'});save();render();if(openCardId===+id)openModal(id)}function togglePublished(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;c.publishedAt?unpublish(id):publish(id)}function toggleRun(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;c.campaignState=c.campaignState==='ativo'?'inativo':'ativo';if(c.campaignState==='ativo'&&!c.publishedAt){publish(id);return}c.activeHistory.push({at:new Date().toISOString(),state:c.campaignState});save();render();if(openCardId===+id)openModal(id)}
 const basePublish=publish,baseTogglePublished=togglePublished,baseToggleRun=toggleRun;publish=function(id){const c=state.cards.find(x=>+x.id===+id);if(c&&routineType(c)){openRoutineModal(c);return}basePublish(id)};togglePublished=function(id){const c=state.cards.find(x=>+x.id===+id);if(c&&routineType(c)){openRoutineModal(c);return}baseTogglePublished(id)};toggleRun=function(id){const c=state.cards.find(x=>+x.id===+id);if(c&&routineType(c)){openRoutineModal(c);return}baseToggleRun(id)}
 function deleteCard(id){const cardId=+id;if(!cardId)return;if(!confirm('Excluir este card definitivamente?'))return;state.cards=state.cards.filter(c=>+c.id!==cardId);quickEditId=null;quickDay='';if(openCardId===cardId){$('#modal')?.classList.add('hidden');openCardId=null;modalDirty=false}save();render()}
-function cleanCreativeModal(id){const c=state.cards.find(x=>+x.id===+id);if(!c||routineType(c))return;if(['agenda','status','aprovacao'].includes(modalTab))modalTab='titulo';const modal=$('#modal');if(!modal)return;modal.dataset.tab=modalTab||'titulo';const linkBtn=modal.querySelector('[data-modal-tab="link"]');if(linkBtn)linkBtn.textContent='Links e publico';modal.querySelector('[data-modal-tab="agenda"]')?.remove();modal.querySelector('[data-modal-tab="status"]')?.remove();modal.querySelector('[data-modal-tab="aprovacao"]')?.remove();modal.querySelector('[data-send-approval]')?.remove();modal.querySelector('[data-approve]')?.remove();modal.querySelector('[data-toggle-run]')?.remove();modal.querySelector('[data-archive]')?.remove();if(!modal.querySelector('[data-delete-card]')){const btn=document.createElement('button');btn.className='modal-action';btn.type='button';btn.dataset.deleteCard=String(id);btn.textContent='Excluir';modal.querySelector('.modal-nav')?.appendChild(btn)}}
+function cleanCreativeModal(id){const c=state.cards.find(x=>+x.id===+id);if(!c||routineType(c))return;if(['agenda','status','aprovacao'].includes(modalTab))modalTab='titulo';const modal=$('#modal');if(!modal)return;modal.dataset.tab=modalTab||'titulo';const linkBtn=modal.querySelector('[data-modal-tab="link"]');if(linkBtn)linkBtn.textContent='Links e publico';modal.querySelector('[data-modal-tab="agenda"]')?.remove();modal.querySelector('[data-modal-tab="status"]')?.remove();modal.querySelector('[data-modal-tab="aprovacao"]')?.remove();modal.querySelector('[data-send-approval]')?.remove();modal.querySelector('[data-approve]')?.remove();modal.querySelector('[data-toggle-run]')?.remove();modal.querySelector('[data-archive]')?.remove();injectCardDatePicker();if(!modal.querySelector('[data-delete-card]')){const btn=document.createElement('button');btn.className='modal-action';btn.type='button';btn.dataset.deleteCard=String(id);btn.textContent='Excluir';modal.querySelector('.modal-nav')?.appendChild(btn)}}
 const baseDecoratedOpenModal=openModal;openModal=function(id){baseDecoratedOpenModal(id);cleanCreativeModal(id)}
 document.body.addEventListener('click',e=>{const del=e.target.closest('[data-delete-card]');if(del){e.preventDefault();e.stopImmediatePropagation();deleteCard(del.dataset.deleteCard);return}const quickDel=e.target.closest('[data-quick-archive]');if(quickDel){e.preventDefault();e.stopImmediatePropagation();deleteCard(quickDel.dataset.quickArchive);return}},true)
+function cardMonthDays(dateStr){const base=dateStr||selectedDate||iso(new Date()),parts=String(base).split('-'),year=+parts[0]||new Date().getFullYear(),month=+parts[1]||new Date().getMonth()+1,last=new Date(year,month,0).getDate(),mm=String(month).padStart(2,'0');return Array.from({length:last},(_,i)=>`${year}-${mm}-${String(i+1).padStart(2,'0')}`)}
+function refreshCardDatePicker(){const input=$('#mCardDate'),picker=$('.modal-day-picker');if(!input||!picker)return;picker.innerHTML=cardMonthDays(input.value).map(d=>`<button type="button" data-card-day="${d}" class="${d===input.value?'active':''}">${Number(d.slice(-2))}</button>`).join('')}
+function injectCardDatePicker(){const input=$('#mCardDate'),field=input?.closest('.modal-card-date-field');if(!input||!field)return;if(!field.querySelector('.modal-day-picker'))field.insertAdjacentHTML('beforeend','<div class="modal-day-picker"></div>');refreshCardDatePicker()}
+document.body.addEventListener('focusin',e=>{if(e.target?.id==='mCardDate'){injectCardDatePicker();e.target.closest('.modal-card-date-field')?.classList.add('open')}},true)
+document.body.addEventListener('click',e=>{const day=e.target.closest('[data-card-day]');if(day){e.preventDefault();e.stopImmediatePropagation();const value=day.dataset.cardDay,input=$('#mCardDate');if(input)input.value=value;if($('#mDueDate'))$('#mDueDate').value=value;if($('#mPublishedAt')?.value)$('#mPublishedAt').value=value;modalDirty=true;refreshCardDatePicker();day.closest('.modal-card-date-field')?.classList.remove('open');return}if(e.target.closest('#mCardDate')){injectCardDatePicker();e.target.closest('.modal-card-date-field')?.classList.add('open');return}if(!e.target.closest('.modal-card-date-field'))document.querySelector('.modal-card-date-field.open')?.classList.remove('open')},true)
+function boardStatusSummary(){const today=iso(new Date()),cs=cards('board').filter(c=>!routineType(c)),overdue=cs.filter(c=>!c.publishedAt&&displayDate(c)&&displayDate(c)<today).length,pending=cs.filter(c=>!c.publishedAt&&(!displayDate(c)||displayDate(c)>=today)).length,running=cs.filter(c=>c.campaignState==='ativo').length;return{overdue,pending,running}}
+function decorateBoardDashboard(){if(activeScreen!=='board')return;const summary=$('#boardView .board-view>.summary'),s=boardStatusSummary();if(summary)summary.innerHTML=metric('Atrasado',s.overdue)+metric('Pendente',s.pending)+metric('Rodando',s.running);$$('[data-analysis]').forEach(btn=>{btn.textContent=btn.classList.contains('done')?'Analisado':'Analisar'});$$('[data-mark-analysis]').forEach(btn=>{btn.textContent=btn.classList.contains('done')?'Analisado':'Analisar'})}
+const baseStatusRenderBoardView=renderBoardView;renderBoardView=function(){baseStatusRenderBoardView();decorateBoardDashboard()}
+const baseStatusRenderHome=renderHome;renderHome=function(){baseStatusRenderHome();$$('[data-analysis]').forEach(btn=>{btn.textContent=btn.classList.contains('done')?'Analisado':'Analisar'});$$('.board-health-row span').forEach(el=>{if(el.textContent.trim()==='Analise diaria')el.textContent='Analise'})}
 function scheduleTomorrow(){const c=state.cards.find(x=>+x.id===openCardId);if(!c)return;const d=new Date();d.setDate(d.getDate()+1);c.dueDate=iso(d);c.dueTime='09:00';c.status='pendente';c.columnId='scheduled';save();render();openModal(c.id)}function readFile(input,target){const file=$(input)?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{$(target).value=r.result;if(target==='#mMedia')syncOpenCardPreview()};r.readAsDataURL(file)}
 function addWorkspace(){const name=prompt('Nome da area de trabalho:', 'TRAFEGO PAGO');if(!name)return;state.workspaces.push({id:state.nextWorkspaceId++,name,note:'',boards:[]});state.activeWorkspaceId=max(state.workspaces);state.activeBoardId=null;save();activeScreen='home';render()}function addBoard(){const name=prompt('Nome do quadro/cliente:', 'Novo cliente');if(!name)return;workspace().boards.push({id:state.nextBoardId++,name,note:''});state.activeBoardId=workspace().boards.at(-1).id;save();activeScreen='board';render()}
 function quickCardFromText(text,day){const raw=(text||'').trim();if(!raw)return null;const isUrl=/^https?:\/\//i.test(raw),soc=detect(isUrl?raw:''),dayCards=cards('board').filter(c=>displayDate(c)===day),card=createCard({boardId:activeScreen==='board'?state.activeBoardId:(calendarFilter==='all'?boards()[0]?.id:calendarFilter),dueDate:day,title:isUrl?(soc.format?`${soc.format} ${soc.platform}`:'Criativo colado'):raw,link:isUrl?raw:''});if(isUrl){if(soc.platform)card.platform=soc.platform;if(soc.format)card.format=soc.format;if(soc.account)card.account=soc.account}card.order=dayCards.length;selectedDate=day;return card}
