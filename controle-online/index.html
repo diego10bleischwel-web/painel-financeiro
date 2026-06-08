@@ -892,6 +892,29 @@ body{background:#eef2f7!important}
   font-size:11px;
   margin-left:5px;
 }
+.modal-nav [data-modal-tab="agenda"],
+.modal-nav [data-modal-tab="status"],
+.modal-nav [data-modal-tab="aprovacao"],
+.modal-nav [data-toggle-run],
+.modal-nav [data-send-approval],
+.modal-nav [data-approve]{
+  display:none!important;
+}
+.modal-nav [data-modal-tab="link"]{
+  font-size:0!important;
+}
+.modal-nav [data-modal-tab="link"]::after{
+  content:"Links e publico"!important;
+  font-size:15px!important;
+}
+.modal-nav [data-delete-card]{
+  order:110!important;
+  border-color:rgba(248,113,113,.56)!important;
+  color:#fecaca!important;
+}
+.modal-nav [data-archive]{
+  display:none!important;
+}
 @media(max-width:980px){
   [data-screen="board"] .main{overflow:visible!important}
   [data-screen="board"] .board-view{min-height:auto!important}
@@ -1942,6 +1965,14 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
   object-fit:contain!important;
   background:#020617!important;
 }
+.modal-main .modal-section:nth-child(5) .preview img,
+.modal-main .modal-section:nth-child(5) .preview video{
+  width:100%!important;
+  height:480px!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  background:#050814!important;
+}
 .board-calendar.week .day{
   position:relative!important;
 }
@@ -1997,6 +2028,87 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
 }
 .modal-nav [data-toggle-run]{
   order:99;
+}
+.board-calendar.week .week-card{
+  width:150px!important;
+}
+.board-calendar.week .board-card-media,
+.board-calendar.week .board-card-media .cover{
+  width:100%!important;
+  height:150px!important;
+  min-height:150px!important;
+  border-radius:10px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  background:#050913!important;
+}
+.board-calendar.week .board-card-media img,
+.board-calendar.week .board-card-media video,
+.board-calendar.week .board-card-media .cover img,
+.board-calendar.week .board-card-media .cover video{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  background:#050913!important;
+}
+.board-calendar.week .board-card-media iframe,
+.board-calendar.week .board-card-media .cover iframe{
+  width:520px!important;
+  height:640px!important;
+  transform:translate(-96px,-46px) scale(.46)!important;
+  transform-origin:top left!important;
+  pointer-events:none!important;
+}
+.board-calendar.week .week-card:hover .board-card-media{
+  width:300px!important;
+  height:380px!important;
+}
+.board-calendar.week .week-card:hover .board-card-media .cover{
+  height:380px!important;
+}
+.board-calendar.week .week-card:hover .board-card-media iframe,
+.board-calendar.week .week-card:hover .board-card-media .cover iframe{
+  width:520px!important;
+  height:640px!important;
+  transform:translate(-5px,-18px) scale(.60)!important;
+}
+.board-calendar .week-card:hover .edit-pencil,
+.board-calendar.week .edit-pencil{
+  display:grid!important;
+  place-items:center!important;
+  align-items:center!important;
+  justify-items:center!important;
+  padding:0!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+.board-calendar .week-card:hover .edit-pencil:before,
+.board-calendar.week .edit-pencil:before{
+  display:block!important;
+  width:1em!important;
+  height:1em!important;
+  line-height:1!important;
+  margin:auto!important;
+  transform:translateY(-.5px)!important;
+}
+.quick-menu [data-toggle-run]{
+  display:none!important;
+}
+.quick-menu [data-quick-archive]{
+  font-size:0!important;
+}
+.quick-menu [data-quick-archive]::after{
+  content:"Excluir";
+  font-size:13px!important;
+}
+[data-new-board]{
+  font-size:0!important;
+}
+[data-new-board]::after{
+  content:"+ Criativo";
+  font-size:14px!important;
 }
 @media(max-width:760px){
   html,body{width:100%!important;overflow-x:hidden!important}
@@ -2247,6 +2359,10 @@ function modalData(){const current=state.cards.find(x=>+x.id===openCardId),cardD
 function saveModal(silent=false){const c=state.cards.find(x=>+x.id===openCardId);if(!c)return;const wasPublished=!!c.publishedAt;Object.assign(c,modalData());const soc=detect(c.link||c.mediaUrl);if(!c.platform)c.platform=soc.platform;if(!c.format)c.format=soc.format;if(!c.account)c.account=soc.account||'';if(c.status==='publicado'&&!c.publishedAt){c.publishedAt=publishDateForCard(c);c.publishedTime=c.publishedTime||publishTimeForCard(c,c.publishedAt);c.campaignState='ativo';if(!wasPublished)c.publishHistory.push({at:new Date().toISOString(),date:c.publishedAt,time:c.publishedTime})}if(c.status==='publicado'&&c.publishedAt&&!c.publishedTime)c.publishedTime=publishTimeForCard(c,c.publishedAt);if(c.publishedAt)c.status='publicado';save();render();if(!silent)openModal(c.id)}
 function publish(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;const date=publishDateForCard(c);c.dueDate=c.dueDate||date;c.publishedAt=date;c.publishedTime=publishTimeForCard(c,date);c.status='publicado';c.campaignState='ativo';c.columnId='running';c.publishHistory.push({at:new Date().toISOString(),date:c.publishedAt,time:c.publishedTime});save();render();if(openCardId===+id)openModal(id)}function unpublish(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;c.publishedAt='';c.publishedTime='';c.status='pendente';c.campaignState='inativo';c.columnId='scheduled';c.publishHistory.push({at:new Date().toISOString(),date:'',time:'',state:'pendente'});save();render();if(openCardId===+id)openModal(id)}function togglePublished(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;c.publishedAt?unpublish(id):publish(id)}function toggleRun(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;c.campaignState=c.campaignState==='ativo'?'inativo':'ativo';if(c.campaignState==='ativo'&&!c.publishedAt){publish(id);return}c.activeHistory.push({at:new Date().toISOString(),state:c.campaignState});save();render();if(openCardId===+id)openModal(id)}
 const basePublish=publish,baseTogglePublished=togglePublished,baseToggleRun=toggleRun;publish=function(id){const c=state.cards.find(x=>+x.id===+id);if(c&&routineType(c)){openRoutineModal(c);return}basePublish(id)};togglePublished=function(id){const c=state.cards.find(x=>+x.id===+id);if(c&&routineType(c)){openRoutineModal(c);return}baseTogglePublished(id)};toggleRun=function(id){const c=state.cards.find(x=>+x.id===+id);if(c&&routineType(c)){openRoutineModal(c);return}baseToggleRun(id)}
+function deleteCard(id){const cardId=+id;if(!cardId)return;if(!confirm('Excluir este card definitivamente?'))return;state.cards=state.cards.filter(c=>+c.id!==cardId);quickEditId=null;quickDay='';if(openCardId===cardId){$('#modal')?.classList.add('hidden');openCardId=null;modalDirty=false}save();render()}
+function cleanCreativeModal(id){const c=state.cards.find(x=>+x.id===+id);if(!c||routineType(c))return;if(['agenda','status','aprovacao'].includes(modalTab))modalTab='titulo';const modal=$('#modal');if(!modal)return;modal.dataset.tab=modalTab||'titulo';const linkBtn=modal.querySelector('[data-modal-tab="link"]');if(linkBtn)linkBtn.textContent='Links e publico';modal.querySelector('[data-modal-tab="agenda"]')?.remove();modal.querySelector('[data-modal-tab="status"]')?.remove();modal.querySelector('[data-modal-tab="aprovacao"]')?.remove();modal.querySelector('[data-send-approval]')?.remove();modal.querySelector('[data-approve]')?.remove();modal.querySelector('[data-toggle-run]')?.remove();modal.querySelector('[data-archive]')?.remove();if(!modal.querySelector('[data-delete-card]')){const btn=document.createElement('button');btn.className='modal-action';btn.type='button';btn.dataset.deleteCard=String(id);btn.textContent='Excluir';modal.querySelector('.modal-nav')?.appendChild(btn)}}
+const baseDecoratedOpenModal=openModal;openModal=function(id){baseDecoratedOpenModal(id);cleanCreativeModal(id)}
+document.body.addEventListener('click',e=>{const del=e.target.closest('[data-delete-card]');if(del){e.preventDefault();e.stopImmediatePropagation();deleteCard(del.dataset.deleteCard);return}const quickDel=e.target.closest('[data-quick-archive]');if(quickDel){e.preventDefault();e.stopImmediatePropagation();deleteCard(quickDel.dataset.quickArchive);return}},true)
 function scheduleTomorrow(){const c=state.cards.find(x=>+x.id===openCardId);if(!c)return;const d=new Date();d.setDate(d.getDate()+1);c.dueDate=iso(d);c.dueTime='09:00';c.status='pendente';c.columnId='scheduled';save();render();openModal(c.id)}function readFile(input,target){const file=$(input)?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{$(target).value=r.result;if(target==='#mMedia')syncOpenCardPreview()};r.readAsDataURL(file)}
 function addWorkspace(){const name=prompt('Nome da area de trabalho:', 'TRAFEGO PAGO');if(!name)return;state.workspaces.push({id:state.nextWorkspaceId++,name,note:'',boards:[]});state.activeWorkspaceId=max(state.workspaces);state.activeBoardId=null;save();activeScreen='home';render()}function addBoard(){const name=prompt('Nome do quadro/cliente:', 'Novo cliente');if(!name)return;workspace().boards.push({id:state.nextBoardId++,name,note:''});state.activeBoardId=workspace().boards.at(-1).id;save();activeScreen='board';render()}
 function quickCardFromText(text,day){const raw=(text||'').trim();if(!raw)return null;const isUrl=/^https?:\/\//i.test(raw),soc=detect(isUrl?raw:''),dayCards=cards('board').filter(c=>displayDate(c)===day),card=createCard({boardId:activeScreen==='board'?state.activeBoardId:(calendarFilter==='all'?boards()[0]?.id:calendarFilter),dueDate:day,title:isUrl?(soc.format?`${soc.format} ${soc.platform}`:'Criativo colado'):raw,link:isUrl?raw:''});if(isUrl){if(soc.platform)card.platform=soc.platform;if(soc.format)card.format=soc.format;if(soc.account)card.account=soc.account}card.order=dayCards.length;selectedDate=day;return card}
