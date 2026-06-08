@@ -2389,7 +2389,14 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
 .board-calendar.week .week-card:hover .board-card-media .cover iframe{
   width:520px!important;
   height:640px!important;
-  transform:translate(-96px,-46px) scale(.46)!important;
+  transform:translate(12px,0) scale(.22)!important;
+  transform-origin:top left!important;
+}
+.board-calendar.week .board-card-media iframe,
+.board-calendar.week .board-card-media .cover iframe{
+  width:520px!important;
+  height:640px!important;
+  transform:translate(12px,0) scale(.22)!important;
   transform-origin:top left!important;
 }
 .board-calendar.week .week-card:hover .board-card-head,
@@ -2429,6 +2436,81 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
   display:flex!important;
   gap:7px!important;
   flex-wrap:wrap!important;
+}
+.board-note-line{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  margin:7px 0 8px!important;
+}
+.board-note-line .board-edit-btn{
+  flex:0 0 28px!important;
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  border-radius:999px!important;
+  padding:0!important;
+}
+.board-note-line .board-edit-btn:before{
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+}
+.routine-card{
+  position:relative!important;
+  padding-right:34px!important;
+}
+.routine-card .routine-actions-mini{
+  position:absolute!important;
+  right:7px!important;
+  top:7px!important;
+  display:grid!important;
+  gap:5px!important;
+}
+.routine-card .routine-pencil,
+.routine-card .routine-delete{
+  width:22px!important;
+  height:22px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(255,255,255,.35)!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  font-size:0!important;
+  line-height:1!important;
+  cursor:pointer!important;
+}
+.routine-card .routine-pencil{
+  background:linear-gradient(135deg,#7c3aed,#38bdf8)!important;
+  box-shadow:0 0 12px rgba(124,58,237,.38)!important;
+}
+.routine-card .routine-pencil:before{
+  content:"\270E"!important;
+  color:#fff!important;
+  font-size:11px!important;
+  line-height:1!important;
+}
+.routine-card .routine-delete{
+  background:rgba(239,68,68,.14)!important;
+  color:#fecaca!important;
+}
+.routine-card .routine-delete:before{
+  content:"x"!important;
+  font-size:12px!important;
+  font-weight:950!important;
+}
+.board-calendar.week .board-card-media img,
+.board-calendar.week .board-card-media video,
+.board-calendar.week .board-card-media .cover img,
+.board-calendar.week .board-card-media .cover video,
+.board-calendar.week .week-card:hover .board-card-media img,
+.board-calendar.week .week-card:hover .board-card-media video,
+.board-calendar.week .week-card:hover .board-card-media .cover img,
+.board-calendar.week .week-card:hover .board-card-media .cover video{
+  object-fit:contain!important;
+  object-position:center center!important;
 }
 </style>
 </head>
@@ -2522,7 +2604,7 @@ function openModal(id){openCardId=+id;const c=state.cards.find(x=>+x.id===openCa
 function ensureRoutineCard(type,day=selectedDate,boardId=state.activeBoardId){let c=routineToday(type,day,boardId);if(c)return c;const isAnalysis=type==='analysis',now=new Date(),time=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});c={id:state.nextCardId++,boardId:+boardId,cardType:type,routineDraft:false,columnId:'scheduled',order:cards('area').filter(x=>+x.boardId===+boardId&&displayDate(x)===day).length,title:isAnalysis?'Analise':'Ajuste realizado',status:'pendente',approvalStatus:'rascunho',campaignState:'inativo',creativeType:'rotina',labels:isAnalysis?'Analise':'Ajuste',dueDate:day,dueTime:time,publishedAt:'',publishedTime:'',routine:isAnalysis?{checked:[],note:'',updatedAt:'',completed:false}:{checked:[],area:'Campanha',description:'',reason:'',expected:'',link:'',updatedAt:'',completed:false},comments:[],checklist:[],publishHistory:[],activeHistory:[]};state.cards.push(c);return c}
 function markRoutine(type,day=selectedDate,boardId=state.activeBoardId){if(!boardId)return;selectedDate=day;ensureRoutineCard(type,day,boardId);save();render()}
 function openRoutine(type,day=selectedDate,boardId=state.activeBoardId){if(!boardId)return;selectedDate=day;openRoutineModal(ensureRoutineCard(type,day,boardId))}
-function openRoutineModal(c){openCardId=+c.id;modalDirty=false;const type=routineType(c),r=c.routine||{},checked=new Set(r.checked||[]),isAnalysis=type==='analysis',done=routineDone(c),items=isAnalysis?ANALYSIS_ITEMS:ADJUST_ITEMS;$('#modal').classList.remove('hidden');$('#modal').dataset.tab='routine';$('#modal').innerHTML=`<div class="modal-box routine-modal"><button class="close" data-close>&times;</button><main class="modal-main routine-form"><div class="modal-section"><div class="routine-hero"><div><h4>${isAnalysis?'Concluir analise diaria':'Concluir ajuste do dia'}</h4><p class="small">${esc(boardName(c.boardId))} - ${esc(short(displayDate(c)))} ${c.publishedTime?'- '+esc(c.publishedTime):''}</p></div>${tag(done?'Concluido':'Pendente',done?'ok':'warn')}</div><h4>${isAnalysis?'O que foi analisado?':'O que foi ajustado?'}</h4><div class="routine-checks">${items.map(([id,label])=>`<label class="routine-check"><input type="checkbox" data-routine-check="${id}" ${checked.has(id)?'checked':''}><span>${esc(label)}<small>${isAnalysis?'Marque se este ponto foi conferido hoje.':'Marque se este item fez parte do ajuste.'}</small></span></label>`).join('')}</div>${isAnalysis?`<div class="field" style="margin-top:12px"><label>Detalhe da analise / proxima acao</label><textarea id="routineNote" placeholder="Ex.: CPA subiu no conjunto 2, criativo X cansou, manter orÃƒÂ§amento e revisar amanha.">${esc(r.note||'')}</textarea></div>`:`<div class="routine-fields" style="margin-top:12px"><div class="field"><label>Area principal</label><select id="routineArea">${ADJUST_AREAS.map(x=>`<option value="${esc(x)}" ${x===(r.area||'Campanha')?'selected':''}>${esc(x)}</option>`).join('')}</select></div><div class="field"><label>Link ou referencia</label><input id="routineLink" value="${esc(r.link||'')}" placeholder="Opcional"></div><div class="field full"><label>Descricao do ajuste</label><textarea id="routineDescription" placeholder="Ex.: Pausei o criativo antigo e subi novo Reels 9:16 no conjunto aberto.">${esc(r.description||'')}</textarea></div><div class="field full"><label>Motivo e resultado esperado</label><textarea id="routineReason" placeholder="Ex.: Frequencia alta / melhorar CTR e reduzir CPA.">${esc(r.reason||'')}</textarea></div></div>`}<p class="routine-submit-note">Ao salvar, este card sai de pendente e fica registrado no historico do dia para consulta futura.</p></div></main><aside class="modal-side modal-nav"><button class="modal-action save-action" data-save-routine="${c.id}">Salvar conclusao</button><button class="modal-action" data-archive>Arquivar</button></aside></div>`}
+function openRoutineModal(c){openCardId=+c.id;modalDirty=false;const type=routineType(c),r=c.routine||{},checked=new Set(r.checked||[]),isAnalysis=type==='analysis',done=routineDone(c),items=isAnalysis?ANALYSIS_ITEMS:ADJUST_ITEMS;$('#modal').classList.remove('hidden');$('#modal').dataset.tab='routine';$('#modal').innerHTML=`<div class="modal-box routine-modal"><button class="close" data-close>&times;</button><main class="modal-main routine-form"><div class="modal-section"><div class="routine-hero"><div><h4>${isAnalysis?'Concluir analise':'Concluir ajuste do dia'}</h4><p class="small">${esc(boardName(c.boardId))} - ${esc(short(displayDate(c)))} ${c.publishedTime?'- '+esc(c.publishedTime):''}</p></div>${tag(done?'Concluido':'Pendente',done?'ok':'warn')}</div><h4>${isAnalysis?'O que foi analisado?':'O que foi ajustado?'}</h4><div class="routine-checks">${items.map(([id,label])=>`<label class="routine-check"><input type="checkbox" data-routine-check="${id}" ${checked.has(id)?'checked':''}><span>${esc(label)}<small>${isAnalysis?'Marque se este ponto foi conferido hoje.':'Marque se este item fez parte do ajuste.'}</small></span></label>`).join('')}</div>${isAnalysis?`<div class="field" style="margin-top:12px"><label>Detalhe da analise / proxima acao</label><textarea id="routineNote" placeholder="Ex.: CPA subiu no conjunto 2, criativo X cansou, manter orÃƒÂ§amento e revisar amanha.">${esc(r.note||'')}</textarea></div>`:`<div class="routine-fields" style="margin-top:12px"><div class="field"><label>Area principal</label><select id="routineArea">${ADJUST_AREAS.map(x=>`<option value="${esc(x)}" ${x===(r.area||'Campanha')?'selected':''}>${esc(x)}</option>`).join('')}</select></div><div class="field"><label>Link ou referencia</label><input id="routineLink" value="${esc(r.link||'')}" placeholder="Opcional"></div><div class="field full"><label>Descricao do ajuste</label><textarea id="routineDescription" placeholder="Ex.: Pausei o criativo antigo e subi novo Reels 9:16 no conjunto aberto.">${esc(r.description||'')}</textarea></div><div class="field full"><label>Motivo e resultado esperado</label><textarea id="routineReason" placeholder="Ex.: Frequencia alta / melhorar CTR e reduzir CPA.">${esc(r.reason||'')}</textarea></div></div>`}<p class="routine-submit-note">Ao salvar, este card sai de pendente e fica registrado no historico do dia para consulta futura.</p></div></main><aside class="modal-side modal-nav"><button class="modal-action save-action" data-save-routine="${c.id}">Salvar conclusao</button><button class="modal-action" data-delete-card="${c.id}">Excluir</button></aside></div>`}
 function saveRoutine(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;const type=routineType(c),now=new Date(),finish=()=>{save();$('#modal').classList.add('hidden');openCardId=null;modalDirty=false;render()};if(type==='analysis'){const checked=$$('[data-routine-check]:checked').map(x=>x.dataset.routineCheck),note=($('#routineNote')?.value||'').trim();if(!checked.length&&!note){c.archived=true;finish();return}c.routine={checked,note,updatedAt:now.toISOString(),completed:checked.includes('concluida')};c.title='Analise';c.labels='Analise';c.note=`${c.routine.checked.length}/${ANALYSIS_ITEMS.length} itens conferidos. ${c.routine.note||''}`.trim();const b=boards().find(x=>+x.id===+c.boardId);if(b&&c.routine.completed){b.lastAnalysisAt=c.dueDate||iso(now);b.lastAnalysisTs=now.toISOString()}}else{const checked=$$('[data-routine-check]:checked').map(x=>x.dataset.routineCheck),description=($('#routineDescription')?.value||'').trim(),reason=($('#routineReason')?.value||'').trim(),link=($('#routineLink')?.value||'').trim();if(!checked.length&&!description&&!reason&&!link){c.archived=true;finish();return}c.routine={checked,area:$('#routineArea')?.value||'Campanha',description,reason,expected:reason,link,updatedAt:now.toISOString(),completed:checked.includes('concluida')};c.title='Ajuste realizado';c.labels='Ajuste';c.note=`${c.routine.area}: ${c.routine.description||ADJUST_ITEMS.filter(([id])=>checked.includes(id)&&id!=='concluida').map(([,label])=>label).join(', ')||'Ajuste registrado'}`}delete c.routineDraft;const done=routineDone(c);c.status=done?'publicado':'pendente';c.approvalStatus=done?'aprovado':'rascunho';c.publishedAt=done?(c.dueDate||selectedDate):'';c.publishedTime=done?(c.publishedTime||now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})):'';finish()}
 const baseOpenModal=openModal;openModal=function(id){openCardId=+id;const c=state.cards.find(x=>+x.id===openCardId);if(c&&routineType(c)){openRoutineModal(c);return}baseOpenModal(id)}
 function opts(a,v){return a.map(x=>`<option value="${x}" ${x===v?'selected':''}>${x}</option>`).join('')}function preview(c){const direct=(c.mediaUrl||'').trim(),link=(c.link||'').trim(),u=direct||link,soc=detect(link||u);if(direct&&media(direct,'video'))return`<video src="${esc(direct)}" controls></video>`;if(direct&&media(direct,'image'))return`<img src="${esc(direct)}">`;if(!direct&&soc.embed)return`<iframe src="${esc(soc.embed)}"></iframe>`;if(media(u,'video'))return`<video src="${esc(u)}" controls></video>`;if(media(u,'image'))return`<img src="${esc(u)}">`;return'<div class="empty">Cole link ou envie uma capa/video.</div>'}function syncOpenCardPreview(){const linkVal=($('#mLink')?.value||'').trim(),mediaVal=($('#mMedia')?.value||'').trim(),c=state.cards.find(x=>+x.id===openCardId);if(c){c.link=linkVal;c.mediaUrl=mediaVal;const soc=detect(c.link||c.mediaUrl);if(soc.platform)c.platform=soc.platform;if(soc.format)c.format=soc.format;if(soc.account&&!c.account)c.account=soc.account;if($('#mPlatform')&&soc.platform)$('#mPlatform').value=soc.platform;if($('#mFormat')&&soc.format)$('#mFormat').value=soc.format;if($('#mAccount')&&!$('#mAccount').value&&soc.account)$('#mAccount').value=soc.account;if($('#mTitle')&&($('#mTitle').value.trim()===''||$('#mTitle').value.trim()==='Novo criativo'))$('#mTitle').value=soc.format?`${soc.format} ${soc.platform}`:'Criativo';save()}if($('#mPreview'))$('#mPreview').innerHTML=preview({link:linkVal,mediaUrl:mediaVal});modalDirty=true}function applyModalLink(url){const clean=String(url||'').trim();if(!/^https?:\/\//i.test(clean))return false;const link=$('#mLink');if(!link)return false;link.value=clean;syncOpenCardPreview();return true}
@@ -2548,6 +2630,8 @@ function boardClientSummary(boardId){return statusSummaryForCards(cards('area').
 function analysisLabel(btn){return btn.classList.contains('done')?'Analisado':'Analisar'}
 function decorateAnalysisText(root=document){root.querySelectorAll('[data-analysis],[data-mark-analysis]').forEach(btn=>{btn.textContent=analysisLabel(btn)});root.querySelectorAll('.board-analysis-note').forEach(el=>{el.textContent=el.textContent.replace('Analise','Analise')});root.querySelectorAll('.board-health-row span').forEach(el=>{if(el.textContent.trim()==='Analise')el.textContent='Analise'})}
 function decorateBoardCards(){document.querySelectorAll('.board-card[data-open-board]').forEach(card=>{const boardId=+card.dataset.openBoard,b=boards().find(x=>+x.id===+boardId);if(!b)return;const s=boardClientSummary(boardId),done=boardStats(b).analysedToday,title=card.querySelector('.board-title-line'),actions=card.querySelector('.board-actions');if(actions)actions.innerHTML=tag(s.overdue+' atrasados','bad')+tag(s.pending+' pendentes','warn')+tag(s.running+' rodando','ok');if(title&&!title.querySelector('[data-analysis]'))title.insertAdjacentHTML('beforeend',`<button class="analysis-btn ${done?'done':''}" data-analysis="${b.id}" type="button">${done?'Analisado':'Analisar'}</button>`);});decorateAnalysisText(document)}
+boardCard=function(b){const st=boardStats(b),logo=esc(b.logoUrl||'dualize-logo-crop.png');return`<div class="board-card" data-open-board="${b.id}" role="button" tabindex="0"><div class="board-banner"><img src="${logo}" alt="${esc(b.name)}"></div><div class="board-body"><div class="board-title-line"><h3>${esc(b.name)}</h3></div><p class="small board-note-line"><span>${esc(b.note||'Quadro do cliente')}</span><button class="board-edit-btn" data-board-edit="${b.id}" type="button" title="Editar quadro">Editar quadro</button></p><div class="board-health"><div class="board-health-row"><span>Ultimo lancamento</span><b>${esc(relDate(st.last))}</b></div><div class="board-health-row"><span>Analise</span><b>${esc(relDate(st.analysed))}</b></div></div><div class="board-actions">${tag(st.todo+' pendentes','warn')}${tag(st.run+' rodando','ok')}<button class="analysis-btn ${st.analysedToday?'done':''}" data-analysis="${b.id}" type="button">${st.analysedToday?'Analisado':'Analisar'}</button></div></div></div>`}
+routineCardHtml=function(c,scope){const type=routineType(c),done=routineDone(c),title=type==='analysis'?(done?'ANALISADO':'ANALISAR'):(done?'AJUSTADO':'AJUSTE'),date=short(displayDate(c));return`<div class="week-card routine-card ${type} ${done?'done':'pending'}" draggable="true" data-card="${c.id}" data-open-card="${c.id}" title="Duplo clique para editar"><div class="routine-actions-mini"><button class="routine-pencil" data-open-card="${c.id}" type="button" title="Editar rotina">Editar</button><button class="routine-delete" data-delete-card="${c.id}" type="button" title="Excluir rotina">Excluir</button></div><div class="routine-title"><b>${esc(title)}</b><span>${esc(date)}</span></div><span class="routine-progress">${done?'Concluido':'Pendente'}</span></div>`}
 function decorateHomeDashboard(){const summary=$('#homeView .summary'),s=statusSummaryForCards(cards('area'));if(summary)summary.innerHTML=metric('Atrasado',s.overdue)+metric('Pendente',s.pending)+metric('Rodando',s.running);decorateBoardCards()}
 function decorateBoardDashboard(){if(activeScreen!=='board')return;const summary=$('#boardView .board-view>.summary'),s=boardStatusSummary();if(summary)summary.innerHTML=metric('Atrasado',s.overdue)+metric('Pendente',s.pending)+metric('Rodando',s.running);decorateAnalysisText($('#boardView')||document)}
 const baseStatusRenderBoardView=renderBoardView;renderBoardView=function(){baseStatusRenderBoardView();decorateBoardDashboard()}
@@ -2589,6 +2673,7 @@ function bindBoardEdit(){document.body.addEventListener('click',e=>{const btn=e.
 function bindHomeCardNav(){document.body.addEventListener('dblclick',e=>{const el=e.target.closest('[data-card]');if(!el||activeScreen!=='home')return;const c=state.cards.find(x=>+x.id===+el.dataset.card);if(!c)return;e.preventDefault();e.stopImmediatePropagation();state.activeBoardId=+c.boardId;activeScreen='board';calendarMode='week';selectedDate=displayDate(c)||selectedDate;plannerDate=new Date((selectedDate||iso(new Date()))+'T12:00:00');persistLocalOnly();hideLivePreview(true);render()},true)}
 function bindAnalysis(){document.body.addEventListener('click',e=>{const btn=e.target.closest('[data-analysis]');if(!btn)return;e.preventDefault();e.stopPropagation();const b=boards().find(x=>+x.id===+btn.dataset.analysis);if(!b)return;clearTimeout(bindAnalysis.t);if(e.detail>=2){b.lastAnalysisAt='';b.lastAnalysisTs='';save();render();return}bindAnalysis.t=setTimeout(()=>{b.lastAnalysisAt=iso(new Date());b.lastAnalysisTs=new Date().toISOString();save();render()},220)},true)}
 function bindRoutine(){document.body.addEventListener('click',e=>{const markAnalysis=e.target.closest('[data-mark-analysis]'),markAdjustment=e.target.closest('[data-mark-adjustment]'),boardAnalysis=e.target.closest('[data-analysis]'),saveBtn=e.target.closest('[data-save-routine]');if(markAnalysis){e.preventDefault();e.stopImmediatePropagation();e.detail>=2?openRoutine('analysis',markAnalysis.dataset.markAnalysis,state.activeBoardId):markRoutine('analysis',markAnalysis.dataset.markAnalysis,state.activeBoardId);return}if(markAdjustment){e.preventDefault();e.stopImmediatePropagation();e.detail>=2?openRoutine('adjustment',markAdjustment.dataset.markAdjustment,state.activeBoardId):markRoutine('adjustment',markAdjustment.dataset.markAdjustment,state.activeBoardId);return}if(boardAnalysis){e.preventDefault();e.stopImmediatePropagation();const day=iso(new Date()),boardId=boardAnalysis.dataset.analysis||state.activeBoardId;e.detail>=2?openRoutine('analysis',day,boardId):markRoutine('analysis',day,boardId);return}if(saveBtn){e.preventDefault();e.stopImmediatePropagation();saveRoutine(saveBtn.dataset.saveRoutine);modalDirty=false;return}const closeRoutine=(e.target.closest('[data-close]')||e.target.id==='modal')&&openCardId&&state.cards.some(x=>+x.id===+openCardId&&routineType(x));if(closeRoutine){if(modalDirty&&!confirm('Fechar sem salvar as alteracoes?'))return;e.preventDefault();e.stopImmediatePropagation();const draft=state.cards.find(x=>+x.id===+openCardId&&x.routineDraft);if(draft)state.cards=state.cards.filter(x=>+x.id!==+draft.id);$('#modal').classList.add('hidden');openCardId=null;modalDirty=false;render();return}},true);document.body.addEventListener('change',e=>{const input=e.target.closest('#modal[data-tab="routine"] [data-routine-check]');if(input)modalDirty=true},true)}
+document.body.addEventListener('click',e=>{const pencil=e.target.closest('.routine-pencil');if(!pencil)return;e.preventDefault();e.stopImmediatePropagation();const c=state.cards.find(x=>+x.id===+pencil.dataset.openCard);if(c)openRoutineModal(c)},true)
 function bindRoutineDoubleChecks(){document.body.addEventListener('click',e=>{const row=e.target.closest('#modal[data-tab="routine"] .routine-check');if(!row)return;e.preventDefault();e.stopImmediatePropagation()},true);document.body.addEventListener('dblclick',e=>{const row=e.target.closest('#modal[data-tab="routine"] .routine-check');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const input=row.querySelector('[data-routine-check]');if(input){input.checked=!input.checked;modalDirty=true}},true)}
 function bindDashboardFlash(){document.body.addEventListener('click',e=>{if(!e.target.closest('[data-dashboard-flash]'))return;const home=$('#homeView');if(!home)return;home.classList.remove('dashboard-flash');void home.offsetWidth;home.classList.add('dashboard-flash');setTimeout(()=>home.classList.remove('dashboard-flash'),5200)},true)}
 function bindEsc(){document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('#modal').classList.contains('hidden')){if(modalDirty&&!confirm('Fechar sem salvar as alteracoes?'))return;const draft=state.cards.find(x=>+x.id===+openCardId&&x.routineDraft);if(draft)state.cards=state.cards.filter(x=>+x.id!==+draft.id);$('#modal').classList.add('hidden');openCardId=null;modalDirty=false;render();return}if(quickDay||quickEditId){quickDay='';quickEditId=null;render();return}if(activeScreen==='board'){activeScreen='home';state.activeBoardId=null;persistLocalOnly();render()}})}
