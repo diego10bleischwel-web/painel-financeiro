@@ -606,13 +606,20 @@ function renderModules(){
     <div class="module-footer"><span class="module-metric">${esc(m.metric)}</span><span class="open-chip">Abrir módulo</span></div>
   </button>`).join('');
 }
+function versionedUrl(url,extra={}){
+  const params=new URLSearchParams(location.search);
+  const version=params.get('v')||params.get('t')||Date.now();
+  const sep=url.includes('?')?'&':'?';
+  const extraParams=new URLSearchParams({...extra,v:version});
+  return url+sep+extraParams.toString();
+}
 function openModule(id){
   const mod=modules.find(m=>m.id===id)||modules[0];
   $('#workspaceTitle').textContent=mod.title;
-  $('#openExternal').href=mod.url;
+  $('#openExternal').href=versionedUrl(mod.url);
   $('#workspace').classList.add('active');
   $('#frameWrap').classList.add('loading');
-  $('#moduleFrame').src=mod.url+(mod.url.includes('?')?'&':'?')+'embedded=1&t='+Date.now();
+  $('#moduleFrame').src=versionedUrl(mod.url,{embedded:'1',t:Date.now()});
 }
 function setupEvents(){
   document.body.addEventListener('click',e=>{
