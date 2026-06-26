@@ -928,11 +928,17 @@ function groupedCardTotals(card){
   const futureTarget=Number(latestFuture?.value||0);
   const futureMonths=Object.keys(grouped).map(Number).filter(m=>m>latestInvoiceMonth&&!Object.prototype.hasOwnProperty.call(officialTotals,m)).sort((a,b)=>a-b);
   if(futureTarget&&futureMonths.length){
-    let diff=Math.round(futureTarget*100)-futureMonths.reduce((s,m)=>s+Math.round((grouped[m]||0)*100),0);
-    for(let i=0;diff!==0&&i<futureMonths.length*3;i++){
-      const m=futureMonths[i%futureMonths.length];
-      grouped[m]=(Math.round((grouped[m]||0)*100)+(diff>0?1:-1))/100;
-      diff+=diff>0?-1:1;
+    const currentFuture=futureMonths.reduce((s,m)=>s+Number(grouped[m]||0),0);
+    if(currentFuture>0){
+      const factor=futureTarget/currentFuture;
+      futureMonths.forEach(m=>{ grouped[m]=Math.max(0,Math.round(Number(grouped[m]||0)*factor*100)/100); });
+      let diff=Math.round(futureTarget*100)-futureMonths.reduce((s,m)=>s+Math.round((grouped[m]||0)*100),0);
+      for(let i=0;diff!==0&&i<Math.abs(diff)+futureMonths.length;i++){
+        const m=futureMonths[i%futureMonths.length], cents=Math.round((grouped[m]||0)*100);
+        if(diff<0&&cents<=0)continue;
+        grouped[m]=(cents+(diff>0?1:-1))/100;
+        diff+=diff>0?-1:1;
+      }
     }
   }
   return grouped;
