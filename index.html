@@ -345,6 +345,52 @@ button,a{font:inherit}
 }
 .briefing-list{padding:14px;display:grid;gap:10px;align-content:start}
 .briefing-list h3,.briefing-detail h3{margin:0;color:#fff}
+.briefing-link-box{
+  border:1px solid rgba(130,188,255,.28);
+  border-radius:18px;
+  padding:14px;
+  background:linear-gradient(135deg,rgba(130,188,255,.13),rgba(112,214,162,.07));
+  display:grid;
+  gap:10px;
+}
+.briefing-link-box label{
+  color:#8dccff;
+  font-size:12px;
+  font-weight:1000;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+.briefing-link-box input{
+  width:100%;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;
+  background:rgba(5,8,13,.62);
+  color:var(--text);
+  padding:11px 12px;
+  font-weight:850;
+  outline:0;
+}
+.briefing-link-preview{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:12px;
+  padding:10px;
+  color:#d7fff0;
+  background:rgba(255,255,255,.045);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+  word-break:break-all;
+}
+.briefing-copy{
+  border:0;
+  border-radius:999px;
+  padding:10px 12px;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  color:#071018;
+  font-weight:1000;
+  cursor:pointer;
+}
+.briefing-copy:active{transform:translateY(1px)}
 .briefing-card{
   width:100%;
   border:1px solid rgba(255,255,255,.12);
@@ -653,6 +699,12 @@ iframe{
   <div class="briefing-board" id="briefingBoard" hidden>
     <aside class="briefing-list">
       <h3>Briefings recebidos <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
+      <div class="briefing-link-box">
+        <label for="briefingClientName">Link para enviar ao cliente</label>
+        <input id="briefingClientName" placeholder="Digite o nome do cliente. Ex.: Best MultiMarcas">
+        <div class="briefing-link-preview" id="briefingClientLink"></div>
+        <button class="briefing-copy" id="copyBriefingLink" type="button">Copiar link do briefing</button>
+      </div>
       <div id="briefingList" class="briefing-empty">Aguardando Firestore...</div>
     </aside>
     <main class="briefing-detail" id="briefingDetail">
@@ -703,6 +755,29 @@ function versionedUrl(url,extra={}){
   const extraParams=new URLSearchParams({...extra,v:version});
   return url+sep+extraParams.toString();
 }
+function briefingFormUrl(name=''){
+  const params=new URLSearchParams(location.search);
+  const version=params.get('v')||params.get('t')||Date.now();
+  const base=new URL('briefing_cliente_v4.html',location.href);
+  if(name.trim())base.searchParams.set('cliente',name.trim());
+  base.searchParams.set('v',version);
+  return base.toString();
+}
+function updateBriefingLink(){
+  const input=$('#briefingClientName'),preview=$('#briefingClientLink');
+  if(!preview)return;
+  preview.textContent=briefingFormUrl(input?.value||'');
+}
+async function copyBriefingLink(){
+  const link=briefingFormUrl($('#briefingClientName')?.value||'');
+  try{
+    await navigator.clipboard.writeText(link);
+    $('#copyBriefingLink').textContent='Link copiado';
+    setTimeout(()=>$('#copyBriefingLink').textContent='Copiar link do briefing',1400);
+  }catch(err){
+    prompt('Copie o link do briefing:',link);
+  }
+}
 function openModule(id){
   const mod=modules.find(m=>m.id===id)||modules[0];
   $('#workspaceTitle').textContent=mod.title;
@@ -712,6 +787,7 @@ function openModule(id){
     $('#frameWrap').hidden=true;
     $('#briefingBoard').hidden=false;
     $('#reloadFrame').hidden=true;
+    updateBriefingLink();
     renderBriefingList();
     renderBriefingDetail(selectedBriefingId);
     return;
@@ -730,6 +806,10 @@ function setupEvents(){
     if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId)}
     const status=e.target.closest('[data-briefing-status]');
     if(status) updateBriefingStatus(status.dataset.briefingStatus);
+    if(e.target.closest('#copyBriefingLink')) copyBriefingLink();
+  });
+  document.body.addEventListener('input',e=>{
+    if(e.target.id==='briefingClientName')updateBriefingLink();
   });
   $('#closeWorkspace').onclick=()=>$('#workspace').classList.remove('active');
   $('#reloadFrame').onclick=()=>{
