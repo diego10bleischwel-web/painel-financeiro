@@ -496,6 +496,15 @@ button,a{font:inherit}
   background:linear-gradient(135deg,rgba(112,214,162,.23),rgba(130,188,255,.14));
   color:#d9fff0;
 }
+.briefing-actions button.danger,.briefing-modal-actions button.danger{
+  border-color:rgba(255,107,107,.45);
+  color:#ffd0d0;
+  background:rgba(255,107,107,.08);
+}
+.briefing-actions button.danger:hover,.briefing-modal-actions button.danger:hover{
+  border-color:rgba(255,107,107,.78);
+  background:rgba(255,107,107,.18);
+}
 .briefing-sections{display:grid;gap:12px}
 .briefing-section{border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:14px;background:rgba(255,255,255,.045)}
 .briefing-section h4{margin:0 0 10px;color:#8dccff}
@@ -996,6 +1005,8 @@ function setupEvents(){
     if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId)}
     const status=e.target.closest('[data-briefing-status]');
     if(status) updateBriefingStatus(status.dataset.briefingStatus);
+    const deleteBriefing=e.target.closest('[data-briefing-delete]');
+    if(deleteBriefing) deleteBriefingById(deleteBriefing.dataset.briefingDelete||selectedBriefingId);
     const openBriefing=e.target.closest('[data-briefing-open]');
     if(openBriefing) openBriefingModal(openBriefing.dataset.briefingOpen||selectedBriefingId);
     if(e.target.closest('#briefingModalClose')||e.target.id==='briefingModal')closeBriefingModal();
@@ -1022,7 +1033,7 @@ function statusLabel(status){const s=String(status||'novo');return s==='novo'?'N
 function briefingDate(v){return v?new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sem data'}
 function briefingValue(v){if(Array.isArray(v))return v.length?v.join(', '):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
 const briefingSectionOrder=[
-  {key:'identificacao',title:'1. Identificacao',fields:[['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP']]},
+  {key:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP']]},
   {key:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
   {key:'produto',title:'3. Produto',fields:[['oque_e','O que vende'],['mecanismo','Diferencial unico'],['diferenciais','Diferenciais'],['como_funciona','Como funciona'],['features','Features']]},
   {key:'financeiro',title:'4. Financeiro',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS'],['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos'],['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]}
@@ -1043,6 +1054,7 @@ function briefingSections(b){
 function briefingSummary(b){
   const d=b?.dados||{},fin=d.financeiro||{},id=d.identificacao||{},avatar=d.avatar||{};
   return {
+    empresa:id.empresa||b?.empresa_nome||b?.cliente_nome||'Nao identificado',
     produto:id.produto||b?.cliente_nome||'Briefing',
     nicho:id.nicho||'--',
     budget:fin.budget||'--',
@@ -1084,7 +1096,7 @@ function renderBriefingList(){
   $('#activityBriefings').textContent=briefings.length?`${briefings.length} recebido(s)`:'Nenhum briefing';
   if(!briefings.length){list.className='briefing-empty';list.innerHTML='Nenhum briefing recebido ainda.';return}
   list.className='';
-  list.innerHTML=briefings.map(b=>{const d=b.dados||{},fin=d.financeiro||{},id=d.identificacao||{};return`<button class="briefing-card ${b.id===selectedBriefingId?'active':''}" data-briefing-id="${esc(b.id)}" type="button"><span class="briefing-status ${statusClass(b.status)}">${statusLabel(b.status)}</span><b>${esc(b.cliente_nome||'Nao identificado')}</b><div class="briefing-meta">Recebido: ${esc(briefingDate(b.timestamp))}<br>Nicho: ${esc(id.nicho||'--')}<br>Budget: ${esc(fin.budget||'--')} | Ticket: ${esc(fin.ticket||'--')}</div></button>`}).join('');
+  list.innerHTML=briefings.map(b=>{const d=b.dados||{},fin=d.financeiro||{},id=d.identificacao||{},empresa=id.empresa||b.empresa_nome||b.cliente_nome||'Nao identificado';return`<button class="briefing-card ${b.id===selectedBriefingId?'active':''}" data-briefing-id="${esc(b.id)}" type="button"><span class="briefing-status ${statusClass(b.status)}">${statusLabel(b.status)}</span><b>${esc(empresa)}</b><div class="briefing-meta">Recebido: ${esc(briefingDate(b.timestamp))}<br>Nicho: ${esc(id.nicho||'--')}<br>Budget: ${esc(fin.budget||'--')} | Ticket: ${esc(fin.ticket||'--')}</div></button>`}).join('');
 }
 function renderBriefingDetail(id){
   const el=$('#briefingDetail');if(!el)return;
@@ -1096,21 +1108,22 @@ function renderBriefingDetail(id){
     <div class="briefing-preview-head">
       <div>
         <span class="briefing-status ${statusClass(b.status)}">${statusLabel(b.status)}</span>
-        <h3>${esc(b.cliente_nome||'Nao identificado')}</h3>
+        <h3>${esc(s.empresa)}</h3>
         <div class="briefing-meta">Recebido em ${esc(briefingDate(b.timestamp))} | ID ${esc(b.cliente_id||b.id)}</div>
       </div>
       <button class="briefing-open" data-briefing-open="${esc(b.id)}" type="button">Abrir briefing</button>
     </div>
     <div class="briefing-preview-grid">
       <div class="briefing-mini"><span>Produto</span><b>${esc(s.produto)}</b></div>
+      <div class="briefing-mini"><span>Empresa</span><b>${esc(s.empresa)}</b></div>
       <div class="briefing-mini"><span>Nicho</span><b>${esc(s.nicho)}</b></div>
       <div class="briefing-mini"><span>Budget</span><b>${esc(s.budget)}</b></div>
-      <div class="briefing-mini"><span>Ticket</span><b>${esc(s.ticket)}</b></div>
     </div>
     <div class="briefing-actions">
       <button class="${String(b.status||'novo')==='novo'?'active':''}" data-briefing-status="novo" type="button">Novo</button>
       <button class="${String(b.status||'').includes('anal')?'active':''}" data-briefing-status="em analise" type="button">Em analise</button>
       <button class="${String(b.status||'').includes('config')?'active':''}" data-briefing-status="configurado" type="button">Configurado</button>
+      <button class="danger" data-briefing-delete="${esc(b.id)}" type="button">Excluir</button>
     </div>
     <div class="briefing-hint">Clique duas vezes no card da lista ou use o botao acima para visualizar todos os dados preenchidos.</div>
   </div>`;
@@ -1119,13 +1132,14 @@ function renderBriefingModal(id){
   const b=briefings.find(x=>String(x.id)===String(id));
   if(!b)return;
   activeBriefingModalId=b.id;
-  $('#briefingModalTitle').textContent=b.cliente_nome||'Nao identificado';
+  const s=briefingSummary(b);
+  $('#briefingModalTitle').textContent=s.empresa;
   $('#briefingModalMeta').textContent=`Recebido em ${briefingDate(b.timestamp)} | ID ${b.cliente_id||b.id}`;
   const statuses=[['novo','Novo'],['em analise','Em analise'],['configurado','Configurado']];
   $('#briefingModalActions').innerHTML=statuses.map(([value,label])=>{
     const active=value==='novo'?String(b.status||'novo')==='novo':String(b.status||'').includes(value.split(' ')[0]);
     return `<button class="${active?'active':''}" data-briefing-status="${esc(value)}" type="button">${esc(label)}</button>`;
-  }).join('');
+  }).join('')+`<button class="danger" data-briefing-delete="${esc(b.id)}" type="button">Excluir</button>`;
   $('#briefingModalSections').innerHTML=briefingSections(b).map(section=>`<section class="briefing-modal-section">
     <h4>${esc(section.title)}</h4>
     ${section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><b>${esc(row.value)}</b></div>`).join('')}
@@ -1178,6 +1192,32 @@ function updateBriefingStatus(status){
     return;
   }
   db.collection('briefings').doc(selectedBriefingId).update({status,updatedAt:new Date().toISOString()}).catch(err=>alert('Nao foi possivel atualizar o status: '+err.message));
+}
+function deleteBriefingById(id){
+  if(!db||!id)return;
+  const selected=briefings.find(x=>String(x.id)===String(id));
+  if(!selected)return;
+  const s=briefingSummary(selected);
+  if(!confirm(`Excluir o briefing de ${s.empresa}?\n\nEssa acao nao pode ser desfeita.`))return;
+  briefingsCollection=briefingsCollection.filter(item=>String(item.id)!==String(id));
+  briefingsFallback=briefingsFallback.filter(item=>String(item.id)!==String(id));
+  briefings=briefings.filter(item=>String(item.id)!==String(id));
+  if(String(selectedBriefingId)===String(id))selectedBriefingId=briefings[0]?.id||'';
+  if(String(activeBriefingModalId)===String(id))closeBriefingModal();
+  renderBriefingList();
+  renderBriefingDetail(selectedBriefingId);
+  if(selected._fallback){
+    const updated=briefingsFallback.map(item=>{
+      const {id,_fallback,...clean}=item;
+      return clean;
+    });
+    db.collection('tarefas').doc('estado_principal').set({
+      briefingsInbox:updated,
+      briefingsUpdatedAt:Date.now()
+    },{merge:true}).catch(err=>alert('Nao foi possivel excluir o briefing: '+err.message));
+    return;
+  }
+  db.collection('briefings').doc(id).delete().catch(err=>alert('Nao foi possivel excluir o briefing: '+err.message));
 }
 function setupFirebaseSummary(){
   try{

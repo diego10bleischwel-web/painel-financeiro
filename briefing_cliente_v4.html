@@ -262,6 +262,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="step-card-body">
 
       <div class="field">
+        <div class="field-top"><span class="field-label">Nome da empresa</span><span class="req">obrigatorio</span></div>
+        <div class="field-hint">Informe o nome da empresa ou marca deste briefing.</div>
+        <input class="input" id="nome_empresa" placeholder="Ex: Best MultiMarcas" oninput="upProg()"/>
+      </div>
+
+      <div class="field">
         <div class="field-top"><span class="field-label">Nome do produto ou serviço</span><span class="req">obrigatório</span></div>
         <div class="field-hint">Como seu produto ou serviço se chama?</div>
         <div class="ex-btn" onclick="tog('ex-nome')">▶ ver exemplos</div>
@@ -812,6 +818,10 @@ const firebaseConfig={
 };
 const clienteParam=new URLSearchParams(window.location.search).get('cliente')||'Não identificado';
 let briefingDb=null;
+if(clienteParam&&clienteParam!=='Não identificado'){
+  const empresaInput=document.getElementById('nome_empresa');
+  if(empresaInput&&!empresaInput.value)empresaInput.value=clienteParam;
+}
 try{
   if(window.firebase){
     if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
@@ -892,7 +902,7 @@ function rs(g){return!!document.querySelector(`.radio-cards[data-group="${g}"] .
 function lv(id){return[...document.querySelectorAll(`#${id} input`)].some(i=>i.value.trim());}
 
 const checks = [
-  ()=>!!gv('nome_produto'), ()=>cs('tipo'), ()=>!!gv('nicho'), ()=>cs('idioma'), ()=>cs('pais'),
+  ()=>!!gv('nome_empresa'), ()=>!!gv('nome_produto'), ()=>cs('tipo'), ()=>!!gv('nicho'), ()=>cs('idioma'), ()=>cs('pais'),
   ()=>!!gv('avatar_desc'), ()=>cs('genero'), ()=>rs('consciencia'),
   ()=>lv('list-dores'), ()=>lv('list-desejos'),
   ()=>!!gv('oque_e'), ()=>!!gv('mecanismo'), ()=>lv('list-difs'),
@@ -908,7 +918,7 @@ function upProg(){
 // ── VALIDATE ──────────────────────────────────────────
 function validate(step){
   const rules = {
-    1:[{v:()=>!!gv('nome_produto'),m:'Nome do produto'},{v:()=>cs('tipo'),m:'Tipo de negócio'},{v:()=>!!gv('nicho'),m:'Nicho'},{v:()=>cs('idioma'),m:'Idioma dos anúncios'},{v:()=>cs('pais'),m:'País alvo'}],
+    1:[{v:()=>!!gv('nome_empresa'),m:'Nome da empresa'},{v:()=>!!gv('nome_produto'),m:'Nome do produto'},{v:()=>cs('tipo'),m:'Tipo de negócio'},{v:()=>!!gv('nicho'),m:'Nicho'},{v:()=>cs('idioma'),m:'Idioma dos anúncios'},{v:()=>cs('pais'),m:'País alvo'}],
     2:[{v:()=>!!gv('avatar_desc'),m:'Descrição do cliente'},{v:()=>cs('genero'),m:'Gênero'},{v:()=>rs('consciencia'),m:'Nível de consciência'},{v:()=>lv('list-dores'),m:'Pelo menos uma dor'},{v:()=>lv('list-desejos'),m:'Pelo menos um desejo'}],
     3:[{v:()=>!!gv('oque_e'),m:'O que você vende'},{v:()=>!!gv('mecanismo'),m:'Por que é diferente'},{v:()=>lv('list-difs'),m:'Pelo menos um diferencial'}],
     4:[{v:()=>!!gv('budget'),m:'Budget mensal'},{v:()=>!!gv('ticket'),m:'Ticket médio'}],
@@ -978,7 +988,7 @@ async function submitForm(){
   const btnNext=document.getElementById('btnNext'),btnTxt=document.getElementById('btnNextTxt'),oldTxt=btnTxt.textContent;
   btnNext.disabled=true;btnTxt.textContent='Enviando...';
   const data={
-    '1. IDENTIFICAÇÃO':{'Produto':gv('nome_produto'),'Tipo':gc('tipo'),'Nicho':gv('nicho'),'Idioma':gc('idioma'),'País alvo':gc('pais'),'Link':gv('link_lp')||'—','Texto LP':gv('texto_lp')||'—'},
+    '1. IDENTIFICAÇÃO':{'Empresa':gv('nome_empresa'),'Produto':gv('nome_produto'),'Tipo':gc('tipo'),'Nicho':gv('nicho'),'Idioma':gc('idioma'),'País alvo':gc('pais'),'Link':gv('link_lp')||'—','Texto LP':gv('texto_lp')||'—'},
     '2. CLIENTE IDEAL':{'Descrição':gv('avatar_desc'),'Profissão típica':gv('profissao')||'—','Idade':document.getElementById('sv_min').textContent+' a '+document.getElementById('sv_max').textContent+' anos','Gênero':gc('genero'),'Consciência':gr('consciencia'),'Dores':gl('list-dores').join(' | '),'Desejos':gl('list-desejos').join(' | '),'Provas':gl('list-provas').join(' | ')||'—'},
     '3. PRODUTO':{'O que vende':gv('oque_e'),'Diferencial único':gv('mecanismo'),'Diferenciais':gl('list-difs').join(' | '),'Como funciona':gv('como_funciona')||'—','Features':gl('list-features').join(' | ')||'—'},
     '4. FINANCEIRO — Planejamento':{'Budget mensal':'R$ '+gv('budget'),'Meta receita':'R$ '+gv('meta_rec'),'Meta ROAS':gv('meta_roas')||'Auto','Ticket médio':'R$ '+gv('ticket')},
@@ -987,12 +997,13 @@ async function submitForm(){
   };
   const briefing={
     timestamp:new Date().toISOString(),
-    cliente_nome:clienteParam,
+    cliente_nome:gv('nome_empresa')||clienteParam,
+    empresa_nome:gv('nome_empresa'),
     cliente_id:gerarIdUnico(),
     status:'novo',
     resumo:data,
     dados:{
-      identificacao:{produto:gv('nome_produto'),tipo:gc('tipo'),nicho:gv('nicho'),idioma:gc('idioma'),pais:gc('pais'),link:gv('link_lp')||null,texto_lp:gv('texto_lp')||null},
+      identificacao:{empresa:gv('nome_empresa'),produto:gv('nome_produto'),tipo:gc('tipo'),nicho:gv('nicho'),idioma:gc('idioma'),pais:gc('pais'),link:gv('link_lp')||null,texto_lp:gv('texto_lp')||null},
       avatar:{descricao:gv('avatar_desc'),profissao:gv('profissao')||null,idade_min:document.getElementById('sv_min').textContent,idade_max:document.getElementById('sv_max').textContent,genero:gc('genero'),consciencia:gr('consciencia'),dores:gl('list-dores'),desejos:gl('list-desejos'),provas:gl('list-provas')},
       produto:{oque_e:gv('oque_e'),mecanismo:gv('mecanismo'),diferenciais:gl('list-difs'),como_funciona:gv('como_funciona')||null,features:gl('list-features')},
       financeiro:{budget:gv('budget'),meta_receita:gv('meta_rec'),meta_roas:gv('meta_roas')||'auto',ticket:gv('ticket'),custo_produto:gv('custo_prod')||null,impostos:gv('impostos')||null,taxa_plataforma:gv('taxa_plat')||null,taxa_fixa:gv('taxa_fixa')||null,outros_custos:gv('outros')||null,preco:gv('preco')||null,preco_parcelado:gv('preco_parc')||null,preco_riscado:gv('preco_risc')||null,garantia:gv('garantia')||null,urgencia:gv('urgencia')||null,bonus:gv('bonus')||null}
