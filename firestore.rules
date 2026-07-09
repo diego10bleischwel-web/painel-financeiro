@@ -3,7 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /briefings/{briefingId} {
       allow create: if true;
-      allow read, update, delete: if request.auth != null;
+      allow read, update: if true;
+      allow delete: if false;
     }
   }
 }

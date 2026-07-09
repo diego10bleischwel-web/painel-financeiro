@@ -985,7 +985,10 @@ async function submitForm(){
   }catch(e){
     console.warn(e);
     btnNext.disabled=false;btnTxt.textContent=oldTxt;
-    alert('Não foi possível enviar agora. Verifique sua internet e tente novamente. Seus dados continuam preenchidos.');
+    const detalhe=e?.code==='permission-denied'
+      ? 'Permissão negada no Firestore. Ajuste as regras da coleção briefings no Firebase.'
+      : (e?.message||'Erro desconhecido.');
+    alert('Não foi possível enviar agora.\n\nDetalhe: '+detalhe+'\n\nSeus dados continuam preenchidos.');
     return;
   }
   let html='';window._txt='';
