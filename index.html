@@ -336,6 +336,9 @@ button,a{font:inherit}
   gap:16px;
   background:radial-gradient(circle at 10% 0,rgba(130,188,255,.16),transparent 32rem),#0e1117;
 }
+.briefing-board[hidden],.frame-wrap[hidden]{
+  display:none!important;
+}
 .briefing-list,.briefing-detail{
   border:1px solid rgba(255,255,255,.12);
   border-radius:22px;
@@ -884,7 +887,7 @@ iframe{
       <h3>Briefings recebidos <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
       <div class="briefing-link-box">
         <label for="briefingClientName">Link para enviar ao cliente</label>
-        <input id="briefingClientName" placeholder="Digite o nome do cliente. Ex.: Best MultiMarcas">
+        <input id="briefingClientName" placeholder="Digite o nome da empresa">
         <div class="briefing-link-preview" id="briefingClientLink"></div>
         <button class="briefing-copy" id="copyBriefingLink" type="button">Copiar link do briefing</button>
       </div>
@@ -984,6 +987,8 @@ function openModule(id){
   $('#workspace').classList.add('active');
   if(id==='briefings'){
     $('#frameWrap').hidden=true;
+    $('#frameWrap').classList.remove('loading');
+    $('#moduleFrame').src='about:blank';
     $('#briefingBoard').hidden=false;
     $('#reloadFrame').hidden=true;
     updateBriefingLink();
@@ -991,8 +996,9 @@ function openModule(id){
     renderBriefingDetail(selectedBriefingId);
     return;
   }
-  $('#frameWrap').hidden=false;
   $('#briefingBoard').hidden=true;
+  closeBriefingModal();
+  $('#frameWrap').hidden=false;
   $('#reloadFrame').hidden=false;
   $('#frameWrap').classList.add('loading');
   $('#moduleFrame').src=versionedUrl(mod.url,{embedded:'1',t:Date.now()});
