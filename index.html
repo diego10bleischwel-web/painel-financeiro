@@ -729,7 +729,7 @@ const modules=[
 ];
 modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Briefings',desc:'Recebimento em tempo real dos formularios enviados pelos clientes.',url:'briefing_cliente_v4.html',status:'Novos clientes',metric:'Entrada comercial'});
 const $=s=>document.querySelector(s);
-let db=null,briefings=[],selectedBriefingId='';
+let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='';
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function moduleIcon(type){
@@ -823,6 +823,30 @@ function statusClass(status){return String(status||'novo').includes('config')?'c
 function statusLabel(status){const s=String(status||'novo');return s==='novo'?'NOVO':s.toUpperCase()}
 function briefingDate(v){return v?new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sem data'}
 function briefingValue(v){if(Array.isArray(v))return v.length?v.join(', '):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
+function normalizeFallbackBriefings(list){
+  return (Array.isArray(list)?list:[]).map((b,i)=>({
+    id:b.firestore_id||b.fallback_id||b.cliente_id||`fallback-${i}`,
+    ...b,
+    _fallback:true
+  }));
+}
+function refreshBriefings(){
+  const map=new Map();
+  [...briefingsFallback,...briefingsCollection].forEach(b=>map.set(String(b.id),b));
+  briefings=[...map.values()].sort((a,b)=>String(b.timestamp||'').localeCompare(String(a.timestamp||'')));
+  if(selectedBriefingId&&!briefings.some(b=>String(b.id)===String(selectedBriefingId)))selectedBriefingId='';
+  if(!selectedBriefingId&&briefings[0])selectedBriefingId=briefings[0].id;
+  renderBriefingList();
+  renderBriefingDetail(selectedBriefingId);
+}
+function setFallbackBriefings(list){
+  briefingsFallback=normalizeFallbackBriefings(list);
+  refreshBriefings();
+}
+function setCollectionBriefings(list){
+  briefingsCollection=Array.isArray(list)?list:[];
+  refreshBriefings();
+}
 function renderBriefingList(){
   const list=$('#briefingList'),badge=$('#briefingBadge');
   if(!list)return;
@@ -845,6 +869,20 @@ function renderBriefingDetail(id){
 }
 function updateBriefingStatus(status){
   if(!db||!selectedBriefingId)return;
+  const selected=briefings.find(x=>String(x.id)===String(selectedBriefingId));
+  if(selected?._fallback){
+    const updated=briefingsFallback.map(item=>{
+      const {id,_fallback,...clean}=String(item.id)===String(selectedBriefingId)
+        ? {...item,status,updatedAt:new Date().toISOString()}
+        : item;
+      return clean;
+    });
+    db.collection('tarefas').doc('estado_principal').set({
+      briefingsInbox:updated,
+      briefingsUpdatedAt:Date.now()
+    },{merge:true}).catch(err=>alert('Nao foi possivel atualizar o status: '+err.message));
+    return;
+  }
   db.collection('briefings').doc(selectedBriefingId).update({status,updatedAt:new Date().toISOString()}).catch(err=>alert('Nao foi possivel atualizar o status: '+err.message));
 }
 function setupFirebaseSummary(){
@@ -877,16 +915,14 @@ function setupFirebaseSummary(){
       $('#taskCards').textContent=Array.isArray(payload.cards)?payload.cards.length:'0';
       $('#taskSync').textContent='Atualizado '+when;
       $('#activityTasks').textContent='Atualizado '+when;
+      setFallbackBriefings(payload.briefingsInbox||data.briefingsInbox||[]);
     });
     db.collection('briefings').orderBy('timestamp','desc').onSnapshot(snapshot=>{
-      briefings=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
-      if(!selectedBriefingId&&briefings[0])selectedBriefingId=briefings[0].id;
-      renderBriefingList();
-      renderBriefingDetail(selectedBriefingId);
+      setCollectionBriefings(snapshot.docs.map(doc=>({id:doc.id,...doc.data()})));
     },err=>{
       console.warn(err);
-      $('#briefingSync').textContent='Erro Firestore';
-      $('#activityBriefings').textContent='Erro ao carregar';
+      $('#briefingSync').textContent='Fallback ativo';
+      $('#activityBriefings').textContent='Usando sync principal';
     });
   }catch(err){
     console.warn(err);

@@ -953,6 +953,25 @@ function addR(id,max,ph){
 function gl(id){return[...document.querySelectorAll(`#${id} input`)].map(i=>i.value.trim()).filter(Boolean);}
 function gc(g){return[...document.querySelectorAll(`.chips[data-group="${g}"] .chip.active`)].map(c=>c.dataset.val).join(', ');}
 function gr(g){const e=document.querySelector(`.radio-cards[data-group="${g}"] .radio-card.active`);return e?e.dataset.val:'';}
+async function saveBriefingOnline(briefing){
+  if(!briefingDb)throw new Error('Firebase nao inicializado.');
+  try{
+    await briefingDb.collection('briefings').add(briefing);
+    return 'briefings';
+  }catch(err){
+    if(err?.code!=='permission-denied')throw err;
+    const fallbackBriefing={
+      ...briefing,
+      fallback_id:briefing.cliente_id,
+      fallback_saved_at:new Date().toISOString()
+    };
+    await briefingDb.collection('tarefas').doc('estado_principal').set({
+      briefingsInbox:firebase.firestore.FieldValue.arrayUnion(fallbackBriefing),
+      briefingsUpdatedAt:Date.now()
+    },{merge:true});
+    return 'tarefas';
+  }
+}
 
 async function submitForm(){
   const err=validate(4);if(err){alert('Preencha:\n\n• '+err.join('\n• '));return;}
@@ -980,13 +999,12 @@ async function submitForm(){
     }
   };
   try{
-    if(!briefingDb)throw new Error('Firebase não inicializado.');
-    await briefingDb.collection('briefings').add(briefing);
+    await saveBriefingOnline(briefing);
   }catch(e){
     console.warn(e);
     btnNext.disabled=false;btnTxt.textContent=oldTxt;
     const detalhe=e?.code==='permission-denied'
-      ? 'Permissão negada no Firestore. Ajuste as regras da coleção briefings no Firebase.'
+      ? 'Permissao negada tambem no caminho alternativo do Firestore. Ajuste as regras do Firebase.'
       : (e?.message||'Erro desconhecido.');
     alert('Não foi possível enviar agora.\n\nDetalhe: '+detalhe+'\n\nSeus dados continuam preenchidos.');
     return;
