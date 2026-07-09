@@ -327,6 +327,81 @@ button,a{font:inherit}
   color:#f2c777;
   text-shadow:0 0 18px rgba(242,188,102,.16);
 }
+.briefing-board{
+  height:100%;
+  overflow:auto;
+  padding:18px;
+  display:grid;
+  grid-template-columns:minmax(280px,420px) 1fr;
+  gap:16px;
+  background:radial-gradient(circle at 10% 0,rgba(130,188,255,.16),transparent 32rem),#0e1117;
+}
+.briefing-list,.briefing-detail{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:22px;
+  background:rgba(17,24,36,.82);
+  box-shadow:0 18px 60px rgba(0,0,0,.26);
+  min-height:0;
+}
+.briefing-list{padding:14px;display:grid;gap:10px;align-content:start}
+.briefing-list h3,.briefing-detail h3{margin:0;color:#fff}
+.briefing-card{
+  width:100%;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  padding:14px;
+  color:var(--text);
+  background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.035));
+  text-align:left;
+  cursor:pointer;
+}
+.briefing-card:hover,.briefing-card.active{border-color:rgba(130,188,255,.75);box-shadow:0 0 0 1px rgba(130,188,255,.22) inset}
+.briefing-card b{display:block;font-size:16px;margin:6px 0}
+.briefing-meta{color:#b8c9e4;font-size:12px;font-weight:800;line-height:1.45}
+.briefing-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:1000;
+  text-transform:uppercase;
+}
+.briefing-status.novo{background:rgba(112,214,162,.16);color:#8ef0bb}
+.briefing-status.analise{background:rgba(242,188,102,.16);color:#f2c777}
+.briefing-status.configurado{background:rgba(184,201,228,.14);color:#dbe7f7}
+.briefing-detail{padding:18px;overflow:auto}
+.briefing-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.briefing-actions button{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:8px 11px;
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-weight:950;
+  cursor:pointer;
+}
+.briefing-sections{display:grid;gap:12px}
+.briefing-section{border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:14px;background:rgba(255,255,255,.045)}
+.briefing-section h4{margin:0 0 10px;color:#8dccff}
+.briefing-row{display:grid;grid-template-columns:180px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.briefing-row:last-child{border-bottom:0}
+.briefing-row span{color:#9aa8bd;font-weight:900}
+.briefing-row b{font-weight:850;color:#f7fbff;white-space:pre-wrap}
+.briefing-empty{padding:24px;color:var(--muted);font-weight:900;text-align:center}
+.badge-count{
+  display:inline-grid;
+  place-items:center;
+  min-width:24px;
+  height:24px;
+  border-radius:999px;
+  background:linear-gradient(135deg,var(--red),var(--amber));
+  color:#180b05;
+  font-size:12px;
+  font-weight:1000;
+  margin-left:8px;
+}
 .workspace{
   position:fixed;
   inset:18px;
@@ -385,6 +460,7 @@ iframe{
 }
 @media(max-width:1050px){
   .module-grid,.summary,.kpis{grid-template-columns:1fr}
+  .briefing-board{grid-template-columns:1fr}
   .app{padding:18px}
   .top{flex-direction:column}
   .statusbar{justify-content:flex-start}
@@ -544,6 +620,7 @@ iframe{
           <div class="kpi"><span>Financeiro</span><strong id="financeEntries">--</strong><small id="financeSync">Aguardando Firestore</small></div>
           <div class="kpi"><span>Cartões</span><strong id="financeCards">--</strong><small>Transações importadas</small></div>
           <div class="kpi"><span>Tarefas</span><strong id="taskCards">--</strong><small id="taskSync">Aguardando Firestore</small></div>
+          <div class="kpi"><span>Briefings</span><strong id="briefingCount">--</strong><small id="briefingSync">Aguardando Firestore</small></div>
           <div class="kpi"><span>Calculadora de LEADs</span><strong>Pronta</strong><small>Módulo disponível</small></div>
         </div>
       </section>
@@ -554,6 +631,7 @@ iframe{
           <div class="activity-line"><b>Firebase</b><span id="activitySync">Aguardando dados</span></div>
           <div class="activity-line"><b>Financeiro</b><span id="activityFinance">Conectando</span></div>
           <div class="activity-line"><b>Tarefas</b><span id="activityTasks">Conectando</span></div>
+          <div class="activity-line"><b>Briefings</b><span id="activityBriefings">Conectando</span></div>
         </div>
       </section>
     </div>
@@ -572,6 +650,15 @@ iframe{
   <div class="frame-wrap loading" id="frameWrap">
     <iframe id="moduleFrame" title="Módulo Dualize"></iframe>
   </div>
+  <div class="briefing-board" id="briefingBoard" hidden>
+    <aside class="briefing-list">
+      <h3>Briefings recebidos <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
+      <div id="briefingList" class="briefing-empty">Aguardando Firestore...</div>
+    </aside>
+    <main class="briefing-detail" id="briefingDetail">
+      <div class="briefing-empty">Selecione um briefing para ver os detalhes.</div>
+    </main>
+  </div>
 </section>
 
 <script>
@@ -588,13 +675,16 @@ const modules=[
   {id:'tarefas',icon:'control',title:'Tarefas',desc:'Quadro operacional, criativos, rotinas e calendário de clientes.',url:'controle-online/index.html',status:'Tempo real Firebase',metric:'Operação diária'},
   {id:'leads',icon:'calculator',title:'Calculadora de LEADs',desc:'Fórmula do lead qualificado e simulações comerciais.',url:'calculadora-lead/index.html',status:'Módulo comercial',metric:'Simulador'}
 ];
+modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Briefings',desc:'Recebimento em tempo real dos formularios enviados pelos clientes.',url:'briefing_cliente_v4.html',status:'Novos clientes',metric:'Entrada comercial'});
 const $=s=>document.querySelector(s);
+let db=null,briefings=[],selectedBriefingId='';
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function moduleIcon(type){
   const icons={
     finance:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M17 7.5c-.9-1.1-2.4-1.7-4.3-1.7-2.4 0-4 .9-4 2.6 0 4.1 8.6 1.8 8.6 6.1 0 1.8-1.7 3-4.4 3-2.2 0-4-.7-5-2"/></svg>',
     control:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7"/><path d="M15 7h5"/><path d="M9 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/><path d="M4 17h3"/><path d="M11 17h9"/><path d="M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/></svg>',
+    briefing:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5"/><path d="M10 12h6"/><path d="M10 16h6"/><path d="M10 8h1"/></svg>',
     calculator:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8"/><path d="M8 11h.01"/><path d="M12 11h.01"/><path d="M16 11h.01"/><path d="M8 15h.01"/><path d="M12 15h.01"/><path d="M16 15h.01"/><path d="M8 18h.01"/><path d="M12 18h4"/></svg>'
   };
   return icons[type]||icons.control;
@@ -618,6 +708,17 @@ function openModule(id){
   $('#workspaceTitle').textContent=mod.title;
   $('#openExternal').href=versionedUrl(mod.url);
   $('#workspace').classList.add('active');
+  if(id==='briefings'){
+    $('#frameWrap').hidden=true;
+    $('#briefingBoard').hidden=false;
+    $('#reloadFrame').hidden=true;
+    renderBriefingList();
+    renderBriefingDetail(selectedBriefingId);
+    return;
+  }
+  $('#frameWrap').hidden=false;
+  $('#briefingBoard').hidden=true;
+  $('#reloadFrame').hidden=false;
   $('#frameWrap').classList.add('loading');
   $('#moduleFrame').src=versionedUrl(mod.url,{embedded:'1',t:Date.now()});
 }
@@ -625,6 +726,10 @@ function setupEvents(){
   document.body.addEventListener('click',e=>{
     const target=e.target.closest('[data-module]');
     if(target) openModule(target.dataset.module);
+    const briefing=e.target.closest('[data-briefing-id]');
+    if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId)}
+    const status=e.target.closest('[data-briefing-status]');
+    if(status) updateBriefingStatus(status.dataset.briefingStatus);
   });
   $('#closeWorkspace').onclick=()=>$('#workspace').classList.remove('active');
   $('#reloadFrame').onclick=()=>{
@@ -634,10 +739,38 @@ function setupEvents(){
   };
   $('#moduleFrame').onload=()=>$('#frameWrap').classList.remove('loading');
 }
+function statusClass(status){return String(status||'novo').includes('config')?'configurado':String(status||'novo').includes('anal')?'analise':'novo'}
+function statusLabel(status){const s=String(status||'novo');return s==='novo'?'NOVO':s.toUpperCase()}
+function briefingDate(v){return v?new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sem data'}
+function briefingValue(v){if(Array.isArray(v))return v.length?v.join(', '):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
+function renderBriefingList(){
+  const list=$('#briefingList'),badge=$('#briefingBadge');
+  if(!list)return;
+  const novos=briefings.filter(b=>(b.status||'novo')==='novo').length;
+  badge.hidden=!novos;badge.textContent=novos;
+  $('#briefingCount').textContent=String(briefings.length);
+  $('#briefingSync').textContent=novos?`${novos} novo(s)`:'Atualizado';
+  $('#activityBriefings').textContent=briefings.length?`${briefings.length} recebido(s)`:'Nenhum briefing';
+  if(!briefings.length){list.className='briefing-empty';list.innerHTML='Nenhum briefing recebido ainda.';return}
+  list.className='';
+  list.innerHTML=briefings.map(b=>{const d=b.dados||{},fin=d.financeiro||{},id=d.identificacao||{};return`<button class="briefing-card ${b.id===selectedBriefingId?'active':''}" data-briefing-id="${esc(b.id)}" type="button"><span class="briefing-status ${statusClass(b.status)}">${statusLabel(b.status)}</span><b>${esc(b.cliente_nome||'Nao identificado')}</b><div class="briefing-meta">Recebido: ${esc(briefingDate(b.timestamp))}<br>Nicho: ${esc(id.nicho||'--')}<br>Budget: ${esc(fin.budget||'--')} | Ticket: ${esc(fin.ticket||'--')}</div></button>`}).join('');
+}
+function renderBriefingDetail(id){
+  const el=$('#briefingDetail');if(!el)return;
+  const b=briefings.find(x=>x.id===id)||briefings[0];
+  if(!b){el.innerHTML='<div class="briefing-empty">Selecione um briefing para ver os detalhes.</div>';return}
+  selectedBriefingId=b.id;
+  const sections=b.dados||{};
+  el.innerHTML=`<h3>${esc(b.cliente_nome||'Briefing')}</h3><div class="briefing-meta">Recebido em ${esc(briefingDate(b.timestamp))} | ID ${esc(b.cliente_id||b.id)}</div><div class="briefing-actions"><button data-briefing-status="novo" type="button">NOVO</button><button data-briefing-status="em analise" type="button">EM ANALISE</button><button data-briefing-status="configurado" type="button">CONFIGURADO</button></div><div class="briefing-sections">${Object.entries(sections).map(([name,obj])=>`<section class="briefing-section"><h4>${esc(name)}</h4>${Object.entries(obj||{}).map(([k,v])=>`<div class="briefing-row"><span>${esc(k)}</span><b>${esc(briefingValue(v))}</b></div>`).join('')}</section>`).join('')}</div>`;
+}
+function updateBriefingStatus(status){
+  if(!db||!selectedBriefingId)return;
+  db.collection('briefings').doc(selectedBriefingId).update({status,updatedAt:new Date().toISOString()}).catch(err=>alert('Nao foi possivel atualizar o status: '+err.message));
+}
 function setupFirebaseSummary(){
   try{
     firebase.initializeApp(firebaseConfig);
-    const db=firebase.firestore();
+    db=firebase.firestore();
     db.collection('painel_financeiro').doc('estado_principal').onSnapshot(snapshot=>{
       if(!snapshot.exists){
         $('#syncStatus').textContent='Firebase pronto';
@@ -664,6 +797,16 @@ function setupFirebaseSummary(){
       $('#taskCards').textContent=Array.isArray(payload.cards)?payload.cards.length:'0';
       $('#taskSync').textContent='Atualizado '+when;
       $('#activityTasks').textContent='Atualizado '+when;
+    });
+    db.collection('briefings').orderBy('timestamp','desc').onSnapshot(snapshot=>{
+      briefings=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+      if(!selectedBriefingId&&briefings[0])selectedBriefingId=briefings[0].id;
+      renderBriefingList();
+      renderBriefingDetail(selectedBriefingId);
+    },err=>{
+      console.warn(err);
+      $('#briefingSync').textContent='Erro Firestore';
+      $('#activityBriefings').textContent='Erro ao carregar';
     });
   }catch(err){
     console.warn(err);

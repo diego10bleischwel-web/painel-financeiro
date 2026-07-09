@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Briefing do Cliente — Dualize Digital</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#0F1117;--surface:#1A1D27;--surface2:#222535;--border:#2E3348;
+  --active:#4F6BFF;--active2:#7C3AED;--green:#10B981;--red:#EF4444;--yellow:#F59E0B;
+  --text:#E8EAF0;--muted:#6B7280;--chip-bg:#1E2235;
+  --cab:#818CF8;--cag:#34D399;--cap:#A78BFA;--cay:#FCD34D;
+  --r:14px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER FIXO ── */
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(15,17,23,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.hdr-inner{max-width:760px;margin:0 auto;padding:14px 24px;}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.logo{font-size:13px;font-weight:700;color:var(--text);letter-spacing:.02em;}
+.logo span{color:#818CF8;}
+.step-label{font-size:12px;color:var(--muted);}
+.step-label b{color:var(--text);}
+
+/* Steps indicadores */
+.steps{display:flex;align-items:center;gap:0;}
+.step-item{display:flex;align-items:center;gap:0;}
+.step-dot{
+  width:28px;height:28px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--muted);
+  background:var(--surface);transition:all .3s;flex-shrink:0;cursor:pointer;
+}
+.step-dot.done{background:#10B981;border-color:#10B981;color:white;}
+.step-dot.active{border-color:var(--active);color:var(--active);box-shadow:0 0 0 3px rgba(79,107,255,.2);}
+.step-line{width:32px;height:2px;background:var(--border);transition:background .3s;margin:0 2px;}
+.step-line.done{background:var(--green);}
+.step-name{font-size:10px;color:var(--muted);margin-top:3px;text-align:center;white-space:nowrap;}
+
+/* Barra de progresso */
+.prog-wrap{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--active),var(--active2));transition:width .5s cubic-bezier(.4,0,.2,1);width:0%;}
+
+/* ── BODY ── */
+.page{display:none;min-height:100vh;padding:120px 24px 120px;max-width:680px;margin:0 auto;}
+.page.active{display:block;}
+
+/* INTRO */
+.intro{text-align:center;padding:40px 0 20px;}
+.badge-intro{display:inline-flex;align-items:center;gap:6px;background:rgba(79,107,255,.15);border:1px solid rgba(79,107,255,.4);color:#818CF8;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:20px;}
+.badge-intro span{width:6px;height:6px;background:var(--active);border-radius:50%;}
+.intro h1{font-size:30px;font-weight:700;line-height:1.25;margin-bottom:12px;}
+.intro p{color:var(--muted);font-size:14px;line-height:1.7;max-width:480px;margin:0 auto 32px;}
+.steps-preview{display:flex;flex-direction:column;gap:10px;max-width:400px;margin:0 auto 36px;}
+.sp-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;}
+.sp-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.sp-text{font-size:13px;font-weight:500;}
+.sp-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* CARD DE ETAPA */
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px;}
+.step-card-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;}
+.sc-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.sc-info h2{font-size:16px;font-weight:700;margin-bottom:2px;}
+.sc-info p{font-size:12px;color:var(--muted);}
+.step-card-body{padding:24px;}
+
+/* FIELD */
+.field{margin-bottom:26px;}
+.field:last-child{margin-bottom:0;}
+.field-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+.field-label{font-size:13px;font-weight:600;}
+.req{font-size:10px;font-weight:600;background:rgba(239,68,68,.12);color:var(--red);padding:2px 7px;border-radius:8px;}
+.opt{font-size:10px;font-weight:600;background:rgba(107,114,128,.12);color:var(--muted);padding:2px 7px;border-radius:8px;}
+.field-hint{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5;}
+
+/* INFO & EXEMPLO */
+.info-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#818CF8;background:rgba(79,107,255,.1);border:1px solid rgba(79,107,255,.3);border-radius:8px;padding:2px 8px;cursor:pointer;transition:opacity .2s;white-space:nowrap;user-select:none;}
+.info-btn:hover{opacity:.7;}
+.info-panel{display:none;background:rgba(79,107,255,.05);border:1px solid rgba(79,107,255,.2);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;font-size:12px;line-height:1.6;color:var(--muted);}
+.info-panel.open{display:block;}
+.info-panel strong{color:var(--text);}
+.info-row{margin-bottom:6px;}
+.info-tag{display:inline-block;background:rgba(79,107,255,.15);color:#818CF8;font-size:10px;font-weight:600;padding:1px 6px;border-radius:6px;margin-right:4px;}
+.ex-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--green);background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:2px 8px;cursor:pointer;margin-bottom:6px;transition:opacity .2s;user-select:none;}
+.ex-btn:hover{opacity:.7;}
+.ex-panel{display:none;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.18);border-radius:var(--rs);padding:10px 14px;margin-bottom:8px;font-size:12px;line-height:1.7;color:var(--muted);}
+.ex-panel.open{display:block;}
+.ex-panel em{color:var(--text);font-style:normal;}
+.ex-sec{font-size:10px;font-weight:700;color:var(--green);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;margin-top:8px;}
+.ex-sec:first-child{margin-top:0;}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{position:relative;display:flex;align-items:center;gap:6px;background:var(--chip-bg);border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:500;padding:8px 16px;border-radius:20px;cursor:pointer;transition:all .15s;user-select:none;}
+.chip:hover{border-color:var(--active);color:var(--text);}
+.chip.active{background:rgba(79,107,255,.15);border-color:var(--active);color:#818CF8;}
+.chip .ck{display:none;width:14px;height:14px;flex-shrink:0;}
+.chip.active .ck{display:block;}
+.chip-ns{border-color:rgba(107,114,128,.25);}
+.chip-ns.active{background:rgba(107,114,128,.15);border-color:var(--muted);color:var(--text);}
+.chip[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#111827;border:1px solid var(--border);color:var(--text);font-size:11px;line-height:1.5;white-space:normal;min-width:180px;max-width:240px;padding:8px 10px;border-radius:8px;z-index:200;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+.chip[data-tip]:hover::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#111827;z-index:201;}
+
+/* RADIO */
+.radio-cards{display:flex;flex-direction:column;gap:8px;}
+.radio-card{display:flex;align-items:flex-start;gap:12px;background:var(--chip-bg);border:1px solid var(--border);padding:12px 16px;border-radius:var(--rs);cursor:pointer;transition:all .15s;user-select:none;}
+.radio-card:hover{border-color:var(--active);}
+.radio-card.active{background:rgba(79,107,255,.1);border-color:var(--active);}
+.rdot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.radio-card.active .rdot{border-color:var(--active);background:var(--active);}
+.rdot-i{width:6px;height:6px;background:white;border-radius:50%;display:none;}
+.radio-card.active .rdot-i{display:block;}
+.rl{font-size:13px;font-weight:500;}
+.rs{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* INPUT */
+.input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:inherit;font-size:14px;padding:10px 14px;transition:border .2s;resize:vertical;outline:none;}
+.input:focus{border-color:var(--active);}
+.input::placeholder{color:var(--muted);}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.money-w{position:relative;}
+.mpfx{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
+.money-w .input{padding-left:30px;}
+
+/* SLIDER */
+.slider-row{display:flex;align-items:center;gap:12px;}
+.sval{font-size:14px;font-weight:700;color:#818CF8;min-width:28px;text-align:center;}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--active);border-radius:50%;cursor:pointer;border:2px solid var(--bg);}
+
+/* REPEAT */
+.repeat-list{display:flex;flex-direction:column;gap:8px;}
+.repeat-item{display:flex;align-items:center;gap:8px;}
+.rnum{font-size:12px;font-weight:700;color:var(--muted);width:18px;flex-shrink:0;text-align:right;}
+.add-btn{display:flex;align-items:center;gap:6px;color:var(--active);font-size:13px;font-weight:500;cursor:pointer;margin-top:8px;background:none;border:none;padding:0;font-family:inherit;transition:opacity .2s;}
+.add-btn:hover{opacity:.7;}
+
+/* FINANCE BLOCKS */
+  .fin-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:14px;overflow:hidden;}
+  .fin-block-header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);}
+  .fin-block-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .fin-block-title{font-size:13px;font-weight:700;color:var(--text);}
+  .fin-block-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+  .fin-block-body{padding:18px;}
+
+  /* DIVIDER */
+.divider{height:1px;background:var(--border);margin:20px 0;}
+
+/* ── FOOTER NAV ── */
+.footer-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,17,23,.96);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:14px 24px;z-index:300;}
+.footer-inner{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.btn-back{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:10px 20px;border-radius:var(--rs);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-back:hover{color:var(--text);border-color:var(--text);}
+.btn-next{background:linear-gradient(135deg,var(--active),var(--active2));color:white;border:none;border-radius:var(--rs);padding:10px 28px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;gap:8px;}
+.btn-next:hover{opacity:.85;}
+.btn-next svg{transition:transform .2s;}
+.btn-next:hover svg{transform:translateX(3px);}
+
+/* SUCCESS */
+.success-page{display:none;min-height:100vh;padding:120px 24px 80px;max-width:600px;margin:0 auto;text-align:center;}
+.success-page.active{display:block;}
+.s-icon{font-size:56px;margin-bottom:20px;}
+.s-title{font-size:26px;font-weight:700;margin-bottom:8px;}
+.s-sub{color:var(--muted);font-size:14px;margin-bottom:32px;line-height:1.6;}
+.result-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:left;margin-bottom:20px;}
+.rsec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;margin-top:16px;}
+.rsec:first-child{margin-top:0;}
+.ritem{margin-bottom:7px;}
+.rkey{font-size:11px;color:var(--muted);margin-bottom:1px;}
+.rval{font-size:13px;color:var(--text);line-height:1.4;}
+.btn-copy{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 22px;border-radius:var(--rs);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;margin:4px;transition:border-color .2s;}
+.btn-copy:hover{border-color:var(--active);}
+.btn-new{background:linear-gradient(135deg,var(--active),var(--active2));color:white;border:none;padding:11px 26px;border-radius:var(--rs);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin:4px;}
+
+@media(max-width:500px){
+  .intro h1{font-size:24px;}
+  .input-row{grid-template-columns:1fr;}
+  .step-line{width:20px;}
+  .steps{gap:0;}
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-top">
+      <div class="logo">Dualize <span>Digital</span><br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.04em;">Briefing para preenchimento — Traffic AI</span></div>
+      <div class="step-label" id="stepLabel">Início</div>
+    </div>
+    <!-- Steps -->
+    <div style="display:flex;align-items:flex-start;justify-content:center;gap:0;margin-bottom:10px;" id="stepsRow">
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="step-dot" id="sd1" onclick="goStep(1)">1</div>
+          <div class="step-name">Negócio</div>
+        </div>
+      </div>
+      <div class="step-line" id="sl1" style="margin-top:14px;"></div>
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="step-dot" id="sd2" onclick="goStep(2)">2</div>
+          <div class="step-name">Cliente</div>
+        </div>
+      </div>
+      <div class="step-line" id="sl2" style="margin-top:14px;"></div>
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="step-dot" id="sd3" onclick="goStep(3)">3</div>
+          <div class="step-name">Produto</div>
+        </div>
+      </div>
+      <div class="step-line" id="sl3" style="margin-top:14px;"></div>
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="step-dot" id="sd4" onclick="goStep(4)">4</div>
+          <div class="step-name">Financeiro</div>
+        </div>
+      </div>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ INTRO ══════════════ -->
+<div class="page active" id="page0">
+  <div class="intro">
+    <div class="badge-intro"><span></span>Dualize Digital</div>
+    <h1>Conta pra gente sobre<br>o seu negócio</h1>
+    <p>Preencha as 4 etapas abaixo e ajude a IA a criar criativos e copies muito mais certeiros. Leva menos de 5 minutos.</p>
+    <div class="steps-preview">
+      <div class="sp-item"><div class="sp-num" style="background:rgba(79,107,255,.2);color:#818CF8;">1</div><div><div class="sp-text">Identificação do Negócio</div><div class="sp-sub">Nome, tipo e nicho</div></div></div>
+      <div class="sp-item"><div class="sp-num" style="background:rgba(16,185,129,.2);color:#34D399;">2</div><div><div class="sp-text">Seu Cliente Ideal</div><div class="sp-sub">Perfil, dores e desejos</div></div></div>
+      <div class="sp-item"><div class="sp-num" style="background:rgba(124,58,237,.2);color:#A78BFA;">3</div><div><div class="sp-text">Sobre o Produto</div><div class="sp-sub">O que vende e diferenciais</div></div></div>
+      <div class="sp-item"><div class="sp-num" style="background:rgba(245,158,11,.2);color:#FCD34D;">4</div><div><div class="sp-text">Financeiro e Metas</div><div class="sp-sub">Budget, ticket e custos</div></div></div>
+    </div>
+    <button class="btn-next" onclick="goStep(1)" style="margin:0 auto;">
+      Começar
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ ETAPA 1 — NEGÓCIO ══════════════ -->
+<div class="page" id="page1">
+  <div class="step-card">
+    <div class="step-card-header">
+      <div class="sc-num" style="background:rgba(79,107,255,.2);color:#818CF8;font-size:16px;">1</div>
+      <div class="sc-info"><h2>Identificação do Negócio</h2><p>Nome, tipo e nicho do seu negócio</p></div>
+    </div>
+    <div class="step-card-body">
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Nome do produto ou serviço</span><span class="req">obrigatório</span></div>
+        <div class="field-hint">Como seu produto ou serviço se chama?</div>
+        <div class="ex-btn" onclick="tog('ex-nome')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-nome">
+          <div class="ex-sec">Produtos físicos</div>
+          <em>Vestido Floral Verão · Conjunto Fitness Feminino · Cortina Blackout sob Medida · Cesta de Café da Manhã Personalizada</em>
+          <div class="ex-sec">Serviços</div>
+          <em>Clínica Odontológica Sorriso · Consultório de Psicologia · Academia FitLife · Barbearia Estilo</em>
+          <div class="ex-sec">Infoprodutos</div>
+          <em>Curso de Inglês para Iniciantes · Método Emagrecer com Saúde · Mentoria de Finanças Pessoais</em>
+        </div>
+        <input class="input" id="nome_produto" placeholder="Digite o nome do produto ou serviço..." oninput="upProg()"/>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Tipo de negócio</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-tipo')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-tipo">
+          <div class="info-row"><span class="info-tag">Infoproduto</span>Cursos, ebooks, mentorias — conteúdo digital vendido online.</div>
+          <div class="info-row"><span class="info-tag">E-commerce</span>Produtos físicos vendidos online — loja virtual, Instagram, WhatsApp.</div>
+          <div class="info-row"><span class="info-tag">SaaS</span>Software ou plataforma paga por assinatura.</div>
+          <div class="info-row"><span class="info-tag">Serviço Local</span>Atende presencialmente numa cidade ou região.</div>
+          <div class="info-row"><span class="info-tag">Leads B2B</span>Vende para empresas e precisa gerar contatos qualificados.</div>
+          <div class="info-row"><span class="info-tag">Não sei</span>Marque aqui se não tiver certeza — preencheremos juntos.</div>
+        </div>
+        <div class="chips" data-group="tipo" data-multi="false">
+          <div class="chip" data-val="Infoproduto" data-tip="Cursos, ebooks, mentorias e conteúdo digital"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Infoproduto</div>
+          <div class="chip" data-val="E-commerce" data-tip="Produtos físicos vendidos online"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>E-commerce</div>
+          <div class="chip" data-val="SaaS" data-tip="Software ou plataforma por assinatura"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>SaaS</div>
+          <div class="chip" data-val="Serviço Local" data-tip="Atende presencialmente numa cidade"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Serviço Local</div>
+          <div class="chip" data-val="Leads B2B" data-tip="Vende para empresas, gera contatos qualificados"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Leads B2B</div>
+          <div class="chip chip-ns" data-val="Não sei" data-tip="Não tem certeza? Preencheremos juntos"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#6B7280"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Não sei</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Nicho</span><span class="req">obrigatório</span></div>
+        <div class="field-hint">Área ou mercado em que seu negócio atua</div>
+        <div class="ex-btn" onclick="tog('ex-nicho')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-nicho">
+          <div class="ex-sec">Saúde e beleza</div>
+          <em>odontologia · estética · emagrecimento · psicologia · nutrição · academia · barbearia</em>
+          <div class="ex-sec">Moda e casa</div>
+          <em>moda feminina · moda plus size · decoração · cortinas · móveis · cama mesa e banho</em>
+          <div class="ex-sec">Serviços e educação</div>
+          <em>advocacia · contabilidade · imóveis · cursos online · idiomas · tecnologia</em>
+          <div class="ex-sec">Outros</div>
+          <em>pet · presentes personalizados · alimentação saudável · viagens · eventos</em>
+        </div>
+        <input class="input" id="nicho" placeholder="Ex: odontologia, moda feminina, decoração..." oninput="upProg()"/>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Idioma dos anúncios</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-idioma')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-idioma"><strong>Em qual idioma seus anúncios serão veiculados?</strong><br>Escolha o idioma que seus clientes falam. A IA vai gerar copies nesse idioma.</div>
+        <div class="chips" data-group="idioma" data-multi="false">
+          <div class="chip" data-val="Português (BR)" data-tip="Padrão para negócios no Brasil"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Português (BR)</div>
+          <div class="chip" data-val="Inglês" data-tip="Para negócios com foco internacional ou EUA"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Inglês</div>
+          <div class="chip" data-val="Espanhol" data-tip="Para negócios com foco em países hispanohablantes"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Espanhol</div>
+          <div class="chip chip-ns" data-val="Outro" data-tip="Outro idioma não listado acima"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#6B7280"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Outro</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">País alvo</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-pais')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-pais"><strong>Em qual país seus anúncios serão exibidos?</strong><br>Escolha o país principal onde estão seus clientes. Isso influencia a linguagem e referências culturais dos criativos.</div>
+        <div class="chips" data-group="pais" data-multi="false">
+          <div class="chip" data-val="Brasil" data-tip="Padrão para a maioria dos negócios aqui"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Brasil</div>
+          <div class="chip" data-val="EUA" data-tip="United States"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>EUA</div>
+          <div class="chip" data-val="Portugal" data-tip="Portugal"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Portugal</div>
+          <div class="chip chip-ns" data-val="Outro" data-tip="Outro país não listado"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#6B7280"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Outro</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Link do site ou loja</span><span class="opt">opcional</span></div>
+        <input class="input" id="link_lp" placeholder="https://..." oninput="upProg()"/>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Texto da página de vendas</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-texto-lp')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-texto-lp"><strong>Cole aqui o texto principal da sua página de vendas ou descrição do produto.</strong><br>Quanto mais detalhado, mais a IA consegue gerar copies alinhadas com sua comunicação. Não é obrigatório, mas faz diferença.</div>
+        <textarea class="input" id="texto_lp" rows="3" placeholder="Cole aqui o texto da sua LP ou descrição do produto..."></textarea>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ETAPA 2 — CLIENTE ══════════════ -->
+<div class="page" id="page2">
+  <div class="step-card">
+    <div class="step-card-header">
+      <div class="sc-num" style="background:rgba(16,185,129,.2);color:#34D399;font-size:16px;">2</div>
+      <div class="sc-info"><h2>Seu Cliente Ideal</h2><p>Perfil, dores, desejos e provas</p></div>
+    </div>
+    <div class="step-card-body">
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Quem é seu cliente?</span><span class="req">obrigatório</span></div>
+        <div class="field-hint">1-2 frases: quem é, o que faz, como vive.</div>
+        <div class="ex-btn" onclick="tog('ex-avatar')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-avatar">
+          <div class="ex-sec">Clínica / saúde / serviço local</div>
+          <em>"Mulheres entre 25-45 anos que querem cuidar da aparência mas têm agenda apertada e evitam filas de espera."</em>
+          <div class="ex-sec">Moda / loja de roupas</div>
+          <em>"Mulheres entre 20-40 anos que buscam looks modernos com preço justo mas sentem dificuldade em montar combinações."</em>
+          <div class="ex-sec">Casa / decoração / cortinas</div>
+          <em>"Donas de casa ou recém-casadas entre 28-50 anos que querem transformar o ambiente mas têm medo de errar na escolha."</em>
+          <div class="ex-sec">Curso / infoproduto</div>
+          <em>"Adultos entre 25-45 anos que querem aprender inglês para crescer na carreira mas abandonam cursos tradicionais por falta de tempo."</em>
+        </div>
+        <textarea class="input" id="avatar_desc" rows="2" placeholder="Descreva em 1-2 frases quem é seu cliente ideal..." oninput="upProg()"></textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Faixa de idade</span><span class="req">obrigatório</span></div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Idade mínima</div>
+          <div class="slider-row"><span class="sval" id="sv_min">18</span><input type="range" id="idade_min" min="13" max="70" value="18" oninput="document.getElementById('sv_min').textContent=this.value;upProg()"><span style="font-size:12px;color:var(--muted)">anos</span></div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Idade máxima</div>
+          <div class="slider-row"><span class="sval" id="sv_max">55</span><input type="range" id="idade_max" min="13" max="80" value="55" oninput="document.getElementById('sv_max').textContent=this.value;upProg()"><span style="font-size:12px;color:var(--muted)">anos</span></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Profissão típica</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-profissao')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-profissao"><strong>Qual é a ocupação mais comum do seu cliente ideal?</strong><br>Ajuda a IA a criar copies mais direcionadas e com linguagem adequada. Ex: uma copy pra dentista é diferente de uma pra dona de casa.</div>
+        <div class="ex-btn" onclick="tog('ex-profissao')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-profissao">
+          <em>professora · empreendedora · dona de casa · enfermeira · estudante · advogada · nutricionista · gestora · autônoma · servidora pública · médica · designer</em>
+        </div>
+        <input class="input" id="profissao" placeholder="Ex: empreendedora, professora, dona de casa..."/>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Gênero</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-genero')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-genero">
+          <div class="info-row"><span class="info-tag">Todos</span>Produto para homens e mulheres igualmente.</div>
+          <div class="info-row"><span class="info-tag">Somente mulheres</span>Público majoritariamente feminino. Ex: moda, cosméticos.</div>
+          <div class="info-row"><span class="info-tag">Somente homens</span>Público majoritariamente masculino. Ex: barba, ferramentas.</div>
+          <div class="info-row"><span class="info-tag">Não sei</span>Marque aqui se não souber — vamos avaliar juntos.</div>
+        </div>
+        <div class="chips" data-group="genero" data-multi="false">
+          <div class="chip" data-val="Todos" data-tip="Anunciar para homens e mulheres igualmente"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Todos</div>
+          <div class="chip" data-val="Mulheres" data-tip="Público majoritariamente feminino"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Somente mulheres</div>
+          <div class="chip" data-val="Homens" data-tip="Público majoritariamente masculino"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Somente homens</div>
+          <div class="chip chip-ns" data-val="Não sei" data-tip="Não tem certeza? Marque aqui"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#6B7280"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Não sei</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Nível de consciência</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-cons')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-cons">
+          <strong>Quando seu cliente vê seu anúncio, em qual estágio ele está?</strong><br><br>
+          <div class="info-row"><span class="info-tag">Sem consciência</span>Não sabe que tem o problema. O anúncio vai despertar o desejo.</div>
+          <div class="info-row"><span class="info-tag">Sabe do problema</span>Sente a dor mas não pesquisou soluções ainda.</div>
+          <div class="info-row"><span class="info-tag">Conhece soluções</span>Já pesquisou opções mas ainda não te conhece.</div>
+          <div class="info-row"><span class="info-tag">Conhece o produto</span>Já te viu antes mas não comprou ainda.</div>
+          <div class="info-row"><span class="info-tag">Pronto para comprar</span>Só precisa de uma oferta ou empurrão.</div>
+          <div class="info-row"><span class="info-tag">Não sei</span>Marque aqui — vamos avaliar juntos.</div>
+        </div>
+        <div class="field-hint">Escolha apenas um.</div>
+        <div class="radio-cards" data-group="consciencia">
+          <div class="radio-card" data-val="Sem consciência"><div class="rdot"><div class="rdot-i"></div></div><div><div class="rl">Sem consciência do problema</div><div class="rs">Não sabe que tem esse desejo ou dor ainda</div></div></div>
+          <div class="radio-card" data-val="Sabe do problema"><div class="rdot"><div class="rdot-i"></div></div><div><div class="rl">Sabe do problema</div><div class="rs">Sente a dor mas não conhece soluções</div></div></div>
+          <div class="radio-card" data-val="Conhece soluções"><div class="rdot"><div class="rdot-i"></div></div><div><div class="rl">Conhece soluções</div><div class="rs">Já pesquisou opções, mas não te conhece ainda</div></div></div>
+          <div class="radio-card" data-val="Conhece o produto"><div class="rdot"><div class="rdot-i"></div></div><div><div class="rl">Conhece o produto</div><div class="rs">Já te viu antes, mas ainda não comprou</div></div></div>
+          <div class="radio-card" data-val="Pronto para comprar"><div class="rdot"><div class="rdot-i"></div></div><div><div class="rl">Pronto para comprar</div><div class="rs">Só precisa de um empurrão ou oferta final</div></div></div>
+          <div class="radio-card" data-val="Não sei" style="border-color:rgba(107,114,128,.25)"><div class="rdot"><div class="rdot-i"></div></div><div><div class="rl" style="color:var(--muted)">Não sei</div><div class="rs">Vamos avaliar juntos</div></div></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Principais dores do cliente</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-dores')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-dores"><strong>O que incomoda, frustra ou preocupa seu cliente?</strong><br>Escreva na voz dele — como se ele estivesse reclamando. A primeira é a mais importante.</div>
+        <div class="ex-btn" onclick="tog('ex-dores')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-dores">
+          <div class="ex-sec">Clínica / saúde / estética</div>
+          <em>"Tenho vergonha de sorrir nas fotos por causa dos meus dentes"</em><br>
+          <em>"Já tentei vários tratamentos e sempre abandono no meio"</em>
+          <div class="ex-sec">Moda / roupas</div>
+          <em>"Compro roupa e quando chega parece diferente do que vi na foto"</em><br>
+          <em>"Não sei combinar peças e sempre acabo usando a mesma coisa"</em>
+          <div class="ex-sec">Casa / decoração / cortinas</div>
+          <em>"Quero deixar minha casa bonita mas tenho medo de gastar e não ficar bom"</em><br>
+          <em>"Não sei qual tecido ou modelo escolher sem ver pessoalmente"</em>
+          <div class="ex-sec">Academia / curso</div>
+          <em>"Começo e paro, não consigo manter a constância"</em><br>
+          <em>"Tenho medo de ir e não saber usar os equipamentos sozinho"</em>
+        </div>
+        <div class="field-hint">Na voz dele — o que o incomoda, frustra ou preocupa? (mínimo 1, até 5)</div>
+        <div class="repeat-list" id="list-dores">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="Dor principal do cliente..." oninput="upProg()"/></div>
+          <div class="repeat-item"><span class="rnum">2</span><input class="input" placeholder="Dor 2 (opcional)..." oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-dores',5,'Dor adicional...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar dor
+        </button>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Desejos do cliente</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-desejos')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-desejos"><strong>O que ele sonha em conquistar, sentir ou ter?</strong><br>Seja específico — evite respostas genéricas como "quer ser feliz".</div>
+        <div class="ex-btn" onclick="tog('ex-desejos')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-desejos">
+          <div class="ex-sec">Clínica / saúde / estética</div>
+          <em>"Quero ter um sorriso bonito e me sentir confiante em qualquer situação"</em><br>
+          <em>"Quero me olhar no espelho e gostar do que vejo"</em>
+          <div class="ex-sec">Moda / roupas</div>
+          <em>"Quero me vestir bem sem gastar muito e me sentir bonita todo dia"</em>
+          <div class="ex-sec">Casa / decoração / cortinas</div>
+          <em>"Quero que todo mundo que entre na minha casa fique surpreso com a decoração"</em>
+          <div class="ex-sec">Serviço / curso</div>
+          <em>"Quero falar inglês com confiança em reuniões de trabalho"</em><br>
+          <em>"Quero criar uma rotina de exercícios que dure mais de um mês"</em>
+        </div>
+        <div class="repeat-list" id="list-desejos">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="Ex: Quero me sentir confiante e bonita todo dia..." oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-desejos',4,'Desejo adicional...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar desejo
+        </button>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Provas e resultados reais</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-provas')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-provas"><strong>Depoimentos, números e resultados que comprovam seu produto.</strong><br>Quanto mais específico e real, mais forte fica o anúncio.</div>
+        <div class="ex-btn" onclick="tog('ex-provas')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-provas">
+          <div class="ex-sec">Números e volume</div>
+          <em>"+1.200 clientes atendidos" · "97% de satisfação" · "10 anos de mercado" · "+300 procedimentos"</em>
+          <div class="ex-sec">Depoimentos reais</div>
+          <em>"'Nunca fui tão bem atendida!' — Ana P., Curitiba"</em><br>
+          <em>"'Transformou completamente minha sala' — Fernanda R., SP"</em>
+          <div class="ex-sec">Reconhecimentos</div>
+          <em>"Nota 5 estrelas no Google · Parceiro oficial da marca X · Indicado por especialistas"</em>
+        </div>
+        <div class="repeat-list" id="list-provas">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="Ex: +500 clientes / depoimento real / resultado..." oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-provas',5,'Prova ou resultado adicional...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar prova
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ETAPA 3 — PRODUTO ══════════════ -->
+<div class="page" id="page3">
+  <div class="step-card">
+    <div class="step-card-header">
+      <div class="sc-num" style="background:rgba(124,58,237,.2);color:#A78BFA;font-size:16px;">3</div>
+      <div class="sc-info"><h2>Sobre o Produto</h2><p>O que você vende e o que te diferencia</p></div>
+    </div>
+    <div class="step-card-body">
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">O que você vende?</span><span class="req">obrigatório</span></div>
+        <div class="field-hint">Em 1-2 frases diretas: o que o cliente recebe de fato.</div>
+        <div class="ex-btn" onclick="tog('ex-oque')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-oque">
+          <div class="ex-sec">Serviço local</div>
+          <em>"Clínica odontológica especializada em clareamento, aparelho e implante, com atendimento de segunda a sábado."</em>
+          <div class="ex-sec">Loja física / e-commerce</div>
+          <em>"Loja de roupas femininas com peças casuais e sociais do P ao GG, com entrega para todo o Brasil."</em><br>
+          <em>"Cortinas e persianas sob medida com instalação inclusa, atendendo toda a região metropolitana."</em>
+          <div class="ex-sec">Curso / infoproduto</div>
+          <em>"Curso online de inglês com aulas ao vivo 3x por semana, material didático e grupo de prática no WhatsApp."</em>
+        </div>
+        <textarea class="input" id="oque_e" rows="3" placeholder="Ex: Loja de roupas femininas com peças casuais, do P ao GG, com entrega em todo o Brasil..." oninput="upProg()"></textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Por que você é diferente?</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-dif')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-dif"><strong>O mecanismo único do seu negócio.</strong><br>O que te separa de qualquer concorrente — algo específico e concreto que você faz diferente de todo mundo.</div>
+        <div class="ex-btn" onclick="tog('ex-dif')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-dif">
+          <div class="ex-sec">Clínica / saúde</div>
+          <em>"Única clínica da cidade com agenda online em tempo real, sem fila de espera e atendimento de emergência no mesmo dia."</em>
+          <div class="ex-sec">Moda / loja de roupas</div>
+          <em>"Única loja da região que oferece consultoria de estilo gratuita na hora da compra."</em>
+          <div class="ex-sec">Casa / cortinas</div>
+          <em>"Único fornecedor que faz visita domiciliar gratuita, mede, produz e instala tudo em até 5 dias úteis."</em>
+          <div class="ex-sec">Curso / digital</div>
+          <em>"Único curso que garante conversação básica em 60 dias ou devolve 100% do investimento."</em>
+        </div>
+        <textarea class="input" id="mecanismo" rows="2" placeholder="O que te diferencia de qualquer concorrente?" oninput="upProg()"></textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Diferenciais</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-difs')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-difs"><strong>Onde você é objetivamente superior à concorrência?</strong><br>Liste pontos concretos e verificáveis. Evite genéricos como "qualidade".</div>
+        <div class="ex-btn" onclick="tog('ex-difs')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-difs">
+          <div class="ex-sec">Clínica / saúde / estética</div>
+          <em>Agendamento online 24h · Sem lista de espera · Parcelamento em 12x · Atendimento de emergência</em>
+          <div class="ex-sec">Moda / loja de roupas</div>
+          <em>Troca grátis em 30 dias · Tamanhos P ao GG · Fotos reais das peças · Entrega expressa</em>
+          <div class="ex-sec">Casa / decoração / cortinas</div>
+          <em>Visita gratuita · Instalação inclusa · Entrega em 5 dias · Garantia de 1 ano · +200 modelos</em>
+          <div class="ex-sec">Curso / serviço digital</div>
+          <em>Aulas ao vivo com replay · Suporte via WhatsApp · Certificado incluso · Garantia de 7 dias</em>
+        </div>
+        <div class="repeat-list" id="list-difs">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="Ex: Atendimento no mesmo dia" oninput="upProg()"/></div>
+          <div class="repeat-item"><span class="rnum">2</span><input class="input" placeholder="Ex: Parcelamento em 12x sem juros" oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-difs',5,'Diferencial adicional...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar diferencial
+        </button>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Como funciona</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-como')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-como"><strong>Descreva o passo a passo do seu processo ou metodologia.</strong><br>Ajuda a criar copies que explicam a jornada do cliente. Ex: "1) Cliente agenda online → 2) Avaliação gratuita → 3) Tratamento personalizado → 4) Acompanhamento pós-atendimento".</div>
+        <div class="ex-btn" onclick="tog('ex-como')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-como">
+          <div class="ex-sec">Clínica / serviço</div>
+          <em>1) Agendamento online → 2) Avaliação gratuita → 3) Plano de tratamento → 4) Acompanhamento</em>
+          <div class="ex-sec">E-commerce / loja</div>
+          <em>1) Cliente escolhe o modelo → 2) Envia a foto → 3) Recebe a arte para aprovar → 4) Produção e entrega em 7 dias</em>
+          <div class="ex-sec">Curso / infoproduto</div>
+          <em>1) Acessa a plataforma → 2) Assiste as aulas no seu ritmo → 3) Pratica com exercícios → 4) Tira dúvidas ao vivo</em>
+        </div>
+        <textarea class="input" id="como_funciona" rows="2" placeholder="Descreva o passo a passo do seu processo ou metodologia..."></textarea>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Features principais</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-features')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-features"><strong>Recursos, módulos, entregáveis ou itens incluídos no produto/serviço.</strong><br>São os componentes concretos que o cliente recebe. Diferente dos diferenciais (que mostram porque você é melhor), as features descrevem o que está incluído.</div>
+        <div class="ex-btn" onclick="tog('ex-features')">▶ ver exemplos</div>
+        <div class="ex-panel" id="ex-features">
+          <div class="ex-sec">Curso / infoproduto</div>
+          <em>8 módulos em vídeo · Apostila em PDF · Grupo VIP no WhatsApp · 4 aulas ao vivo por mês · Certificado de conclusão</em>
+          <div class="ex-sec">Clínica / serviço</div>
+          <em>Consulta inicial gratuita · Raio-X incluso · Plano de tratamento personalizado · Retorno garantido</em>
+          <div class="ex-sec">E-commerce / loja</div>
+          <em>Arte personalizada por foto · Embalagem presenteável · Cartão com mensagem · Frete grátis acima de R$150</em>
+        </div>
+        <div class="repeat-list" id="list-features">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="Ex: 8 módulos em vídeo · Consulta inicial gratuita · Embalagem presenteável..." oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-features',8,'Feature adicional...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar feature
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ETAPA 4 — FINANCEIRO ══════════════ -->
+<div class="page" id="page4">
+  <div class="step-card">
+    <div class="step-card-header">
+      <div class="sc-num" style="background:rgba(245,158,11,.2);color:#FCD34D;font-size:16px;">4</div>
+      <div class="sc-info"><h2>Financeiro e Metas</h2><p>Planejamento mensal, custos e detalhes da oferta</p></div>
+    </div>
+    <div class="step-card-body">
+
+      <!-- ── BLOCO 1: PLANEJAMENTO MENSAL ── -->
+      <div class="fin-block">
+        <div class="fin-block-header">
+          <div class="fin-block-icon" style="background:rgba(79,107,255,.2);color:#818CF8;">📊</div>
+          <div>
+            <div class="fin-block-title">Planejamento Mensal</div>
+            <div class="fin-block-sub">Investimento e metas de receita</div>
+          </div>
+        </div>
+        <div class="fin-block-body">
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Budget mensal em anúncios</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-budget')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-budget"><strong>Quanto você pretende investir em mídia paga por mês.</strong><br>É o valor total que vai entrar como orçamento nas campanhas (Meta Ads, Google Ads etc). Não inclui custos de produção de criativos ou taxas de agência.</div>
+            <div class="money-w" style="max-width:220px"><span class="mpfx">R$</span><input class="input mval" id="budget" placeholder="0,00" oninput="numOnly(this);upProg()" onblur="fmtMoney(this)"/></div>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Meta de receita mensal</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-meta-rec')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-meta-rec"><strong>Quanto você quer faturar por mês com as campanhas.</strong><br>É a receita bruta desejada — o total de vendas geradas pelos anúncios. O sistema usa esse número para calcular o ROAS ideal e definir metas de performance.</div>
+            <div class="money-w" style="max-width:220px"><span class="mpfx">R$</span><input class="input mval" id="meta_rec" placeholder="0,00" oninput="numOnly(this);upProg()" onblur="fmtMoney(this)"/></div>
+          </div>
+
+          <div class="field" style="margin-bottom:0">
+            <div class="field-top"><span class="field-label">Meta de ROAS</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-roas')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-roas"><strong>ROAS = Retorno sobre o investimento em anúncio.</strong><br>Indica quantos reais você quer receber para cada R$1 investido. Ex: ROAS 3 significa que para cada R$1 gasto em anúncio, você quer R$3 de receita.<br><br><strong>Se deixar em branco:</strong> o sistema calcula automaticamente com base no budget e meta de receita acima.</div>
+            <div class="field-hint">Deixe em branco para cálculo automático</div>
+            <input class="input pval" id="meta_roas" style="max-width:120px" placeholder="Ex: 3" oninput="numOnly(this)" onblur="fmtPct(this)"/>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── BLOCO 2: METAS DE PERFORMANCE + CUSTOS ── -->
+      <div class="fin-block">
+        <div class="fin-block-header">
+          <div class="fin-block-icon" style="background:rgba(16,185,129,.2);color:#34D399;">💰</div>
+          <div>
+            <div class="fin-block-title">Metas de Performance e Custos</div>
+            <div class="fin-block-sub">Ticket médio e custos por venda</div>
+          </div>
+        </div>
+        <div class="fin-block-body">
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Ticket médio</span><span class="req">obrigatório</span><span class="info-btn" onclick="tog('info-ticket')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-ticket"><strong>Preço médio de cada venda realizada.</strong><br>Se você vende produtos com preços diferentes, calcule a média. Ex: vende 60% a R$89 e 40% a R$59 → ticket médio ≈ R$77. Esse valor é usado para calcular quantas vendas você precisa gerar para atingir a meta de receita.</div>
+            <div class="money-w" style="max-width:220px"><span class="mpfx">R$</span><input class="input mval" id="ticket" placeholder="0,00" oninput="numOnly(this);upProg()" onblur="fmtMoney(this)"/></div>
+          </div>
+
+          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:12px;padding-top:4px;border-top:1px solid var(--border);padding-top:14px;">Custos por venda — preencha apenas o que se aplica</div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Custo do produto (R$ por venda)</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-custo-prod')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-custo-prod"><strong>Quanto custa produzir ou adquirir o produto para cada venda.</strong><br>Também chamado de COGS. Ex: vende camisa por R$89, custa R$25 produzir → preencha R$25,00.<br>Para serviços: inclua custo de mão de obra, materiais ou hora do profissional por atendimento.</div>
+            <div class="money-w" style="max-width:220px"><span class="mpfx">R$</span><input class="input mval" id="custo_prod" placeholder="0,00" oninput="numOnly(this)" onblur="fmtMoney(this)"/></div>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Impostos (%)</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-impostos')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-impostos"><strong>Percentual do faturamento que vai para impostos.</strong><br>• Simples Nacional: geralmente entre 4% e 19%<br>• MEI: paga DAS fixo mensal<br>• Lucro Presumido: geralmente entre 11% e 15%<br><br>Se não souber, pergunte ao seu contador ou deixe em branco.</div>
+            <div style="display:flex;align-items:center;gap:8px;max-width:160px">
+              <input class="input pval" id="impostos" placeholder="0" oninput="numOnly(this)" onblur="fmtPct(this)"/>
+              <span style="color:var(--muted);font-size:13px;font-weight:600;">%</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Taxa da plataforma (%)</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-taxa-plat')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-taxa-plat"><strong>Percentual cobrado pela plataforma de vendas sobre cada transação.</strong><br>• Hotmart / Eduzz / Monetizze / Hubla: ~9,9%<br>• Shopify Payments: ~2%<br>• Mercado Pago / PagSeguro: ~3,5% a 4,9%<br>• Venda direta pelo WhatsApp: 0%<br><br>Se vende direto sem plataforma, deixe em branco.</div>
+            <div style="display:flex;align-items:center;gap:8px;max-width:160px">
+              <input class="input pval" id="taxa_plat" placeholder="0" oninput="numOnly(this)" onblur="fmtPct(this)"/>
+              <span style="color:var(--muted);font-size:13px;font-weight:600;">%</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Taxa fixa por venda (R$)</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-taxa-fixa')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-taxa-fixa"><strong>Valor fixo cobrado por transação, independente do valor da venda.</strong><br>• Gateway de pagamento (Stripe, PagSeguro): R$0,30 a R$2,00<br>• Sistema antifraude: R$0,50 a R$1,50<br>• Taxa de boleto: R$2,00 a R$3,50<br><br>Se não paga taxa fixa, deixe em branco.</div>
+            <div class="money-w" style="max-width:220px"><span class="mpfx">R$</span><input class="input mval" id="taxa_fixa" placeholder="0,00" oninput="numOnly(this)" onblur="fmtMoney(this)"/></div>
+          </div>
+
+          <div class="field" style="margin-bottom:0">
+            <div class="field-top"><span class="field-label">Outros custos por venda</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-outros')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-outros"><strong>Outros custos variáveis que ocorrem a cada venda.</strong><br>Ex: frete e embalagem (se não cobrado do cliente), comissão de afiliado ou vendedor, brindes incluídos na entrega, custo de suporte por cliente.<br>Coloque o valor médio por venda.</div>
+            <input class="input" id="outros" placeholder="Ex: frete, embalagem, comissão de afiliado..."/>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── BLOCO 3: DETALHES DA OFERTA ── -->
+      <div class="fin-block" style="margin-bottom:0">
+        <div class="fin-block-header">
+          <div class="fin-block-icon" style="background:rgba(124,58,237,.2);color:#A78BFA;">🏷️</div>
+          <div>
+            <div class="fin-block-title">Detalhes da Oferta</div>
+            <div class="fin-block-sub">Opcional — informações que aparecem nos criativos</div>
+          </div>
+        </div>
+        <div class="fin-block-body">
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Preço (texto livre)</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-preco')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-preco"><strong>Como o preço aparece nos anúncios.</strong><br>Escreva exatamente como quer que apareça nos criativos. Ex: "R$ 89,90 à vista" ou "A partir de R$ 59,90".</div>
+            <input class="input" id="preco" placeholder="Ex: R$ 89,90 à vista"/>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Preço parcelado</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-preco-parc')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-preco-parc"><strong>Opção de parcelamento que você oferece ao cliente.</strong><br>Se aceita cartão parcelado, descreva as condições. Ex: "3x de R$ 29,90 sem juros" ou "12x de R$ 9,90". Deixe em branco se não oferece parcelamento.</div>
+            <input class="input" id="preco_parc" placeholder="Ex: 3x de R$ 29,90 sem juros"/>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Preço riscado</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-preco-risc')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-preco-risc"><strong>Preço original antes do desconto — o "de/por".</strong><br>Usado para criar percepção de valor nos criativos. Ex: "De R$ 149,90 por R$ 89,90".<br>Só use se o desconto for real — isso é exigência do CONAR.</div>
+            <input class="input" id="preco_risc" placeholder="Ex: De R$ 149,90 por R$ 89,90"/>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Garantia</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-garantia')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-garantia"><strong>Política de garantia ou satisfação que você oferece.</strong><br>Uma boa garantia reduz o risco percebido e aumenta a conversão. Ex: "7 dias com reembolso total" ou "Garantia de resultado em 30 dias ou refaz gratuitamente".</div>
+            <input class="input" id="garantia" placeholder="Ex: 7 dias com reembolso total sem perguntas"/>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Urgência real</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-urgencia')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-urgencia"><strong>Fator de escassez ou prazo verdadeiro da sua oferta.</strong><br>Use só se for real — urgência falsa prejudica a confiança da marca. Ex: "Agenda limitada a 20 atendimentos por semana" ou "Promoção válida até domingo" ou "Apenas 50 vagas na turma".</div>
+            <input class="input" id="urgencia" placeholder="Ex: Agenda limitada a 20 atendimentos por semana"/>
+          </div>
+
+          <div class="field" style="margin-bottom:0">
+            <div class="field-top"><span class="field-label">Bônus incluídos</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-bonus')">ⓘ o que é isso?</span></div>
+            <div class="info-panel" id="info-bonus"><strong>Itens extras que o cliente recebe junto com a compra.</strong><br>Bônus aumentam o valor percebido sem aumentar o preço. Seja específico — bônus vagos não convencem. Ex: "Embalagem presenteável grátis (valor R$15)" ou "1 mês de suporte via WhatsApp incluso".</div>
+            <input class="input" id="bonus" placeholder="Ex: embalagem presenteável grátis, ebook exclusivo, 1 mês de suporte..."/>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SUCCESS ══════════════ -->
+<div class="success-page" id="pageSuccess">
+  <div class="s-icon">🎉</div>
+  <div class="s-title">Briefing enviado!</div>
+  <div class="s-sub">Seu briefing foi registrado com sucesso. Seu gestor de tráfego já recebeu as informações.</div>
+  <div class="result-box" id="resultBox"></div>
+  <button class="btn-new" onclick="location.reload()">↺ Preencher novo briefing</button>
+</div>
+
+<!-- ── FOOTER NAV ── -->
+<div class="footer-nav" id="footerNav">
+  <div class="footer-inner">
+    <button class="btn-back" id="btnBack" onclick="goBack()">← Voltar</button>
+    <button class="btn-next" id="btnNext" onclick="goNext()">
+      <span id="btnNextTxt">Próxima etapa</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12l4-4-4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+let cur = 0; // 0=intro, 1-4=etapas, 5=success
+const TOTAL = 4;
+const firebaseConfig={
+  apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",
+  authDomain:"dualize-projeto.firebaseapp.com",
+  projectId:"dualize-projeto",
+  storageBucket:"dualize-projeto.firebasestorage.app",
+  messagingSenderId:"1098441288739",
+  appId:"1:1098441288739:web:8e210b6d329ee779bc1596"
+};
+const clienteParam=new URLSearchParams(window.location.search).get('cliente')||'Não identificado';
+let briefingDb=null;
+try{
+  if(window.firebase){
+    if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+    briefingDb=firebase.firestore();
+  }
+}catch(err){console.warn('Firebase indisponível no formulário.',err)}
+function gerarIdUnico(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+
+// ── NAVIGATE ──────────────────────────────────────────
+function goStep(n){
+  // Validar antes de avançar
+  if(n > cur && cur > 0){
+    const err = validate(cur);
+    if(err){ alert('Preencha os campos obrigatórios:\n\n• '+err.join('\n• ')); return; }
+  }
+  // Esconder tudo
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pageSuccess').classList.remove('active');
+  if(n === 0){
+    document.getElementById('page0').classList.add('active');
+  } else {
+    document.getElementById('page'+n).classList.add('active');
+    window.scrollTo(0,0);
+  }
+  cur = n;
+  updateUI();
+}
+
+function goNext(){
+  if(cur === 0){ goStep(1); return; }
+  if(cur >= TOTAL){ submitForm(); return; }
+  goStep(cur+1);
+}
+function goBack(){
+  if(cur <= 1){ goStep(0); return; }
+  goStep(cur-1);
+}
+
+function updateUI(){
+  // Step dots
+  for(let i=1;i<=TOTAL;i++){
+    const d=document.getElementById('sd'+i);
+    d.classList.remove('active','done');
+    if(i<cur) d.classList.add('done');
+    else if(i===cur) d.classList.add('active');
+    if(i<cur) d.textContent='✓'; else d.textContent=i;
+    if(i<TOTAL){
+      const l=document.getElementById('sl'+i);
+      l.classList.toggle('done', i<cur);
+    }
+  }
+  // Label
+  const labels=['','Etapa 1 de 4 — Negócio','Etapa 2 de 4 — Cliente','Etapa 3 de 4 — Produto','Etapa 4 de 4 — Financeiro'];
+  document.getElementById('stepLabel').innerHTML = cur>0 ? `<b>${labels[cur]}</b>` : 'Início';
+  // Buttons
+  const footer=document.getElementById('footerNav');
+  const btnBack=document.getElementById('btnBack');
+  const btnNext=document.getElementById('btnNext');
+  const btnTxt=document.getElementById('btnNextTxt');
+  if(cur===0){footer.style.display='none';}
+  else{
+    footer.style.display='block';
+    btnBack.style.visibility = cur>0 ? 'visible' : 'hidden';
+    btnTxt.textContent = cur>=TOTAL ? 'Enviar briefing' : 'Próxima etapa';
+  }
+  // Oculta steps e footer no success
+  if(document.getElementById('pageSuccess').classList.contains('active')){
+    footer.style.display='none';
+    document.getElementById('stepsRow').style.display='none';
+  }
+  upProg();
+}
+
+// ── PROGRESS ──────────────────────────────────────────
+function gv(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function cs(g){return!!document.querySelector(`.chips[data-group="${g}"] .chip.active`);}
+function rs(g){return!!document.querySelector(`.radio-cards[data-group="${g}"] .radio-card.active`);}
+function lv(id){return[...document.querySelectorAll(`#${id} input`)].some(i=>i.value.trim());}
+
+const checks = [
+  ()=>!!gv('nome_produto'), ()=>cs('tipo'), ()=>!!gv('nicho'), ()=>cs('idioma'), ()=>cs('pais'),
+  ()=>!!gv('avatar_desc'), ()=>cs('genero'), ()=>rs('consciencia'),
+  ()=>lv('list-dores'), ()=>lv('list-desejos'),
+  ()=>!!gv('oque_e'), ()=>!!gv('mecanismo'), ()=>lv('list-difs'),
+  ()=>!!gv('budget'), ()=>!!gv('meta_rec'), ()=>!!gv('ticket'),
+];
+
+function upProg(){
+  const done=checks.filter(c=>c()).length;
+  const pct=Math.round(done/checks.length*100);
+  document.getElementById('progFill').style.width=pct+'%';
+}
+
+// ── VALIDATE ──────────────────────────────────────────
+function validate(step){
+  const rules = {
+    1:[{v:()=>!!gv('nome_produto'),m:'Nome do produto'},{v:()=>cs('tipo'),m:'Tipo de negócio'},{v:()=>!!gv('nicho'),m:'Nicho'},{v:()=>cs('idioma'),m:'Idioma dos anúncios'},{v:()=>cs('pais'),m:'País alvo'}],
+    2:[{v:()=>!!gv('avatar_desc'),m:'Descrição do cliente'},{v:()=>cs('genero'),m:'Gênero'},{v:()=>rs('consciencia'),m:'Nível de consciência'},{v:()=>lv('list-dores'),m:'Pelo menos uma dor'},{v:()=>lv('list-desejos'),m:'Pelo menos um desejo'}],
+    3:[{v:()=>!!gv('oque_e'),m:'O que você vende'},{v:()=>!!gv('mecanismo'),m:'Por que é diferente'},{v:()=>lv('list-difs'),m:'Pelo menos um diferencial'}],
+    4:[{v:()=>!!gv('budget'),m:'Budget mensal'},{v:()=>!!gv('ticket'),m:'Ticket médio'}],
+  };
+  const fails=(rules[step]||[]).filter(r=>!r.v()).map(r=>r.m);
+  return fails.length?fails:null;
+}
+
+// ── CHIPS & RADIO ──────────────────────────────────────
+document.querySelectorAll('.chips').forEach(g=>{
+  const multi=g.dataset.multi!=='false';
+  g.querySelectorAll('.chip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      if(!multi)g.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+      c.classList.toggle('active');upProg();
+    });
+  });
+});
+document.querySelectorAll('.radio-cards').forEach(g=>{
+  g.querySelectorAll('.radio-card').forEach(c=>{
+    c.addEventListener('click',()=>{
+      g.querySelectorAll('.radio-card').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');upProg();
+    });
+  });
+});
+
+// ── TOGGLES ───────────────────────────────────────────
+function tog(id){document.getElementById(id).classList.toggle('open');}
+
+// ── ADD REPEAT ────────────────────────────────────────
+function addR(id,max,ph){
+  const l=document.getElementById(id);
+  if(l.children.length>=max)return;
+  const n=l.children.length+1;
+  const d=document.createElement('div');d.className='repeat-item';
+  d.innerHTML=`<span class="rnum">${n}</span><input class="input" placeholder="${ph}" oninput="upProg()"/>`;
+  l.appendChild(d);
+}
+
+// ── SUBMIT ────────────────────────────────────────────
+function gl(id){return[...document.querySelectorAll(`#${id} input`)].map(i=>i.value.trim()).filter(Boolean);}
+function gc(g){return[...document.querySelectorAll(`.chips[data-group="${g}"] .chip.active`)].map(c=>c.dataset.val).join(', ');}
+function gr(g){const e=document.querySelector(`.radio-cards[data-group="${g}"] .radio-card.active`);return e?e.dataset.val:'';}
+
+async function submitForm(){
+  const err=validate(4);if(err){alert('Preencha:\n\n• '+err.join('\n• '));return;}
+  const btnNext=document.getElementById('btnNext'),btnTxt=document.getElementById('btnNextTxt'),oldTxt=btnTxt.textContent;
+  btnNext.disabled=true;btnTxt.textContent='Enviando...';
+  const data={
+    '1. IDENTIFICAÇÃO':{'Produto':gv('nome_produto'),'Tipo':gc('tipo'),'Nicho':gv('nicho'),'Idioma':gc('idioma'),'País alvo':gc('pais'),'Link':gv('link_lp')||'—','Texto LP':gv('texto_lp')||'—'},
+    '2. CLIENTE IDEAL':{'Descrição':gv('avatar_desc'),'Profissão típica':gv('profissao')||'—','Idade':document.getElementById('sv_min').textContent+' a '+document.getElementById('sv_max').textContent+' anos','Gênero':gc('genero'),'Consciência':gr('consciencia'),'Dores':gl('list-dores').join(' | '),'Desejos':gl('list-desejos').join(' | '),'Provas':gl('list-provas').join(' | ')||'—'},
+    '3. PRODUTO':{'O que vende':gv('oque_e'),'Diferencial único':gv('mecanismo'),'Diferenciais':gl('list-difs').join(' | '),'Como funciona':gv('como_funciona')||'—','Features':gl('list-features').join(' | ')||'—'},
+    '4. FINANCEIRO — Planejamento':{'Budget mensal':'R$ '+gv('budget'),'Meta receita':'R$ '+gv('meta_rec'),'Meta ROAS':gv('meta_roas')||'Auto','Ticket médio':'R$ '+gv('ticket')},
+    '4. FINANCEIRO — Custos por venda':{'Custo produto':gv('custo_prod')?'R$ '+gv('custo_prod'):'—','Impostos':gv('impostos')?gv('impostos')+'%':'—','Taxa plataforma':gv('taxa_plat')?gv('taxa_plat')+'%':'—','Taxa fixa':gv('taxa_fixa')?'R$ '+gv('taxa_fixa'):'—','Outros custos':gv('outros')||'—'},
+    '4. FINANCEIRO — Oferta':{'Preço':gv('preco')||'—','Parcelado':gv('preco_parc')||'—','Preço riscado':gv('preco_risc')||'—','Garantia':gv('garantia')||'—','Urgência':gv('urgencia')||'—','Bônus':gv('bonus')||'—'},
+  };
+  const briefing={
+    timestamp:new Date().toISOString(),
+    cliente_nome:clienteParam,
+    cliente_id:gerarIdUnico(),
+    status:'novo',
+    resumo:data,
+    dados:{
+      identificacao:{produto:gv('nome_produto'),tipo:gc('tipo'),nicho:gv('nicho'),idioma:gc('idioma'),pais:gc('pais'),link:gv('link_lp')||null,texto_lp:gv('texto_lp')||null},
+      avatar:{descricao:gv('avatar_desc'),profissao:gv('profissao')||null,idade_min:document.getElementById('sv_min').textContent,idade_max:document.getElementById('sv_max').textContent,genero:gc('genero'),consciencia:gr('consciencia'),dores:gl('list-dores'),desejos:gl('list-desejos'),provas:gl('list-provas')},
+      produto:{oque_e:gv('oque_e'),mecanismo:gv('mecanismo'),diferenciais:gl('list-difs'),como_funciona:gv('como_funciona')||null,features:gl('list-features')},
+      financeiro:{budget:gv('budget'),meta_receita:gv('meta_rec'),meta_roas:gv('meta_roas')||'auto',ticket:gv('ticket'),custo_produto:gv('custo_prod')||null,impostos:gv('impostos')||null,taxa_plataforma:gv('taxa_plat')||null,taxa_fixa:gv('taxa_fixa')||null,outros_custos:gv('outros')||null,preco:gv('preco')||null,preco_parcelado:gv('preco_parc')||null,preco_riscado:gv('preco_risc')||null,garantia:gv('garantia')||null,urgencia:gv('urgencia')||null,bonus:gv('bonus')||null}
+    }
+  };
+  try{
+    if(!briefingDb)throw new Error('Firebase não inicializado.');
+    await briefingDb.collection('briefings').add(briefing);
+  }catch(e){
+    console.warn(e);
+    btnNext.disabled=false;btnTxt.textContent=oldTxt;
+    alert('Não foi possível enviar agora. Verifique sua internet e tente novamente. Seus dados continuam preenchidos.');
+    return;
+  }
+  let html='';window._txt='';
+  for(const[s,f]of Object.entries(data)){
+    html+=`<div class="rsec">${s}</div>`;window._txt+=`\n${s}\n`;
+    for(const[k,v]of Object.entries(f)){html+=`<div class="ritem"><div class="rkey">${k}</div><div class="rval">${v}</div></div>`;window._txt+=`${k}: ${v}\n`;}
+  }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('footerNav').style.display='none';
+  document.getElementById('stepsRow').style.display='none';
+  document.getElementById('progFill').style.width='100%';
+  document.getElementById('resultBox').innerHTML=html;
+  document.getElementById('pageSuccess').classList.add('active');
+  window.scrollTo(0,0);
+}
+function copyResult(){navigator.clipboard.writeText(window._txt).then(()=>alert('Briefing copiado! Cole no WhatsApp ou e-mail.'));}
+
+// ── FORMATAÇÃO MOEDA / % ──────────────────────────────
+// Bloqueia letras em tempo real e formata ao sair do campo
+
+function numOnly(el){
+  // Remove tudo que não for dígito, vírgula ou ponto
+  let v = el.value.replace(/[^\d,\.]/g,'');
+  // Garante no máximo uma vírgula/ponto
+  let parts = v.split(/[,\.]/);
+  if(parts.length > 2) v = parts[0] + ',' + parts.slice(1).join('');
+  el.value = v;
+}
+
+function fmtMoney(el){
+  let v = el.value.replace(/[^\d,\.]/g,'').replace(',','.');
+  let n = parseFloat(v);
+  if(!isNaN(n) && el.value.trim() !== '') {
+    el.value = n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  } else {
+    el.value = '';
+  }
+}
+
+function fmtPct(el){
+  let v = el.value.replace(/[^\d,\.]/g,'').replace(',','.');
+  let n = parseFloat(v);
+  if(!isNaN(n) && el.value.trim() !== '') {
+    el.value = n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:2});
+  } else {
+    el.value = '';
+  }
+}
+
+// INIT
+updateUI();
+document.querySelectorAll('input,textarea').forEach(e=>e.addEventListener('input',upProg));
+</script>
+</body>
+</html>
