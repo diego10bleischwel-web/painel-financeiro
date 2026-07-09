@@ -418,6 +418,69 @@ button,a{font:inherit}
 .briefing-status.analise{background:rgba(242,188,102,.16);color:#f2c777}
 .briefing-status.configurado{background:rgba(184,201,228,.14);color:#dbe7f7}
 .briefing-detail{padding:18px;overflow:auto}
+.briefing-detail{
+  display:grid;
+  align-content:start;
+  gap:14px;
+}
+.briefing-preview-card{
+  border:1px solid rgba(130,188,255,.24);
+  border-radius:20px;
+  padding:18px;
+  background:
+    radial-gradient(circle at 0 0,rgba(130,188,255,.18),transparent 22rem),
+    linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+  display:grid;
+  gap:14px;
+}
+.briefing-preview-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.briefing-preview-head h3{font-size:24px}
+.briefing-preview-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.briefing-mini{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  padding:12px;
+  background:rgba(3,8,15,.38);
+}
+.briefing-mini span{
+  display:block;
+  color:#91a1ba;
+  font-size:11px;
+  font-weight:1000;
+  text-transform:uppercase;
+}
+.briefing-mini b{
+  display:block;
+  margin-top:6px;
+  color:#fff;
+  font-size:15px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.briefing-open{
+  width:max-content;
+  border:0;
+  border-radius:999px;
+  padding:11px 16px;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  color:#06111b;
+  font-weight:1000;
+  cursor:pointer;
+}
+.briefing-hint{
+  color:#9fb0c9;
+  font-size:12px;
+  font-weight:850;
+}
 .briefing-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .briefing-actions button{
   border:1px solid rgba(255,255,255,.12);
@@ -428,6 +491,11 @@ button,a{font:inherit}
   font-weight:950;
   cursor:pointer;
 }
+.briefing-actions button.active{
+  border-color:rgba(112,214,162,.65);
+  background:linear-gradient(135deg,rgba(112,214,162,.23),rgba(130,188,255,.14));
+  color:#d9fff0;
+}
 .briefing-sections{display:grid;gap:12px}
 .briefing-section{border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:14px;background:rgba(255,255,255,.045)}
 .briefing-section h4{margin:0 0 10px;color:#8dccff}
@@ -436,6 +504,105 @@ button,a{font:inherit}
 .briefing-row span{color:#9aa8bd;font-weight:900}
 .briefing-row b{font-weight:850;color:#f7fbff;white-space:pre-wrap}
 .briefing-empty{padding:24px;color:var(--muted);font-weight:900;text-align:center}
+.briefing-modal{
+  position:fixed;
+  inset:0;
+  z-index:50;
+  display:none;
+  place-items:center;
+  padding:22px;
+  background:rgba(2,6,12,.72);
+  backdrop-filter:blur(10px);
+}
+.briefing-modal.active{display:grid}
+.briefing-modal-box{
+  width:min(1180px,96vw);
+  max-height:90vh;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  border:1px solid transparent;
+  border-radius:28px;
+  overflow:hidden;
+  background:
+    linear-gradient(#101827,#101827) padding-box,
+    linear-gradient(135deg,var(--purple),var(--blue),var(--green)) border-box;
+  box-shadow:0 30px 120px rgba(0,0,0,.72),0 0 48px rgba(130,188,255,.18);
+}
+.briefing-modal-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  padding:20px 22px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(135deg,rgba(130,188,255,.12),rgba(112,214,162,.05));
+}
+.briefing-modal-title{display:grid;gap:8px}
+.briefing-modal-title h2{margin:0;color:#fff;font-size:26px}
+.briefing-modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.briefing-modal-actions button,.briefing-close{
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  padding:9px 12px;
+  background:rgba(255,255,255,.07);
+  color:var(--text);
+  font-weight:1000;
+  cursor:pointer;
+}
+.briefing-modal-actions button.active{
+  border-color:rgba(112,214,162,.65);
+  background:linear-gradient(135deg,rgba(112,214,162,.24),rgba(130,188,255,.16));
+  color:#d9fff0;
+}
+.briefing-close{
+  width:42px;
+  height:42px;
+  padding:0;
+  font-size:22px;
+}
+.briefing-modal-body{
+  overflow:auto;
+  padding:20px 22px 26px;
+}
+.briefing-modal-sections{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.briefing-modal-section{
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:20px;
+  background:rgba(255,255,255,.045);
+  padding:16px;
+  box-shadow:0 18px 50px rgba(0,0,0,.18);
+}
+.briefing-modal-section h4{
+  margin:0 0 12px;
+  color:#8dccff;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+.briefing-modal-row{
+  display:grid;
+  grid-template-columns:160px 1fr;
+  gap:12px;
+  padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.briefing-modal-row:last-child{border-bottom:0}
+.briefing-modal-row span{
+  color:#8c9db6;
+  font-size:12px;
+  font-weight:1000;
+  text-transform:uppercase;
+}
+.briefing-modal-row b{
+  color:#f7fbff;
+  font-weight:850;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
 .badge-count{
   display:inline-grid;
   place-items:center;
@@ -507,6 +674,7 @@ iframe{
 @media(max-width:1050px){
   .module-grid,.summary,.kpis{grid-template-columns:1fr}
   .briefing-board{grid-template-columns:1fr}
+  .briefing-preview-grid,.briefing-modal-sections{grid-template-columns:1fr 1fr}
   .app{padding:18px}
   .top{flex-direction:column}
   .statusbar{justify-content:flex-start}
@@ -599,6 +767,12 @@ iframe{
     justify-content:center;
   }
   #openExternal{grid-column:1/3}
+  .briefing-board{padding:10px}
+  .briefing-preview-grid,.briefing-modal-sections{grid-template-columns:1fr}
+  .briefing-preview-head,.briefing-modal-head{align-items:stretch;flex-direction:column}
+  .briefing-modal{padding:0}
+  .briefing-modal-box{width:100vw;max-height:100svh;border-radius:0}
+  .briefing-modal-row{grid-template-columns:1fr}
 }
 @media(max-width:430px){
   .app{padding:10px 10px 24px}
@@ -713,6 +887,22 @@ iframe{
   </div>
 </section>
 
+<div class="briefing-modal" id="briefingModal" aria-hidden="true">
+  <div class="briefing-modal-box" role="dialog" aria-modal="true" aria-labelledby="briefingModalTitle">
+    <div class="briefing-modal-head">
+      <div class="briefing-modal-title">
+        <h2 id="briefingModalTitle">Briefing</h2>
+        <div class="briefing-meta" id="briefingModalMeta"></div>
+        <div class="briefing-modal-actions" id="briefingModalActions"></div>
+      </div>
+      <button class="briefing-close" id="briefingModalClose" type="button" aria-label="Fechar">×</button>
+    </div>
+    <div class="briefing-modal-body">
+      <div class="briefing-modal-sections" id="briefingModalSections"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const firebaseConfig={
   apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",
@@ -729,7 +919,7 @@ const modules=[
 ];
 modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Briefings',desc:'Recebimento em tempo real dos formularios enviados pelos clientes.',url:'briefing_cliente_v4.html',status:'Novos clientes',metric:'Entrada comercial'});
 const $=s=>document.querySelector(s);
-let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='';
+let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='';
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function moduleIcon(type){
@@ -806,11 +996,19 @@ function setupEvents(){
     if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId)}
     const status=e.target.closest('[data-briefing-status]');
     if(status) updateBriefingStatus(status.dataset.briefingStatus);
+    const openBriefing=e.target.closest('[data-briefing-open]');
+    if(openBriefing) openBriefingModal(openBriefing.dataset.briefingOpen||selectedBriefingId);
+    if(e.target.closest('#briefingModalClose')||e.target.id==='briefingModal')closeBriefingModal();
     if(e.target.closest('#copyBriefingLink')) copyBriefingLink();
+  });
+  document.body.addEventListener('dblclick',e=>{
+    const briefing=e.target.closest('[data-briefing-id]');
+    if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId);openBriefingModal(selectedBriefingId)}
   });
   document.body.addEventListener('input',e=>{
     if(e.target.id==='briefingClientName')updateBriefingLink();
   });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBriefingModal()});
   $('#closeWorkspace').onclick=()=>$('#workspace').classList.remove('active');
   $('#reloadFrame').onclick=()=>{
     const frame=$('#moduleFrame');
@@ -823,6 +1021,35 @@ function statusClass(status){return String(status||'novo').includes('config')?'c
 function statusLabel(status){const s=String(status||'novo');return s==='novo'?'NOVO':s.toUpperCase()}
 function briefingDate(v){return v?new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sem data'}
 function briefingValue(v){if(Array.isArray(v))return v.length?v.join(', '):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
+const briefingSectionOrder=[
+  {key:'identificacao',title:'1. Identificacao',fields:[['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP']]},
+  {key:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
+  {key:'produto',title:'3. Produto',fields:[['oque_e','O que vende'],['mecanismo','Diferencial unico'],['diferenciais','Diferenciais'],['como_funciona','Como funciona'],['features','Features']]},
+  {key:'financeiro',title:'4. Financeiro',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS'],['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos'],['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]}
+];
+function briefingSections(b){
+  const dados=b?.dados||{};
+  const ordered=briefingSectionOrder.map(section=>({
+    ...section,
+    values:section.fields.map(([key,label])=>({key,label,value:briefingValue(dados[section.key]?.[key])}))
+  }));
+  const known=new Set(briefingSectionOrder.map(s=>s.key));
+  Object.entries(dados).forEach(([key,obj])=>{
+    if(known.has(key))return;
+    ordered.push({key,title:key,values:Object.entries(obj||{}).map(([field,value])=>({key:field,label:field,value:briefingValue(value)}))});
+  });
+  return ordered;
+}
+function briefingSummary(b){
+  const d=b?.dados||{},fin=d.financeiro||{},id=d.identificacao||{},avatar=d.avatar||{};
+  return {
+    produto:id.produto||b?.cliente_nome||'Briefing',
+    nicho:id.nicho||'--',
+    budget:fin.budget||'--',
+    ticket:fin.ticket||'--',
+    publico:avatar.genero||'--'
+  };
+}
 function normalizeFallbackBriefings(list){
   return (Array.isArray(list)?list:[]).map((b,i)=>({
     id:b.firestore_id||b.fallback_id||b.cliente_id||`fallback-${i}`,
@@ -864,12 +1091,79 @@ function renderBriefingDetail(id){
   const b=briefings.find(x=>x.id===id)||briefings[0];
   if(!b){el.innerHTML='<div class="briefing-empty">Selecione um briefing para ver os detalhes.</div>';return}
   selectedBriefingId=b.id;
-  const sections=b.dados||{};
-  el.innerHTML=`<h3>${esc(b.cliente_nome||'Briefing')}</h3><div class="briefing-meta">Recebido em ${esc(briefingDate(b.timestamp))} | ID ${esc(b.cliente_id||b.id)}</div><div class="briefing-actions"><button data-briefing-status="novo" type="button">NOVO</button><button data-briefing-status="em analise" type="button">EM ANALISE</button><button data-briefing-status="configurado" type="button">CONFIGURADO</button></div><div class="briefing-sections">${Object.entries(sections).map(([name,obj])=>`<section class="briefing-section"><h4>${esc(name)}</h4>${Object.entries(obj||{}).map(([k,v])=>`<div class="briefing-row"><span>${esc(k)}</span><b>${esc(briefingValue(v))}</b></div>`).join('')}</section>`).join('')}</div>`;
+  const s=briefingSummary(b);
+  el.innerHTML=`<div class="briefing-preview-card">
+    <div class="briefing-preview-head">
+      <div>
+        <span class="briefing-status ${statusClass(b.status)}">${statusLabel(b.status)}</span>
+        <h3>${esc(b.cliente_nome||'Nao identificado')}</h3>
+        <div class="briefing-meta">Recebido em ${esc(briefingDate(b.timestamp))} | ID ${esc(b.cliente_id||b.id)}</div>
+      </div>
+      <button class="briefing-open" data-briefing-open="${esc(b.id)}" type="button">Abrir briefing</button>
+    </div>
+    <div class="briefing-preview-grid">
+      <div class="briefing-mini"><span>Produto</span><b>${esc(s.produto)}</b></div>
+      <div class="briefing-mini"><span>Nicho</span><b>${esc(s.nicho)}</b></div>
+      <div class="briefing-mini"><span>Budget</span><b>${esc(s.budget)}</b></div>
+      <div class="briefing-mini"><span>Ticket</span><b>${esc(s.ticket)}</b></div>
+    </div>
+    <div class="briefing-actions">
+      <button class="${String(b.status||'novo')==='novo'?'active':''}" data-briefing-status="novo" type="button">Novo</button>
+      <button class="${String(b.status||'').includes('anal')?'active':''}" data-briefing-status="em analise" type="button">Em analise</button>
+      <button class="${String(b.status||'').includes('config')?'active':''}" data-briefing-status="configurado" type="button">Configurado</button>
+    </div>
+    <div class="briefing-hint">Clique duas vezes no card da lista ou use o botao acima para visualizar todos os dados preenchidos.</div>
+  </div>`;
+}
+function renderBriefingModal(id){
+  const b=briefings.find(x=>String(x.id)===String(id));
+  if(!b)return;
+  activeBriefingModalId=b.id;
+  $('#briefingModalTitle').textContent=b.cliente_nome||'Nao identificado';
+  $('#briefingModalMeta').textContent=`Recebido em ${briefingDate(b.timestamp)} | ID ${b.cliente_id||b.id}`;
+  const statuses=[['novo','Novo'],['em analise','Em analise'],['configurado','Configurado']];
+  $('#briefingModalActions').innerHTML=statuses.map(([value,label])=>{
+    const active=value==='novo'?String(b.status||'novo')==='novo':String(b.status||'').includes(value.split(' ')[0]);
+    return `<button class="${active?'active':''}" data-briefing-status="${esc(value)}" type="button">${esc(label)}</button>`;
+  }).join('');
+  $('#briefingModalSections').innerHTML=briefingSections(b).map(section=>`<section class="briefing-modal-section">
+    <h4>${esc(section.title)}</h4>
+    ${section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><b>${esc(row.value)}</b></div>`).join('')}
+  </section>`).join('');
+}
+function openBriefingModal(id){
+  const targetId=id||selectedBriefingId;
+  const b=briefings.find(x=>String(x.id)===String(targetId));
+  if(!b)return;
+  selectedBriefingId=b.id;
+  renderBriefingList();
+  renderBriefingDetail(selectedBriefingId);
+  renderBriefingModal(selectedBriefingId);
+  const modal=$('#briefingModal');
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden','false');
+}
+function closeBriefingModal(){
+  const modal=$('#briefingModal');
+  if(!modal)return;
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden','true');
+  activeBriefingModalId='';
+}
+function applyLocalBriefingStatus(id,status){
+  const stamp=new Date().toISOString();
+  const update=item=>String(item.id)===String(id)?{...item,status,updatedAt:stamp}:item;
+  briefingsCollection=briefingsCollection.map(update);
+  briefingsFallback=briefingsFallback.map(update);
+  briefings=briefings.map(update);
+  renderBriefingList();
+  renderBriefingDetail(selectedBriefingId);
+  if(activeBriefingModalId)renderBriefingModal(activeBriefingModalId);
 }
 function updateBriefingStatus(status){
   if(!db||!selectedBriefingId)return;
   const selected=briefings.find(x=>String(x.id)===String(selectedBriefingId));
+  applyLocalBriefingStatus(selectedBriefingId,status);
   if(selected?._fallback){
     const updated=briefingsFallback.map(item=>{
       const {id,_fallback,...clean}=String(item.id)===String(selectedBriefingId)
