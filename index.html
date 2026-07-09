@@ -1071,7 +1071,7 @@ function normalizeFallbackBriefings(list){
 }
 function refreshBriefings(){
   const map=new Map();
-  [...briefingsFallback,...briefingsCollection].forEach(b=>map.set(String(b.id),b));
+  [...briefingsFallback,...briefingsCollection].filter(b=>!b.deletedAt&&!b.deleted).forEach(b=>map.set(String(b.id),b));
   briefings=[...map.values()].sort((a,b)=>String(b.timestamp||'').localeCompare(String(a.timestamp||'')));
   if(selectedBriefingId&&!briefings.some(b=>String(b.id)===String(selectedBriefingId)))selectedBriefingId='';
   if(!selectedBriefingId&&briefings[0])selectedBriefingId=briefings[0].id;
@@ -1217,7 +1217,17 @@ function deleteBriefingById(id){
     },{merge:true}).catch(err=>alert('Nao foi possivel excluir o briefing: '+err.message));
     return;
   }
-  db.collection('briefings').doc(id).delete().catch(err=>alert('Nao foi possivel excluir o briefing: '+err.message));
+  db.collection('briefings').doc(id).delete().catch(err=>{
+    if(err?.code==='permission-denied'){
+      db.collection('briefings').doc(id).update({
+        deleted:true,
+        deletedAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString()
+      }).catch(updateErr=>alert('Nao foi possivel excluir o briefing: '+updateErr.message));
+      return;
+    }
+    alert('Nao foi possivel excluir o briefing: '+err.message);
+  });
 }
 function setupFirebaseSummary(){
   try{
