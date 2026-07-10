@@ -633,14 +633,14 @@ button,a{font:inherit}
 }
 .briefing-modal-sections{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:1fr;
   gap:14px;
 }
 .briefing-modal-section{
   border:1px solid rgba(255,255,255,.11);
   border-radius:20px;
   background:rgba(255,255,255,.045);
-  padding:16px;
+  padding:18px;
   box-shadow:0 18px 50px rgba(0,0,0,.18);
 }
 .briefing-modal-section.financeiro{background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(255,255,255,.035));border-color:rgba(245,158,11,.22)}
@@ -675,9 +675,9 @@ button,a{font:inherit}
 .briefing-modal-section.produto h4::before{background:linear-gradient(135deg,#10b981,#70d6a2)}
 .briefing-modal-row{
   display:grid;
-  grid-template-columns:150px 1fr;
-  gap:12px;
-  padding:9px 0;
+  grid-template-columns:minmax(150px,210px) minmax(0,1fr);
+  gap:18px;
+  padding:12px 0;
   border-bottom:1px solid rgba(255,255,255,.07);
 }
 .briefing-modal-row:last-child{border-bottom:0}
@@ -765,7 +765,7 @@ iframe{
 @media(max-width:1050px){
   .module-grid,.summary,.kpis{grid-template-columns:1fr}
   .briefing-board{grid-template-columns:1fr}
-  .briefing-preview-grid,.briefing-modal-sections{grid-template-columns:1fr 1fr}
+  .briefing-preview-grid{grid-template-columns:1fr 1fr}
   .briefing-modal-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .app{padding:18px}
   .top{flex-direction:column}
@@ -1126,9 +1126,9 @@ const briefingSectionOrder=[
   {key:'identificacao',tone:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP']]},
   {key:'avatar',tone:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
   {key:'produto',tone:'produto',title:'3. Produto',fields:[['oque_e','O que vende'],['mecanismo','Diferencial unico'],['diferenciais','Diferenciais'],['como_funciona','Como funciona'],['features','Features']]},
-  {key:'financeiro-planejamento',source:'financeiro',tone:'financeiro',title:'4. Financeiro - Planejamento',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS']]},
-  {key:'financeiro-custos',source:'financeiro',tone:'financeiro',title:'4. Financeiro - Performance e custos',fields:[['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos']]},
-  {key:'financeiro-oferta',source:'financeiro',tone:'financeiro',title:'4. Financeiro - Oferta',fields:[['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]}
+  {key:'financeiro-planejamento',source:'financeiro',tone:'financeiro',title:'Planejamento',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS']]},
+  {key:'financeiro-custos',source:'financeiro',tone:'financeiro',title:'Performance e custos',fields:[['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos']]},
+  {key:'financeiro-oferta',source:'financeiro',tone:'financeiro',title:'Oferta',fields:[['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]}
 ];
 const briefingTabs=[
   {id:'identificacao',label:'Identificacao',sections:['identificacao']},
