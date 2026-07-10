@@ -632,11 +632,12 @@ button,a{font:inherit}
   box-shadow:0 0 24px rgba(130,188,255,.12),inset 0 1px 0 rgba(255,255,255,.08);
 }
 .briefing-modal-sections{
-  display:grid;
-  grid-template-columns:1fr;
+  display:flex;
+  flex-direction:column;
   gap:14px;
 }
 .briefing-modal-section{
+  width:100%;
   border:1px solid rgba(255,255,255,.11);
   border-radius:20px;
   background:rgba(255,255,255,.045);
@@ -860,7 +861,7 @@ iframe{
   }
   #openExternal{grid-column:1/3}
   .briefing-board{padding:10px}
-  .briefing-preview-grid,.briefing-modal-sections{grid-template-columns:1fr}
+  .briefing-preview-grid{grid-template-columns:1fr}
   .briefing-modal-tabs{grid-template-columns:1fr}
   .briefing-preview-head,.briefing-modal-head{align-items:stretch;flex-direction:column}
   .briefing-modal{padding:0}
