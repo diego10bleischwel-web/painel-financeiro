@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Briefing do Cliente — Dualize Digital</title>
+<title>Formulario Traffic AI — Dualize Digital</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 :root{
@@ -197,7 +197,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div class="hdr">
   <div class="hdr-inner">
     <div class="hdr-top">
-      <div class="logo">Dualize <span>Digital</span><br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.04em;">Briefing para preenchimento — Traffic AI</span></div>
+      <div class="logo">Dualize <span>Digital</span><br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.04em;">Formulario para preenchimento — Traffic AI</span></div>
       <div class="step-label" id="stepLabel">Início</div>
     </div>
     <!-- Steps -->
@@ -788,10 +788,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <!-- ══════════════ SUCCESS ══════════════ -->
 <div class="success-page" id="pageSuccess">
   <div class="s-icon">🎉</div>
-  <div class="s-title">Briefing enviado!</div>
-  <div class="s-sub">Seu briefing foi registrado com sucesso. Seu gestor de tráfego já recebeu as informações.</div>
+  <div class="s-title">Formulario enviado!</div>
+  <div class="s-sub">Seu formulario foi registrado com sucesso. Seu gestor de tráfego já recebeu as informações.</div>
   <div class="result-box" id="resultBox"></div>
-  <button class="btn-new" onclick="location.reload()">↺ Preencher novo briefing</button>
+  <button class="btn-new" onclick="location.reload()">↺ Preencher novo formulario</button>
 </div>
 
 <!-- ── FOOTER NAV ── -->
@@ -886,7 +886,7 @@ function updateUI(){
   else{
     footer.style.display='block';
     btnBack.style.visibility = cur>0 ? 'visible' : 'hidden';
-    btnTxt.textContent = cur>=TOTAL ? 'Enviar briefing' : 'Próxima etapa';
+    btnTxt.textContent = cur>=TOTAL ? 'Enviar formulario' : 'Próxima etapa';
   }
   // Oculta steps e footer no success
   if(document.getElementById('pageSuccess').classList.contains('active')){
