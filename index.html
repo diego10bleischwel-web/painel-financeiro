@@ -417,9 +417,9 @@ button,a{font:inherit}
   font-weight:1000;
   text-transform:uppercase;
 }
-.briefing-status.novo{background:rgba(112,214,162,.16);color:#8ef0bb}
-.briefing-status.analise{background:rgba(242,188,102,.16);color:#f2c777}
-.briefing-status.configurado{background:rgba(184,201,228,.14);color:#dbe7f7}
+.briefing-status.novo{background:rgba(139,92,246,.20);color:#d8c4ff;border:1px solid rgba(139,92,246,.45);box-shadow:0 0 18px rgba(139,92,246,.12)}
+.briefing-status.analise{background:rgba(245,158,11,.18);color:#ffd28a;border:1px solid rgba(245,158,11,.42);box-shadow:0 0 18px rgba(245,158,11,.10)}
+.briefing-status.configurado{background:rgba(112,214,162,.18);color:#9ef7c8;border:1px solid rgba(112,214,162,.50);box-shadow:0 0 18px rgba(112,214,162,.12)}
 .briefing-detail{padding:18px;overflow:auto}
 .briefing-detail{
   display:grid;
@@ -494,10 +494,23 @@ button,a{font:inherit}
   font-weight:950;
   cursor:pointer;
 }
-.briefing-actions button.active{
-  border-color:rgba(112,214,162,.65);
-  background:linear-gradient(135deg,rgba(112,214,162,.23),rgba(130,188,255,.14));
-  color:#d9fff0;
+.briefing-actions button.status-novo,.briefing-modal-actions button.status-novo{border-color:rgba(139,92,246,.36);color:#d8c4ff}
+.briefing-actions button.status-analise,.briefing-modal-actions button.status-analise{border-color:rgba(245,158,11,.36);color:#ffd28a}
+.briefing-actions button.status-configurado,.briefing-modal-actions button.status-configurado{border-color:rgba(112,214,162,.42);color:#9ef7c8}
+.briefing-actions button.status-novo.active,.briefing-modal-actions button.status-novo.active{
+  border-color:rgba(139,92,246,.78);
+  background:linear-gradient(135deg,rgba(139,92,246,.32),rgba(130,188,255,.14));
+  color:#f0e8ff;
+}
+.briefing-actions button.status-analise.active,.briefing-modal-actions button.status-analise.active{
+  border-color:rgba(245,158,11,.78);
+  background:linear-gradient(135deg,rgba(245,158,11,.28),rgba(255,210,138,.12));
+  color:#ffe3ad;
+}
+.briefing-actions button.status-configurado.active,.briefing-modal-actions button.status-configurado.active{
+  border-color:rgba(112,214,162,.78);
+  background:linear-gradient(135deg,rgba(112,214,162,.26),rgba(130,188,255,.14));
+  color:#dcffef;
 }
 .briefing-actions button.danger,.briefing-modal-actions button.danger{
   border-color:rgba(255,107,107,.45);
@@ -561,11 +574,6 @@ button,a{font:inherit}
   font-weight:1000;
   cursor:pointer;
 }
-.briefing-modal-actions button.active{
-  border-color:rgba(112,214,162,.65);
-  background:linear-gradient(135deg,rgba(112,214,162,.24),rgba(130,188,255,.16));
-  color:#d9fff0;
-}
 .briefing-close{
   width:42px;
   height:42px;
@@ -588,16 +596,39 @@ button,a{font:inherit}
   padding:16px;
   box-shadow:0 18px 50px rgba(0,0,0,.18);
 }
+.briefing-modal-section.financeiro{background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(255,255,255,.035));border-color:rgba(245,158,11,.22)}
+.briefing-modal-section.identificacao{background:linear-gradient(135deg,rgba(139,92,246,.10),rgba(255,255,255,.035));border-color:rgba(139,92,246,.24)}
+.briefing-modal-section.avatar{background:linear-gradient(135deg,rgba(130,188,255,.10),rgba(255,255,255,.035));border-color:rgba(130,188,255,.24)}
+.briefing-modal-section.produto{background:linear-gradient(135deg,rgba(112,214,162,.10),rgba(255,255,255,.035));border-color:rgba(112,214,162,.22)}
 .briefing-modal-section h4{
   margin:0 0 12px;
   color:#8dccff;
   font-size:14px;
   text-transform:uppercase;
   letter-spacing:.4px;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
+.briefing-modal-section h4::before{
+  content:"";
+  width:9px;
+  height:9px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#7c3aed,#82bcff,#70d6a2);
+  box-shadow:0 0 14px rgba(130,188,255,.45);
+}
+.briefing-modal-section.financeiro h4{color:#ffd28a}
+.briefing-modal-section.identificacao h4{color:#d8c4ff}
+.briefing-modal-section.avatar h4{color:#9bcfff}
+.briefing-modal-section.produto h4{color:#9ef7c8}
+.briefing-modal-section.financeiro h4::before{background:linear-gradient(135deg,#f59e0b,#ffd28a)}
+.briefing-modal-section.identificacao h4::before{background:linear-gradient(135deg,#7c3aed,#d8c4ff)}
+.briefing-modal-section.avatar h4::before{background:linear-gradient(135deg,#3b82f6,#82bcff)}
+.briefing-modal-section.produto h4::before{background:linear-gradient(135deg,#10b981,#70d6a2)}
 .briefing-modal-row{
   display:grid;
-  grid-template-columns:160px 1fr;
+  grid-template-columns:150px 1fr;
   gap:12px;
   padding:9px 0;
   border-bottom:1px solid rgba(255,255,255,.07);
@@ -614,6 +645,7 @@ button,a{font:inherit}
   font-weight:850;
   white-space:pre-wrap;
   word-break:break-word;
+  line-height:1.35;
 }
 .badge-count{
   display:inline-grid;
@@ -1039,23 +1071,28 @@ function statusLabel(status){const s=String(status||'novo');return s==='novo'?'N
 function briefingDate(v){return v?new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sem data'}
 function briefingValue(v){if(Array.isArray(v))return v.length?v.join(', '):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
 const briefingSectionOrder=[
-  {key:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP']]},
-  {key:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
-  {key:'produto',title:'3. Produto',fields:[['oque_e','O que vende'],['mecanismo','Diferencial unico'],['diferenciais','Diferenciais'],['como_funciona','Como funciona'],['features','Features']]},
-  {key:'financeiro',title:'4. Financeiro',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS'],['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos'],['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]}
+  {key:'identificacao',tone:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP']]},
+  {key:'avatar',tone:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
+  {key:'produto',tone:'produto',title:'3. Produto',fields:[['oque_e','O que vende'],['mecanismo','Diferencial unico'],['diferenciais','Diferenciais'],['como_funciona','Como funciona'],['features','Features']]},
+  {key:'financeiro-planejamento',source:'financeiro',tone:'financeiro',title:'4. Financeiro - Planejamento',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS']]},
+  {key:'financeiro-custos',source:'financeiro',tone:'financeiro',title:'4. Financeiro - Performance e custos',fields:[['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos']]},
+  {key:'financeiro-oferta',source:'financeiro',tone:'financeiro',title:'4. Financeiro - Oferta',fields:[['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]}
 ];
 function briefingSections(b){
   const dados=b?.dados||{};
   const ordered=briefingSectionOrder.map(section=>({
     ...section,
-    values:section.fields.map(([key,label])=>({key,label,value:briefingValue(dados[section.key]?.[key])}))
+    values:section.fields.map(([key,label])=>({key,label,value:briefingValue(dados[section.source||section.key]?.[key])}))
   }));
-  const known=new Set(briefingSectionOrder.map(s=>s.key));
+  const known=new Set(briefingSectionOrder.flatMap(s=>[s.key,s.source||s.key]));
   Object.entries(dados).forEach(([key,obj])=>{
     if(known.has(key))return;
-    ordered.push({key,title:key,values:Object.entries(obj||{}).map(([field,value])=>({key:field,label:field,value:briefingValue(value)}))});
+    ordered.push({key,tone:key,title:key,values:Object.entries(obj||{}).map(([field,value])=>({key:field,label:field,value:briefingValue(value)}))});
   });
   return ordered;
+}
+function briefingStatusButtonClass(value,active){
+  return `status-${statusClass(value)}${active?' active':''}`;
 }
 function briefingSummary(b){
   const d=b?.dados||{},fin=d.financeiro||{},id=d.identificacao||{},avatar=d.avatar||{};
@@ -1126,9 +1163,9 @@ function renderBriefingDetail(id){
       <div class="briefing-mini"><span>Budget</span><b>${esc(s.budget)}</b></div>
     </div>
     <div class="briefing-actions">
-      <button class="${String(b.status||'novo')==='novo'?'active':''}" data-briefing-status="novo" type="button">Novo</button>
-      <button class="${String(b.status||'').includes('anal')?'active':''}" data-briefing-status="em analise" type="button">Em analise</button>
-      <button class="${String(b.status||'').includes('config')?'active':''}" data-briefing-status="configurado" type="button">Configurado</button>
+      <button class="${briefingStatusButtonClass('novo',String(b.status||'novo')==='novo')}" data-briefing-status="novo" type="button">Novo</button>
+      <button class="${briefingStatusButtonClass('em analise',String(b.status||'').includes('anal'))}" data-briefing-status="em analise" type="button">Em analise</button>
+      <button class="${briefingStatusButtonClass('configurado',String(b.status||'').includes('config'))}" data-briefing-status="configurado" type="button">Configurado</button>
       <button class="danger" data-briefing-delete="${esc(b.id)}" type="button">Excluir</button>
     </div>
     <div class="briefing-hint">Clique duas vezes no card da lista ou use o botao acima para visualizar todos os dados preenchidos.</div>
@@ -1144,9 +1181,9 @@ function renderBriefingModal(id){
   const statuses=[['novo','Novo'],['em analise','Em analise'],['configurado','Configurado']];
   $('#briefingModalActions').innerHTML=statuses.map(([value,label])=>{
     const active=value==='novo'?String(b.status||'novo')==='novo':String(b.status||'').includes(value.split(' ')[0]);
-    return `<button class="${active?'active':''}" data-briefing-status="${esc(value)}" type="button">${esc(label)}</button>`;
+    return `<button class="${briefingStatusButtonClass(value,active)}" data-briefing-status="${esc(value)}" type="button">${esc(label)}</button>`;
   }).join('')+`<button class="danger" data-briefing-delete="${esc(b.id)}" type="button">Excluir</button>`;
-  $('#briefingModalSections').innerHTML=briefingSections(b).map(section=>`<section class="briefing-modal-section">
+  $('#briefingModalSections').innerHTML=briefingSections(b).map(section=>`<section class="briefing-modal-section ${esc(section.tone||section.key)}">
     <h4>${esc(section.title)}</h4>
     ${section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><b>${esc(row.value)}</b></div>`).join('')}
   </section>`).join('');
