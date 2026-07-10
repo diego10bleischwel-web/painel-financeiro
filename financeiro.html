@@ -174,6 +174,17 @@ body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b2
   body.mobile-view .planning-smart,
   body.mobile-view .suggestion{border-radius:18px}
 }
+#debitos>.grid>.card>.card-head>div:last-child{display:flex!important;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;min-width:min(100%,380px)}
+#debitos>.grid>.card>.card-head #debitFilter{min-width:160px}
+#debitos>.grid>.card>.card-head #addDebitBtn{min-width:190px}
+.entry-row{grid-template-columns:34px minmax(0,1fr) 78px minmax(128px,160px) minmax(128px,150px)}
+.status-pill{white-space:normal;min-width:0;line-height:1.1;overflow:hidden}
+.status-pill span,.status-pill small{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.bank-adjust{margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.bank-adjust label{grid-column:1/-1;color:var(--muted);font-size:11px;font-weight:950;text-transform:uppercase}
+.bank-adjust .mini-input{width:100%;min-width:0}
+.bank-adjust .btn{padding:10px 13px;font-size:12px}
+body.dark-theme .bank-adjust .mini-input{background:#111720;color:var(--text);border-color:var(--line)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -745,7 +756,7 @@ function currentStatus(e){
 }
 function statusAtMonth(e,month){ const key=String(month); if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key]; return baseStatus(e); }
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.repeticoes-effectiveMonthOffset(e,state.currentMonth))}
-function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(currentStatus(e)==='naoPago')return r===1?'não pago, última pendente':`não pago, ${r} restantes`; if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
+function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(currentStatus(e)==='naoPago')return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
 function visibleAtMonth(e,month){ return month>=e.inicio && effectiveMonthOffset(e,month)<e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(month)]); }
 function displayValueAtMonth(e,month){ if(e.tipo!=='receita')return configuredValue(e,month); const remaining=remainingAmount(e,month); return remaining?moneyInput(remaining,'receita'):configuredValue(e,month); }
 function setCurrentStatus(e,status){
@@ -852,7 +863,7 @@ function renderBanks(map){
   Object.entries(map).forEach(([name,v])=>{
     const cls=v.saldoProprio<0?'negative':(v.saldoProprio>0?'positive':'neutral');
     const alerta=v.saldoProprio<0?'<div class="bank-alert negative">⚠ Seu saldo fica negativo sem terceiros</div>':(v.reservadoTerceiros>0?'<div class="bank-alert negative">⚠ Não usar valor de terceiros</div>':'<div class="bank-alert positive">✓ Sem reserva de terceiros</div>');
-    $('#bankCards').innerHTML+=`<div class="bank-card ${cls}"><span>${name}</span><strong>${br(v.saldoProprio)}</strong><small>Saldo banco ${br(v.saldo)}<br>Terceiros ${br(v.reservadoTerceiros)}</small>${alerta}</div>`;
+    $('#bankCards').innerHTML+=`<div class="bank-card ${cls}"><span>${name}</span><strong>${br(v.saldoProprio)}</strong><small>Saldo banco ${br(v.saldo)}<br>Terceiros ${br(v.reservadoTerceiros)}</small>${alerta}<div class="bank-adjust"><label>Ajustar saldo do banco</label><input class="mini-input bank-balance-input" data-bank="${name}" data-current="${v.saldo}" value="${br(v.saldo)}"><button class="btn bank-balance-apply" data-bank="${name}" type="button">Ajustar</button></div></div>`;
     $('#bankDetails').innerHTML+=`<tr class="${cls}"><td>${name}</td><td>${br(v.saldo)}</td><td>${br(v.reservadoTerceiros)}</td><td>${br(v.saldoProprio)}</td></tr>`;
     if(v.entrada||v.saida||v.saldo){ moved.push([name,v,cls]); $('#bankTable').innerHTML+=`<tr><td>${name}</td><td>${br(v.saldoProprio)}</td></tr>`; }
   });
@@ -1183,6 +1194,52 @@ function saveTransferMovement(){
   persist();
   updateTotals();
 }
+function selectedMonthToday(){
+  const today=new Date(), month=state.baseMonth+state.currentMonth, year=state.baseYear+Math.floor(month/12), realMonth=((month%12)+12)%12;
+  const day=Math.min(today.getDate(),new Date(year,realMonth+1,0).getDate());
+  return new Date(year,realMonth,day).toISOString().slice(0,10);
+}
+function applyBankBalanceAdjustment(bank,rawValue){
+  if(!bank)return;
+  if(!String(rawValue||'').trim())return alert('Informe o saldo novo do banco.');
+  const desired=parseMoney(rawValue);
+  const map=bankBalances(), current=map[bank]?map[bank].saldo:0;
+  const diff=Number((desired-current).toFixed(2));
+  if(Math.abs(diff)<.005){ alert('O saldo informado já é o saldo atual desse banco.'); return; }
+  const kind=diff>0?'entrada':'saida';
+  const value=Math.abs(diff);
+  const date=selectedMonthToday();
+  const text=`Criar ${kind} automática de ${br(value)} em ${bank} na data ${date}?`;
+  if(!confirm(text))return;
+  state.transfers.push({
+    id:'ajuste-'+Date.now()+'-'+Math.random().toString(36).slice(2),
+    kind,
+    from:kind==='saida'?bank:'',
+    to:kind==='entrada'?bank:'',
+    valor:br(value),
+    note:'Ajuste de saldo do banco para '+br(desired),
+    date
+  });
+  persist();
+  renderAll();
+  setTab('bancos');
+}
+function bindBankBalanceAdjustments(){
+  document.body.addEventListener('focus',e=>{
+    if(e.target.matches('.bank-balance-input'))e.target.select();
+  },true);
+  document.body.addEventListener('click',e=>{
+    const btn=e.target.closest('.bank-balance-apply');
+    if(!btn)return;
+    const input=btn.closest('.bank-adjust')?.querySelector('.bank-balance-input');
+    applyBankBalanceAdjustment(btn.dataset.bank,input?input.value:'');
+  });
+  document.body.addEventListener('keydown',e=>{
+    if(e.key!=='Enter'||!e.target.matches('.bank-balance-input'))return;
+    e.preventDefault();
+    applyBankBalanceAdjustment(e.target.dataset.bank,e.target.value);
+  });
+}
 function bindThirdPixImport(){
   const btn=$('#thirdPixFileBtn'), input=$('#thirdPixFileInput'), parseBtn=$('#thirdPixParseBtn');
   if(btn&&input)btn.onclick=()=>input.click();
@@ -1292,7 +1349,7 @@ function enableRevenuePartialReceipts(){
   },true);
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; if(cardsChanged||categoriesChanged||cardEntriesChanged) persist(); bind(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; if(cardsChanged||categoriesChanged||cardEntriesChanged) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
 init();
 });
 </script>
