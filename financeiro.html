@@ -318,6 +318,15 @@ const $=s=>document.querySelector(s); const $$=s=>Array.from(document.querySelec
 const br=(n)=>'R$ '+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const brDeb=(n)=>'R$ -'+Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 function parseMoney(v){ if(!v)return 0; const c=String(v).replace(/R\$/g,'').replace(/\s/g,'').replace(/-/g,'').replace(/\./g,'').replace(',','.'); const n=parseFloat(c); return isNaN(n)?0:Math.abs(n); }
+function parseSignedMoney(v){
+  const raw=String(v||'').trim();
+  if(!raw)return 0;
+  const negative=/^-|^R\$\s*-|\u2212/.test(raw) || /\([\s\S]*[\d,][\s\S]*\)/.test(raw);
+  const c=raw.replace(/R\$/g,'').replace(/\s/g,'').replace(/[^\d,.-]/g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(/(?!^)-/g,'').replace(',','.');
+  const n=parseFloat(c);
+  if(isNaN(n))return 0;
+  return negative ? -Math.abs(n) : Math.abs(n);
+}
 function syncEndpoint(action,extra=''){ if(!syncUrl)return ''; const sep=syncUrl.includes('?')?'&':'?'; return syncUrl+sep+'action='+encodeURIComponent(action)+extra; }
 function setSyncStatus(text){ const el=$('#syncStatus'); if(el) el.textContent=text; }
 function syncTime(ts=Date.now()){ return new Date(ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
@@ -1202,7 +1211,7 @@ function selectedMonthToday(){
 function applyBankBalanceAdjustment(bank,rawValue){
   if(!bank)return;
   if(!String(rawValue||'').trim())return alert('Informe o saldo novo do banco.');
-  const desired=parseMoney(rawValue);
+  const desired=parseSignedMoney(rawValue);
   const map=bankBalances(), current=map[bank]?map[bank].saldo:0;
   const diff=Number((desired-current).toFixed(2));
   if(Math.abs(diff)<.005){ alert('O saldo informado já é o saldo atual desse banco.'); return; }
