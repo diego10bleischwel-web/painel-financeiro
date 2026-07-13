@@ -185,7 +185,13 @@ body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b2
 .bank-adjust .mini-input{width:100%;min-width:0}
 .bank-adjust .btn{padding:10px 13px;font-size:12px}
 .btn.danger{background:var(--red);color:var(--red-text);border:1px solid rgba(180,35,24,.28)}
+.pix-import-box.suggestion{background:linear-gradient(135deg,rgba(34,211,238,.16),rgba(139,92,246,.14),rgba(104,211,145,.10)) padding-box,linear-gradient(135deg,#22d3ee,#8b5cf6,#68d391) border-box!important;border:2px dashed transparent!important;box-shadow:0 18px 46px rgba(34,211,238,.16),inset 0 1px 0 rgba(255,255,255,.08)!important;color:var(--text)!important}
+.pix-import-box.suggestion b{display:flex;align-items:center;gap:9px;font-size:18px;color:var(--blue-text)}
+.pix-import-box.suggestion b::before{content:"PIX";display:inline-grid;place-items:center;height:26px;padding:0 9px;border-radius:999px;background:linear-gradient(135deg,#8ab4ff,#68d391);color:#071018;font-size:11px;font-weight:950;letter-spacing:.6px}
+.pix-import-box.suggestion .pix-import-status{color:var(--blue-text)}
 body.dark-theme .bank-adjust .mini-input{background:#111720;color:var(--text);border-color:var(--line)}
+body.dark-theme .pix-import-box.suggestion{background:linear-gradient(135deg,rgba(34,211,238,.12),rgba(139,92,246,.16),rgba(104,211,145,.08)) padding-box,linear-gradient(135deg,#22d3ee,#8b5cf6,#68d391) border-box!important;color:#f4f7fb!important}
+body.dark-theme .pix-import-box.suggestion textarea{background:#0f1724;border-color:rgba(34,211,238,.35)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -284,6 +290,7 @@ const state={
   entries:savedState?.entries?.length?structuredClone(savedState.entries):structuredClone(INITIAL_ENTRIES),
   transfers:Array.isArray(savedState?.transfers)?structuredClone(savedState.transfers):[],
   thirdMovements:Array.isArray(savedState?.thirdMovements)?structuredClone(savedState.thirdMovements):[],
+  deletedThirdPeople:savedState?.deletedThirdPeople&&typeof savedState.deletedThirdPeople==='object'?structuredClone(savedState.deletedThirdPeople):{},
   cardTransactions:Array.isArray(savedState?.cardTransactions)?structuredClone(savedState.cardTransactions):[],
   cards:Array.isArray(savedState?.cards)?structuredClone(savedState.cards):structuredClone(DEFAULT_CARDS),
   lastSync:Number(savedState?.lastSync||0),
@@ -291,6 +298,14 @@ const state={
   cleanForm:''
 };
 state.entries.forEach(normalizeEntry);
+function thirdPersonDeletedAt(person,map=state.deletedThirdPeople){ return Number(map?.[String(person||'').trim()]||0); }
+function filterDeletedThirdMovements(movements,map=state.deletedThirdPeople){
+  return (Array.isArray(movements)?movements:[]).filter(m=>{
+    const deletedAt=thirdPersonDeletedAt(m.person,map);
+    return !deletedAt || Number(m.createdAt||0)>deletedAt;
+  });
+}
+state.thirdMovements=filterDeletedThirdMovements(state.thirdMovements);
 function statePayload(){
   return {
     currentMonth:state.currentMonth,
@@ -298,6 +313,7 @@ function statePayload(){
     entries:state.entries,
     transfers:state.transfers,
     thirdMovements:state.thirdMovements,
+    deletedThirdPeople:state.deletedThirdPeople,
     cardTransactions:state.cardTransactions,
     cards:state.cards,
     lastSync:state.lastSync,
@@ -422,17 +438,23 @@ function mergeCloudIntoLocal(remote){
   if(!remote||!Array.isArray(remote.entries))return false;
   const before=entryCount(state);
   saveCloudApplyBackup();
+  const deletedThirdPeople={...state.deletedThirdPeople};
+  if(remote.deletedThirdPeople&&typeof remote.deletedThirdPeople==='object'){
+    Object.entries(remote.deletedThirdPeople).forEach(([person,ts])=>{ deletedThirdPeople[person]=Math.max(Number(deletedThirdPeople[person]||0),Number(ts||0)); });
+  }
   const entries=mergeByKey(state.entries,remote.entries,e=>'entry:'+(e.id??String(e.nome||'')+'|'+String(e.dia||'')+'|'+String(e.inicio||'')));
   const transfers=mergeByKey(state.transfers,remote.transfers,t=>'transfer:'+(t.id??[t.kind,t.from,t.to,t.valor,t.date,t.note].join('|')));
-  const third=mergeByKey(state.thirdMovements,remote.thirdMovements,m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')));
+  const third=mergeByKey(filterDeletedThirdMovements(state.thirdMovements,deletedThirdPeople),filterDeletedThirdMovements(remote.thirdMovements,deletedThirdPeople),m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')));
   const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
   const cardTx=mergeByKey(state.cardTransactions,remote.cardTransactions,t=>'cardtx:'+(t.key||cardTxKey(t)));
-  const changed=entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed;
+  const deletedChanged=JSON.stringify(deletedThirdPeople)!==JSON.stringify(state.deletedThirdPeople);
+  const changed=entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed||deletedChanged||third.items.length!==state.thirdMovements.length;
   if(!changed)return false;
   applyingRemote=true;
   state.entries=entries.items;
   state.transfers=transfers.items;
   state.thirdMovements=third.items;
+  state.deletedThirdPeople=deletedThirdPeople;
   state.cards=cards.items.length?cards.items:state.cards;
   state.cardTransactions=cardTx.items;
   state.nextId=Math.max(Number(state.nextId||503),Number(remote.nextId||503),...state.entries.map(e=>Number(e.id||0)+1));
@@ -459,12 +481,20 @@ function applyCloudState(data){
     return false;
   }
   saveCloudApplyBackup();
+  const deletedThirdPeople={...state.deletedThirdPeople};
+  if(data.deletedThirdPeople&&typeof data.deletedThirdPeople==='object'){
+    Object.entries(data.deletedThirdPeople).forEach(([person,ts])=>{ deletedThirdPeople[person]=Math.max(Number(deletedThirdPeople[person]||0),Number(ts||0)); });
+  }
+  const remoteThirdMovements=Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):[];
+  const filteredThirdMovements=filterDeletedThirdMovements(remoteThirdMovements,deletedThirdPeople);
+  const deletionNeedsUpload=JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
   applyingRemote=true;
   state.currentMonth=currentMonthIndex();
   state.nextId=Number(data.nextId||503);
   state.entries=structuredClone(data.entries);
   state.transfers=Array.isArray(data.transfers)?structuredClone(data.transfers):[];
-  state.thirdMovements=Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):[];
+  state.deletedThirdPeople=deletedThirdPeople;
+  state.thirdMovements=filteredThirdMovements;
   state.cardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
   state.lastSync=Number(data.lastSync||Date.now());
@@ -472,21 +502,27 @@ function applyCloudState(data){
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
-  setSyncPending(false);
+  setSyncPending(deletionNeedsUpload);
   saveLocalSnapshot();
   applyingRemote=false;
   renderAll();
+  if(deletionNeedsUpload) scheduleCloudSave(250);
   return true;
 }
 function applyRecoveredState(data, uploadNow=false){
   if(!data||!Array.isArray(data.entries))return false;
   saveCloudApplyBackup();
+  const deletedThirdPeople={...state.deletedThirdPeople};
+  if(data.deletedThirdPeople&&typeof data.deletedThirdPeople==='object'){
+    Object.entries(data.deletedThirdPeople).forEach(([person,ts])=>{ deletedThirdPeople[person]=Math.max(Number(deletedThirdPeople[person]||0),Number(ts||0)); });
+  }
   applyingRemote=true;
   state.currentMonth=currentMonthIndex();
   state.nextId=Number(data.nextId||503);
   state.entries=structuredClone(data.entries);
   state.transfers=Array.isArray(data.transfers)?structuredClone(data.transfers):(Array.isArray(data.bankTransfers)?structuredClone(data.bankTransfers):[]);
-  state.thirdMovements=Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):(Array.isArray(data.thirdPartyMovements)?structuredClone(data.thirdPartyMovements):[]);
+  state.deletedThirdPeople=deletedThirdPeople;
+  state.thirdMovements=filterDeletedThirdMovements(Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):(Array.isArray(data.thirdPartyMovements)?structuredClone(data.thirdPartyMovements):[]),deletedThirdPeople);
   state.cardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
   state.lastSync=Date.now();
@@ -899,6 +935,7 @@ function deleteThirdPersonMovements(){
   const saida=moves.filter(m=>m.type!=='entrada').reduce((s,m)=>s+parseMoney(m.valor),0);
   const ok=confirm(`Atenção: isso vai excluir TODOS os ${moves.length} lançamentos de "${person}".\n\nTotal recebido: ${br(entrada)}\nTotal repassado: ${br(saida)}\nSaldo atual: ${br(entrada-saida)}\n\nEssa ação remove todo o histórico dessa pessoa no controle de terceiros. Deseja continuar?`);
   if(!ok)return;
+  state.deletedThirdPeople[person]=Date.now();
   state.thirdMovements=state.thirdMovements.filter(m=>m.person!==person);
   $('#thirdPersonFilter').value='nenhum';
   persist();
@@ -1058,7 +1095,7 @@ function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(i
 function saveThirdMovement(){
   const v=parseMoney($('#thirdValue').value);
   if(!$('#thirdPerson').value||!v||!$('#thirdBank').value||!$('#thirdType').value)return alert('Preencha pessoa, banco, tipo e valor.');
-  state.thirdMovements.push({id:'third-'+Date.now()+'-'+Math.random().toString(36).slice(2),person:$('#thirdPerson').value,date:$('#thirdDate').value,bank:$('#thirdBank').value,type:$('#thirdType').value,valor:br(v),note:$('#thirdNote').value});
+  state.thirdMovements.push({id:'third-'+Date.now()+'-'+Math.random().toString(36).slice(2),createdAt:Date.now(),person:$('#thirdPerson').value,date:$('#thirdDate').value,bank:$('#thirdBank').value,type:$('#thirdType').value,valor:br(v),note:$('#thirdNote').value});
   $('#thirdPerson').value='';
   $('#thirdValue').value='';
   $('#thirdNote').value='';
