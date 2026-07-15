@@ -501,36 +501,59 @@ button,a{font:inherit}
 }
 .briefing-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 .briefing-actions button{
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.14);
   border-radius:999px;
-  padding:8px 11px;
-  background:rgba(255,255,255,.06);
+  padding:9px 13px;
+  background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.035));
   color:var(--text);
   font-weight:950;
   cursor:pointer;
+  box-shadow:0 12px 28px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.10);
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+.briefing-actions button:hover,.briefing-modal-actions button:hover,.briefing-close:hover{
+  transform:translateY(-1px);
+  filter:saturate(1.15);
+  box-shadow:0 16px 36px rgba(0,0,0,.28),0 0 24px rgba(130,188,255,.16),inset 0 1px 0 rgba(255,255,255,.14);
 }
 .briefing-actions button.status-novo,.briefing-modal-actions button.status-novo{border-color:rgba(139,92,246,.36);color:#d8c4ff}
 .briefing-actions button.status-analise,.briefing-modal-actions button.status-analise{border-color:rgba(245,158,11,.36);color:#ffd28a}
 .briefing-actions button.status-configurado,.briefing-modal-actions button.status-configurado{border-color:rgba(112,214,162,.42);color:#9ef7c8}
 .briefing-actions button.status-novo.active,.briefing-modal-actions button.status-novo.active{
   border-color:rgba(139,92,246,.78);
-  background:linear-gradient(135deg,rgba(139,92,246,.32),rgba(130,188,255,.14));
+  background:linear-gradient(135deg,rgba(139,92,246,.72),rgba(130,188,255,.22));
   color:#f0e8ff;
 }
 .briefing-actions button.status-analise.active,.briefing-modal-actions button.status-analise.active{
   border-color:rgba(245,158,11,.78);
-  background:linear-gradient(135deg,rgba(245,158,11,.28),rgba(255,210,138,.12));
+  background:linear-gradient(135deg,rgba(245,158,11,.62),rgba(255,210,138,.18));
   color:#ffe3ad;
 }
 .briefing-actions button.status-configurado.active,.briefing-modal-actions button.status-configurado.active{
   border-color:rgba(112,214,162,.78);
-  background:linear-gradient(135deg,rgba(112,214,162,.26),rgba(130,188,255,.14));
+  background:linear-gradient(135deg,rgba(16,185,129,.66),rgba(130,188,255,.18));
   color:#dcffef;
 }
 .briefing-actions button.danger,.briefing-modal-actions button.danger{
   border-color:rgba(255,107,107,.45);
   color:#ffd0d0;
   background:rgba(255,107,107,.08);
+}
+.briefing-modal-actions [data-briefing-edit]{
+  border-color:rgba(130,188,255,.36);
+  color:#d9ecff;
+  background:linear-gradient(135deg,rgba(130,188,255,.18),rgba(139,92,246,.12));
+}
+.briefing-modal-actions [data-briefing-save]{
+  border-color:rgba(112,214,162,.65);
+  color:#06130e;
+  background:linear-gradient(135deg,#82bcff,#70d6a2);
+  box-shadow:0 14px 38px rgba(112,214,162,.18),inset 0 1px 0 rgba(255,255,255,.36);
+}
+.briefing-modal-actions [data-briefing-edit-cancel]{
+  border-color:rgba(255,255,255,.16);
+  color:#e8eefb;
+  background:rgba(255,255,255,.08);
 }
 .briefing-actions button.danger:hover,.briefing-modal-actions button.danger:hover{
   border-color:rgba(255,107,107,.78);
@@ -556,38 +579,42 @@ button,a{font:inherit}
 }
 .briefing-modal.active{display:grid}
 .briefing-modal-box{
-  width:min(1180px,96vw);
+  width:min(1220px,96vw);
   max-height:90vh;
   display:grid;
   grid-template-rows:auto 1fr;
   border:1px solid transparent;
-  border-radius:28px;
+  border-radius:30px;
   overflow:hidden;
   background:
+    radial-gradient(circle at 18% 0%,rgba(139,92,246,.20),transparent 34%),
+    radial-gradient(circle at 88% 18%,rgba(53,216,255,.14),transparent 36%),
     linear-gradient(#101827,#101827) padding-box,
     linear-gradient(135deg,var(--purple),var(--blue),var(--cyan)) border-box;
-  box-shadow:0 30px 120px rgba(0,0,0,.72),0 0 48px rgba(130,188,255,.18);
+  box-shadow:0 30px 120px rgba(0,0,0,.72),0 0 56px rgba(130,188,255,.20),inset 0 1px 0 rgba(255,255,255,.08);
 }
 .briefing-modal-head{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   gap:16px;
-  padding:20px 22px;
+  padding:22px 24px;
   border-bottom:1px solid rgba(255,255,255,.10);
-  background:linear-gradient(135deg,rgba(134,185,255,.13),rgba(169,140,255,.07));
+  background:linear-gradient(135deg,rgba(36,51,82,.88),rgba(22,31,51,.78));
 }
 .briefing-modal-title{display:grid;gap:8px}
 .briefing-modal-title h2{margin:0;color:#fff;font-size:26px}
-.briefing-modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.briefing-modal-actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
 .briefing-modal-actions button,.briefing-close{
   border:1px solid rgba(255,255,255,.14);
   border-radius:999px;
-  padding:9px 12px;
-  background:rgba(255,255,255,.07);
+  padding:10px 14px;
+  background:linear-gradient(135deg,rgba(255,255,255,.13),rgba(255,255,255,.045));
   color:var(--text);
   font-weight:1000;
   cursor:pointer;
+  box-shadow:0 14px 34px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.12);
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease,border-color .16s ease;
 }
 .briefing-close{
   width:42px;
@@ -697,11 +724,15 @@ button,a{font:inherit}
 }
 .briefing-edit-grid{
   display:grid;
-  gap:12px;
+  gap:14px;
 }
 .briefing-edit-field{
   display:grid;
-  gap:7px;
+  gap:8px;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  background:rgba(5,10,20,.28);
 }
 .briefing-edit-field label{
   color:#8c9db6;
@@ -709,7 +740,7 @@ button,a{font:inherit}
   font-weight:1000;
   text-transform:uppercase;
 }
-.briefing-edit-field textarea{
+.briefing-edit-field textarea,.briefing-edit-field input{
   width:100%;
   min-height:44px;
   resize:vertical;
@@ -724,9 +755,37 @@ button,a{font:inherit}
   outline:none;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
 }
-.briefing-edit-field textarea:focus{
+.briefing-edit-field input{resize:none}
+.briefing-edit-field textarea:focus,.briefing-edit-field input:focus{
   border-color:rgba(130,188,255,.65);
   box-shadow:0 0 0 4px rgba(130,188,255,.10),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.briefing-choice-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.briefing-choice{
+  border:1px solid rgba(130,188,255,.18);
+  border-radius:999px;
+  padding:9px 12px;
+  background:rgba(255,255,255,.045);
+  color:#b8c9e4;
+  font-weight:950;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease,box-shadow .16s ease;
+}
+.briefing-choice:hover{
+  transform:translateY(-1px);
+  border-color:rgba(130,188,255,.48);
+  color:#fff;
+}
+.briefing-choice.active{
+  color:#071018;
+  border-color:rgba(255,255,255,.58);
+  background:linear-gradient(135deg,#82bcff,#70d6a2);
+  box-shadow:0 0 24px rgba(112,214,162,.18),inset 0 1px 0 rgba(255,255,255,.38);
 }
 .badge-count{
   display:inline-grid;
@@ -1135,6 +1194,8 @@ function setupEvents(){
     if(cancelBriefingEdit){activeBriefingEdit=false;renderBriefingModal(activeBriefingModalId||selectedBriefingId)}
     const saveBriefing=e.target.closest('[data-briefing-save]');
     if(saveBriefing) saveBriefingEdits(saveBriefing.dataset.briefingSave||activeBriefingModalId||selectedBriefingId);
+    const choice=e.target.closest('[data-briefing-choice]');
+    if(choice) selectBriefingChoice(choice);
     const briefingTab=e.target.closest('[data-briefing-tab]');
     if(briefingTab){activeBriefingTab=briefingTab.dataset.briefingTab;renderBriefingModal(activeBriefingModalId||selectedBriefingId)}
     const openBriefing=e.target.closest('[data-briefing-open]');
@@ -1176,6 +1237,59 @@ const briefingTabs=[
   {id:'produto',label:'Produto',sections:['produto']},
   {id:'financeiro',label:'Financeiro',sections:['financeiro-planejamento','financeiro-custos','financeiro-oferta']}
 ];
+const briefingFieldSchema={
+  identificacao:{
+    tipo:{kind:'choice',options:['Infoproduto','E-commerce','SaaS','Serviço Local','Leads B2B','Não sei']},
+    idioma:{kind:'choice',options:['Português (BR)','Inglês','Espanhol','Outro']},
+    pais:{kind:'choice',options:['Brasil','EUA','Portugal','Outro']},
+    link:{kind:'input'},
+    texto_lp:{kind:'textarea'}
+  },
+  avatar:{
+    idade_min:{kind:'input',type:'number'},
+    idade_max:{kind:'input',type:'number'},
+    genero:{kind:'choice',options:['Todos','Mulheres','Homens','Não sei']},
+    consciencia:{kind:'choice',options:['Sem consciência','Sabe do problema','Conhece soluções','Conhece o produto','Pronto para comprar','Não sei']},
+    descricao:{kind:'textarea'},
+    dores:{kind:'textarea'},
+    desejos:{kind:'textarea'},
+    provas:{kind:'textarea'}
+  },
+  produto:{
+    oque_e:{kind:'textarea'},
+    mecanismo:{kind:'textarea'},
+    diferenciais:{kind:'textarea'},
+    como_funciona:{kind:'textarea'},
+    features:{kind:'textarea'}
+  },
+  financeiro:{
+    budget:{kind:'input'},
+    meta_receita:{kind:'input'},
+    meta_roas:{kind:'input'},
+    ticket:{kind:'input'},
+    custo_produto:{kind:'input'},
+    impostos:{kind:'input'},
+    taxa_plataforma:{kind:'input'},
+    taxa_fixa:{kind:'input'},
+    outros_custos:{kind:'textarea'},
+    preco:{kind:'textarea'},
+    preco_parcelado:{kind:'textarea'},
+    preco_riscado:{kind:'textarea'},
+    garantia:{kind:'textarea'},
+    urgencia:{kind:'textarea'},
+    bonus:{kind:'textarea'}
+  }
+};
+function normalizeBriefingOption(value){
+  return String(value||'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function briefingFieldConfig(source,key){
+  return briefingFieldSchema[source]?.[key]||{};
+}
 function briefingSections(b){
   const dados=b?.dados||{};
   const ordered=briefingSectionOrder.map(section=>({
@@ -1290,6 +1404,30 @@ function renderBriefingDetail(id){
     <div class="briefing-hint">Clique duas vezes no card da lista ou use o botao acima para visualizar todos os dados preenchidos.</div>
   </div>`;
 }
+function renderBriefingEditControl(row){
+  const config=briefingFieldConfig(row.source,row.key);
+  const value=String(row.value??'');
+  const common=`data-briefing-field data-source="${esc(row.source)}" data-field="${esc(row.key)}"`;
+  if(config.kind==='choice'){
+    const current=normalizeBriefingOption(value);
+    const options=config.options||[];
+    return `<input type="hidden" ${common} value="${esc(value)}"><div class="briefing-choice-grid">${options.map(option=>{
+      const active=normalizeBriefingOption(option)===current;
+      return `<button class="briefing-choice ${active?'active':''}" data-briefing-choice="${esc(option)}" type="button">${esc(option)}</button>`;
+    }).join('')}</div>`;
+  }
+  if(config.kind==='input'){
+    return `<input ${common} type="${esc(config.type||'text')}" value="${esc(value)}">`;
+  }
+  return `<textarea ${common} rows="${value.length>140?5:3}">${esc(value)}</textarea>`;
+}
+function selectBriefingChoice(choice){
+  const field=choice.closest('.briefing-edit-field');
+  if(!field)return;
+  field.querySelectorAll('[data-briefing-choice]').forEach(btn=>btn.classList.toggle('active',btn===choice));
+  const input=field.querySelector('[data-briefing-field]');
+  if(input)input.value=choice.dataset.briefingChoice||'';
+}
 function renderBriefingModal(id){
   const b=briefings.find(x=>String(x.id)===String(id));
   if(!b)return;
@@ -1309,7 +1447,7 @@ function renderBriefingModal(id){
   $('#briefingModalSections').innerHTML=(activeBriefingEdit?briefingEditSectionsForActiveTab(b):briefingSectionsForActiveTab(b)).map(section=>`<section class="briefing-modal-section ${esc(section.tone||section.key)}">
     <h4>${esc(section.title)}</h4>
     ${activeBriefingEdit
-      ? `<div class="briefing-edit-grid">${section.values.map(row=>`<div class="briefing-edit-field"><label>${esc(row.label)}</label><textarea data-briefing-field data-source="${esc(row.source)}" data-field="${esc(row.key)}">${esc(row.value)}</textarea></div>`).join('')}</div>`
+      ? `<div class="briefing-edit-grid">${section.values.map(row=>`<div class="briefing-edit-field"><label>${esc(row.label)}</label>${renderBriefingEditControl(row)}</div>`).join('')}</div>`
       : section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><b>${esc(row.value)}</b></div>`).join('')}
   </section>`).join('');
 }
