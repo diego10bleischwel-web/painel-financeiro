@@ -695,6 +695,39 @@ button,a{font:inherit}
   word-break:break-word;
   line-height:1.35;
 }
+.briefing-edit-grid{
+  display:grid;
+  gap:12px;
+}
+.briefing-edit-field{
+  display:grid;
+  gap:7px;
+}
+.briefing-edit-field label{
+  color:#8c9db6;
+  font-size:12px;
+  font-weight:1000;
+  text-transform:uppercase;
+}
+.briefing-edit-field textarea{
+  width:100%;
+  min-height:44px;
+  resize:vertical;
+  border:1px solid rgba(130,188,255,.20);
+  border-radius:14px;
+  background:#0b1220;
+  color:#f7fbff;
+  padding:12px;
+  font:inherit;
+  font-weight:850;
+  line-height:1.35;
+  outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.briefing-edit-field textarea:focus{
+  border-color:rgba(130,188,255,.65);
+  box-shadow:0 0 0 4px rgba(130,188,255,.10),inset 0 1px 0 rgba(255,255,255,.05);
+}
 .badge-count{
   display:inline-grid;
   place-items:center;
@@ -1014,7 +1047,7 @@ const modules=[
 ];
 modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formulario Traffic AI',desc:'Recebimento em tempo real dos formularios enviados pelos clientes.',url:'briefing_cliente_v4.html',status:'Novos clientes',metric:'Entrada comercial'});
 const $=s=>document.querySelector(s);
-let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao';
+let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false;
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function moduleIcon(type){
@@ -1096,6 +1129,12 @@ function setupEvents(){
     if(status) updateBriefingStatus(status.dataset.briefingStatus);
     const deleteBriefing=e.target.closest('[data-briefing-delete]');
     if(deleteBriefing) deleteBriefingById(deleteBriefing.dataset.briefingDelete||selectedBriefingId);
+    const editBriefing=e.target.closest('[data-briefing-edit]');
+    if(editBriefing){activeBriefingEdit=true;renderBriefingModal(activeBriefingModalId||selectedBriefingId)}
+    const cancelBriefingEdit=e.target.closest('[data-briefing-edit-cancel]');
+    if(cancelBriefingEdit){activeBriefingEdit=false;renderBriefingModal(activeBriefingModalId||selectedBriefingId)}
+    const saveBriefing=e.target.closest('[data-briefing-save]');
+    if(saveBriefing) saveBriefingEdits(saveBriefing.dataset.briefingSave||activeBriefingModalId||selectedBriefingId);
     const briefingTab=e.target.closest('[data-briefing-tab]');
     if(briefingTab){activeBriefingTab=briefingTab.dataset.briefingTab;renderBriefingModal(activeBriefingModalId||selectedBriefingId)}
     const openBriefing=e.target.closest('[data-briefing-open]');
@@ -1154,6 +1193,22 @@ function briefingSectionsForActiveTab(b){
   const sections=briefingSections(b);
   const active=briefingTabs.find(tab=>tab.id===activeBriefingTab)||briefingTabs[0];
   return sections.filter(section=>active.sections.includes(section.key));
+}
+function briefingRawValue(b,section,key){
+  const source=section.source||section.key;
+  const value=b?.dados?.[source]?.[key];
+  if(Array.isArray(value))return value.join(', ');
+  if(value&&typeof value==='object')return JSON.stringify(value,null,2);
+  return value ?? '';
+}
+function briefingEditSectionsForActiveTab(b){
+  const active=briefingTabs.find(tab=>tab.id===activeBriefingTab)||briefingTabs[0];
+  return briefingSectionOrder
+    .filter(section=>active.sections.includes(section.key))
+    .map(section=>({
+      ...section,
+      values:section.fields.map(([key,label])=>({key,label,value:briefingRawValue(b,section,key),source:section.source||section.key}))
+    }));
 }
 function briefingStatusButtonClass(value,active){
   return `status-${statusClass(value)}${active?' active':''}`;
@@ -1246,11 +1301,16 @@ function renderBriefingModal(id){
   $('#briefingModalActions').innerHTML=statuses.map(([value,label])=>{
     const active=value==='novo'?String(b.status||'novo')==='novo':String(b.status||'').includes(value.split(' ')[0]);
     return `<button class="${briefingStatusButtonClass(value,active)}" data-briefing-status="${esc(value)}" type="button">${esc(label)}</button>`;
-  }).join('')+`<button class="danger" data-briefing-delete="${esc(b.id)}" type="button">Excluir</button>`;
+  }).join('')+(activeBriefingEdit
+    ? `<button data-briefing-save="${esc(b.id)}" type="button">Salvar alteracoes</button><button data-briefing-edit-cancel type="button">Cancelar</button>`
+    : `<button data-briefing-edit="${esc(b.id)}" type="button">Editar dados</button>`)
+    +`<button class="danger" data-briefing-delete="${esc(b.id)}" type="button">Excluir</button>`;
   $('#briefingModalTabs').innerHTML=briefingTabs.map(tab=>`<button class="${tab.id===activeBriefingTab?'active':''}" data-briefing-tab="${esc(tab.id)}" type="button">${esc(tab.label)}</button>`).join('');
-  $('#briefingModalSections').innerHTML=briefingSectionsForActiveTab(b).map(section=>`<section class="briefing-modal-section ${esc(section.tone||section.key)}">
+  $('#briefingModalSections').innerHTML=(activeBriefingEdit?briefingEditSectionsForActiveTab(b):briefingSectionsForActiveTab(b)).map(section=>`<section class="briefing-modal-section ${esc(section.tone||section.key)}">
     <h4>${esc(section.title)}</h4>
-    ${section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><b>${esc(row.value)}</b></div>`).join('')}
+    ${activeBriefingEdit
+      ? `<div class="briefing-edit-grid">${section.values.map(row=>`<div class="briefing-edit-field"><label>${esc(row.label)}</label><textarea data-briefing-field data-source="${esc(row.source)}" data-field="${esc(row.key)}">${esc(row.value)}</textarea></div>`).join('')}</div>`
+      : section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><b>${esc(row.value)}</b></div>`).join('')}
   </section>`).join('');
 }
 function openBriefingModal(id){
@@ -1272,6 +1332,58 @@ function closeBriefingModal(){
   modal.classList.remove('active');
   modal.setAttribute('aria-hidden','true');
   activeBriefingModalId='';
+  activeBriefingEdit=false;
+}
+function applyLocalBriefingPatch(id,patch){
+  const update=item=>String(item.id)===String(id)?{...item,...patch}:item;
+  briefingsCollection=briefingsCollection.map(update);
+  briefingsFallback=briefingsFallback.map(update);
+  briefings=briefings.map(update);
+  renderBriefingList();
+  renderBriefingDetail(selectedBriefingId);
+  if(activeBriefingModalId)renderBriefingModal(activeBriefingModalId);
+}
+function collectBriefingEditPayload(id){
+  const selected=briefings.find(x=>String(x.id)===String(id));
+  if(!selected)return null;
+  const dados=JSON.parse(JSON.stringify(selected.dados||{}));
+  document.querySelectorAll('#briefingModal [data-briefing-field]').forEach(field=>{
+    const source=field.dataset.source;
+    const key=field.dataset.field;
+    if(!source||!key)return;
+    if(!dados[source])dados[source]={};
+    const value=field.value.trim();
+    dados[source][key]=value||null;
+  });
+  const empresa=dados.identificacao?.empresa||selected.empresa_nome||selected.cliente_nome||'';
+  return {
+    dados,
+    empresa_nome:empresa,
+    cliente_nome:empresa,
+    updatedAt:new Date().toISOString()
+  };
+}
+function saveBriefingEdits(id){
+  if(!db||!id)return;
+  const selected=briefings.find(x=>String(x.id)===String(id));
+  const patch=collectBriefingEditPayload(id);
+  if(!selected||!patch)return;
+  applyLocalBriefingPatch(id,patch);
+  activeBriefingEdit=false;
+  renderBriefingModal(id);
+  if(selected._fallback){
+    const updated=briefingsFallback.map(item=>{
+      const merged=String(item.id)===String(id)?{...item,...patch}:item;
+      const {id:_id,_fallback,...clean}=merged;
+      return clean;
+    });
+    db.collection('tarefas').doc('estado_principal').set({
+      briefingsInbox:updated,
+      briefingsUpdatedAt:Date.now()
+    },{merge:true}).catch(err=>alert('Nao foi possivel salvar as alteracoes: '+err.message));
+    return;
+  }
+  db.collection('briefings').doc(id).update(patch).catch(err=>alert('Nao foi possivel salvar as alteracoes: '+err.message));
 }
 function applyLocalBriefingStatus(id,status){
   const stamp=new Date().toISOString();
