@@ -196,6 +196,30 @@ body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b2
 body.dark-theme .bank-adjust .mini-input{background:#111720;color:var(--text);border-color:var(--line)}
 body.dark-theme .pix-import-box.suggestion{background:linear-gradient(135deg,rgba(34,211,238,.12),rgba(139,92,246,.16),rgba(104,211,145,.08)) padding-box,linear-gradient(135deg,#22d3ee,#8b5cf6,#68d391) border-box!important;color:#f4f7fb!important}
 body.dark-theme .pix-import-box.suggestion textarea{background:#0f1724;border-color:rgba(34,211,238,.35)}
+body.embedded{
+  min-height:100vh;
+  overflow:auto;
+  background:#0e1117!important;
+}
+body.embedded .app{
+  width:100%;
+  max-width:none;
+  min-height:100vh;
+  margin:0;
+  padding:28px 34px 56px;
+}
+body.embedded header{
+  margin-bottom:18px;
+}
+body.embedded .card,
+body.embedded .exec-hero-v3,
+body.embedded .exec-panel-v3{
+  scroll-margin-top:18px;
+}
+body.embedded.mobile-view .app{
+  max-width:none;
+  padding:16px!important;
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -238,6 +262,8 @@ const INITIAL_ENTRIES = [{"id": 1, "tipo": "debito", "nome": "FUTEBOL", "dia": "
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+const isEmbedded=new URLSearchParams(location.search).get('embedded')==='1';
+if(isEmbedded)document.body.classList.add('embedded');
 const STORAGE_KEY='dualizeFinanceStateV3_FINAL';
 const SYNC_URL_KEY='dualizeFinanceSyncUrlV1';
 const PENDING_SYNC_KEY='dualizeFinanceSyncPendingV1';

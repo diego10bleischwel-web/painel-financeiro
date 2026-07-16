@@ -978,7 +978,13 @@ button,a{font:inherit}
   cursor:pointer;
 }
 .action.primary{background:linear-gradient(135deg,var(--blue),var(--cyan),var(--purple));color:#071018}
-.frame-wrap{position:relative;min-height:0}
+.frame-wrap{
+  position:relative;
+  min-height:0;
+  overflow:hidden;
+  background:#0e1117;
+  contain:layout paint;
+}
 .frame-wrap.loading:before{
   content:"Carregando módulo...";
   position:absolute;
@@ -991,6 +997,9 @@ button,a{font:inherit}
   font-weight:950;
 }
 iframe{
+  position:absolute;
+  inset:0;
+  display:block;
   width:100%;
   height:100%;
   border:0;
