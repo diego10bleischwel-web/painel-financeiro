@@ -860,6 +860,12 @@ button,a{font:inherit}
   display:grid;
   gap:10px;
 }
+.report-client-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  align-items:stretch;
+}
 .report-client{
   width:100%;
   text-align:left;
@@ -880,6 +886,21 @@ button,a{font:inherit}
   color:#82bcff;
   font-size:12px;
   font-weight:950;
+}
+.report-copy-small{
+  min-width:84px;
+  border:1px solid rgba(130,188,255,.22);
+  border-radius:18px;
+  background:rgba(130,188,255,.08);
+  color:#bfe2ff;
+  font-size:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.report-copy-small:hover{
+  border-color:rgba(112,214,162,.72);
+  color:#d6ffe6;
+  background:rgba(112,214,162,.12);
 }
 .report-client.active{
   border-color:rgba(112,214,162,.72);
@@ -1330,8 +1351,8 @@ function getReportItems(){return reportGroups[activeReportKind]||[]}
 function getActiveReport(){
   const items=getReportItems();
   if(!items.length)return null;
-  if(!activeReportId||!items.some(item=>reportId(item)===activeReportId))activeReportId=reportId(items[0]);
-  return items.find(item=>reportId(item)===activeReportId)||items[0];
+  if(!activeReportId||!items.some(item=>reportId(item)===activeReportId))return null;
+  return items.find(item=>reportId(item)===activeReportId)||null;
 }
 function updateReportExternalLink(){
   const active=getActiveReport();
@@ -1343,13 +1364,16 @@ function renderReports(){
   document.querySelectorAll('[data-report-kind]').forEach(btn=>btn.classList.toggle('active',btn.dataset.reportKind===activeReportKind));
   $('#reportList').innerHTML=items.length?items.map(item=>{
     const id=reportId(item);
-    return `<button class="report-client ${id===activeReportId?'active':''}" type="button" data-report-select="${id}">
-      <strong>${esc(item.client)}</strong>
-      <span>${esc(item.title)}</span>
-    </button>`;
+    return `<div class="report-client-row">
+      <button class="report-client ${id===activeReportId?'active':''}" type="button" data-report-select="${id}">
+        <strong>${esc(item.client)}</strong>
+        <span>${esc(item.title)}</span>
+      </button>
+      <button class="report-copy-small" type="button" data-report-copy="${id}">Copiar</button>
+    </div>`;
   }).join(''):`<div class="report-empty">Nenhum relatório de ${activeReportKind==='google'?'Google Ads':'Meta'} cadastrado ainda.</div>`;
   if(!active){
-    $('#reportDetail').innerHTML='<div class="report-empty">Cadastre um link para visualizar aqui.</div>';
+    $('#reportDetail').innerHTML='<div class="report-empty">Escolha um cliente na lista ao lado para abrir o relatorio. Use Copiar para enviar o link sem abrir.</div>';
     updateReportExternalLink();
     return;
   }
@@ -1376,7 +1400,7 @@ async function copyReportLink(id){
     const btn=document.querySelector(`[data-report-copy="${id}"]`);
     if(btn){
       btn.textContent='Link copiado';
-      setTimeout(()=>btn.textContent='Copiar link',1400);
+      setTimeout(()=>btn.textContent=btn.classList.contains('report-copy-small')?'Copiar':'Copiar link',1400);
     }
   }catch(err){
     prompt('Copie o link do relatório:',active.url);
@@ -1421,6 +1445,7 @@ function openModule(id){
     $('#briefingBoard').hidden=true;
     $('#reportBoard').hidden=false;
     $('#reloadFrame').hidden=true;
+    activeReportId='';
     renderReports();
     return;
   }
