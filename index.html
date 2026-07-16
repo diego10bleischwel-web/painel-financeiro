@@ -799,6 +799,147 @@ button,a{font:inherit}
   font-weight:1000;
   margin-left:8px;
 }
+.report-board{
+  min-height:0;
+  display:grid;
+  grid-template-columns:360px 1fr;
+  gap:18px;
+  padding:22px;
+  background:
+    radial-gradient(circle at 18% 12%,rgba(116,99,255,.18),transparent 34%),
+    radial-gradient(circle at 90% 5%,rgba(53,216,255,.13),transparent 30%),
+    linear-gradient(135deg,#101a2a,#0b111b 60%,#07101a);
+  overflow:auto;
+}
+.report-panel{
+  border:1px solid transparent;
+  border-radius:24px;
+  background:
+    linear-gradient(rgba(21,32,49,.92),rgba(15,23,36,.96)) padding-box,
+    linear-gradient(135deg,rgba(139,92,246,.86),rgba(53,216,255,.72),rgba(112,214,162,.62)) border-box;
+  box-shadow:0 20px 70px rgba(0,0,0,.34),0 0 34px rgba(53,216,255,.10),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.report-sidebar{
+  padding:18px;
+  align-self:start;
+  position:sticky;
+  top:0;
+}
+.report-sidebar h3,.report-detail h3{
+  margin:0;
+  font-size:24px;
+}
+.report-sidebar p,.report-detail p{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.45;
+}
+.report-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:18px 0;
+}
+.report-tab{
+  border:1px solid rgba(130,188,255,.20);
+  border-radius:999px;
+  padding:10px 12px;
+  background:rgba(255,255,255,.045);
+  color:#a9bad7;
+  font-weight:1000;
+  cursor:pointer;
+}
+.report-tab.active{
+  color:#06111d;
+  border-color:rgba(255,255,255,.55);
+  background:linear-gradient(135deg,#82bcff,#35d8ff,#70d6a2);
+  box-shadow:0 0 28px rgba(53,216,255,.20),inset 0 1px 0 rgba(255,255,255,.38);
+}
+.report-list{
+  display:grid;
+  gap:10px;
+}
+.report-client{
+  width:100%;
+  text-align:left;
+  border:1px solid rgba(130,188,255,.18);
+  border-radius:18px;
+  padding:13px;
+  color:var(--text);
+  background:rgba(8,15,26,.72);
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.report-client strong{
+  display:block;
+  font-size:15px;
+  margin-bottom:5px;
+}
+.report-client span{
+  color:#82bcff;
+  font-size:12px;
+  font-weight:950;
+}
+.report-client.active{
+  border-color:rgba(112,214,162,.72);
+  background:linear-gradient(135deg,rgba(48,93,162,.34),rgba(19,110,95,.24));
+  box-shadow:0 0 26px rgba(112,214,162,.12),inset 0 1px 0 rgba(255,255,255,.08);
+}
+.report-detail{
+  min-width:0;
+  padding:18px;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  gap:16px;
+}
+.report-detail-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+.report-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.report-action{
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  padding:10px 13px;
+  font-size:12px;
+  font-weight:1000;
+  text-decoration:none;
+  color:var(--text);
+  background:rgba(255,255,255,.06);
+  cursor:pointer;
+}
+.report-action.primary{
+  color:#06111d;
+  background:linear-gradient(135deg,#82bcff,#70d6a2);
+}
+.report-frame{
+  min-height:620px;
+  border:1px solid rgba(130,188,255,.18);
+  border-radius:22px;
+  overflow:hidden;
+  background:#07101a;
+  box-shadow:0 18px 60px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.05);
+}
+.report-frame iframe{
+  height:100%;
+  min-height:620px;
+}
+.report-empty{
+  display:grid;
+  place-items:center;
+  min-height:340px;
+  text-align:center;
+  color:var(--muted);
+  font-weight:950;
+}
 .workspace{
   position:fixed;
   inset:18px;
@@ -858,6 +999,8 @@ iframe{
 @media(max-width:1050px){
   .module-grid,.summary,.kpis{grid-template-columns:1fr}
   .briefing-board{grid-template-columns:1fr}
+  .report-board{grid-template-columns:1fr}
+  .report-sidebar{position:static}
   .briefing-preview-grid{grid-template-columns:1fr 1fr}
   .briefing-modal-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .app{padding:18px}
@@ -953,6 +1096,11 @@ iframe{
   }
   #openExternal{grid-column:1/3}
   .briefing-board{padding:10px}
+  .report-board{padding:10px}
+  .report-detail-head{flex-direction:column}
+  .report-actions{width:100%;justify-content:stretch}
+  .report-action{flex:1;text-align:center}
+  .report-frame,.report-frame iframe{min-height:520px}
   .briefing-preview-grid{grid-template-columns:1fr}
   .briefing-modal-tabs{grid-template-columns:1fr}
   .briefing-preview-head,.briefing-modal-head{align-items:stretch;flex-direction:column}
@@ -1027,6 +1175,7 @@ iframe{
           <div class="kpi"><span>Cartões</span><strong id="financeCards">--</strong><small>Transações importadas</small></div>
           <div class="kpi"><span>Tarefas</span><strong id="taskCards">--</strong><small id="taskSync">Aguardando Firestore</small></div>
           <div class="kpi"><span>Formulario Traffic AI</span><strong id="briefingCount">--</strong><small id="briefingSync">Aguardando Firestore</small></div>
+          <div class="kpi"><span>Relatórios</span><strong id="reportCount">5</strong><small>Meta cadastrados</small></div>
           <div class="kpi"><span>Calculadora de LEADs</span><strong>Pronta</strong><small>Módulo disponível</small></div>
         </div>
       </section>
@@ -1038,6 +1187,7 @@ iframe{
           <div class="activity-line"><b>Financeiro</b><span id="activityFinance">Conectando</span></div>
           <div class="activity-line"><b>Tarefas</b><span id="activityTasks">Conectando</span></div>
           <div class="activity-line"><b>Formulario Traffic AI</b><span id="activityBriefings">Conectando</span></div>
+          <div class="activity-line"><b>Relatórios</b><span>5 clientes Meta</span></div>
         </div>
       </section>
     </div>
@@ -1069,6 +1219,20 @@ iframe{
     </aside>
     <main class="briefing-detail" id="briefingDetail">
       <div class="briefing-empty">Selecione um briefing para ver os detalhes.</div>
+    </main>
+  </div>
+  <div class="report-board" id="reportBoard" hidden>
+    <aside class="report-panel report-sidebar">
+      <h3>Relatórios dos clientes</h3>
+      <p>Links de acompanhamento por cliente, separados por Meta e Google Ads para envio rápido e consulta dentro do painel.</p>
+      <div class="report-tabs" role="tablist" aria-label="Tipo de relatório">
+        <button class="report-tab active" type="button" data-report-kind="meta">Meta</button>
+        <button class="report-tab" type="button" data-report-kind="google">Google Ads</button>
+      </div>
+      <div class="report-list" id="reportList"></div>
+    </aside>
+    <main class="report-panel report-detail" id="reportDetail">
+      <div class="report-empty">Selecione um relatório para visualizar.</div>
     </main>
   </div>
 </section>
@@ -1105,8 +1269,19 @@ const modules=[
   {id:'leads',icon:'calculator',title:'Calculadora de LEADs',desc:'Fórmula do lead qualificado e simulações comerciais.',url:'calculadora-lead/index.html',status:'Módulo comercial',metric:'Simulador'}
 ];
 modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formulario Traffic AI',desc:'Recebimento em tempo real dos formularios enviados pelos clientes.',url:'briefing_cliente_v4.html',status:'Novos clientes',metric:'Entrada comercial'});
+modules.splice(3,0,{id:'relatorios',icon:'reports',title:'Relatórios',desc:'Dashboards de Meta e Google Ads por cliente, prontos para consulta e envio.',url:'',status:'Clientes e mídia',metric:'Meta / Google Ads'});
 const $=s=>document.querySelector(s);
-let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false;
+let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='';
+const reportGroups={
+  meta:[
+    {client:'Hospital do Dente',title:'Relatório Meta',url:'https://datastudio.google.com/embed/reporting/7fc66011-46da-4b5d-805a-4ec264a8ce75/page/p_ske7imsi0d'},
+    {client:'Sólido Sentimento',title:'Relatório Meta',url:'https://datastudio.google.com/embed/reporting/17f2f9cf-2d2d-46b9-ad3d-36ec6319dd47/page/p_exys0nsi0d'},
+    {client:'Best Multimarcas',title:'Relatório Meta',url:'https://datastudio.google.com/embed/reporting/44965a93-d2c6-4180-817f-0e6e3dc7332c/page/p_ske7imsi0d'},
+    {client:'Emporio Hering',title:'Relatório Meta',url:'https://datastudio.google.com/embed/u/0/reporting/17c79372-ffd3-4f28-a338-e319fd14291b/page/p_ske7imsi0d'},
+    {client:'Cortinar Ambientes',title:'Relatório Meta',url:'https://datastudio.google.com/embed/reporting/4120868c-79ec-4c60-b815-f0c3aad4ed4e/page/p_ske7imsi0d'}
+  ],
+  google:[]
+};
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function syncTime(ts){return new Date(ts||Date.now()).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
 function moduleIcon(type){
@@ -1114,6 +1289,7 @@ function moduleIcon(type){
     finance:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M17 7.5c-.9-1.1-2.4-1.7-4.3-1.7-2.4 0-4 .9-4 2.6 0 4.1 8.6 1.8 8.6 6.1 0 1.8-1.7 3-4.4 3-2.2 0-4-.7-5-2"/></svg>',
     control:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7"/><path d="M15 7h5"/><path d="M9 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/><path d="M4 17h3"/><path d="M11 17h9"/><path d="M7 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/></svg>',
     briefing:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v5h5"/><path d="M10 12h6"/><path d="M10 16h6"/><path d="M10 8h1"/></svg>',
+    reports:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M12 16V8"/><path d="M16 16v-7"/><path d="M19 6l-4 4-3-2-4 4"/></svg>',
     calculator:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8"/><path d="M8 11h.01"/><path d="M12 11h.01"/><path d="M16 11h.01"/><path d="M8 15h.01"/><path d="M12 15h.01"/><path d="M16 15h.01"/><path d="M8 18h.01"/><path d="M12 18h4"/></svg>'
   };
   return icons[type]||icons.control;
@@ -1140,6 +1316,63 @@ function briefingFormUrl(name=''){
   base.searchParams.set('v',version);
   return base.toString();
 }
+function reportId(item){return `${activeReportKind}-${item.client}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function getReportItems(){return reportGroups[activeReportKind]||[]}
+function getActiveReport(){
+  const items=getReportItems();
+  if(!items.length)return null;
+  if(!activeReportId||!items.some(item=>reportId(item)===activeReportId))activeReportId=reportId(items[0]);
+  return items.find(item=>reportId(item)===activeReportId)||items[0];
+}
+function updateReportExternalLink(){
+  const active=getActiveReport();
+  $('#openExternal').href=active?active.url:'#';
+}
+function renderReports(){
+  const items=getReportItems();
+  const active=getActiveReport();
+  document.querySelectorAll('[data-report-kind]').forEach(btn=>btn.classList.toggle('active',btn.dataset.reportKind===activeReportKind));
+  $('#reportList').innerHTML=items.length?items.map(item=>{
+    const id=reportId(item);
+    return `<button class="report-client ${id===activeReportId?'active':''}" type="button" data-report-select="${id}">
+      <strong>${esc(item.client)}</strong>
+      <span>${esc(item.title)}</span>
+    </button>`;
+  }).join(''):`<div class="report-empty">Nenhum relatório de ${activeReportKind==='google'?'Google Ads':'Meta'} cadastrado ainda.</div>`;
+  if(!active){
+    $('#reportDetail').innerHTML='<div class="report-empty">Cadastre um link para visualizar aqui.</div>';
+    updateReportExternalLink();
+    return;
+  }
+  $('#reportDetail').innerHTML=`<div class="report-detail-head">
+    <div>
+      <h3>${esc(active.client)}</h3>
+      <p>${esc(active.title)} pronto para consulta, envio ao cliente e abertura em tela cheia.</p>
+    </div>
+    <div class="report-actions">
+      <button class="report-action" type="button" data-report-copy="${esc(activeReportId)}">Copiar link</button>
+      <a class="report-action primary" href="${esc(active.url)}" target="_blank" rel="noopener">Abrir relatório</a>
+    </div>
+  </div>
+  <div class="report-frame">
+    <iframe title="Relatório ${esc(active.client)}" src="${esc(active.url)}" loading="lazy" allowfullscreen></iframe>
+  </div>`;
+  updateReportExternalLink();
+}
+async function copyReportLink(id){
+  const active=getReportItems().find(item=>reportId(item)===id)||getActiveReport();
+  if(!active)return;
+  try{
+    await navigator.clipboard.writeText(active.url);
+    const btn=document.querySelector(`[data-report-copy="${id}"]`);
+    if(btn){
+      btn.textContent='Link copiado';
+      setTimeout(()=>btn.textContent='Copiar link',1400);
+    }
+  }catch(err){
+    prompt('Copie o link do relatório:',active.url);
+  }
+}
 function updateBriefingLink(){
   const input=$('#briefingClientName'),preview=$('#briefingClientLink');
   if(!preview)return;
@@ -1158,20 +1391,32 @@ async function copyBriefingLink(){
 function openModule(id){
   const mod=modules.find(m=>m.id===id)||modules[0];
   $('#workspaceTitle').textContent=mod.title;
-  $('#openExternal').href=versionedUrl(mod.url);
+  $('#openExternal').href=mod.url?versionedUrl(mod.url):'#';
   $('#workspace').classList.add('active');
   if(id==='briefings'){
     $('#frameWrap').hidden=true;
     $('#frameWrap').classList.remove('loading');
     $('#moduleFrame').src='about:blank';
     $('#briefingBoard').hidden=false;
+    $('#reportBoard').hidden=true;
     $('#reloadFrame').hidden=true;
     updateBriefingLink();
     renderBriefingList();
     renderBriefingDetail(selectedBriefingId);
     return;
   }
+  if(id==='relatorios'){
+    $('#frameWrap').hidden=true;
+    $('#frameWrap').classList.remove('loading');
+    $('#moduleFrame').src='about:blank';
+    $('#briefingBoard').hidden=true;
+    $('#reportBoard').hidden=false;
+    $('#reloadFrame').hidden=true;
+    renderReports();
+    return;
+  }
   $('#briefingBoard').hidden=true;
+  $('#reportBoard').hidden=true;
   closeBriefingModal();
   $('#frameWrap').hidden=false;
   $('#reloadFrame').hidden=false;
@@ -1182,6 +1427,12 @@ function setupEvents(){
   document.body.addEventListener('click',e=>{
     const target=e.target.closest('[data-module]');
     if(target) openModule(target.dataset.module);
+    const reportKind=e.target.closest('[data-report-kind]');
+    if(reportKind){activeReportKind=reportKind.dataset.reportKind;activeReportId='';renderReports()}
+    const reportSelect=e.target.closest('[data-report-select]');
+    if(reportSelect){activeReportId=reportSelect.dataset.reportSelect;renderReports()}
+    const reportCopy=e.target.closest('[data-report-copy]');
+    if(reportCopy) copyReportLink(reportCopy.dataset.reportCopy);
     const briefing=e.target.closest('[data-briefing-id]');
     if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId)}
     const status=e.target.closest('[data-briefing-status]');
