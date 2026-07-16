@@ -220,6 +220,78 @@ body.embedded.mobile-view .app{
   max-width:none;
   padding:16px!important;
 }
+.revenue-composition .exec-chart-v3{
+  margin-bottom:18px;
+}
+.exec-origin-inline{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+.exec-origin-inline .exec-line-v3{
+  display:grid;
+  gap:6px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(104,211,145,.06);
+}
+.exec-origin-inline .exec-line-v3 strong{
+  text-align:left;
+}
+.exec-card-dashboard{
+  align-items:stretch!important;
+}
+.exec-card-dashboard .exec-accordion{
+  min-height:116px;
+  height:100%;
+}
+.exec-card-dashboard .exec-accordion summary{
+  min-height:116px;
+  display:flex;
+  align-items:center;
+}
+.exec-card-dashboard .exec-panel-title-v3{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  gap:14px;
+  align-items:center;
+}
+.exec-card-dashboard .exec-panel-title-v3 h3{
+  font-size:18px;
+}
+.exec-card-dashboard .exec-panel-title-v3 p{
+  max-width:360px;
+}
+.exec-card-dashboard .exec-total-v3{
+  min-width:150px;
+  text-align:right;
+  font-size:26px;
+}
+.value input.amount-pago,
+.value input.amount-recebido{
+  background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(104,211,145,.08))!important;
+  border-color:rgba(34,197,94,.46)!important;
+  color:var(--green-text)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+body.dark-theme .value input.amount-pago,
+body.dark-theme .value input.amount-recebido{
+  background:linear-gradient(135deg,rgba(34,197,94,.24),rgba(104,211,145,.10))!important;
+  border-color:rgba(134,239,172,.46)!important;
+  color:#bdf7ce!important;
+}
+@media(max-width:1180px){
+  .exec-origin-inline{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .exec-card-dashboard .exec-panel-title-v3{grid-template-columns:minmax(0,1fr) auto}
+  .exec-card-dashboard .exec-total-v3{text-align:left}
+}
+@media(max-width:720px){
+  .exec-origin-inline{grid-template-columns:1fr}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -247,11 +319,10 @@ body.embedded.mobile-view .app{
   </div>
   <div class="carry-alert" id="carryAlert"></div>
   <div class="exec-layout-v3">
-    <div class="exec-panel-v3"><div class="exec-panel-title-v3"><div><h3>Composição da receita</h3><p>Agora com gráfico circular + barras.</p></div><strong class="exec-total-v3" id="execReceitaTotal">R$ 0,00</strong></div><div class="exec-chart-v3"><div class="exec-donut-v3" id="execDonut"><div class="exec-donut-center-v3"><b id="execMainPct">0%</b><small>maior origem</small></div></div><div class="exec-bars-v3"><div class="exec-bar-v3"><b>Empresa</b><div class="exec-track-v3"><div class="exec-fill-v3" id="barEmpresa"></div></div><strong id="pctEmpresa">0%</strong></div><div class="exec-bar-v3"><b>Marketing</b><div class="exec-track-v3"><div class="exec-fill-v3" id="barMarketing"></div></div><strong id="pctMarketing">0%</strong></div><div class="exec-bar-v3"><b>Tráfego</b><div class="exec-track-v3"><div class="exec-fill-v3" id="barTrafego"></div></div><strong id="pctTrafego">0%</strong></div></div></div></div>
+    <div class="exec-panel-v3 revenue-composition"><div class="exec-panel-title-v3"><div><h3>Composição da receita</h3><p>Gráfico, barras e valores por origem no mesmo lugar.</p></div><strong class="exec-total-v3" id="execReceitaTotal">R$ 0,00</strong></div><div class="exec-chart-v3"><div class="exec-donut-v3" id="execDonut"><div class="exec-donut-center-v3"><b id="execMainPct">0%</b><small>maior origem</small></div></div><div class="exec-bars-v3"><div class="exec-bar-v3"><b>Empresa</b><div class="exec-track-v3"><div class="exec-fill-v3" id="barEmpresa"></div></div><strong id="pctEmpresa">0%</strong></div><div class="exec-bar-v3"><b>Marketing</b><div class="exec-track-v3"><div class="exec-fill-v3" id="barMarketing"></div></div><strong id="pctMarketing">0%</strong></div><div class="exec-bar-v3"><b>Tráfego</b><div class="exec-track-v3"><div class="exec-fill-v3" id="barTrafego"></div></div><strong id="pctTrafego">0%</strong></div></div></div><div class="exec-origin-inline"><div class="exec-line-v3"><span>Empresa</span><strong id="dashEmpresa">R$ 0,00</strong></div><div class="exec-line-v3"><span>Marketing</span><strong id="dashMarketing">R$ 0,00</strong></div><div class="exec-line-v3"><span>Tráfego</span><strong id="dashTrafego">R$ 0,00</strong></div><div class="exec-line-v3"><span>Maior peso</span><strong id="biggestWeight">Calculando...</strong></div></div></div>
     <div class="exec-panel-v3"><div class="exec-panel-title-v3"><div><h3>Resumo por banco</h3><p>Bancos em cards separados.</p></div></div><div class="exec-bank-grid-v3" id="execBankCards"></div><table class="exec-hidden" id="bankTable"></table></div>
   </div>
   <div class="exec-layout-v3">
-    <div class="exec-panel-v3"><div class="exec-panel-title-v3"><div><h3>Receitas por origem</h3><p>Leitura objetiva dos canais.</p></div></div><div class="exec-list-v3"><div class="exec-line-v3"><span>Empresa</span><strong id="dashEmpresa">R$ 0,00</strong></div><div class="exec-line-v3"><span>Marketing</span><strong id="dashMarketing">R$ 0,00</strong></div><div class="exec-line-v3"><span>Tráfego</span><strong id="dashTrafego">R$ 0,00</strong></div><div class="exec-line-v3"><span>Maior peso</span><strong id="biggestWeight">Calculando...</strong></div></div></div>
     <div class="exec-card-dashboard" id="dashCardSummary"></div>
     <div class="exec-panel-v3"><div class="exec-panel-title-v3"><div><h3>Terceiros por banco</h3><p>Entrou, já foi repassado e falta repassar.</p></div></div><div class="exec-list-v3" id="dashPaymentSummary"></div></div>
   </div>
