@@ -88,8 +88,14 @@ body.dark-theme #lancar .form .row,body.dark-theme #lancar .form>div:not(.row):n
 .planning-smart.danger{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,#ff7b72,#8b5cf6,#22d3ee) border-box!important;color:var(--text)!important;text-shadow:none}
 body.dark-theme .planning-smart.danger{background:linear-gradient(#151b25,#151b25) padding-box,linear-gradient(135deg,#ff7b72,#8b5cf6,#22d3ee) border-box!important;color:#f4f7fb!important}
 .entry-row{border:2px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,rgba(139,92,246,.44),rgba(34,211,238,.32),rgba(104,211,145,.20)) border-box;box-shadow:0 12px 30px rgba(15,23,42,.06)}
-.status-pill.nao-pago{background:#ffe2d6;color:#b42318}
-body.dark-theme .status-pill.nao-pago{background:rgba(239,68,68,.22);color:#ffb4a8}
+.status-pill.nao-pago{background:#2f3643;color:#d7dce5}
+body.dark-theme .status-pill.nao-pago{background:#252b35;color:#d7dce5}
+.status-pill.atrasado{background:rgba(139,92,246,.22);color:#d8c4ff;border:1px solid rgba(139,92,246,.52)}
+body.dark-theme .status-pill.atrasado{background:rgba(139,92,246,.28);color:#e4d6ff}
+.entry-row.overdue-row{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,rgba(139,92,246,.76),rgba(34,211,238,.26)) border-box;box-shadow:0 14px 34px rgba(139,92,246,.16)}
+.entry-row.overdue-row .name small:first-of-type{color:#d8c4ff}
+.value input.amount-nao-pago{background:linear-gradient(135deg,rgba(47,54,67,.22),rgba(47,54,67,.10))!important;border-color:rgba(148,163,184,.42)!important;color:#d7dce5!important}
+.value input.amount-atrasado{background:linear-gradient(135deg,rgba(139,92,246,.20),rgba(34,211,238,.06))!important;border-color:rgba(139,92,246,.52)!important;color:#d8c4ff!important}
 #syncBtn{
   border:2px solid transparent!important;
   background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#8f6bff,#82bcff,#70d6a2) border-box!important;
@@ -932,7 +938,8 @@ function currentStatus(e){
 }
 function statusAtMonth(e,month){ const key=String(month); if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key]; return baseStatus(e); }
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.repeticoes-effectiveMonthOffset(e,state.currentMonth))}
-function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(currentStatus(e)==='naoPago')return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
+function isOverdueDebit(e){ return e&&e.tipo==='debito'&&(e.atrasado||e.carryForwardKey); }
+function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(isOverdueDebit(e)&&currentStatus(e)!=='pago')return 'mês anterior em aberto'; if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(currentStatus(e)==='naoPago')return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
 function visibleAtMonth(e,month){ return month>=e.inicio && effectiveMonthOffset(e,month)<e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(month)]); }
 function displayValueAtMonth(e,month){ if(e.tipo!=='receita')return configuredValue(e,month); const remaining=remainingAmount(e,month); return remaining?moneyInput(remaining,'receita'):configuredValue(e,month); }
 function setCurrentStatus(e,status){
@@ -974,6 +981,8 @@ function createCarryForwardDebit(e){
   clone.carryForwardKey=key;
   clone.carryFromId=e.id;
   clone.carryFromMonth=state.currentMonth;
+  clone.atrasado=true;
+  clone.categoria='Atrasado';
   clone.observacao=[e.observacao,'Gerado automaticamente por não pago no mês anterior.'].filter(Boolean).join(' ');
   clone.valor=value;
   clone.valorModo='fixo';
@@ -1017,12 +1026,12 @@ function deleteEntry(id){
   persist();
   renderAll();
 }
-function statusText(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'Recebido':(st==='parcial'?'Parcial':'Pendente'); if(st==='pago') return 'Pago'; if(st==='naoPago') return 'Não pago'; return e.original==='fixo'?'Débito fixo':'Débito mensal'; }
-function statusClass(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'recebido':(st==='parcial'?'parcial':'receita'); if(st==='pago') return 'pago'; if(st==='naoPago') return 'nao-pago'; return e.original==='fixo'?'fixo':'pendente'; }
+function statusText(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'Recebido':(st==='parcial'?'Parcial':'Pendente'); if(st==='pago') return 'Pago'; if(st==='naoPago') return 'Não pago'; if(isOverdueDebit(e))return 'Atrasado'; return e.original==='fixo'?'Débito fixo':'Débito mensal'; }
+function statusClass(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'recebido':(st==='parcial'?'parcial':'receita'); if(st==='pago') return 'pago'; if(st==='naoPago') return 'nao-pago'; if(isOverdueDebit(e))return 'atrasado'; return e.original==='fixo'?'fixo':'pendente'; }
 function valueIsLocked(e){ const status=currentStatus(e); return (status==='pago'||status==='recebido')&&hasEnteredValue(e); }
 function renderMonths(){ const cur=$('#startMonthInput').value||state.currentMonth; $('#monthSelect').innerHTML=''; $('#startMonthInput').innerHTML=''; for(let i=0;i<=maxMonth();i++){ $('#monthSelect').add(new Option(monthLabel(i),i)); $('#startMonthInput').add(new Option(monthLabel(i),i)); } $('#monthSelect').value=state.currentMonth; $('#startMonthInput').value=Math.min(Number(cur),maxMonth()); }
 function renderCardMonths(){ const sel=$('#cardImportMonth'); if(!sel)return; const old=sel.value||state.currentMonth; sel.innerHTML=''; for(let i=0;i<=maxMonth()+12;i++)sel.add(new Option(monthLabel(i),i)); sel.value=Math.min(Number(old),maxMonth()+12); renderCardOptions(); }
-function row(e){ const small=e.tipo==='receita'?(e.origem||e.categoria||'Receita'):(e.categoria||'Sem categoria'), bank=e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado', bankLabel=e.tipo==='receita'?'Recebe em':'Baixa em'; const restLabel=rowRestLabel(e); const showRest=e.tipo==='debito', locked=valueIsLocked(e), valueClass='amount-'+statusClass(e); return `<div class="entry-row" data-id="${e.id}" draggable="false">
+function row(e){ const overdue=isOverdueDebit(e)&&currentStatus(e)!=='pago', small=overdue?'Atrasado':(e.tipo==='receita'?(e.origem||e.categoria||'Receita'):(e.categoria||'Sem categoria')), bank=e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado', bankLabel=e.tipo==='receita'?'Recebe em':'Baixa em'; const restLabel=rowRestLabel(e); const showRest=e.tipo==='debito', locked=valueIsLocked(e), valueClass='amount-'+statusClass(e); return `<div class="entry-row ${overdue?'overdue-row':''}" data-id="${e.id}" draggable="false">
 <div class="row-tools"><button class="icon-btn edit-btn" title="Editar">✎</button><button class="icon-btn delete-btn" title="Excluir">🗑</button></div>
 <div class="handle">↕</div><div class="name"><strong>${e.nome}</strong><small>${small}</small><small class="entry-bank">${bankLabel}: ${bank}</small></div>
 <div class="day"><small>Dia</small>${e.dia}</div><div class="value"><input class="${valueClass}${locked?' locked':''}" value="${e.tipo==='receita'?revenueInputValue(e):(displayValue(e)||'')}" ${locked?'readonly title="Altere o status antes de editar o valor"':''}></div>
