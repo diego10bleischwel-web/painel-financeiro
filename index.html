@@ -1507,9 +1507,9 @@ function setupEvents(){
 function statusClass(status){return String(status||'novo').includes('config')?'configurado':String(status||'novo').includes('anal')?'analise':'novo'}
 function statusLabel(status){const s=String(status||'novo');return s==='novo'?'NOVO':s.toUpperCase()}
 function briefingDate(v){return v?new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sem data'}
-function briefingValue(v){if(Array.isArray(v))return v.length?v.join(', '):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
+function briefingValue(v){if(Array.isArray(v))return v.length?v.join('\n'):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
 const briefingSectionOrder=[
-  {key:'identificacao',tone:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP']]},
+  {key:'identificacao',tone:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP'],['landing_pages','Landing pages'],['contas_anuncios','Contas de anuncios'],['whatsapp_numero','WhatsApp'],['whatsapp_mensagem','Mensagem WhatsApp']]},
   {key:'avatar',tone:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
   {key:'produto',tone:'produto',title:'3. Produto',fields:[['oque_e','O que vende'],['mecanismo','Diferencial unico'],['diferenciais','Diferenciais'],['como_funciona','Como funciona'],['features','Features']]},
   {key:'financeiro-planejamento',source:'financeiro',tone:'financeiro',title:'Planejamento',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS']]},
@@ -1528,7 +1528,11 @@ const briefingFieldSchema={
     idioma:{kind:'choice',options:['Português (BR)','Inglês','Espanhol','Outro']},
     pais:{kind:'choice',options:['Brasil','EUA','Portugal','Outro']},
     link:{kind:'input'},
-    texto_lp:{kind:'textarea'}
+    texto_lp:{kind:'textarea'},
+    landing_pages:{kind:'textarea',array:true},
+    contas_anuncios:{kind:'textarea',array:true},
+    whatsapp_numero:{kind:'input'},
+    whatsapp_mensagem:{kind:'textarea'}
   },
   avatar:{
     idade_min:{kind:'input',type:'number'},
@@ -1536,16 +1540,16 @@ const briefingFieldSchema={
     genero:{kind:'choice',options:['Todos','Mulheres','Homens','Não sei']},
     consciencia:{kind:'choice',options:['Sem consciência','Sabe do problema','Conhece soluções','Conhece o produto','Pronto para comprar','Não sei']},
     descricao:{kind:'textarea'},
-    dores:{kind:'textarea'},
-    desejos:{kind:'textarea'},
-    provas:{kind:'textarea'}
+    dores:{kind:'textarea',array:true},
+    desejos:{kind:'textarea',array:true},
+    provas:{kind:'textarea',array:true}
   },
   produto:{
     oque_e:{kind:'textarea'},
     mecanismo:{kind:'textarea'},
-    diferenciais:{kind:'textarea'},
+    diferenciais:{kind:'textarea',array:true},
     como_funciona:{kind:'textarea'},
-    features:{kind:'textarea'}
+    features:{kind:'textarea',array:true}
   },
   financeiro:{
     budget:{kind:'input'},
@@ -1596,9 +1600,19 @@ function briefingSectionsForActiveTab(b){
 function briefingRawValue(b,section,key){
   const source=section.source||section.key;
   const value=b?.dados?.[source]?.[key];
-  if(Array.isArray(value))return value.join(', ');
+  if(Array.isArray(value))return value.join('\n');
   if(value&&typeof value==='object')return JSON.stringify(value,null,2);
   return value ?? '';
+}
+function parseBriefingEditValue(source,key,value){
+  const config=briefingFieldConfig(source,key);
+  if(config.array){
+    return String(value||'')
+      .split(/\n|,/)
+      .map(item=>item.trim())
+      .filter(Boolean);
+  }
+  return value||null;
 }
 function briefingEditSectionsForActiveTab(b){
   const active=briefingTabs.find(tab=>tab.id===activeBriefingTab)||briefingTabs[0];
@@ -1776,7 +1790,7 @@ function collectBriefingEditPayload(id){
     if(!source||!key)return;
     if(!dados[source])dados[source]={};
     const value=field.value.trim();
-    dados[source][key]=value||null;
+    dados[source][key]=parseBriefingEditValue(source,key,value);
   });
   const empresa=dados.identificacao?.empresa||selected.empresa_nome||selected.cliente_nome||'';
   return {

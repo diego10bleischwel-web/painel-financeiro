@@ -353,6 +353,39 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <textarea class="input" id="texto_lp" rows="3" placeholder="Cole aqui o texto da sua LP ou descrição do produto..."></textarea>
       </div>
 
+      <div class="field">
+        <div class="field-top"><span class="field-label">Landing pages</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-landing-pages')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-landing-pages"><strong>Liste outras paginas de venda que voce usa ou quer testar.</strong><br>Se tiver mais de uma LP, informe cada link separadamente para acompanharmos conversao por pagina no cockpit.</div>
+        <div class="repeat-list" id="list-landing-pages">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="https://..." oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-landing-pages',6,'Nova landing page...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar landing page
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Contas de anuncios</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-contas-anuncios')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-contas-anuncios"><strong>Informe as contas de anuncios vinculadas a oferta.</strong><br>Se souber, use o padrao act_XXX. Se deixar em branco, vamos considerar todas as contas conectadas.</div>
+        <div class="repeat-list" id="list-contas-anuncios">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="Ex: act_123456789 ou nome da conta" oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-contas-anuncios',8,'Outra conta de anuncios...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar conta
+        </button>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">WhatsApp</span><span class="opt">opcional</span><span class="info-btn" onclick="tog('info-whatsapp')">ⓘ o que é isso?</span></div>
+        <div class="info-panel" id="info-whatsapp"><strong>Dados para gerar link rastreado de conversa.</strong><br>Informe o numero com DDI, DDD e telefone, somente digitos, e a mensagem inicial que o lead deve enviar ao abrir o chat.</div>
+        <input class="input" id="whatsapp_numero" placeholder="Ex: 5511999999999" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'');upProg()"/>
+        <textarea class="input" id="whatsapp_mensagem" rows="2" placeholder="Ex: Oi! Vim do anuncio e quero saber mais." style="margin-top:10px"></textarea>
+      </div>
+
     </div>
   </div>
 </div>
@@ -989,7 +1022,7 @@ async function submitForm(){
   const btnNext=document.getElementById('btnNext'),btnTxt=document.getElementById('btnNextTxt'),oldTxt=btnTxt.textContent;
   btnNext.disabled=true;btnTxt.textContent='Enviando...';
   const data={
-    '1. IDENTIFICAÇÃO':{'Empresa':gv('nome_empresa'),'Produto':gv('nome_produto'),'Tipo':gc('tipo'),'Nicho':gv('nicho'),'Idioma':gc('idioma'),'País alvo':gc('pais'),'Link':gv('link_lp')||'—','Texto LP':gv('texto_lp')||'—'},
+    '1. IDENTIFICACAO':{'Empresa':gv('nome_empresa'),'Produto':gv('nome_produto'),'Tipo':gc('tipo'),'Nicho':gv('nicho'),'Idioma':gc('idioma'),'Pais alvo':gc('pais'),'Link':gv('link_lp')||'--','Texto LP':gv('texto_lp')||'--','Landing pages':gl('list-landing-pages').join(' | ')||'--','Contas de anuncios':gl('list-contas-anuncios').join(' | ')||'--','WhatsApp':gv('whatsapp_numero')||'--','Mensagem WhatsApp':gv('whatsapp_mensagem')||'--'},
     '2. CLIENTE IDEAL':{'Descrição':gv('avatar_desc'),'Profissão típica':gv('profissao')||'—','Idade':document.getElementById('sv_min').textContent+' a '+document.getElementById('sv_max').textContent+' anos','Gênero':gc('genero'),'Consciência':gr('consciencia'),'Dores':gl('list-dores').join(' | '),'Desejos':gl('list-desejos').join(' | '),'Provas':gl('list-provas').join(' | ')||'—'},
     '3. PRODUTO':{'O que vende':gv('oque_e'),'Diferencial único':gv('mecanismo'),'Diferenciais':gl('list-difs').join(' | '),'Como funciona':gv('como_funciona')||'—','Features':gl('list-features').join(' | ')||'—'},
     '4. FINANCEIRO — Planejamento':{'Budget mensal':'R$ '+gv('budget'),'Meta receita':'R$ '+gv('meta_rec'),'Meta ROAS':gv('meta_roas')||'Auto','Ticket médio':'R$ '+gv('ticket')},
@@ -1004,7 +1037,7 @@ async function submitForm(){
     status:'novo',
     resumo:data,
     dados:{
-      identificacao:{empresa:gv('nome_empresa'),produto:gv('nome_produto'),tipo:gc('tipo'),nicho:gv('nicho'),idioma:gc('idioma'),pais:gc('pais'),link:gv('link_lp')||null,texto_lp:gv('texto_lp')||null},
+      identificacao:{empresa:gv('nome_empresa'),produto:gv('nome_produto'),tipo:gc('tipo'),nicho:gv('nicho'),idioma:gc('idioma'),pais:gc('pais'),link:gv('link_lp')||null,texto_lp:gv('texto_lp')||null,landing_pages:gl('list-landing-pages'),contas_anuncios:gl('list-contas-anuncios'),whatsapp_numero:gv('whatsapp_numero')||null,whatsapp_mensagem:gv('whatsapp_mensagem')||null},
       avatar:{descricao:gv('avatar_desc'),profissao:gv('profissao')||null,idade_min:document.getElementById('sv_min').textContent,idade_max:document.getElementById('sv_max').textContent,genero:gc('genero'),consciencia:gr('consciencia'),dores:gl('list-dores'),desejos:gl('list-desejos'),provas:gl('list-provas')},
       produto:{oque_e:gv('oque_e'),mecanismo:gv('mecanismo'),diferenciais:gl('list-difs'),como_funciona:gv('como_funciona')||null,features:gl('list-features')},
       financeiro:{budget:gv('budget'),meta_receita:gv('meta_rec'),meta_roas:gv('meta_roas')||'auto',ticket:gv('ticket'),custo_produto:gv('custo_prod')||null,impostos:gv('impostos')||null,taxa_plataforma:gv('taxa_plat')||null,taxa_fixa:gv('taxa_fixa')||null,outros_custos:gv('outros')||null,preco:gv('preco')||null,preco_parcelado:gv('preco_parc')||null,preco_riscado:gv('preco_risc')||null,garantia:gv('garantia')||null,urgencia:gv('urgencia')||null,bonus:gv('bonus')||null}
