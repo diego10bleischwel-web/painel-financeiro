@@ -2540,7 +2540,136 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
   color:#fde68a!important;
   box-shadow:0 0 0 2px rgba(251,191,36,.16),0 0 18px rgba(251,191,36,.2)!important;
 }
+.central-tabs{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:0 0 14px;
+}
+.central-tabs .tab.active{
+  color:#07111f!important;
+  background:linear-gradient(135deg,#86d7ff,#6ee7b7)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.28),0 0 22px rgba(96,165,250,.38)!important;
+}
+.central-shell{
+  display:grid;
+  grid-template-columns:minmax(320px,.9fr) minmax(0,1.8fr);
+  gap:16px;
+  align-items:start;
+}
+.central-form{
+  border:1px solid rgba(125,211,252,.42);
+  border-radius:22px;
+  padding:18px;
+  background:linear-gradient(145deg,rgba(30,41,59,.82),rgba(15,23,42,.94));
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 0 28px rgba(59,130,246,.16);
+}
+.central-form h3,.central-column h3{
+  margin:0 0 8px;
+}
+.central-form .hint,.central-column .hint{
+  color:#9fb3cf;
+  font-size:13px;
+  margin:0 0 14px;
+}
+.central-form .field{
+  margin-bottom:12px;
+}
+.central-form label{
+  display:block;
+  color:#93c5fd;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  margin:0 0 6px;
+}
+.central-form input,.central-form select,.central-form textarea{
+  width:100%;
+  min-height:44px;
+  border-radius:12px;
+  border:1px solid rgba(148,163,184,.28);
+  background:rgba(8,14,25,.74);
+  color:#f8fafc;
+  padding:10px 12px;
+  font:inherit;
+}
+.central-form textarea{
+  min-height:88px;
+  resize:vertical;
+}
+.central-board{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.central-column{
+  min-height:360px;
+  border:1px solid rgba(125,211,252,.34);
+  border-radius:22px;
+  padding:14px;
+  background:linear-gradient(160deg,rgba(15,23,42,.92),rgba(20,32,51,.78));
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 0 24px rgba(99,102,241,.14);
+}
+.central-count{
+  float:right;
+  min-width:28px;
+  height:28px;
+  display:inline-grid;
+  place-items:center;
+  border-radius:999px;
+  color:#07111f;
+  background:linear-gradient(135deg,#93c5fd,#6ee7b7);
+  font-size:13px;
+  font-weight:950;
+}
+.central-list{
+  display:grid;
+  gap:10px;
+}
+.central-item{
+  border:1px solid rgba(148,163,184,.25);
+  border-radius:16px;
+  padding:12px;
+  background:rgba(8,14,25,.64);
+  box-shadow:inset 0 1px rgba(255,255,255,.05);
+}
+.central-item strong{
+  display:block;
+  margin:6px 0 3px;
+}
+.central-meta{
+  color:#9fb3cf;
+  font-size:12px;
+  line-height:1.45;
+}
+.central-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.central-actions .mini{
+  min-height:30px;
+}
+.central-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:26px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:950;
+}
+.central-badge.warn{color:#fde68a;background:rgba(251,191,36,.13);border:1px solid rgba(251,191,36,.38)}
+.central-badge.ok{color:#bbf7d0;background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.38)}
+.central-badge.bad{color:#fecaca;background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.38)}
+.quick-add,.add-card,.quick-composer{
+  display:none!important;
+}
 @media(max-width:720px){
+  .central-shell,.central-board{grid-template-columns:1fr}
   .creative-strategy-grid{grid-template-columns:1fr}
   .creative-strategy-grid .field:last-child{grid-column:auto}
 }
@@ -2578,13 +2707,13 @@ const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwfAVIZgW-0P5dBO
 let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'',syncUrl=DEFAULT_SYNC_URL,syncTimer=null,syncLoopTimer=null,syncReady=false,applyingRemote=false,syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
 const FIRESTORE_COLLECTION='tarefas',FIRESTORE_DOC='estado_principal',FIREBASE_CONFIG={apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",authDomain:"dualize-projeto.firebaseapp.com",projectId:"dualize-projeto",storageBucket:"dualize-projeto.firebasestorage.app",messagingSenderId:"1098441288739",appId:"1:1098441288739:web:8e210b6d329ee779bc1596"};
 let firestoreDb=null,firestoreDocRef=null,firestoreSnapshotStarted=false,firestoreReady=false;
-let state=loadSavedState(),activeScreen='home',calendarMode='month',calendarFilter='all',plannerDate=new Date(),selectedDate=iso(new Date()),openCardId=null,composerColumn='',quickDay='',quickEditId=null,modalTab='titulo',modalDirty=false,showAllHistory=false,historyCarouselTimer=null,livePreviewTimer=null,liveVideoTimer=null,liveVideoCardId=null;
+let state=loadSavedState(),activeScreen='home',homeTab='dashboard',calendarMode='month',calendarFilter='all',plannerDate=new Date(),selectedDate=iso(new Date()),openCardId=null,composerColumn='',quickDay='',quickEditId=null,modalTab='titulo',modalDirty=false,showAllHistory=false,historyCarouselTimer=null,livePreviewTimer=null,liveVideoTimer=null,liveVideoCardId=null;
 if(savedSyncUrl!==DEFAULT_SYNC_URL){localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL);localStorage.removeItem(PENDING_SYNC_KEY);syncPending=false}
 document.documentElement.dataset.theme=state.theme||'dark';
 function blank(){return{version:6,theme:'dark',workspaces:[{id:1,name:'TRAFEGO PAGO',note:'Clientes e campanhas de trafego pago',boards:[{id:1,name:'Best MultiMarcas',note:''},{id:2,name:'Solido Sentimento',note:''},{id:3,name:'Dualize Digital',note:''}]}],activeWorkspaceId:1,activeBoardId:null,cards:[],nextWorkspaceId:2,nextBoardId:4,nextCardId:1,updatedAt:0,lastSync:0}}
 function loadSavedState(){let raw=null;try{raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch(e){console.warn('Nao foi possivel carregar dados salvos.',e)}if(!raw){for(const k of OLD){try{raw=JSON.parse(localStorage.getItem(k)||'null');if(raw)break}catch(e){}}}return normalize(raw||blank())}
 function normalize(s){const b=blank();if(!s.workspaces){const clients=Array.isArray(s.clients)&&s.clients.length?s.clients:b.workspaces[0].boards;s={...b,cards:Array.isArray(s.cards)?s.cards:[],activeWorkspaceId:1,activeBoardId:null,workspaces:[{...b.workspaces[0],boards:clients.map(c=>({id:+c.id,name:c.name||'Cliente',note:c.note||''}))}],nextBoardId:Math.max(1,...clients.map(c=>+c.id||0))+1,nextCardId:s.nextCardId||1,lastSync:s.lastSync||0}}s={...b,...s};s.workspaces=(s.workspaces||b.workspaces).map(w=>({...w,boards:Array.isArray(w.boards)?w.boards:[]}));if(!s.workspaces.length)s.workspaces=b.workspaces;s.activeWorkspaceId=s.workspaces.some(w=>+w.id===+s.activeWorkspaceId)?+s.activeWorkspaceId:+s.workspaces[0].id;const activeWorkspace=s.workspaces.find(w=>+w.id===+s.activeWorkspaceId)||s.workspaces[0];const workspaceBoards=activeWorkspace.boards||[];s.activeBoardId=workspaceBoards.some(b=>+b.id===+s.activeBoardId)?+s.activeBoardId:null;const fallbackBoardId=workspaceBoards[0]?.id||1;s.cards=(Array.isArray(s.cards)?s.cards:[]).map(c=>normalizeCard(c,fallbackBoardId));s.nextWorkspaceId=s.nextWorkspaceId||max(s.workspaces)+1;s.nextBoardId=s.nextBoardId||Math.max(1,...s.workspaces.flatMap(w=>w.boards.map(b=>+b.id||0)))+1;s.nextCardId=s.nextCardId||max(s.cards)+1;return s}
-function normalizeCard(c,fallbackBoardId=1){const boardId=+(c.boardId||c.clientId||fallbackBoardId);return{cardType:'creative',columnId:'scheduled',status:'pendente',approvalStatus:'rascunho',campaignState:'inativo',creativeType:'publicado',labels:'',platform:'',format:'',account:'',audience:'',campaignObjective:'',conversionMethod:'',adFormat:'',link:'',mediaUrl:'',storyUrl:'',reelsUrl:'',note:'',dueDate:'',dueTime:'',publishedAt:'',publishedTime:'',comments:[],checklist:[],publishHistory:[],activeHistory:[],routine:null,archived:false,done:false,...c,boardId}}
+function normalizeCard(c,fallbackBoardId=1){const boardId=+(c.boardId||c.clientId||fallbackBoardId);return{cardType:'creative',columnId:'scheduled',status:'pendente',approvalStatus:'rascunho',campaignState:'inativo',creativeType:'publicado',labels:'',platform:'',format:'',account:'',audience:'',campaignObjective:'',conversionMethod:'',adFormat:'',link:'',mediaUrl:'',storyUrl:'',reelsUrl:'',note:'',dueDate:'',dueTime:'',publishedAt:'',publishedTime:'',comments:[],checklist:[],publishHistory:[],activeHistory:[],centralManaged:false,centralStatus:'',centralCreatedAt:'',centralActivatedAt:'',centralDeactivatedAt:'',routine:null,archived:false,done:false,...c,boardId}}
 function max(a){return a.reduce((m,x)=>Math.max(m,+x.id||0),0)||0}function workspace(){return state.workspaces.find(w=>+w.id===+state.activeWorkspaceId)||state.workspaces[0]}function board(id=state.activeBoardId){return workspace().boards.find(b=>+b.id===+id)||null}function boardName(id){return workspace().boards.find(b=>+b.id===+id)?.name||'Sem quadro'}function boards(){return workspace().boards}function cards(scope='area'){const ids=new Set(boards().map(b=>+b.id));return state.cards.filter(c=>!c.archived&&ids.has(+c.boardId)&&(scope==='area'||+c.boardId===+state.activeBoardId))}
 function statePayload(){return JSON.parse(JSON.stringify(normalize(state)))}function setSyncPending(pending){syncPending=!!pending;if(syncPending)localStorage.setItem(PENDING_SYNC_KEY,'1');else localStorage.removeItem(PENDING_SYNC_KEY);renderSync()}function saveLocalSnapshot(){localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()))}function persistLocalOnly(){try{saveLocalSnapshot();renderSync()}catch(err){console.warn('Nao foi possivel salvar preferencia local.',err)}}function persist(){try{if(!applyingRemote){state.lastSync=Date.now();state.updatedAt=state.lastSync;setSyncPending(true)}saveLocalSnapshot();scheduleCloudSave()}catch(err){console.warn('Nao foi possivel salvar no navegador.',err)}}function save(){persist()}
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}function iso(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate()).toISOString().slice(0,10)}function short(v){return v?new Date(v+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):''}function dateLabel(v){return v?new Date(v+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'}):''}function weekStart(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-x.getDay());return x}function weekDates(d){const s=weekStart(d);return Array.from({length:7},(_,i)=>{const x=new Date(s);x.setDate(s.getDate()+i);return x})}function monthDates(d){const first=new Date(d.getFullYear(),d.getMonth(),1),start=new Date(first);start.setDate(first.getDate()-first.getDay());return Array.from({length:42},(_,i)=>{const x=new Date(start);x.setDate(start.getDate()+i);return x})}function monthTitle(d){return new Date(d.getFullYear(),d.getMonth(),1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,m=>m.toUpperCase())}function media(u,t){if(!u)return false;if(t==='video'&&String(u).startsWith('data:video/'))return true;if(t==='image'&&String(u).startsWith('data:image/'))return true;return t==='video'?/\.(mp4|webm|ogg)(\?|$)/i.test(u):/\.(png|jpe?g|gif|webp|avif)(\?|$)/i.test(u)}
@@ -2658,7 +2787,7 @@ function refreshCardDatePicker(){const input=$('#mCardDate'),picker=$('.modal-da
 function injectCardDatePicker(){const input=$('#mCardDate'),field=input?.closest('.modal-card-date-field');if(!input||!field)return;if(!field.querySelector('.modal-day-picker'))field.insertAdjacentHTML('beforeend','<div class="modal-day-picker"></div>');refreshCardDatePicker()}
 document.body.addEventListener('focusin',e=>{if(e.target?.id==='mCardDate'){injectCardDatePicker();e.target.closest('.modal-card-date-field')?.classList.add('open')}},true)
 document.body.addEventListener('click',e=>{const day=e.target.closest('[data-card-day]');if(day){e.preventDefault();e.stopImmediatePropagation();const value=day.dataset.cardDay,input=$('#mCardDate');if(input)input.value=value;if($('#mDueDate'))$('#mDueDate').value=value;if($('#mPublishedAt')?.value)$('#mPublishedAt').value=value;modalDirty=true;refreshCardDatePicker();day.closest('.modal-card-date-field')?.classList.remove('open');return}if(e.target.closest('#mCardDate')){injectCardDatePicker();e.target.closest('.modal-card-date-field')?.classList.add('open');return}if(!e.target.closest('.modal-card-date-field'))document.querySelector('.modal-card-date-field.open')?.classList.remove('open')},true)
-function statusSummaryForCards(list){const today=iso(new Date()),creative=list.filter(c=>!routineType(c)),overdue=creative.filter(c=>!c.publishedAt&&displayDate(c)&&displayDate(c)<today).length,pending=creative.filter(c=>!c.publishedAt&&(!displayDate(c)||displayDate(c)>=today)).length,running=creative.filter(c=>c.campaignState==='ativo').length;return{overdue,pending,running}}
+function statusSummaryForCards(list){const today=iso(new Date()),creative=list.filter(c=>!routineType(c)&&(!c.centralManaged||c.centralStatus==='rodando')),overdue=creative.filter(c=>!c.publishedAt&&displayDate(c)&&displayDate(c)<today).length,pending=creative.filter(c=>!c.publishedAt&&(!displayDate(c)||displayDate(c)>=today)).length,running=creative.filter(c=>c.campaignState==='ativo').length;return{overdue,pending,running}}
 function boardStatusSummary(){return statusSummaryForCards(cards('board'))}
 function boardClientSummary(boardId){return statusSummaryForCards(cards('area').filter(c=>+c.boardId===+boardId))}
 function analysisLabel(btn){return btn.classList.contains('done')?'Analisado':'Analisar'}
@@ -2669,7 +2798,27 @@ routineCardHtml=function(c,scope){const type=routineType(c),done=routineDone(c),
 function decorateHomeDashboard(){const summary=$('#homeView .summary'),s=statusSummaryForCards(cards('area'));if(summary)summary.innerHTML=metric('Atrasado',s.overdue)+metric('Pendente',s.pending)+metric('Rodando',s.running);decorateBoardCards()}
 function decorateBoardDashboard(){if(activeScreen!=='board')return;const summary=$('#boardView .board-view>.summary'),s=boardStatusSummary();if(summary)summary.innerHTML=metric('Atrasado',s.overdue)+metric('Pendente',s.pending)+metric('Rodando',s.running);decorateAnalysisText($('#boardView')||document)}
 const baseStatusRenderBoardView=renderBoardView;renderBoardView=function(){baseStatusRenderBoardView();decorateBoardDashboard()}
-const baseStatusRenderHome=renderHome;renderHome=function(){baseStatusRenderHome();decorateHomeDashboard()}
+const baseStatusRenderHome=renderHome;renderHome=function(){baseStatusRenderHome();decorateHomeDashboard();decorateCentralTabs()}
+function centralLinkKey(value){return String(value||'').trim().replace(/\s+/g,'').replace(/[?#].*$/,'').replace(/\/+$/,'').toLowerCase()}
+function duplicateCreativeLink(value,ignoreId=0){const key=centralLinkKey(value);return!!key&&state.cards.some(c=>!c.archived&&+c.id!==+ignoreId&&centralLinkKey(c.link)===key)}
+function centralCards(status=''){return cards('area').filter(c=>c.centralManaged&&(!status||c.centralStatus===status)).sort((a,b)=>String(b.centralActivatedAt||b.centralCreatedAt||'').localeCompare(String(a.centralActivatedAt||a.centralCreatedAt||''))||(+b.id)-(+a.id))}
+function centralStatusLabel(status){return status==='rodando'?'Rodando':status==='desativado'?'Desativado':'Aguardando'}
+function centralBadgeClass(status){return status==='rodando'?'ok':status==='desativado'?'bad':'warn'}
+function centralTabs(){return`<div class="central-tabs tabs"><button class="tab ${homeTab==='dashboard'?'active':''}" data-home-tab="dashboard" type="button">Dashboard e lancamentos</button><button class="tab ${homeTab==='central'?'active':''}" data-home-tab="central" type="button">Central de criativos</button></div>`}
+function decorateCentralTabs(){const tabs=$('#homeView .tabs');if(!tabs)return;tabs.classList.add('central-tabs');tabs.innerHTML=centralTabs().replace(/^<div class="central-tabs tabs">|<\/div>$/g,'');const btn=$('#homeView [data-new-any]');if(btn)btn.textContent='+ Novo criativo na central'}
+function centralForm(){return`<section class="central-form"><h3>Entrada rapida do marketing</h3><p class="hint">Cole o link uma unica vez, escolha o cliente e deixe em Aguardando para o gestor ativar depois.</p><div class="field"><label>Cliente / quadro</label><select id="centralBoard">${boards().map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div><div class="field"><label>Link do criativo</label><input id="centralLink" placeholder="Cole aqui o link do Instagram, Drive, Meta ou arquivo"></div><div class="field"><label>Titulo opcional</label><input id="centralTitle" placeholder="Ex.: Feed promocional, Reel produto novo..."></div><div class="field"><label>Observacao opcional</label><textarea id="centralNote" placeholder="Brief rapido, campanha, publico ou detalhe importante"></textarea></div><button class="btn primary" data-central-create type="button">Salvar na Central como Aguardando</button></section>`}
+function centralItem(c){const b=boards().find(x=>+x.id===+c.boardId),soc=detect(c.link),status=c.centralStatus||'aguardando',when=status==='rodando'?(short(c.dueDate)||'Hoje'):status==='desativado'?(short((c.centralDeactivatedAt||'').slice(0,10))||'Finalizado'):'Novo';return`<article class="central-item" data-central-card="${c.id}"><span class="central-badge ${centralBadgeClass(status)}">${centralStatusLabel(status)}</span><strong>${esc(c.title||'Criativo')}</strong><div class="central-meta">${esc(b?.name||'Cliente')} &bull; ${esc(soc.platform||c.platform||'Link')} &bull; ${esc(when)}</div>${c.note?`<div class="central-meta">${esc(c.note)}</div>`:''}<div class="central-actions"><button class="mini" data-central-open="${c.id}" type="button">Abrir</button>${status==='aguardando'?`<button class="mini" data-central-run="${c.id}" type="button">Colocar rodando</button>`:''}${status==='rodando'?`<button class="mini" data-central-stop="${c.id}" type="button">Desativar</button>`:''}</div></article>`}
+function centralColumn(status,title,empty){const list=centralCards(status);return`<section class="central-column"><h3>${esc(title)} <span class="central-count">${list.length}</span></h3><p class="hint">${esc(empty)}</p><div class="central-list">${list.map(centralItem).join('')||`<p class="hint">Nenhum criativo aqui.</p>`}</div></section>`}
+function renderCentralHome(){const waiting=centralCards('aguardando').length,running=centralCards('rodando').length,done=centralCards('desativado').length;$('#boardView').classList.add('hidden');$('#homeView').classList.remove('hidden');$('#homeView').innerHTML=`<div class="toolbar"><div><h2>${esc(workspace().name)}</h2><p class="small">Central unica para receber, ativar e consultar criativos sem duplicar links.</p></div><div class="actions"><button class="btn primary" data-central-focus type="button">+ Colar criativo</button></div></div>${centralTabs()}<div class="summary">${metric('Aguardando',waiting)}${metric('Rodando',running)}${metric('Desativados',done)}</div><div class="central-shell">${centralForm()}<div class="central-board">${centralColumn('aguardando','Aguardando','Criativos enviados pelo marketing, ainda fora do calendario.')}${centralColumn('rodando','Rodando','Criativos ativados pelo gestor e visiveis no calendario do cliente.')}${centralColumn('desativado','Desativados','Historico consultavel do que ja saiu de campanha.')}</div></div>`}
+function centralCreate(){const boardId=+($('#centralBoard')?.value||0),link=($('#centralLink')?.value||'').trim(),title=($('#centralTitle')?.value||'').trim(),note=($('#centralNote')?.value||'').trim();if(!boardId||!link){alert('Selecione o cliente e cole o link do criativo.');return}if(duplicateCreativeLink(link)){alert('Este link de criativo ja existe na Central ou em algum quadro.');return}const soc=detect(link),card=createCard({boardId,title:title||(soc.format?`${soc.format} ${soc.platform}`:'Criativo aguardando'),link});Object.assign(card,{centralManaged:true,centralStatus:'aguardando',centralCreatedAt:new Date().toISOString(),centralActivatedAt:'',centralDeactivatedAt:'',dueDate:'',publishedAt:'',publishedTime:'',campaignState:'inativo',columnId:'central',status:'pendente',note});if(soc.platform)card.platform=soc.platform;if(soc.format)card.format=soc.format;if(soc.account)card.account=soc.account;save();render();setTimeout(()=>$('#centralLink')?.focus(),60)}
+function centralRun(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;const now=new Date(),today=iso(now);c.centralManaged=true;c.centralStatus='rodando';c.centralActivatedAt=now.toISOString();c.centralDeactivatedAt='';c.dueDate=today;c.dueTime=currentClock();c.publishedAt='';c.publishedTime='';c.status='pendente';c.campaignState='ativo';c.columnId='running';c.activeHistory.push({at:now.toISOString(),state:'ativo',source:'central'});save();render()}
+function centralStop(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;const now=new Date();c.centralManaged=true;c.centralStatus='desativado';c.centralDeactivatedAt=now.toISOString();c.campaignState='inativo';c.status='concluido';c.columnId='done';c.dueDate='';c.publishedAt='';c.publishedTime='';c.activeHistory.push({at:now.toISOString(),state:'inativo',source:'central'});save();render()}
+const renderHomeWithCentral=renderHome;renderHome=function(){if(homeTab==='central'){renderCentralHome();return}renderHomeWithCentral()}
+const saveModalWithCentral=saveModal;saveModal=function(silent=false){const c=state.cards.find(x=>+x.id===openCardId),link=($('#mLink')?.value||'').trim();if(link&&duplicateCreativeLink(link,c?.id||0)){alert('Este link de criativo ja existe em outro card.');return}saveModalWithCentral(silent)}
+const publishWithCentral=publish;publish=function(id){const c=state.cards.find(x=>+x.id===+id);if(c?.centralManaged){centralRun(id);return}publishWithCentral(id)}
+const toggleRunWithCentral=toggleRun;toggleRun=function(id){const c=state.cards.find(x=>+x.id===+id);if(c?.centralManaged){c.campaignState==='ativo'?centralStop(id):centralRun(id);return}toggleRunWithCentral(id)}
+document.body.addEventListener('click',e=>{const direct=e.target.closest('[data-new-any],[data-new-board],#quickCreative,[data-add-day]');if(direct){e.preventDefault();e.stopImmediatePropagation();activeScreen='home';state.activeBoardId=null;homeTab='central';quickDay='';quickEditId=null;persistLocalOnly();render();setTimeout(()=>$('#centralLink')?.focus(),80);return}const tab=e.target.closest('[data-home-tab]');if(tab){e.preventDefault();e.stopImmediatePropagation();homeTab=tab.dataset.homeTab;activeScreen='home';state.activeBoardId=null;persistLocalOnly();render();return}if(e.target.closest('[data-central-focus]')){e.preventDefault();e.stopImmediatePropagation();$('#centralLink')?.focus();return}const create=e.target.closest('[data-central-create]');if(create){e.preventDefault();e.stopImmediatePropagation();centralCreate();return}const run=e.target.closest('[data-central-run]');if(run){e.preventDefault();e.stopImmediatePropagation();centralRun(run.dataset.centralRun);return}const stop=e.target.closest('[data-central-stop]');if(stop){e.preventDefault();e.stopImmediatePropagation();centralStop(stop.dataset.centralStop);return}const open=e.target.closest('[data-central-open]');if(open){e.preventDefault();e.stopImmediatePropagation();hideLivePreview(true);openModal(open.dataset.centralOpen);return}},true)
+document.body.addEventListener('drop',e=>{const text=(e.dataTransfer?.getData('text/plain')||'').trim(),hasCard=e.dataTransfer?.getData('card');if(e.target.closest('[data-day]')&&text&&!hasCard&&/^https?:\/\//i.test(text)){e.preventDefault();e.stopImmediatePropagation();homeTab='central';activeScreen='home';state.activeBoardId=null;persistLocalOnly();render();setTimeout(()=>{const input=$('#centralLink');if(input){input.value=text;input.focus()}},80)}},true)
 function scheduleTomorrow(){const c=state.cards.find(x=>+x.id===openCardId);if(!c)return;const d=new Date();d.setDate(d.getDate()+1);c.dueDate=iso(d);c.dueTime='09:00';c.status='pendente';c.columnId='scheduled';save();render();openModal(c.id)}function readFile(input,target){const file=$(input)?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{$(target).value=r.result;if(target==='#mMedia')syncOpenCardPreview()};r.readAsDataURL(file)}
 function addWorkspace(){const name=prompt('Nome da area de trabalho:', 'TRAFEGO PAGO');if(!name)return;state.workspaces.push({id:state.nextWorkspaceId++,name,note:'',boards:[]});state.activeWorkspaceId=max(state.workspaces);state.activeBoardId=null;save();activeScreen='home';render()}function addBoard(){const name=prompt('Nome do quadro/cliente:', 'Novo cliente');if(!name)return;workspace().boards.push({id:state.nextBoardId++,name,note:''});state.activeBoardId=workspace().boards.at(-1).id;save();activeScreen='board';render()}
 function quickCardFromText(text,day){const raw=(text||'').trim();if(!raw)return null;const isUrl=/^https?:\/\//i.test(raw),soc=detect(isUrl?raw:''),dayCards=cards('board').filter(c=>displayDate(c)===day),card=createCard({boardId:activeScreen==='board'?state.activeBoardId:(calendarFilter==='all'?boards()[0]?.id:calendarFilter),dueDate:day,title:isUrl?(soc.format?`${soc.format} ${soc.platform}`:'Criativo colado'):raw,link:isUrl?raw:''});if(isUrl){if(soc.platform)card.platform=soc.platform;if(soc.format)card.format=soc.format;if(soc.account)card.account=soc.account}card.order=dayCards.length;selectedDate=day;return card}
