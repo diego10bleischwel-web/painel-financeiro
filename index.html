@@ -346,7 +346,6 @@ button,a{font:inherit}
   padding:24px;
   display:grid;
   grid-template-columns:minmax(280px,420px) 1fr;
-  grid-template-rows:auto minmax(0,1fr);
   gap:22px;
   background:radial-gradient(circle at 10% 0,rgba(130,188,255,.16),transparent 32rem),#0e1117;
 }
@@ -376,7 +375,6 @@ button,a{font:inherit}
   align-content:start;
 }
 .forms-tabs{
-  grid-column:1/-1;
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:10px;
@@ -1529,7 +1527,6 @@ iframe{
     <iframe id="moduleFrame" title="Módulo Dualize"></iframe>
   </div>
   <div class="briefing-board" id="briefingBoard" hidden>
-    <div class="forms-tabs" id="formsTabs" role="tablist" aria-label="Formularios"></div>
     <aside class="briefing-list">
       <h3>Clientes <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
       <div class="forms-filter-box">
@@ -1721,21 +1718,21 @@ function selectedBriefing(){
   return briefings.find(x=>String(x.id)===String(selectedBriefingId))||null;
 }
 function isFormsStageLocked(b,stage){
-  return stage!=='clienteNovo'&&calcularStatusEtapa(b,'clienteNovo')!=='concluido';
+  return stage!=='clienteNovo'&&stage!=='trafficAi'&&calcularStatusEtapa(b,'clienteNovo')!=='concluido';
 }
-function renderFormsTabs(){
+function renderFormsTabButtons(b=selectedBriefing()){
   const tabs=$('#formsTabs');
   if(!tabs)return;
-  const b=selectedBriefing();
   tabs.innerHTML=formsTabs.map(tab=>{
     const locked=b&&isFormsStageLocked(b,tab.id);
     const status=b?(locked?'bloqueado':calcularStatusEtapa(b,tab.id)):'nao-iniciado';
-    const icon=locked?'LOCK':status==='concluido'?'OK':status==='andamento'?'...':'!';
     return `<button class="forms-tab ${tab.id===activeFormsTab?'active':''} ${locked?'locked':''}" type="button" data-forms-tab="${esc(tab.id)}" title="${locked?'Conclua CLIENTE NOVO para liberar esta etapa.':statusText(status)}">
-      ${esc(icon)} ${esc(tab.label)}
+      ${esc(tab.label)}
       <small>${esc(locked?'Bloqueado':statusText(status))}</small>
     </button>`;
   }).join('');
+}
+function renderFormsTabs(){
   renderFormsFilters();
   renderBriefingList();
   renderBriefingDetail(selectedBriefingId);
@@ -2039,7 +2036,9 @@ function ensureFormularioState(b){
       enviadoEm:f.trafficAi?.enviadoEm||null,
       atualizadoEm:f.trafficAi?.atualizadoEm||b?.updatedAt||b?.timestamp||null,
       concluidoEm:f.trafficAi?.concluidoEm||null,
-      configuradoEquipe:!!(f.trafficAi?.configuradoEquipe||String(b?.status||'').includes('config'))
+      configuradoEm:f.trafficAi?.configuradoEm||f.trafficAi?.dataConfiguracao||null,
+      dataConfiguracao:f.trafficAi?.dataConfiguracao||f.trafficAi?.configuradoEm||null,
+      configuradoEquipe:!!f.trafficAi?.configuradoEquipe
     },
     publico:{...f.publico,itens:baseChecklist('publico',f.publico?.itens)},
     pixelTintim:{...f.pixelTintim,items:baseChecklist('pixelTintim',pixelTintimItems||[...oldTintim,...oldPixel])}
@@ -2048,13 +2047,7 @@ function ensureFormularioState(b){
 function calcularStatusEtapa(b,stage){
   const f=ensureFormularioState(b);
   if(stage==='trafficAi'){
-    const d=b?.dados||{};
-    const sections=['identificacao','avatar','produto','financeiro'];
-    const linkCriado=filledValue(f.trafficAi.link);
-    const clienteRespondeu=sections.some(key=>filledValue(d[key]));
-    const configuradoEquipe=!!f.trafficAi.configuradoEquipe;
-    if(linkCriado&&clienteRespondeu&&configuradoEquipe)return 'concluido';
-    return (linkCriado||clienteRespondeu||configuradoEquipe)?'andamento':'nao-iniciado';
+    return trafficAiOperationalStatus(b).stageStatus;
   }
   if(stage==='clienteNovo'){
     const d=b?.dados||{},id=d.identificacao||{};
@@ -2078,12 +2071,33 @@ function calcularProgressoCliente(b){
   const clienteNovoStatus=calcularStatusEtapa(b,'clienteNovo');
   const statuses=Object.fromEntries(stages.map(stage=>[
     stage,
-    stage!=='clienteNovo'&&clienteNovoStatus!=='concluido'?'bloqueado':calcularStatusEtapa(b,stage)
+    stage!=='clienteNovo'&&stage!=='trafficAi'&&clienteNovoStatus!=='concluido'?'bloqueado':calcularStatusEtapa(b,stage)
   ]));
   const done=Object.values(statuses).filter(status=>status==='concluido').length;
   const started=Object.values(statuses).some(status=>status!=='nao-iniciado'&&status!=='bloqueado');
   const geral=done===stages.length?'concluido':started?'andamento':'nao-iniciado';
   return {statuses,done,total:stages.length,geral};
+}
+function trafficAiOperationalStatus(b){
+  const f=ensureFormularioState(b),d=b?.dados||{};
+  const sections=['identificacao','avatar','produto','financeiro'];
+  const responseCount=sections.filter(key=>filledValue(d[key])).length;
+  const required=[
+    d.identificacao?.empresa,
+    d.identificacao?.produto,
+    d.identificacao?.tipo,
+    d.avatar?.descricao,
+    d.produto?.oque_e,
+    d.financeiro?.budget,
+    d.financeiro?.ticket
+  ];
+  const filled=required.filter(filledValue).length;
+  const complete=required.every(filledValue);
+  const configured=!!f.trafficAi.configuradoEquipe;
+  if(configured)return {code:'configurado',label:'Configurado',stageStatus:'concluido',responseCount,filled,total:required.length,complete};
+  if(complete)return {code:'preenchido',label:'Preenchido',stageStatus:'andamento',responseCount,filled,total:required.length,complete};
+  if(responseCount||filled)return {code:'em-preenchimento',label:'Em preenchimento',stageStatus:'andamento',responseCount,filled,total:required.length,complete};
+  return {code:'nao-iniciado',label:'Nao iniciado',stageStatus:'nao-iniciado',responseCount,filled,total:required.length,complete};
 }
 function statusText(status){
   return status==='bloqueado'?'Bloqueado':status==='concluido'?'Concluido':status==='andamento'?'Em andamento':'Nao iniciado';
@@ -2184,9 +2198,11 @@ function renderBriefingDetail(id){
         <div class="briefing-meta">${p.done} de ${p.total} etapas concluidas | Ultima atualizacao: ${esc(briefingDate(b.updatedAt||b.timestamp))}</div>
       </div>
     </div>
+    <div class="forms-tabs" id="formsTabs" role="tablist" aria-label="Etapas do formulario"></div>
     <div class="forms-progress"><span style="width:${pct}%"></span></div>
     ${renderFormsStageDetail(b,activeFormsTab)}
   </div>`;
+  renderFormsTabButtons(b);
 }
 function renderLockedStage(stage){
   const tab=formsTabs.find(item=>item.id===stage);
@@ -2226,36 +2242,32 @@ function renderFormsStageDetail(b,stage){
     </section>`;
   }
   if(stage==='trafficAi'){
-    const linkCriado=filledValue(f.trafficAi.link);
-    const clienteRespondeu=['identificacao','avatar','produto','financeiro'].some(key=>filledValue(b?.dados?.[key]));
+    const op=trafficAiOperationalStatus(b);
+    const hasResponses=op.responseCount>0||op.filled>0;
     return `<section class="forms-detail-card">
       <div class="forms-client-head">
         <div>
           <h3>TRAFFIC AI</h3>
-          <p class="forms-muted">A etapa so conclui quando o link existe, o cliente respondeu e a equipe marcou a configuracao como pronta.</p>
+          <p class="forms-muted">${hasResponses?'Formulario recebido deste cliente.':'Aguardando preenchimento do cliente.'}</p>
         </div>
-      </div>
-      <div class="briefing-preview-grid">
-        <div class="briefing-mini"><span>Link criado</span><b>${linkCriado?'Sim':'Nao'}</b></div>
-        <div class="briefing-mini"><span>Cliente respondeu</span><b>${clienteRespondeu?'Sim':'Nao'}</b></div>
-        <div class="briefing-mini"><span>Configurado pela equipe</span><b>${f.trafficAi.configuradoEquipe?'Sim':'Nao'}</b></div>
-        <div class="briefing-mini"><span>Ultima atualizacao</span><b>${esc(briefingDate(f.trafficAi.atualizadoEm||b.updatedAt||b.timestamp))}</b></div>
+        <span class="status-pill ${statusTone(op.stageStatus)}">${esc(op.label)}</span>
       </div>
       <div class="forms-field">
-        <label>Link do formulario Traffic AI</label>
+        <label>Link individual do formulario</label>
         <input readonly value="${esc(f.trafficAi.link)}">
       </div>
       <div class="forms-check-item">
         <div class="forms-check-top">
-          <span>Configurado pela equipe</span>
-          <label><input type="checkbox" data-traffic-configured="${esc(b.id)}" ${f.trafficAi.configuradoEquipe?'checked':''}> Concluido</label>
+          <span>Traffic AI configurado</span>
+          <label><input type="checkbox" data-traffic-configured="${esc(b.id)}" ${f.trafficAi.configuradoEquipe?'checked':''}> Configurado</label>
         </div>
-        <p class="forms-muted">Use esta marcacao somente quando a configuracao interna estiver pronta.</p>
+        <p class="forms-muted">Marque somente quando a configuracao interna estiver pronta. Data da configuracao: ${esc(f.trafficAi.configuradoEm?briefingDate(f.trafficAi.configuradoEm):'Pendente')}</p>
       </div>
       <div class="forms-copy-row">
         <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(f.trafficAi.link)}">Copiar link</button>
-        <button class="forms-small-action primary" type="button" data-briefing-open="${esc(b.id)}">Abrir dados preenchidos</button>
+        ${hasResponses?`<button class="forms-small-action primary" type="button" data-briefing-open="${esc(b.id)}">ABRIR FORMULARIO TRAFFIC AI</button>`:`<span class="forms-muted">Aguardando preenchimento</span>`}
       </div>
+      <p class="forms-muted">Ultima atualizacao: ${esc(briefingDate(f.trafficAi.atualizadoEm||b.updatedAt||b.timestamp))}</p>
     </section>`;
   }
   const items=stage==='pixelTintim'?(f.pixelTintim?.items||[]):(f[stage]?.itens||[]);
@@ -2339,9 +2351,12 @@ function updateTrafficConfigured(input){
   const selected=briefings.find(x=>String(x.id)===String(id));
   if(selected&&isFormsStageLocked(selected,'trafficAi'))return;
   const patch=currentFormularioPatch(id,formulario=>{
+    const stamp=new Date().toISOString();
     formulario.trafficAi.configuradoEquipe=input.checked;
-    formulario.trafficAi.atualizadoEm=new Date().toISOString();
-    formulario.trafficAi.concluidoEm=input.checked?(formulario.trafficAi.concluidoEm||new Date().toISOString()):null;
+    formulario.trafficAi.atualizadoEm=stamp;
+    formulario.trafficAi.configuradoEm=input.checked?(formulario.trafficAi.configuradoEm||formulario.trafficAi.dataConfiguracao||stamp):null;
+    formulario.trafficAi.dataConfiguracao=formulario.trafficAi.configuradoEm;
+    formulario.trafficAi.concluidoEm=input.checked?(formulario.trafficAi.concluidoEm||stamp):null;
   });
   saveFormularioPatch(id,patch);
 }
