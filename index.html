@@ -573,10 +573,11 @@ button,a{font:inherit}
   align-items:center;
   gap:6px;
   border-radius:999px;
-  padding:6px 10px;
+  padding:6px 11px;
   font-size:11px;
   font-weight:1000;
   text-transform:uppercase;
+  letter-spacing:.02em;
 }
 .status-pill.done{
   background:rgba(112,214,162,.18);
@@ -612,10 +613,10 @@ button,a{font:inherit}
 .forms-detail-card{
   border:1px solid rgba(130,188,255,.22);
   border-radius:22px;
-  padding:20px;
+  padding:24px;
   background:rgba(3,8,15,.38);
   display:grid;
-  gap:18px;
+  gap:22px;
 }
 .forms-field-grid{
   display:grid;
@@ -645,43 +646,137 @@ button,a{font:inherit}
 .forms-field textarea,.forms-check-item textarea{min-height:76px;resize:vertical}
 .forms-checklist{
   display:grid;
-  gap:14px;
+  gap:12px;
 }
 .forms-check-item{
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:18px;
-  padding:14px;
-  background:rgba(255,255,255,.045);
-  display:grid;
-  gap:12px;
+  border:1px solid rgba(255,107,107,.28);
+  border-radius:16px;
+  padding:13px 14px;
+  background:#3b1f22;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  min-height:58px;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .15s ease;
+}
+.forms-check-item:hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 34px rgba(0,0,0,.22);
+}
+.forms-check-item.done{
+  border-color:rgba(112,214,162,.52);
+  background:#163626;
+  box-shadow:0 0 0 1px rgba(112,214,162,.08),0 16px 40px rgba(0,0,0,.18);
+}
+.forms-check-item.pending{
+  border-color:rgba(255,107,107,.32);
+  background:#3b1f22;
+}
+.forms-check-item.optional,
+.forms-check-item.not-applicable{
+  border-color:rgba(148,163,184,.24);
+  background:rgba(148,163,184,.10);
 }
 .forms-check-item.not-applicable{opacity:.58}
 .forms-check-top{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  flex-wrap:wrap;
+  justify-content:flex-start;
+  gap:12px;
+  min-width:0;
+  flex:1;
 }
 .forms-check-top span{
   color:#fff;
-  font-size:14px;
+  font-size:13px;
   font-weight:1000;
+  line-height:1.3;
 }
-.forms-check-top input{width:18px;height:18px}
+.forms-check-top label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#fff;
+  cursor:pointer;
+}
+.forms-check-top input{
+  width:23px;
+  height:23px;
+  appearance:none;
+  border:2px solid rgba(255,255,255,.82);
+  border-radius:7px;
+  background:transparent;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  transition:background .18s ease,border-color .18s ease,transform .15s ease;
+}
+.forms-check-top input:checked{
+  background:#22c55e;
+  border-color:#70d6a2;
+}
+.forms-check-top input:checked::after{
+  content:"✓";
+  color:#fff;
+  font-size:16px;
+  font-weight:1000;
+  line-height:1;
+}
+.forms-check-top input:active{
+  transform:scale(.92);
+}
+.forms-check-top input:disabled{
+  cursor:not-allowed;
+  opacity:.55;
+}
+.forms-check-badge{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:10px;
+  font-weight:1000;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.forms-check-badge.done{
+  color:#d9ffe8;
+  background:rgba(34,197,94,.22);
+  border:1px solid rgba(112,214,162,.50);
+}
+.forms-check-badge.pending{
+  color:#ffd0d0;
+  background:rgba(255,107,107,.18);
+  border:1px solid rgba(255,107,107,.38);
+}
+.forms-check-badge.optional{
+  color:#d8c4ff;
+  background:rgba(139,92,246,.18);
+  border:1px solid rgba(139,92,246,.36);
+}
+.forms-check-badge.muted{
+  color:#cbd5e1;
+  background:rgba(148,163,184,.14);
+  border:1px solid rgba(148,163,184,.28);
+}
 .forms-check-section{
   display:grid;
-  gap:12px;
-  padding:14px;
-  border:1px solid rgba(130,188,255,.16);
-  border-radius:18px;
-  background:rgba(7,12,22,.28);
+  gap:18px;
+  padding:20px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(130,188,255,.045));
+  box-shadow:0 18px 55px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.035);
 }
 .forms-check-section h4{
   margin:0;
-  color:#9bcfff;
-  font-size:13px;
+  color:#f4f8ff;
+  font-size:14px;
   text-transform:uppercase;
+  letter-spacing:.03em;
 }
 .forms-add-public{
   justify-self:start;
@@ -692,6 +787,12 @@ button,a{font:inherit}
   padding:9px 13px;
   font-weight:1000;
   cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,transform .15s ease;
+}
+.forms-add-public:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.34);
+  background:rgba(130,188,255,.13);
 }
 .forms-muted{
   color:#b8c9e4;
@@ -2262,7 +2363,7 @@ function trafficAiOperationalStatus(b){
   return {code:'nao-iniciado',label:'Nao iniciado',stageStatus:'nao-iniciado',responseCount,filled,total:required.length,complete};
 }
 function statusText(status){
-  return status==='bloqueado'?'Bloqueado':status==='concluido'?'Concluido':status==='andamento'?'Em andamento':'Nao iniciado';
+  return status==='bloqueado'?'Bloqueado':status==='concluido'?'CONCLUIDO':status==='andamento'?'EM ANDAMENTO':'PENDENTE';
 }
 function statusTone(status){
   return status==='bloqueado'?'locked':status==='concluido'?'done':status==='andamento'?'progress':'empty';
@@ -2402,12 +2503,11 @@ function renderFormsStageDetail(b,stage){
         </div>
         <span class="status-pill ${statusTone(op.stageStatus)}">${esc(op.label)}</span>
       </div>
-      <div class="forms-check-item">
+      <div class="forms-check-item ${f.trafficAi.configuradoEquipe?'done':'pending'}">
         <div class="forms-check-top">
-          <span>Traffic AI configurado</span>
-          <label><input type="checkbox" data-traffic-configured="${esc(b.id)}" ${f.trafficAi.configuradoEquipe?'checked':''}> Configurado</label>
+          <label><input type="checkbox" data-traffic-configured="${esc(b.id)}" ${f.trafficAi.configuradoEquipe?'checked':''}> <span>Traffic AI configurado</span></label>
         </div>
-        <p class="forms-muted">Marque somente quando a configuracao interna estiver pronta. Data da configuracao: ${esc(f.trafficAi.configuradoEm?briefingDate(f.trafficAi.configuradoEm):'Pendente')}</p>
+        <span class="forms-check-badge ${f.trafficAi.configuradoEquipe?'done':'pending'}">${f.trafficAi.configuradoEquipe?'CONCLUIDO':'PENDENTE'}</span>
       </div>
       <div class="forms-copy-row">
         <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(f.trafficAi.link)}">Copiar link</button>
@@ -2430,12 +2530,11 @@ function renderTintimPixelStage(b,f,status){
       </div>
       <span class="status-pill ${statusTone(status)}">${esc(statusText(status))}</span>
     </div>
-    <div class="forms-check-item">
+    <div class="forms-check-item ${utilizaTintim?'done':'pending'}">
       <div class="forms-check-top">
-        <span>ESTE CLIENTE UTILIZA TINTIM</span>
-        <label><input type="checkbox" data-utiliza-tintim="${esc(b.id)}" ${utilizaTintim?'checked':''}> Sim</label>
+        <label><input type="checkbox" data-utiliza-tintim="${esc(b.id)}" ${utilizaTintim?'checked':''}> <span>ESTE CLIENTE UTILIZA TINTIM</span></label>
       </div>
-      <p class="forms-muted">${utilizaTintim?'Itens e publicos Tintim entram no calculo.':'Itens exclusivos de Tintim ficam como nao aplicaveis e nao geram pendencia.'}</p>
+      <span class="forms-check-badge ${utilizaTintim?'done':'muted'}">${utilizaTintim?'CONCLUIDO':'OPCIONAL'}</span>
     </div>
     <div class="forms-checklist">
       ${(f.pixelTintim?.items||[]).map((item,index)=>renderChecklistItem(item,'pixelTintim',index,utilizaTintim||!item.tintimOnly)).join('')}
@@ -2448,32 +2547,33 @@ function renderPublicoStage(b,f,status){
     <div class="forms-client-head">
       <div>
         <h3>PUBLICO</h3>
-        <p class="forms-muted">Publicos separados por origem. Publicos opcionais nao bloqueiam a conclusao.</p>
       </div>
       <span class="status-pill ${statusTone(status)}">${esc(statusText(status))}</span>
+    </div>
+    <div class="forms-check-section">
+      <h4>PUBLICOS META</h4>
+      <div class="forms-checklist">${(f.publico?.metaInstagram?.itens||[]).map((item,index)=>renderChecklistItem(item,'publicoMetaInstagram',index,true)).join('')}</div>
+      <button class="forms-add-public" type="button" data-add-publico="metaInstagram">+ ADICIONAR PUBLICO</button>
     </div>
     <div class="forms-check-section">
       <h4>PUBLICOS TINTIM</h4>
       ${utilizaTintim?`<div class="forms-checklist">${(f.publico?.tintim?.itens||[]).map((item,index)=>renderChecklistItem(item,'publicoTintim',index,true)).join('')}</div>`:`<p class="forms-muted">Nao aplicavel: este cliente nao utiliza Tintim.</p>`}
       <button class="forms-add-public" type="button" data-add-publico="tintim">+ ADICIONAR PUBLICO</button>
     </div>
-    <div class="forms-check-section">
-      <h4>PUBLICOS META / INSTAGRAM</h4>
-      <div class="forms-checklist">${(f.publico?.metaInstagram?.itens||[]).map((item,index)=>renderChecklistItem(item,'publicoMetaInstagram',index,true)).join('')}</div>
-      <button class="forms-add-public" type="button" data-add-publico="metaInstagram">+ ADICIONAR PUBLICO</button>
-    </div>
   </section>`;
 }
 function renderChecklistItem(item,stage,index,applicable=true){
   const optional=item.obrigatorio===false||item.opcional;
-  return `<div class="forms-check-item ${applicable?'':'not-applicable'}">
+  const checked=!!(item.concluido||item.criado);
+  const state=!applicable?'not-applicable':checked?'done':optional?'optional':'pending';
+  const badge=!applicable?'OPCIONAL':checked?'CONCLUIDO':optional?'OPCIONAL':'PENDENTE';
+  const badgeTone=!applicable?'muted':checked?'done':optional?'optional':'pending';
+  return `<div class="forms-check-item ${state}">
     <div class="forms-check-top">
-      <span>${esc(item.nome)} ${optional?'<small class="forms-muted">OPCIONAL</small>':''} ${applicable?'':'<small class="forms-muted">NAO APLICAVEL</small>'}</span>
-      <label><input type="checkbox" data-check-stage="${esc(stage)}" data-check-index="${index}" ${(item.concluido||item.criado)?'checked':''} ${applicable?'':'disabled'}> Criado</label>
+      <label><input type="checkbox" data-check-stage="${esc(stage)}" data-check-index="${index}" ${checked?'checked':''} ${applicable?'':'disabled'}> <span>${esc(item.nome)}</span></label>
     </div>
-    <textarea data-check-note="${esc(stage)}" data-check-index="${index}" placeholder="Observacao opcional">${esc(item.observacao||'')}</textarea>
     ${item.custom?`<div class="forms-copy-row"><button class="forms-small-action" type="button" data-edit-custom-publico="${esc(stage)}" data-check-index="${index}">Editar nome</button><button class="forms-small-action" type="button" data-delete-custom-publico="${esc(stage)}" data-check-index="${index}">Excluir</button></div>`:''}
-    <div class="forms-muted">Concluido em: ${esc((item.dataConclusao||item.concluidoEm)?briefingDate(item.dataConclusao||item.concluidoEm):'Pendente')}</div>
+    <span class="forms-check-badge ${badgeTone}">${esc(badge)}</span>
   </div>`;
 }
 function renderChecklistStage(b,stage,items,status){
