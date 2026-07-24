@@ -468,6 +468,189 @@ button,a{font:inherit}
   gap:10px;
   flex-wrap:wrap;
 }
+.forms-filter-box{
+  border:1px solid rgba(130,188,255,.22);
+  border-radius:18px;
+  padding:12px;
+  background:rgba(255,255,255,.045);
+  display:grid;
+  gap:10px;
+}
+.forms-filter-box input{
+  width:100%;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:rgba(5,8,13,.62);
+  color:var(--text);
+  padding:10px 11px;
+  font-weight:850;
+  outline:0;
+}
+.forms-filter-pills{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.forms-filter-pills button,.forms-small-action{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.045);
+  color:#cfe0fb;
+  font-size:11px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.forms-filter-pills button.active,.forms-small-action.primary{
+  color:#06121a;
+  border-color:rgba(130,188,255,.65);
+  background:linear-gradient(135deg,var(--blue),var(--cyan),var(--purple));
+}
+.forms-progress{
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  overflow:hidden;
+}
+.forms-progress span{
+  display:block;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(135deg,#ff6b6b,#8b5cf6,#70d6a2);
+}
+.forms-stage-dots{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;
+  margin-top:9px;
+}
+.forms-stage-dot{
+  border-radius:999px;
+  padding:5px 4px;
+  text-align:center;
+  font-size:9px;
+  font-weight:1000;
+  color:#dbe9ff;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.045);
+}
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:1000;
+  text-transform:uppercase;
+}
+.status-pill.done,.forms-stage-dot.done{
+  background:rgba(112,214,162,.18);
+  color:#9ef7c8;
+  border:1px solid rgba(112,214,162,.45);
+}
+.status-pill.progress,.forms-stage-dot.progress{
+  background:rgba(139,92,246,.20);
+  color:#d8c4ff;
+  border:1px solid rgba(139,92,246,.45);
+}
+.status-pill.empty,.forms-stage-dot.empty{
+  background:rgba(255,107,107,.16);
+  color:#ffb3b3;
+  border:1px solid rgba(255,107,107,.42);
+}
+.forms-client-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.forms-client-head h3{
+  font-size:24px;
+  margin:0 0 6px;
+}
+.forms-stage-summary{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+}
+.forms-stage-summary button{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:15px;
+  padding:10px;
+  background:rgba(255,255,255,.045);
+  color:#eaf2ff;
+  text-align:left;
+  cursor:pointer;
+}
+.forms-stage-summary button.active{box-shadow:0 0 0 1px rgba(130,188,255,.45) inset}
+.forms-stage-summary b{display:block;font-size:12px;margin-bottom:6px}
+.forms-detail-card{
+  border:1px solid rgba(130,188,255,.22);
+  border-radius:20px;
+  padding:16px;
+  background:rgba(3,8,15,.38);
+  display:grid;
+  gap:14px;
+}
+.forms-field-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.forms-field{
+  display:grid;
+  gap:7px;
+}
+.forms-field label,.forms-check-item label{
+  color:#9fb0ca;
+  font-size:11px;
+  font-weight:1000;
+  text-transform:uppercase;
+}
+.forms-field input,.forms-field textarea,.forms-check-item textarea{
+  width:100%;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:rgba(5,8,13,.62);
+  color:var(--text);
+  padding:10px 11px;
+  font-weight:850;
+  outline:0;
+}
+.forms-field textarea,.forms-check-item textarea{min-height:76px;resize:vertical}
+.forms-checklist{
+  display:grid;
+  gap:10px;
+}
+.forms-check-item{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  padding:12px;
+  background:rgba(255,255,255,.045);
+  display:grid;
+  gap:10px;
+}
+.forms-check-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.forms-check-top span{
+  color:#fff;
+  font-size:14px;
+  font-weight:1000;
+}
+.forms-check-top input{width:18px;height:18px}
+.forms-muted{
+  color:#b8c9e4;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.45;
+}
 .briefing-link-box{
   border:1px solid rgba(130,188,255,.28);
   border-radius:18px;
@@ -1138,6 +1321,7 @@ iframe{
   .briefing-board{grid-template-columns:1fr}
   .forms-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .forms-request-layout{grid-template-columns:1fr}
+  .forms-stage-summary,.forms-field-grid{grid-template-columns:1fr}
   .report-board{grid-template-columns:1fr}
   .report-sidebar{position:static}
   .briefing-preview-grid{grid-template-columns:1fr 1fr}
@@ -1351,19 +1535,22 @@ iframe{
   <div class="briefing-board" id="briefingBoard" hidden>
     <div class="forms-tabs" id="formsTabs" role="tablist" aria-label="Formularios"></div>
     <aside class="briefing-list">
-      <h3>Traffic AI <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
+      <h3>Clientes <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
       <div class="briefing-link-box">
         <label for="briefingClientName">Link para enviar ao cliente</label>
         <input id="briefingClientName" placeholder="Digite o nome da empresa">
         <div class="briefing-link-preview" id="briefingClientLink"></div>
         <button class="briefing-copy" id="copyBriefingLink" type="button">Copiar link do formulario</button>
       </div>
+      <div class="forms-filter-box">
+        <input id="formsSearch" placeholder="Pesquisar cliente ou empresa">
+        <div class="forms-filter-pills" id="formsFilters"></div>
+      </div>
       <div id="briefingList" class="briefing-empty">Aguardando Firestore...</div>
     </aside>
     <main class="briefing-detail" id="briefingDetail">
-      <div class="briefing-empty">Selecione um briefing para ver os detalhes.</div>
+      <div class="briefing-empty">Selecione um cliente para ver o onboarding.</div>
     </main>
-    <section class="forms-request-panel" id="formsRequestPanel" hidden></section>
   </div>
   <div class="report-board" id="reportBoard" hidden>
     <aside class="report-panel report-sidebar">
@@ -1416,139 +1603,24 @@ modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formularios',desc:'Cen
 modules.splice(3,0,{id:'relatorios',icon:'reports',title:'Relatórios',desc:'Dashboards de Meta e Google Ads por cliente, prontos para consulta e envio.',url:'',status:'Clientes e mídia',metric:'Meta / Google Ads'});
 modules.splice(4,0,{id:'promptSkill',icon:'prompt',title:'Prompt/Skill - Campanhas',desc:'Biblioteca viva para montar prompts profissionais e skills de Meta Ads.',url:'controle-online/index.html?view=promptSkill',status:'Estratégia Meta Ads',metric:'Prompt geral'});
 const $=s=>document.querySelector(s);
-let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='traffic';
+let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='clienteNovo',formsStatusFilter='todos',formsSearchTerm='';
 const formsTabs=[
-  {id:'traffic',label:'Traffic AI'},
   {id:'clienteNovo',label:'Cliente Novo'},
-  {id:'configTraffic',label:'Config Traffic AI'},
-  {id:'configTintim',label:'Config Tintim'},
-  {id:'configPublico',label:'Config Publico'},
-  {id:'configPixel',label:'Config Pixel'}
+  {id:'trafficAi',label:'Traffic AI'},
+  {id:'tintim',label:'Tintim'},
+  {id:'publico',label:'Publico'},
+  {id:'pixel',label:'Pixel'}
 ];
-const formRequestTemplates={
-  clienteNovo:{
-    title:'Cliente Novo',
-    subtitle:'Checklist para iniciar um cliente sem perder dados importantes.',
-    items:['Dados da empresa, responsavel e contatos','Acessos principais: BM, pagina, Instagram, WhatsApp, site/LP','Oferta, ticket medio, regioes atendidas e restricoes','Materiais: fotos, videos, depoimentos, identidade visual e provas','Objetivo da campanha, verba disponivel, prazo e prioridade'],
-    text:`CLIENTE NOVO - CHECKLIST DE ENTRADA
-
-Cliente/empresa:
-Responsavel:
-WhatsApp:
-Site/LP:
-Instagram:
-Pagina do Facebook:
-Business Manager:
-Conta de anuncios:
-Pixel/dataset:
-
-Objetivo inicial:
-Oferta principal:
-Ticket medio:
-Regioes atendidas:
-Restricoes/importante:
-
-Materiais necessarios:
-- Fotos/videos do produto ou servico
-- Identidade visual/logo
-- Depoimentos/provas
-- Promocoes ou condicoes comerciais
-
-Observacoes:`
-  },
-  configTraffic:{
-    title:'Configuracao Traffic AI',
-    subtitle:'Dados para registrar a oferta e orientar as decisoes do Traffic AI.',
-    items:['Produto/oferta e tipo de negocio','Avatar, dores, desejos e consciencia do publico','Diferenciais, provas e mecanismo do produto','Budget, meta de receita, ROAS e ticket medio','WhatsApp, landing pages e contas de anuncios'],
-    text:`CONFIGURACAO TRAFFIC AI
-
-Cliente:
-Produto/oferta:
-Tipo de negocio:
-Nicho:
-Pais/idioma:
-Link da pagina de vendas:
-Landing pages:
-Contas de anuncios:
-WhatsApp de destino:
-Mensagem pre-preenchida:
-
-Avatar/cliente ideal:
-Dores principais:
-Desejos principais:
-Provas disponiveis:
-Diferenciais:
-
-Budget mensal:
-Meta de receita:
-Meta de ROAS:
-Ticket medio:
-Custos por venda:
-
-Observacoes para o gestor:`
-  },
-  configTintim:{
-    title:'Config Tintim',
-    subtitle:'Solicitacao para deixar rastreamento e integracao de atendimento organizados.',
-    items:['Numero ou canal que recebera os leads','Origem/campanha que deve aparecer no atendimento','Mensagem padrao e etiquetas desejadas','Responsavel pelo atendimento','Observacoes sobre horarios, SLA ou regras'],
-    text:`CONFIG TINTIM
-
-Cliente:
-Canal/numero principal:
-Responsavel pelo atendimento:
-Origem/campanha:
-Etiqueta desejada:
-Mensagem inicial:
-Horario de atendimento:
-Regra de distribuicao:
-Observacoes:`
-  },
-  configPublico:{
-    title:'Configuracao Publico',
-    subtitle:'Base para criar ou ajustar publicos dentro do Meta Ads.',
-    items:['Publico principal e regioes','Idade, genero e idioma','Interesses, comportamentos e exclusoes','Publicos personalizados e semelhantes','Observacoes de restricao ou prioridade'],
-    text:`CONFIGURACAO PUBLICO
-
-Cliente:
-Campanha/conjunto:
-Publico desejado:
-Regiao:
-Idade:
-Genero:
-Idioma:
-Interesses:
-Comportamentos:
-Exclusoes:
-Publicos personalizados:
-Publicos semelhantes:
-Observacoes:`
-  },
-  configPixel:{
-    title:'Configuracao Pixel',
-    subtitle:'Checklist para conferir pixel, eventos e dominio antes de rodar campanha.',
-    items:['Business Manager e conta de anuncios','Pixel/dataset e dominio','Eventos configurados e eventos prioritarios','URL de teste e pagina de obrigado','Permissoes, CAPI e verificacoes pendentes'],
-    text:`CONFIGURACAO PIXEL
-
-Cliente:
-Business Manager:
-Conta de anuncios:
-Pixel/dataset:
-Dominio:
-URL principal:
-Pagina de obrigado:
-
-Eventos necessarios:
-- PageView
-- ViewContent
-- Lead
-- Purchase/CompleteRegistration
-
-CAPI configurada:
-Dominio verificado:
-Teste de eventos realizado:
-Pendencias:
-Observacoes:`
-  }
+const formsFilters=[
+  {id:'todos',label:'Todos'},
+  {id:'concluido',label:'Concluidos'},
+  {id:'andamento',label:'Em andamento'},
+  {id:'nao-iniciado',label:'Nao iniciados'}
+];
+const checklistDefaults={
+  tintim:[],
+  publico:['Visualizou 50% do video','Visitou pagina - 30 dias','Visitou pagina - 60 dias','Seguidores novos'],
+  pixel:[]
 };
 const reportGroups={
   meta:[
@@ -1675,56 +1747,14 @@ function renderFormsTabs(){
   const tabs=$('#formsTabs');
   if(!tabs)return;
   tabs.innerHTML=formsTabs.map(tab=>`<button class="forms-tab ${tab.id===activeFormsTab?'active':''}" type="button" data-forms-tab="${esc(tab.id)}">${esc(tab.label)}</button>`).join('');
-  const isTraffic=activeFormsTab==='traffic';
-  const list=document.querySelector('.briefing-list');
-  const detail=$('#briefingDetail');
-  const panel=$('#formsRequestPanel');
-  if(list)list.hidden=!isTraffic;
-  if(detail)detail.hidden=!isTraffic;
-  if(panel)panel.hidden=isTraffic;
-  if(!isTraffic)renderFormsRequestPanel(activeFormsTab);
+  renderFormsFilters();
+  renderBriefingList();
+  renderBriefingDetail(selectedBriefingId);
 }
-function renderFormsRequestPanel(tabId){
-  const panel=$('#formsRequestPanel');
-  const data=formRequestTemplates[tabId]||formRequestTemplates.clienteNovo;
-  if(!panel)return;
-  panel.innerHTML=`<div class="forms-request-layout">
-    <aside class="forms-request-card">
-      <div>
-        <h3>${esc(data.title)}</h3>
-        <p>${esc(data.subtitle)}</p>
-      </div>
-      <ul class="forms-request-list">
-        ${data.items.map(item=>`<li>${esc(item)}</li>`).join('')}
-      </ul>
-    </aside>
-    <main class="forms-request-card">
-      <div class="briefing-preview-head">
-        <div>
-          <h4>Modelo para copiar e preencher</h4>
-          <p>Use como base para WhatsApp, checklist interno ou configuracao operacional.</p>
-        </div>
-        <div class="forms-copy-row">
-          <button class="briefing-copy" type="button" data-copy-forms-template>Copiar modelo</button>
-        </div>
-      </div>
-      <textarea class="forms-request-text" id="formsRequestText" spellcheck="false">${esc(data.text)}</textarea>
-    </main>
-  </div>`;
-}
-async function copyFormsTemplate(){
-  const text=$('#formsRequestText')?.value||'';
-  if(!text)return;
-  try{
-    await navigator.clipboard.writeText(text);
-    const btn=document.querySelector('[data-copy-forms-template]');
-    if(btn){
-      btn.textContent='Modelo copiado';
-      setTimeout(()=>btn.textContent='Copiar modelo',1400);
-    }
-  }catch(err){
-    prompt('Copie o modelo:',text);
-  }
+function renderFormsFilters(){
+  const box=$('#formsFilters');
+  if(!box)return;
+  box.innerHTML=formsFilters.map(filter=>`<button class="${filter.id===formsStatusFilter?'active':''}" type="button" data-forms-filter="${esc(filter.id)}">${esc(filter.label)}</button>`).join('');
 }
 function openModule(id){
   const mod=modules.find(m=>m.id===id)||modules[0];
@@ -1769,7 +1799,18 @@ function setupEvents(){
     if(target) openModule(target.dataset.module);
     const formsTab=e.target.closest('[data-forms-tab]');
     if(formsTab){activeFormsTab=formsTab.dataset.formsTab;renderFormsTabs()}
-    if(e.target.closest('[data-copy-forms-template]')) copyFormsTemplate();
+    const formsFilter=e.target.closest('[data-forms-filter]');
+    if(formsFilter){formsStatusFilter=formsFilter.dataset.formsFilter;renderBriefingList()}
+    const saveForm=e.target.closest('[data-save-form-stage="clienteNovo"]');
+    if(saveForm) saveClienteNovoStage();
+    const copyClientLink=e.target.closest('[data-copy-client-link]');
+    if(copyClientLink){
+      const link=copyClientLink.dataset.copyClientLink||'';
+      navigator.clipboard?.writeText(link).then(()=>{
+        copyClientLink.textContent='Link copiado';
+        setTimeout(()=>copyClientLink.textContent='Copiar link',1400);
+      }).catch(()=>prompt('Copie o link:',link));
+    }
     const reportKind=e.target.closest('[data-report-kind]');
     if(reportKind){activeReportKind=reportKind.dataset.reportKind;activeReportId='';renderReports()}
     const reportSelect=e.target.closest('[data-report-select]');
@@ -1803,7 +1844,14 @@ function setupEvents(){
   });
   document.body.addEventListener('input',e=>{
     if(e.target.id==='briefingClientName')updateBriefingLink();
+    if(e.target.id==='formsSearch'){formsSearchTerm=e.target.value;renderBriefingList()}
   });
+  document.body.addEventListener('change',e=>{
+    if(e.target.matches('[data-check-stage]'))updateChecklistItem(e.target);
+  });
+  document.body.addEventListener('blur',e=>{
+    if(e.target.matches('[data-check-note]'))updateChecklistItem(e.target);
+  },true);
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBriefingModal()});
   $('#closeWorkspace').onclick=()=>$('#workspace').classList.remove('active');
   $('#reloadFrame').onclick=()=>{
@@ -1946,6 +1994,121 @@ function briefingSummary(b){
     publico:avatar.genero||'--'
   };
 }
+function filledValue(value){
+  if(Array.isArray(value))return value.some(filledValue);
+  if(value&&typeof value==='object')return Object.values(value).some(filledValue);
+  return String(value??'').trim()!==''&&String(value??'').trim()!=='--';
+}
+function baseChecklist(stage, saved=[]){
+  const savedItems=Array.isArray(saved)?saved:[];
+  const byName=new Map(savedItems.map(item=>[String(item.nome||item.name||'').trim(),item]));
+  const defaults=(checklistDefaults[stage]||[]).map(nome=>byName.get(nome)||{nome,criado:false,observacao:'',concluidoEm:null});
+  const extra=savedItems.filter(item=>!defaults.some(def=>def.nome===item.nome));
+  return [...defaults,...extra].map(item=>({
+    nome:item.nome||item.name||'Item',
+    criado:!!item.criado,
+    observacao:item.observacao||item.obs||'',
+    concluidoEm:item.concluidoEm||null,
+    atualizadoEm:item.atualizadoEm||null,
+    responsavel:item.responsavel||''
+  }));
+}
+function ensureFormularioState(b){
+  const f=b?.formulario||{};
+  const d=b?.dados||{};
+  const id=d.identificacao||{};
+  return {
+    clienteNovo:{
+      dados:{
+        nome:f.clienteNovo?.dados?.nome||b?.cliente_nome||id.empresa||'',
+        empresa:f.clienteNovo?.dados?.empresa||id.empresa||b?.empresa_nome||'',
+        email:f.clienteNovo?.dados?.email||'',
+        whatsapp:f.clienteNovo?.dados?.whatsapp||id.whatsapp_numero||''
+      },
+      link:f.clienteNovo?.link||'',
+      enviadoEm:f.clienteNovo?.enviadoEm||null,
+      atualizadoEm:f.clienteNovo?.atualizadoEm||null,
+      concluidoEm:f.clienteNovo?.concluidoEm||null
+    },
+    trafficAi:{
+      link:f.trafficAi?.link||briefingFormUrl(id.empresa||b?.empresa_nome||b?.cliente_nome||''),
+      enviadoEm:f.trafficAi?.enviadoEm||null,
+      atualizadoEm:f.trafficAi?.atualizadoEm||b?.updatedAt||b?.timestamp||null,
+      concluidoEm:f.trafficAi?.concluidoEm||null
+    },
+    tintim:{itens:baseChecklist('tintim',f.tintim?.itens)},
+    publico:{itens:baseChecklist('publico',f.publico?.itens)},
+    pixel:{itens:baseChecklist('pixel',f.pixel?.itens)}
+  };
+}
+function calcularStatusEtapa(b,stage){
+  const f=ensureFormularioState(b);
+  if(stage==='trafficAi'){
+    const d=b?.dados||{};
+    const sections=['identificacao','avatar','produto','financeiro'];
+    const started=sections.some(key=>filledValue(d[key]));
+    const required=[
+      d.identificacao?.empresa,
+      d.identificacao?.produto,
+      d.identificacao?.tipo,
+      d.avatar?.descricao,
+      d.produto?.oque_e,
+      d.financeiro?.budget,
+      d.financeiro?.ticket
+    ];
+    if(required.every(filledValue))return 'concluido';
+    return started?'andamento':'nao-iniciado';
+  }
+  if(stage==='clienteNovo'){
+    const vals=Object.values(f.clienteNovo.dados||{});
+    const started=vals.some(filledValue)||filledValue(f.clienteNovo.link);
+    const done=['nome','empresa','email','whatsapp'].every(key=>filledValue(f.clienteNovo.dados?.[key]));
+    if(done)return 'concluido';
+    return started?'andamento':'nao-iniciado';
+  }
+  const items=f[stage]?.itens||[];
+  if(!items.length)return 'nao-iniciado';
+  const checked=items.filter(item=>item.criado).length;
+  if(checked===items.length)return 'concluido';
+  return checked?'andamento':'nao-iniciado';
+}
+function calcularProgressoCliente(b){
+  const stages=formsTabs.map(tab=>tab.id);
+  const statuses=Object.fromEntries(stages.map(stage=>[stage,calcularStatusEtapa(b,stage)]));
+  const done=Object.values(statuses).filter(status=>status==='concluido').length;
+  const started=Object.values(statuses).some(status=>status!=='nao-iniciado');
+  const geral=done===stages.length?'concluido':started?'andamento':'nao-iniciado';
+  return {statuses,done,total:stages.length,geral};
+}
+function statusText(status){
+  return status==='concluido'?'Concluido':status==='andamento'?'Em andamento':'Nao iniciado';
+}
+function statusTone(status){
+  return status==='concluido'?'done':status==='andamento'?'progress':'empty';
+}
+function clienteNovoFormUrl(b){
+  const s=briefingSummary(b);
+  const base=new URL('briefing_cliente_v4.html',location.href);
+  const version=new URLSearchParams(location.search).get('v')||Date.now();
+  base.searchParams.set('form','clienteNovo');
+  base.searchParams.set('cliente',s.empresa);
+  base.searchParams.set('id',b?.cliente_id||b?.id||'');
+  base.searchParams.set('v',version);
+  return base.toString();
+}
+function filterBriefingsForForms(){
+  const term=normalizeBriefingOption(formsSearchTerm);
+  return briefings.filter(b=>{
+    const s=briefingSummary(b);
+    const p=calcularProgressoCliente(b);
+    const matchesFilter=formsStatusFilter==='todos'
+      ||(formsStatusFilter==='concluido'&&p.geral==='concluido')
+      ||(formsStatusFilter==='andamento'&&p.geral==='andamento')
+      ||(formsStatusFilter==='nao-iniciado'&&p.geral==='nao-iniciado');
+    const matchesSearch=!term||normalizeBriefingOption(`${s.empresa} ${s.produto}`).includes(term);
+    return matchesFilter&&matchesSearch;
+  });
+}
 function normalizeFallbackBriefings(list){
   return (Array.isArray(list)?list:[]).map((b,i)=>({
     id:b.firestore_id||b.fallback_id||b.cliente_id||`fallback-${i}`,
@@ -1978,39 +2141,192 @@ function renderBriefingList(){
   $('#briefingCount').textContent=String(briefings.length);
   $('#briefingSync').textContent=novos?`${novos} novo(s)`:'Atualizado';
   $('#activityBriefings').textContent=briefings.length?`${briefings.length} recebido(s)`:'Nenhum formulario';
-  if(!briefings.length){list.className='briefing-empty';list.innerHTML='Nenhum briefing recebido ainda.';return}
+  renderFormsFilters();
+  const visible=filterBriefingsForForms();
+  if(!briefings.length){list.className='briefing-empty';list.innerHTML='Nenhum cliente recebido ainda.';return}
+  if(!visible.length){list.className='briefing-empty';list.innerHTML='Nenhum cliente encontrado neste filtro.';return}
   list.className='';
-  list.innerHTML=briefings.map(b=>{const d=b.dados||{},fin=d.financeiro||{},id=d.identificacao||{},empresa=id.empresa||b.empresa_nome||b.cliente_nome||'Nao identificado';return`<button class="briefing-card ${b.id===selectedBriefingId?'active':''}" data-briefing-id="${esc(b.id)}" type="button"><span class="briefing-status ${statusClass(b.status)}">${statusLabel(b.status)}</span><b>${esc(empresa)}</b><div class="briefing-meta">Recebido: ${esc(briefingDate(b.timestamp))}<br>Nicho: ${esc(id.nicho||'--')}<br>Budget: ${esc(fin.budget||'--')} | Ticket: ${esc(fin.ticket||'--')}</div></button>`}).join('');
+  list.innerHTML=visible.map(b=>{
+    const s=briefingSummary(b),p=calcularProgressoCliente(b),pct=Math.round((p.done/p.total)*100);
+    return `<button class="briefing-card ${b.id===selectedBriefingId?'active':''}" data-briefing-id="${esc(b.id)}" type="button">
+      <span class="status-pill ${statusTone(p.geral)}">${statusText(p.geral)}</span>
+      <b>${esc(s.empresa)}</b>
+      <div class="briefing-meta">Empresa: ${esc(s.empresa)}<br>${p.done} de ${p.total} etapas concluidas<br>Ultima atualizacao: ${esc(briefingDate(b.updatedAt||b.timestamp))}</div>
+      <div class="forms-progress"><span style="width:${pct}%"></span></div>
+      <div class="forms-stage-dots">
+        ${formsTabs.map(tab=>`<span class="forms-stage-dot ${statusTone(p.statuses[tab.id])}" title="${esc(tab.label)}: ${statusText(p.statuses[tab.id])}">${esc(tab.label.split(' ')[0])}</span>`).join('')}
+      </div>
+    </button>`;
+  }).join('');
 }
 function renderBriefingDetail(id){
   const el=$('#briefingDetail');if(!el)return;
   const b=briefings.find(x=>x.id===id)||briefings[0];
-  if(!b){el.innerHTML='<div class="briefing-empty">Selecione um briefing para ver os detalhes.</div>';return}
+  if(!b){el.innerHTML='<div class="briefing-empty">Selecione um cliente para ver o onboarding.</div>';return}
   selectedBriefingId=b.id;
-  const s=briefingSummary(b);
+  const s=briefingSummary(b),p=calcularProgressoCliente(b),pct=Math.round((p.done/p.total)*100);
   el.innerHTML=`<div class="briefing-preview-card">
     <div class="briefing-preview-head">
       <div>
-        <span class="briefing-status ${statusClass(b.status)}">${statusLabel(b.status)}</span>
+        <span class="status-pill ${statusTone(p.geral)}">${statusText(p.geral)}</span>
         <h3>${esc(s.empresa)}</h3>
-        <div class="briefing-meta">Recebido em ${esc(briefingDate(b.timestamp))} | ID ${esc(b.cliente_id||b.id)}</div>
+        <div class="briefing-meta">${p.done} de ${p.total} etapas concluidas | Ultima atualizacao: ${esc(briefingDate(b.updatedAt||b.timestamp))} | ID ${esc(b.cliente_id||b.id)}</div>
       </div>
-      <button class="briefing-open" data-briefing-open="${esc(b.id)}" type="button">Abrir briefing</button>
+      <button class="briefing-open" data-briefing-open="${esc(b.id)}" type="button">Abrir dados Traffic AI</button>
     </div>
-    <div class="briefing-preview-grid">
-      <div class="briefing-mini"><span>Produto</span><b>${esc(s.produto)}</b></div>
-      <div class="briefing-mini"><span>Empresa</span><b>${esc(s.empresa)}</b></div>
-      <div class="briefing-mini"><span>Nicho</span><b>${esc(s.nicho)}</b></div>
-      <div class="briefing-mini"><span>Budget</span><b>${esc(s.budget)}</b></div>
+    <div class="forms-progress"><span style="width:${pct}%"></span></div>
+    <div class="forms-stage-summary">
+      ${formsTabs.map(tab=>`<button class="${activeFormsTab===tab.id?'active':''}" type="button" data-forms-tab="${esc(tab.id)}">
+        <b>${esc(tab.label)}</b><span class="status-pill ${statusTone(p.statuses[tab.id])}">${statusText(p.statuses[tab.id])}</span>
+      </button>`).join('')}
     </div>
-    <div class="briefing-actions">
-      <button class="${briefingStatusButtonClass('novo',String(b.status||'novo')==='novo')}" data-briefing-status="novo" type="button">Novo</button>
-      <button class="${briefingStatusButtonClass('em analise',String(b.status||'').includes('anal'))}" data-briefing-status="em analise" type="button">Em analise</button>
-      <button class="${briefingStatusButtonClass('configurado',String(b.status||'').includes('config'))}" data-briefing-status="configurado" type="button">Configurado</button>
-      <button class="danger" data-briefing-delete="${esc(b.id)}" type="button">Excluir</button>
-    </div>
-    <div class="briefing-hint">Clique duas vezes no card da lista ou use o botao acima para visualizar todos os dados preenchidos.</div>
+    ${renderFormsStageDetail(b,activeFormsTab)}
   </div>`;
+}
+function renderFormsStageDetail(b,stage){
+  const f=ensureFormularioState(b),status=calcularStatusEtapa(b,stage);
+  if(stage==='clienteNovo'){
+    const link=f.clienteNovo.link||clienteNovoFormUrl(b);
+    return `<section class="forms-detail-card">
+      <div class="forms-client-head">
+        <div>
+          <h3>Cliente Novo</h3>
+          <p class="forms-muted">Estrutura inicial para onboarding. Campos definitivos serao adicionados depois sem alterar os dados atuais.</p>
+        </div>
+        <span class="status-pill ${statusTone(status)}">${statusText(status)}</span>
+      </div>
+      <div class="forms-field-grid">
+        ${[['nome','Nome do cliente'],['empresa','Empresa'],['email','E-mail'],['whatsapp','WhatsApp']].map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(f.clienteNovo.dados?.[key]||'')}"></div>`).join('')}
+      </div>
+      <div class="forms-field">
+        <label>Link individual do cliente</label>
+        <input readonly value="${esc(link)}">
+      </div>
+      <div class="forms-copy-row">
+        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(link)}">Copiar link</button>
+        <button class="forms-small-action primary" type="button" data-save-form-stage="clienteNovo">Salvar Cliente Novo</button>
+      </div>
+      <p class="forms-muted">Situacao: ${statusText(status)}. Atualizado em ${esc(briefingDate(f.clienteNovo.atualizadoEm||b.updatedAt||b.timestamp))}.</p>
+    </section>`;
+  }
+  if(stage==='trafficAi'){
+    const trafficStatus=statusText(status);
+    return `<section class="forms-detail-card">
+      <div class="forms-client-head">
+        <div>
+          <h3>Traffic AI</h3>
+          <p class="forms-muted">Mantem o formulario atual recebido pelo cliente e os dados ja preenchidos.</p>
+        </div>
+        <span class="status-pill ${statusTone(status)}">${trafficStatus}</span>
+      </div>
+      <div class="briefing-preview-grid">
+        <div class="briefing-mini"><span>Link gerado</span><b>${f.trafficAi.link?'Sim':'Nao'}</b></div>
+        <div class="briefing-mini"><span>Formulario</span><b>${status==='nao-iniciado'?'Nao iniciado':status==='concluido'?'Concluido':'Em preenchimento'}</b></div>
+        <div class="briefing-mini"><span>Ultima atualizacao</span><b>${esc(briefingDate(f.trafficAi.atualizadoEm||b.updatedAt||b.timestamp))}</b></div>
+        <div class="briefing-mini"><span>Produto</span><b>${esc(briefingSummary(b).produto)}</b></div>
+      </div>
+      <div class="forms-field">
+        <label>Link do formulario Traffic AI</label>
+        <input readonly value="${esc(f.trafficAi.link)}">
+      </div>
+      <div class="forms-copy-row">
+        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(f.trafficAi.link)}">Copiar link</button>
+        <button class="forms-small-action primary" type="button" data-briefing-open="${esc(b.id)}">Abrir dados preenchidos</button>
+      </div>
+    </section>`;
+  }
+  return renderChecklistStage(b,stage,f[stage]?.itens||[],status);
+}
+function renderChecklistStage(b,stage,items,status){
+  const titles={tintim:'Tintim',publico:'Publico',pixel:'Pixel'};
+  const hints={
+    tintim:'Checklist manual preparado para receber os itens definitivos de Tintim.',
+    publico:'Publicos iniciais independentes por cliente. Novos publicos poderao ser adicionados sem reescrever a logica.',
+    pixel:'Checklist manual preparado para receber os itens definitivos de Pixel.'
+  };
+  const emptyHint=items.length?'':'Nenhum item definitivo cadastrado ainda. A estrutura ja esta pronta para receber novos itens.';
+  return `<section class="forms-detail-card">
+    <div class="forms-client-head">
+      <div>
+        <h3>${esc(titles[stage]||stage)}</h3>
+        <p class="forms-muted">${esc(hints[stage]||'Checklist manual por cliente.')}</p>
+      </div>
+      <span class="status-pill ${statusTone(status)}">${statusText(status)}</span>
+    </div>
+    ${emptyHint?`<p class="forms-muted">${esc(emptyHint)}</p>`:''}
+    <div class="forms-checklist">
+      ${items.map((item,index)=>`<div class="forms-check-item">
+        <div class="forms-check-top">
+          <span>${esc(item.nome)}</span>
+          <label><input type="checkbox" data-check-stage="${esc(stage)}" data-check-index="${index}" ${item.criado?'checked':''}> Criado</label>
+        </div>
+        <textarea data-check-note="${esc(stage)}" data-check-index="${index}" placeholder="Observacao opcional">${esc(item.observacao||'')}</textarea>
+        <div class="forms-muted">Concluido em: ${esc(item.concluidoEm?briefingDate(item.concluidoEm):'Pendente')}</div>
+      </div>`).join('')}
+    </div>
+  </section>`;
+}
+function currentFormularioPatch(id,mutator){
+  const selected=briefings.find(x=>String(x.id)===String(id));
+  if(!selected)return null;
+  const hasBackup=Object.prototype.hasOwnProperty.call(selected,'formularioBackupInicial');
+  const formulario=ensureFormularioState(selected);
+  mutator(formulario,selected);
+  return {
+    formulario,
+    updatedAt:new Date().toISOString(),
+    formularioBackupInicial:hasBackup?selected.formularioBackupInicial:(selected.formulario||null),
+    formularioBackupCriadoEm:selected.formularioBackupCriadoEm || new Date().toISOString()
+  };
+}
+function saveFormularioPatch(id,patch){
+  if(!db||!id||!patch)return;
+  applyLocalBriefingPatch(id,patch);
+  const selected=briefings.find(x=>String(x.id)===String(id));
+  if(selected?._fallback){
+    const updated=briefingsFallback.map(item=>{
+      const merged=String(item.id)===String(id)?{...item,...patch}:item;
+      const {id:_id,_fallback,...clean}=merged;
+      return clean;
+    });
+    db.collection('tarefas').doc('estado_principal').set({
+      briefingsInbox:updated,
+      briefingsUpdatedAt:Date.now()
+    },{merge:true}).catch(err=>alert('Nao foi possivel salvar o formulario: '+err.message));
+    return;
+  }
+  db.collection('briefings').doc(id).update(patch).catch(err=>alert('Nao foi possivel salvar o formulario: '+err.message));
+}
+function saveClienteNovoStage(){
+  if(!selectedBriefingId)return;
+  const patch=currentFormularioPatch(selectedBriefingId,formulario=>{
+    document.querySelectorAll('[data-form-field="clienteNovo"]').forEach(field=>{
+      formulario.clienteNovo.dados[field.dataset.field]=field.value.trim();
+    });
+    formulario.clienteNovo.link=formulario.clienteNovo.link||clienteNovoFormUrl(briefings.find(x=>String(x.id)===String(selectedBriefingId)));
+    formulario.clienteNovo.atualizadoEm=new Date().toISOString();
+    if(['nome','empresa','email','whatsapp'].every(key=>filledValue(formulario.clienteNovo.dados[key]))){
+      formulario.clienteNovo.concluidoEm=formulario.clienteNovo.concluidoEm||new Date().toISOString();
+    }
+  });
+  saveFormularioPatch(selectedBriefingId,patch);
+}
+function updateChecklistItem(input){
+  if(!selectedBriefingId)return;
+  const stage=input.dataset.checkStage||input.dataset.checkNote;
+  const index=Number(input.dataset.checkIndex);
+  const patch=currentFormularioPatch(selectedBriefingId,formulario=>{
+    const item=formulario[stage]?.itens?.[index];
+    if(!item)return;
+    if(input.matches('[data-check-stage]')){
+      item.criado=input.checked;
+      item.concluidoEm=input.checked?(item.concluidoEm||new Date().toISOString()):null;
+    }else{
+      item.observacao=input.value.trim();
+    }
+    item.atualizadoEm=new Date().toISOString();
+  });
+  saveFormularioPatch(selectedBriefingId,patch);
 }
 function renderBriefingEditControl(row){
   const config=briefingFieldConfig(row.source,row.key);
