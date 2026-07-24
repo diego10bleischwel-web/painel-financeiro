@@ -2665,11 +2665,145 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
 .central-badge.warn{color:#fde68a;background:rgba(251,191,36,.13);border:1px solid rgba(251,191,36,.38)}
 .central-badge.ok{color:#bbf7d0;background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.38)}
 .central-badge.bad{color:#fecaca;background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.38)}
+.prompt-skill-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:0 0 16px;
+}
+.prompt-skill-tabs .tab{
+  min-height:42px;
+  padding:10px 18px;
+}
+.prompt-skill-tabs .tab.active{
+  color:#06111f!important;
+  background:linear-gradient(135deg,#7dd3fc,#8b5cf6 52%,#6ee7b7)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.24),0 0 26px rgba(125,211,252,.35)!important;
+}
+.prompt-skill-layout{
+  display:grid;
+  grid-template-columns:minmax(280px,.9fr) minmax(320px,1fr) minmax(360px,1.35fr);
+  gap:16px;
+  align-items:start;
+}
+.prompt-skill-panel{
+  border:1px solid rgba(125,211,252,.38);
+  border-radius:24px;
+  padding:18px;
+  background:linear-gradient(145deg,rgba(18,31,53,.9),rgba(8,15,29,.94));
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 0 30px rgba(99,102,241,.15);
+}
+.prompt-skill-panel h3{
+  margin:0 0 8px;
+}
+.prompt-skill-panel .hint{
+  color:#9fb3cf;
+  font-size:13px;
+  line-height:1.45;
+  margin:0 0 14px;
+}
+.prompt-skill-panel .field{
+  margin-bottom:12px;
+}
+.prompt-skill-panel label{
+  display:block;
+  color:#93c5fd;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  margin:0 0 6px;
+}
+.prompt-skill-panel input,.prompt-skill-panel select,.prompt-skill-panel textarea{
+  width:100%;
+  min-height:44px;
+  border-radius:13px;
+  border:1px solid rgba(148,163,184,.3);
+  background:rgba(7,13,24,.78);
+  color:#f8fafc;
+  padding:11px 13px;
+  font:inherit;
+}
+.prompt-skill-panel textarea{
+  min-height:180px;
+  resize:vertical;
+}
+.prompt-skill-master textarea{
+  min-height:560px;
+  font-family:Consolas,"Courier New",monospace;
+  font-size:13px;
+  line-height:1.55;
+  white-space:pre-wrap;
+}
+.prompt-skill-list{
+  display:grid;
+  gap:10px;
+}
+.prompt-skill-card{
+  border:1px solid rgba(148,163,184,.26);
+  border-radius:18px;
+  padding:13px;
+  background:linear-gradient(145deg,rgba(15,23,42,.86),rgba(25,36,58,.72));
+  box-shadow:inset 0 1px rgba(255,255,255,.06);
+}
+.prompt-skill-card strong{
+  display:block;
+  margin:8px 0 5px;
+  color:#f8fafc;
+}
+.prompt-skill-chip{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:3px 9px;
+  border-radius:999px;
+  color:#bbf7d0;
+  background:rgba(34,197,94,.12);
+  border:1px solid rgba(34,197,94,.35);
+  font-size:11px;
+  font-weight:950;
+}
+.prompt-skill-excerpt{
+  color:#b7c5d8;
+  font-size:13px;
+  line-height:1.45;
+  margin:0;
+}
+.prompt-skill-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.prompt-skill-warning{
+  color:#fecaca;
+  border:1px solid rgba(248,113,113,.58);
+  background:linear-gradient(135deg,rgba(127,29,29,.24),rgba(30,41,59,.5));
+  border-radius:16px;
+  padding:12px;
+  margin:0 0 12px;
+  box-shadow:0 0 18px rgba(248,113,113,.12);
+}
+.prompt-skill-path{
+  display:grid;
+  gap:8px;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid rgba(125,211,252,.32);
+  background:rgba(14,23,39,.76);
+  margin-bottom:12px;
+}
+.prompt-skill-path code{
+  color:#7dd3fc;
+  word-break:break-all;
+}
 .quick-add,.add-card,.quick-composer{
   display:none!important;
 }
 @media(max-width:720px){
   .central-shell,.central-board{grid-template-columns:1fr}
+  .prompt-skill-layout{grid-template-columns:1fr}
+  .prompt-skill-master textarea{min-height:360px}
   .creative-strategy-grid{grid-template-columns:1fr}
   .creative-strategy-grid .field:last-child{grid-column:auto}
 }
@@ -2707,7 +2841,8 @@ const DEFAULT_SYNC_URL='https://script.google.com/macros/s/AKfycbwfAVIZgW-0P5dBO
 let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'',syncUrl=DEFAULT_SYNC_URL,syncTimer=null,syncLoopTimer=null,syncReady=false,applyingRemote=false,syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
 const FIRESTORE_COLLECTION='tarefas',FIRESTORE_DOC='estado_principal',FIREBASE_CONFIG={apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",authDomain:"dualize-projeto.firebaseapp.com",projectId:"dualize-projeto",storageBucket:"dualize-projeto.firebasestorage.app",messagingSenderId:"1098441288739",appId:"1:1098441288739:web:8e210b6d329ee779bc1596"};
 let firestoreDb=null,firestoreDocRef=null,firestoreSnapshotStarted=false,firestoreReady=false;
-let state=loadSavedState(),activeScreen='home',homeTab='dashboard',calendarMode='month',calendarFilter='all',plannerDate=new Date(),selectedDate=iso(new Date()),openCardId=null,composerColumn='',quickDay='',quickEditId=null,modalTab='titulo',modalDirty=false,showAllHistory=false,historyCarouselTimer=null,livePreviewTimer=null,liveVideoTimer=null,liveVideoCardId=null;
+let state=loadSavedState(),activeScreen='home',homeTab='dashboard',calendarMode='month',calendarFilter='all',plannerDate=new Date(),selectedDate=iso(new Date()),openCardId=null,composerColumn='',quickDay='',quickEditId=null,modalTab='titulo',modalDirty=false,showAllHistory=false,historyCarouselTimer=null,livePreviewTimer=null,liveVideoTimer=null,liveVideoCardId=null,promptSkillEditId='';
+if(new URLSearchParams(location.search).get('view')==='promptSkill'||location.hash.includes('prompt-skill'))homeTab='promptSkill';
 if(savedSyncUrl!==DEFAULT_SYNC_URL){localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL);localStorage.removeItem(PENDING_SYNC_KEY);syncPending=false}
 document.documentElement.dataset.theme=state.theme||'dark';
 function blank(){return{version:6,theme:'dark',workspaces:[{id:1,name:'TRAFEGO PAGO',note:'Clientes e campanhas de trafego pago',boards:[{id:1,name:'Best MultiMarcas',note:''},{id:2,name:'Solido Sentimento',note:''},{id:3,name:'Dualize Digital',note:''}]}],activeWorkspaceId:1,activeBoardId:null,cards:[],nextWorkspaceId:2,nextBoardId:4,nextCardId:1,updatedAt:0,lastSync:0}}
@@ -2804,7 +2939,7 @@ function duplicateCreativeLink(value,ignoreId=0){const key=centralLinkKey(value)
 function centralCards(status=''){return cards('area').filter(c=>c.centralManaged&&(!status||c.centralStatus===status)).sort((a,b)=>String(b.centralActivatedAt||b.centralCreatedAt||'').localeCompare(String(a.centralActivatedAt||a.centralCreatedAt||''))||(+b.id)-(+a.id))}
 function centralStatusLabel(status){return status==='rodando'?'Rodando':status==='desativado'?'Desativado':'Aguardando'}
 function centralBadgeClass(status){return status==='rodando'?'ok':status==='desativado'?'bad':'warn'}
-function centralTabs(){return`<div class="central-tabs tabs"><button class="tab ${homeTab==='dashboard'?'active':''}" data-home-tab="dashboard" type="button">Dashboard e lancamentos</button><button class="tab ${homeTab==='central'?'active':''}" data-home-tab="central" type="button">Central de criativos</button></div>`}
+function centralTabs(){return`<div class="central-tabs tabs"><button class="tab ${homeTab==='dashboard'?'active':''}" data-home-tab="dashboard" type="button">Dashboard e lancamentos</button><button class="tab ${homeTab==='central'?'active':''}" data-home-tab="central" type="button">Central de criativos</button><button class="tab ${homeTab==='promptSkill'?'active':''}" data-home-tab="promptSkill" type="button">Prompt/Skill - Campanhas</button></div>`}
 function decorateCentralTabs(){const tabs=$('#homeView .tabs');if(!tabs)return;tabs.classList.add('central-tabs');tabs.innerHTML=centralTabs().replace(/^<div class="central-tabs tabs">|<\/div>$/g,'');const btn=$('#homeView [data-new-any]');if(btn)btn.textContent='+ Novo criativo na central'}
 function centralForm(){return`<section class="central-form"><h3>Entrada rapida do marketing</h3><p class="hint">Cole o link uma unica vez, escolha o cliente e deixe em Aguardando para o gestor ativar depois.</p><div class="field"><label>Cliente / quadro</label><select id="centralBoard">${boards().map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></div><div class="field"><label>Link do criativo</label><input id="centralLink" placeholder="Cole aqui o link do Instagram, Drive, Meta ou arquivo"></div><div class="field"><label>Titulo opcional</label><input id="centralTitle" placeholder="Ex.: Feed promocional, Reel produto novo..."></div><div class="field"><label>Observacao opcional</label><textarea id="centralNote" placeholder="Brief rapido, campanha, publico ou detalhe importante"></textarea></div><button class="btn primary" data-central-create type="button">Salvar na Central como Aguardando</button></section>`}
 function centralItem(c){const b=boards().find(x=>+x.id===+c.boardId),soc=detect(c.link),status=c.centralStatus||'aguardando',when=status==='rodando'?(short(c.dueDate)||'Hoje'):status==='desativado'?(short((c.centralDeactivatedAt||'').slice(0,10))||'Finalizado'):'Novo';return`<article class="central-item" data-central-card="${c.id}"><span class="central-badge ${centralBadgeClass(status)}">${centralStatusLabel(status)}</span><strong>${esc(c.title||'Criativo')}</strong><div class="central-meta">${esc(b?.name||'Cliente')} &bull; ${esc(soc.platform||c.platform||'Link')} &bull; ${esc(when)}</div>${c.note?`<div class="central-meta">${esc(c.note)}</div>`:''}<div class="central-actions"><button class="mini" data-central-open="${c.id}" type="button">Abrir</button>${status==='aguardando'?`<button class="mini" data-central-run="${c.id}" type="button">Colocar rodando</button>`:''}${status==='rodando'?`<button class="mini" data-central-stop="${c.id}" type="button">Desativar</button>`:''}</div></article>`}
@@ -2813,11 +2948,26 @@ function renderCentralHome(){const waiting=centralCards('aguardando').length,run
 function centralCreate(){const boardId=+($('#centralBoard')?.value||0),link=($('#centralLink')?.value||'').trim(),title=($('#centralTitle')?.value||'').trim(),note=($('#centralNote')?.value||'').trim();if(!boardId||!link){alert('Selecione o cliente e cole o link do criativo.');return}if(duplicateCreativeLink(link)){alert('Este link de criativo ja existe na Central ou em algum quadro.');return}const soc=detect(link),card=createCard({boardId,title:title||(soc.format?`${soc.format} ${soc.platform}`:'Criativo aguardando'),link});Object.assign(card,{centralManaged:true,centralStatus:'aguardando',centralCreatedAt:new Date().toISOString(),centralActivatedAt:'',centralDeactivatedAt:'',dueDate:'',publishedAt:'',publishedTime:'',campaignState:'inativo',columnId:'central',status:'pendente',note});if(soc.platform)card.platform=soc.platform;if(soc.format)card.format=soc.format;if(soc.account)card.account=soc.account;save();render();setTimeout(()=>$('#centralLink')?.focus(),60)}
 function centralRun(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;const now=new Date(),today=iso(now);c.centralManaged=true;c.centralStatus='rodando';c.centralActivatedAt=now.toISOString();c.centralDeactivatedAt='';c.dueDate=today;c.dueTime=currentClock();c.publishedAt='';c.publishedTime='';c.status='pendente';c.campaignState='ativo';c.columnId='running';c.activeHistory.push({at:now.toISOString(),state:'ativo',source:'central'});save();render()}
 function centralStop(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;const now=new Date();c.centralManaged=true;c.centralStatus='desativado';c.centralDeactivatedAt=now.toISOString();c.campaignState='inativo';c.status='concluido';c.columnId='done';c.dueDate='';c.publishedAt='';c.publishedTime='';c.activeHistory.push({at:now.toISOString(),state:'inativo',source:'central'});save();render()}
+const PROMPT_SKILL_PATH='C:\\Users\\User\\.codex\\skills\\dualize-campanhas';
+function ensurePromptSkillState(){if(!state.promptSkillCampaigns)state.promptSkillCampaigns={activeTab:'prompts',promptBlocks:[],skillBlocks:[],updatedAt:''};const ps=state.promptSkillCampaigns;ps.activeTab=ps.activeTab==='skills'?'skills':'prompts';ps.promptBlocks=Array.isArray(ps.promptBlocks)?ps.promptBlocks:[];ps.skillBlocks=Array.isArray(ps.skillBlocks)?ps.skillBlocks:[];return ps}
+function promptSkillBlocks(kind){const ps=ensurePromptSkillState();return kind==='skills'?ps.skillBlocks:ps.promptBlocks}
+function promptSkillCategory(kind){return kind==='skills'?['Estrategia','Analise','Criativos','Copy','Publico','Otimizacao','Processo','Outro']:['Contexto','Persona','Oferta','Publico','Criativo','Copy','Campanha','Analise','Regras','Outro']}
+function promptSkillTextExcerpt(text){const clean=String(text||'').replace(/\s+/g,' ').trim();return clean?clean.slice(0,150)+(clean.length>150?'...':''):'Sem conteudo ainda.'}
+function promptSkillWarnings(blocks){const warnings=[],seen=new Map(),facts=new Map();blocks.forEach(b=>{const title=String(b.title||'').trim(),category=String(b.category||'Geral').trim(),titleKey=(category+'|'+title).toLowerCase();if(title){if(seen.has(titleKey))warnings.push(`Bloco duplicado em ${category}: "${title}".`);else seen.set(titleKey,true)}String(b.text||'').split(/\n+/).forEach(line=>{const m=line.match(/^\s*([A-Za-zÀ-ÿ0-9 _/.-]{3,48})\s*[:=]\s*(.{2,160})$/);if(!m)return;const key=m[1].trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),value=m[2].trim();if(!facts.has(key))facts.set(key,new Set());facts.get(key).add(value)})});facts.forEach((values,key)=>{if(values.size>1)warnings.push(`Possivel divergencia em "${key}": ${Array.from(values).join(' | ')}`)});return warnings}
+function buildPromptMaster(){const blocks=promptSkillBlocks('prompts'),warnings=promptSkillWarnings(blocks),parts=['PROMPT GERAL PROFISSIONAL - CAMPANHAS META ADS','','Atue como estrategista senior de trafego pago da Dualize Digital. Use as diretrizes abaixo para orientar analises, campanhas, criativos, publicos, funis e proximas acoes mantendo uma linha unica para todos os clientes.','','Regras de trabalho:','- Seja claro, direto, estrategico e orientado a resultado.','- Preserve o posicionamento do cliente e adapte a linguagem ao publico definido.','- Quando houver dados incompletos, sinalize o que falta antes de concluir.','- Separe sempre: diagnostico, estrategia, execucao, criativos, metricas e proximas acoes.','','BLOCOS ESTRATEGICOS CADASTRADOS'];if(!blocks.length)parts.push('- Nenhum bloco cadastrado ainda. Adicione orientacoes na aba Prompts.');blocks.forEach((b,i)=>parts.push(`\n${i+1}. ${b.title||'Bloco sem titulo'}\nCategoria: ${b.category||'Geral'}\n${b.text||''}`));if(warnings.length)parts.push('\nPONTOS EM VERMELHO PARA REVISAO ANTES DE USAR:\n'+warnings.map(w=>'- '+w).join('\n'));parts.push('\nEntrega esperada do Claude: responda com raciocinio organizado, checklist de execucao e orientacoes praticas para o gestor aplicar no Meta Ads.');return parts.join('\n')}
+function buildSkillMaster(){const blocks=promptSkillBlocks('skills'),warnings=promptSkillWarnings(blocks),parts=['SKILL GERAL - DUALIZE CAMPANHAS META ADS','','Caminho fixo sugerido para salvar/colar skills no Codex: '+PROMPT_SKILL_PATH,'','Objetivo: manter um banco vivo de habilidades, metodos, frameworks e rotinas para melhorar campanhas, analises e criativos de clientes.','','SKILLS CADASTRADAS'];if(!blocks.length)parts.push('- Nenhuma skill cadastrada ainda. Adicione metodos na aba Skills.');blocks.forEach((b,i)=>parts.push(`\n${i+1}. ${b.title||'Skill sem titulo'}\nTipo: ${b.category||'Geral'}\n${b.text||''}`));if(warnings.length)parts.push('\nPONTOS EM VERMELHO PARA REVISAO ANTES DE USAR:\n'+warnings.map(w=>'- '+w).join('\n'));parts.push('\nComo usar: cole este conteudo como base de trabalho antes de pedir analises, criacao de campanhas, auditorias ou padronizacao de processos.');return parts.join('\n')}
+function promptSkillEditor(kind){const block=promptSkillEditId?promptSkillBlocks(kind).find(b=>b.id===promptSkillEditId):null,cats=promptSkillCategory(kind);return`<section class="prompt-skill-panel"><h3>${block?'Editar bloco':'Adicionar novo bloco'}</h3><p class="hint">${kind==='skills'?'Guarde skills, frameworks e metodos de outros players ou criados por voce.':'Cole prompts, regras, ideias e orientacoes. O prompt geral sera montado automaticamente.'}</p>${kind==='skills'?`<div class="prompt-skill-path"><strong>Caminho fixo para skills</strong><code>${esc(PROMPT_SKILL_PATH)}</code><button class="mini" data-ps-copy-path type="button">Copiar caminho</button></div>`:''}<div class="field"><label>Titulo</label><input id="psTitle" value="${esc(block?.title||'')}" placeholder="${kind==='skills'?'Ex.: Analise de criativo vencedor':'Ex.: Padrao de briefing para campanhas'}"></div><div class="field"><label>Categoria</label><select id="psCategory">${cats.map(c=>`<option ${block?.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div><div class="field"><label>Conteudo</label><textarea id="psText" placeholder="Cole aqui o texto, emojis, regras, exemplos e observacoes...">${esc(block?.text||'')}</textarea></div><button class="btn primary" data-ps-save="${kind}" type="button">${block?'Atualizar bloco':'Salvar bloco'}</button>${block?`<button class="btn ghost" data-ps-cancel type="button">Cancelar edicao</button>`:''}</section>`}
+function promptSkillList(kind){const blocks=promptSkillBlocks(kind);return`<section class="prompt-skill-panel"><h3>Biblioteca ${kind==='skills'?'de skills':'de prompts'}</h3><p class="hint">Tudo que voce adicionar aqui entra no material geral automaticamente.</p><div class="prompt-skill-list">${blocks.map(b=>`<article class="prompt-skill-card"><span class="prompt-skill-chip">${esc(b.category||'Geral')}</span><strong>${esc(b.title||'Sem titulo')}</strong><p class="prompt-skill-excerpt">${esc(promptSkillTextExcerpt(b.text))}</p><div class="prompt-skill-actions"><button class="mini" data-ps-edit="${b.id}" type="button">Editar</button><button class="mini" data-ps-copy="${b.id}" type="button">Copiar</button><button class="mini danger" data-ps-delete="${b.id}" type="button">Excluir</button></div></article>`).join('')||`<p class="hint">Nenhum bloco salvo ainda.</p>`}</div></section>`}
+function renderPromptSkillHome(){const ps=ensurePromptSkillState(),kind=ps.activeTab,blocks=promptSkillBlocks(kind),warnings=promptSkillWarnings(blocks),master=kind==='skills'?buildSkillMaster():buildPromptMaster();$('#boardView').classList.add('hidden');$('#homeView').classList.remove('hidden');$('#homeView').innerHTML=`<div class="toolbar"><div><h2>Prompt/Skill - Campanhas</h2><p class="small">Monte uma base profissional para Claude, Meta Ads e processos internos sem depender de bloco de notas.</p></div><div class="actions"><button class="btn ghost" data-ps-copy-master type="button">Copiar ${kind==='skills'?'skill geral':'prompt geral'}</button><button class="btn primary" data-ps-focus type="button">+ Novo bloco</button></div></div>${centralTabs()}<div class="prompt-skill-tabs"><button class="tab ${kind==='prompts'?'active':''}" data-ps-tab="prompts" type="button">Prompts</button><button class="tab ${kind==='skills'?'active':''}" data-ps-tab="skills" type="button">Skills</button></div><div class="prompt-skill-layout">${promptSkillEditor(kind)}${promptSkillList(kind)}<section class="prompt-skill-panel prompt-skill-master"><h3>${kind==='skills'?'SKILL GERAL PROFISSIONAL':'PROMPT GERAL PROFISSIONAL'}</h3><p class="hint">Gerado automaticamente com base nos blocos salvos. Copie e cole no Claude quando precisar manter o mesmo padrao.</p>${warnings.map(w=>`<div class="prompt-skill-warning">${esc(w)}</div>`).join('')}<textarea id="psMasterText" readonly>${esc(master)}</textarea></section></div>`}
+function promptSkillSave(kind){const ps=ensurePromptSkillState(),list=promptSkillBlocks(kind),title=($('#psTitle')?.value||'').trim(),category=($('#psCategory')?.value||'Geral').trim(),text=($('#psText')?.value||'').trim();if(!title||!text){alert('Preencha titulo e conteudo do bloco.');return}const now=new Date().toISOString();if(promptSkillEditId){const b=list.find(x=>x.id===promptSkillEditId);if(b)Object.assign(b,{title,category,text,updatedAt:now})}else list.unshift({id:'ps_'+Date.now()+'_'+Math.floor(Math.random()*9999),title,category,text,createdAt:now,updatedAt:now}) ;ps.updatedAt=now;promptSkillEditId='';save();render()}
+function promptSkillCopyText(text){navigator.clipboard?.writeText(text).catch(()=>{})}
+function promptSkillBlockById(id){return promptSkillBlocks('prompts').concat(promptSkillBlocks('skills')).find(b=>b.id===id)}
+const renderHomeWithPromptSkill=renderHome;renderHome=function(){if(homeTab==='promptSkill'){renderPromptSkillHome();return}renderHomeWithPromptSkill()}
 const renderHomeWithCentral=renderHome;renderHome=function(){if(homeTab==='central'){renderCentralHome();return}renderHomeWithCentral()}
 const saveModalWithCentral=saveModal;saveModal=function(silent=false){const c=state.cards.find(x=>+x.id===openCardId),link=($('#mLink')?.value||'').trim();if(link&&duplicateCreativeLink(link,c?.id||0)){alert('Este link de criativo ja existe em outro card.');return}saveModalWithCentral(silent)}
 const publishWithCentral=publish;publish=function(id){const c=state.cards.find(x=>+x.id===+id);if(c?.centralManaged){centralRun(id);return}publishWithCentral(id)}
 const toggleRunWithCentral=toggleRun;toggleRun=function(id){const c=state.cards.find(x=>+x.id===+id);if(c?.centralManaged){c.campaignState==='ativo'?centralStop(id):centralRun(id);return}toggleRunWithCentral(id)}
-document.body.addEventListener('click',e=>{const direct=e.target.closest('[data-new-any],[data-new-board],#quickCreative,[data-add-day]');if(direct){e.preventDefault();e.stopImmediatePropagation();activeScreen='home';state.activeBoardId=null;homeTab='central';quickDay='';quickEditId=null;persistLocalOnly();render();setTimeout(()=>$('#centralLink')?.focus(),80);return}const tab=e.target.closest('[data-home-tab]');if(tab){e.preventDefault();e.stopImmediatePropagation();homeTab=tab.dataset.homeTab;activeScreen='home';state.activeBoardId=null;persistLocalOnly();render();return}if(e.target.closest('[data-central-focus]')){e.preventDefault();e.stopImmediatePropagation();$('#centralLink')?.focus();return}const create=e.target.closest('[data-central-create]');if(create){e.preventDefault();e.stopImmediatePropagation();centralCreate();return}const run=e.target.closest('[data-central-run]');if(run){e.preventDefault();e.stopImmediatePropagation();centralRun(run.dataset.centralRun);return}const stop=e.target.closest('[data-central-stop]');if(stop){e.preventDefault();e.stopImmediatePropagation();centralStop(stop.dataset.centralStop);return}const open=e.target.closest('[data-central-open]');if(open){e.preventDefault();e.stopImmediatePropagation();hideLivePreview(true);openModal(open.dataset.centralOpen);return}},true)
+document.body.addEventListener('click',e=>{const direct=e.target.closest('[data-new-any],[data-new-board],#quickCreative,[data-add-day]');if(direct){e.preventDefault();e.stopImmediatePropagation();activeScreen='home';state.activeBoardId=null;homeTab='central';quickDay='';quickEditId=null;persistLocalOnly();render();setTimeout(()=>$('#centralLink')?.focus(),80);return}const tab=e.target.closest('[data-home-tab]');if(tab){e.preventDefault();e.stopImmediatePropagation();homeTab=tab.dataset.homeTab;activeScreen='home';state.activeBoardId=null;promptSkillEditId='';persistLocalOnly();render();return}const psTab=e.target.closest('[data-ps-tab]');if(psTab){e.preventDefault();e.stopImmediatePropagation();const ps=ensurePromptSkillState();ps.activeTab=psTab.dataset.psTab==='skills'?'skills':'prompts';promptSkillEditId='';persistLocalOnly();render();return}if(e.target.closest('[data-ps-focus]')){e.preventDefault();e.stopImmediatePropagation();$('#psTitle')?.focus();return}const psSave=e.target.closest('[data-ps-save]');if(psSave){e.preventDefault();e.stopImmediatePropagation();promptSkillSave(psSave.dataset.psSave);return}if(e.target.closest('[data-ps-cancel]')){e.preventDefault();e.stopImmediatePropagation();promptSkillEditId='';render();return}const psEdit=e.target.closest('[data-ps-edit]');if(psEdit){e.preventDefault();e.stopImmediatePropagation();promptSkillEditId=psEdit.dataset.psEdit;render();setTimeout(()=>$('#psText')?.focus(),60);return}const psDelete=e.target.closest('[data-ps-delete]');if(psDelete){e.preventDefault();e.stopImmediatePropagation();const ps=ensurePromptSkillState(),kind=ps.activeTab,list=promptSkillBlocks(kind),b=list.find(x=>x.id===psDelete.dataset.psDelete);if(b&&confirm('Excluir este bloco da biblioteca?')){const idx=list.indexOf(b);if(idx>=0)list.splice(idx,1);if(promptSkillEditId===b.id)promptSkillEditId='';ps.updatedAt=new Date().toISOString();save();render()}return}const psCopy=e.target.closest('[data-ps-copy]');if(psCopy){e.preventDefault();e.stopImmediatePropagation();const b=promptSkillBlockById(psCopy.dataset.psCopy);if(b)promptSkillCopyText(`${b.title}\n\n${b.text}`);return}if(e.target.closest('[data-ps-copy-master]')){e.preventDefault();e.stopImmediatePropagation();const ps=ensurePromptSkillState();promptSkillCopyText(ps.activeTab==='skills'?buildSkillMaster():buildPromptMaster());return}if(e.target.closest('[data-ps-copy-path]')){e.preventDefault();e.stopImmediatePropagation();promptSkillCopyText(PROMPT_SKILL_PATH);return}if(e.target.closest('[data-central-focus]')){e.preventDefault();e.stopImmediatePropagation();$('#centralLink')?.focus();return}const create=e.target.closest('[data-central-create]');if(create){e.preventDefault();e.stopImmediatePropagation();centralCreate();return}const run=e.target.closest('[data-central-run]');if(run){e.preventDefault();e.stopImmediatePropagation();centralRun(run.dataset.centralRun);return}const stop=e.target.closest('[data-central-stop]');if(stop){e.preventDefault();e.stopImmediatePropagation();centralStop(stop.dataset.centralStop);return}const open=e.target.closest('[data-central-open]');if(open){e.preventDefault();e.stopImmediatePropagation();hideLivePreview(true);openModal(open.dataset.centralOpen);return}},true)
 document.body.addEventListener('drop',e=>{const text=(e.dataTransfer?.getData('text/plain')||'').trim(),hasCard=e.dataTransfer?.getData('card');if(e.target.closest('[data-day]')&&text&&!hasCard&&/^https?:\/\//i.test(text)){e.preventDefault();e.stopImmediatePropagation();homeTab='central';activeScreen='home';state.activeBoardId=null;persistLocalOnly();render();setTimeout(()=>{const input=$('#centralLink');if(input){input.value=text;input.focus()}},80)}},true)
 function scheduleTomorrow(){const c=state.cards.find(x=>+x.id===openCardId);if(!c)return;const d=new Date();d.setDate(d.getDate()+1);c.dueDate=iso(d);c.dueTime='09:00';c.status='pendente';c.columnId='scheduled';save();render();openModal(c.id)}function readFile(input,target){const file=$(input)?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{$(target).value=r.result;if(target==='#mMedia')syncOpenCardPreview()};r.readAsDataURL(file)}
 function addWorkspace(){const name=prompt('Nome da area de trabalho:', 'TRAFEGO PAGO');if(!name)return;state.workspaces.push({id:state.nextWorkspaceId++,name,note:'',boards:[]});state.activeWorkspaceId=max(state.workspaces);state.activeBoardId=null;save();activeScreen='home';render()}function addBoard(){const name=prompt('Nome do quadro/cliente:', 'Novo cliente');if(!name)return;workspace().boards.push({id:state.nextBoardId++,name,note:''});state.activeBoardId=workspace().boards.at(-1).id;save();activeScreen='board';render()}
