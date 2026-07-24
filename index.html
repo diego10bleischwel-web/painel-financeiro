@@ -794,6 +794,11 @@ button,a{font:inherit}
   border-color:rgba(255,255,255,.34);
   background:rgba(130,188,255,.13);
 }
+.forms-add-public:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  transform:none;
+}
 .forms-muted{
   color:#b8c9e4;
   font-size:12px;
@@ -1157,6 +1162,51 @@ button,a{font:inherit}
   white-space:pre-wrap;
   word-break:break-word;
   line-height:1.35;
+}
+.briefing-answer{
+  display:grid;
+  gap:8px;
+}
+.briefing-answer-main{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.briefing-answer-list{
+  display:grid;
+  gap:6px;
+  margin-top:2px;
+}
+.briefing-answer-item{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.035);
+  color:#f7fbff;
+  font-weight:850;
+  line-height:1.35;
+}
+.briefing-copy-btn{
+  flex:0 0 auto;
+  border:1px solid rgba(130,188,255,.22);
+  border-radius:999px;
+  background:rgba(130,188,255,.08);
+  color:#bfe3ff;
+  padding:5px 8px;
+  font-size:10px;
+  font-weight:1000;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,transform .15s ease;
+}
+.briefing-copy-btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.34);
+  background:rgba(130,188,255,.14);
 }
 .briefing-edit-grid{
   display:grid;
@@ -1764,15 +1814,15 @@ const tintimPixelDefaults=[
   {id:'webhook-configurado',nome:'WEBHOOK CONFIGURADO',obrigatorio:false,opcional:true,tintimOnly:true}
 ];
 const publicoTintimDefaults=[
-  {id:'tintim-schedule-30d',nome:'ENVIOU MENSAGEM "SCHEDULE" [30D] TINTIM',grupo:'SCHEDULE',obrigatorio:true},
-  {id:'tintim-schedule-60d',nome:'ENVIOU MENSAGEM "SCHEDULE" [60D] TINTIM',grupo:'SCHEDULE',obrigatorio:true},
-  {id:'tintim-schedule-90d',nome:'ENVIOU MENSAGEM "SCHEDULE" [90D] TINTIM',grupo:'SCHEDULE',obrigatorio:true},
-  {id:'tintim-schedule-120d',nome:'ENVIOU MENSAGEM "SCHEDULE" [120D] TINTIM',grupo:'SCHEDULE',obrigatorio:true},
+  {id:'tintim-sch-erdule-30d',aliases:['tintim-schedule-30d'],nome:'ENVIOU MENSAGEM "SCHERDULE" [30D] TINTIM',grupo:'SCHERDULE',obrigatorio:true},
+  {id:'tintim-sch-erdule-60d',aliases:['tintim-schedule-60d'],nome:'ENVIOU MENSAGEM "SCHERDULE" [60D] TINTIM',grupo:'SCHERDULE',obrigatorio:true},
+  {id:'tintim-sch-erdule-90d',aliases:['tintim-schedule-90d'],nome:'ENVIOU MENSAGEM "SCHERDULE" [90D] TINTIM',grupo:'SCHERDULE',obrigatorio:true},
+  {id:'tintim-sch-erdule-120d',aliases:['tintim-schedule-120d'],nome:'ENVIOU MENSAGEM "SCHERDULE" [120D] TINTIM',grupo:'SCHERDULE',obrigatorio:true},
   {id:'tintim-purchase-30d',nome:'ENVIOU MENSAGEM "PURCHASE" [30D] TINTIM',grupo:'PURCHASE',obrigatorio:true},
   {id:'tintim-purchase-60d',nome:'ENVIOU MENSAGEM "PURCHASE" [60D] TINTIM',grupo:'PURCHASE',obrigatorio:true},
   {id:'tintim-purchase-90d',nome:'ENVIOU MENSAGEM "PURCHASE" [90D] TINTIM',grupo:'PURCHASE',obrigatorio:true},
   {id:'tintim-purchase-120d-30d',nome:'ENVIOU MENSAGEM "PURCHASE" [120D/-30D] TINTIM',grupo:'PURCHASE',obrigatorio:true},
-  {id:'tintim-lookalike-1',nome:'PUBLICOS SEMELHANTES 1% - QUANDO NECESSARIO',grupo:'OPCIONAL',obrigatorio:false,opcional:true}
+  {id:'tintim-lookalike-1',nome:'PUBLICOS SEMELHANTES 1% QUANDO NECESSARIO',grupo:'OPCIONAL',obrigatorio:false,opcional:true}
 ];
 const publicoMetaDefaults=[
   {id:'meta-video-instagram-50-120d',nome:'VISUALIZOU 50% DO VIDEO NO INSTAGRAM [120D]',grupo:'VIDEOS',obrigatorio:true},
@@ -2003,6 +2053,8 @@ function setupEvents(){
     if(reportSelect){activeReportId=reportSelect.dataset.reportSelect;renderReports()}
     const reportCopy=e.target.closest('[data-report-copy]');
     if(reportCopy) copyReportLink(reportCopy.dataset.reportCopy);
+    const copyAnswer=e.target.closest('[data-copy-answer]');
+    if(copyAnswer) copyAnswerText(copyAnswer);
     const briefing=e.target.closest('[data-briefing-id]');
     if(briefing){selectedBriefingId=briefing.dataset.briefingId;try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){};renderFormsTabs()}
     const status=e.target.closest('[data-briefing-status]');
@@ -2061,6 +2113,49 @@ function statusClass(status){return String(status||'novo').includes('config')?'c
 function statusLabel(status){const s=String(status||'novo');return s==='novo'?'NOVO':s.toUpperCase()}
 function briefingDate(v){return v?new Date(v).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Sem data'}
 function briefingValue(v){if(Array.isArray(v))return v.length?v.join('\n'):'--';if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${briefingValue(val)}`).join('\n');return v||'--'}
+function splitCopyItems(value){
+  const text=String(value||'').trim();
+  if(!text||text==='--')return [];
+  return text.split(/\r?\n+/).map(item=>item.trim()).filter(Boolean);
+}
+function renderCopyButton(text,label='Copiar resposta'){
+  return `<button class="briefing-copy-btn" type="button" title="${esc(label)}" data-copy-answer="${esc(text)}">Copiar</button>`;
+}
+function renderBriefingAnswer(row){
+  const text=String(row.value||'--');
+  const items=splitCopyItems(text);
+  if(!items.length)return '<b>--</b>';
+  if(items.length===1)return `<div class="briefing-answer-main"><b>${esc(text)}</b>${renderCopyButton(text)}</div>`;
+  return `<div class="briefing-answer">
+    <div class="briefing-answer-main"><b>${esc(text)}</b>${renderCopyButton(text,'Copiar tudo')}</div>
+    <div class="briefing-answer-list">
+      ${items.map(item=>`<div class="briefing-answer-item"><span>${esc(item)}</span>${renderCopyButton(item,'Copiar item')}</div>`).join('')}
+    </div>
+  </div>`;
+}
+function copyAnswerText(btn){
+  const text=btn.dataset.copyAnswer||'';
+  const done=()=>{
+    const original=btn.textContent;
+    btn.textContent='Copiado';
+    setTimeout(()=>btn.textContent=original,1500);
+  };
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopyText(text,done));
+  }else{
+    fallbackCopyText(text,done);
+  }
+}
+function fallbackCopyText(text,done){
+  const area=document.createElement('textarea');
+  area.value=text;
+  area.style.position='fixed';
+  area.style.left='-9999px';
+  document.body.appendChild(area);
+  area.select();
+  try{document.execCommand('copy');done?.()}catch(err){}
+  area.remove();
+}
 const briefingSectionOrder=[
   {key:'identificacao',tone:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP'],['landing_pages','Landing pages'],['contas_anuncios','Contas de anuncios'],['whatsapp_numero','WhatsApp'],['whatsapp_mensagem','Mensagem WhatsApp']]},
   {key:'avatar',tone:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
@@ -2218,8 +2313,12 @@ function mergeChecklist(defaults=[],saved=[]){
   const savedItems=Array.isArray(saved)?saved:[];
   const byId=new Map(savedItems.map(item=>[String(item.id||formItemId(item.nome||item.name||'')),item]));
   const byName=new Map(savedItems.map(item=>[normalizeBriefingOption(item.nome||item.name||''),item]));
-  const merged=defaults.map((def,index)=>normalizeFormItem(byId.get(def.id)||byName.get(normalizeBriefingOption(def.nome))||{},def,index));
+  const merged=defaults.map((def,index)=>{
+    const aliasHit=(def.aliases||[]).map(alias=>byId.get(alias)).find(Boolean);
+    return normalizeFormItem(byId.get(def.id)||aliasHit||byName.get(normalizeBriefingOption(def.nome))||{},def,index);
+  });
   const defaultIds=new Set(merged.map(item=>String(item.id)));
+  defaults.forEach(def=>(def.aliases||[]).forEach(alias=>defaultIds.add(String(alias))));
   const defaultNames=new Set(merged.map(item=>normalizeBriefingOption(item.nome)));
   const extra=savedItems
     .filter(item=>!defaultIds.has(String(item.id||''))&&!defaultNames.has(normalizeBriefingOption(item.nome||item.name||'')))
@@ -2510,7 +2609,6 @@ function renderFormsStageDetail(b,stage){
         <span class="forms-check-badge ${f.trafficAi.configuradoEquipe?'done':'pending'}">${f.trafficAi.configuradoEquipe?'CONCLUIDO':'PENDENTE'}</span>
       </div>
       <div class="forms-copy-row">
-        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(f.trafficAi.link)}">Copiar link</button>
         ${hasResponses?`<button class="forms-small-action primary" type="button" data-briefing-open="${esc(b.id)}">ABRIR FORMULARIO TRAFFIC AI</button>`:`<span class="forms-muted">Aguardando preenchimento</span>`}
       </div>
       <p class="forms-muted">Ultima atualizacao: ${esc(briefingDate(f.trafficAi.atualizadoEm||b.updatedAt||b.timestamp))}</p>
@@ -2551,14 +2649,14 @@ function renderPublicoStage(b,f,status){
       <span class="status-pill ${statusTone(status)}">${esc(statusText(status))}</span>
     </div>
     <div class="forms-check-section">
-      <h4>PUBLICOS META</h4>
-      <div class="forms-checklist">${(f.publico?.metaInstagram?.itens||[]).map((item,index)=>renderChecklistItem(item,'publicoMetaInstagram',index,true)).join('')}</div>
-      <button class="forms-add-public" type="button" data-add-publico="metaInstagram">+ ADICIONAR PUBLICO</button>
-    </div>
-    <div class="forms-check-section">
       <h4>PUBLICOS TINTIM</h4>
       ${utilizaTintim?`<div class="forms-checklist">${(f.publico?.tintim?.itens||[]).map((item,index)=>renderChecklistItem(item,'publicoTintim',index,true)).join('')}</div>`:`<p class="forms-muted">Nao aplicavel: este cliente nao utiliza Tintim.</p>`}
-      <button class="forms-add-public" type="button" data-add-publico="tintim">+ ADICIONAR PUBLICO</button>
+      <button class="forms-add-public" type="button" data-add-publico="tintim" ${utilizaTintim?'':'disabled'}>+ ADICIONAR PUBLICO</button>
+    </div>
+    <div class="forms-check-section">
+      <h4>PUBLICOS META / INSTAGRAM</h4>
+      <div class="forms-checklist">${(f.publico?.metaInstagram?.itens||[]).map((item,index)=>renderChecklistItem(item,'publicoMetaInstagram',index,true)).join('')}</div>
+      <button class="forms-add-public" type="button" data-add-publico="metaInstagram">+ ADICIONAR PUBLICO</button>
     </div>
   </section>`;
 }
@@ -2706,6 +2804,10 @@ function updateChecklistItem(input){
 }
 function addPublicoPersonalizado(section){
   if(!selectedBriefingId)return;
+  if(section==='tintim'){
+    const selected=briefings.find(x=>String(x.id)===String(selectedBriefingId));
+    if(!ensureFormularioState(selected).pixelTintim?.utilizaTintim)return;
+  }
   const nome=prompt('Nome do publico personalizado:');
   if(!nome||!nome.trim())return;
   const obrigatorio=confirm('Este publico deve ser obrigatorio para concluir a etapa?');
@@ -2798,7 +2900,7 @@ function renderBriefingModal(id){
     <h4>${esc(section.title)}</h4>
     ${activeBriefingEdit
       ? `<div class="briefing-edit-grid">${section.values.map(row=>`<div class="briefing-edit-field"><label>${esc(row.label)}</label>${renderBriefingEditControl(row)}</div>`).join('')}</div>`
-      : section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><b>${esc(row.value)}</b></div>`).join('')}
+      : section.values.map(row=>`<div class="briefing-modal-row"><span>${esc(row.label)}</span><div>${renderBriefingAnswer(row)}</div></div>`).join('')}
   </section>`).join('');
 }
 function openBriefingModal(id){
