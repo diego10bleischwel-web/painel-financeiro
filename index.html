@@ -343,11 +343,11 @@ button,a{font:inherit}
 .briefing-board{
   height:100%;
   overflow:hidden;
-  padding:18px;
+  padding:24px;
   display:grid;
   grid-template-columns:minmax(280px,420px) 1fr;
   grid-template-rows:auto minmax(0,1fr);
-  gap:16px;
+  gap:22px;
   background:radial-gradient(circle at 10% 0,rgba(130,188,255,.16),transparent 32rem),#0e1117;
 }
 .briefing-board[hidden],.report-board[hidden],.frame-wrap[hidden]{
@@ -364,7 +364,7 @@ button,a{font:inherit}
   min-height:0;
   overflow:auto;
 }
-.briefing-list{padding:14px;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}
+.briefing-list{padding:18px;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:16px;align-content:start}
 .briefing-list h3,.briefing-detail h3{margin:0;color:#fff}
 #briefingList{
   min-height:0;
@@ -374,18 +374,18 @@ button,a{font:inherit}
 .forms-tabs{
   grid-column:1/-1;
   display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
-  gap:8px;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
   border:1px solid rgba(255,255,255,.10);
-  border-radius:18px;
-  padding:8px;
+  border-radius:22px;
+  padding:10px;
   background:rgba(17,24,36,.78);
   box-shadow:0 16px 45px rgba(0,0,0,.18);
 }
 .forms-tab{
   border:1px solid transparent;
-  border-radius:13px;
-  padding:10px 8px;
+  border-radius:15px;
+  padding:12px 10px;
   background:rgba(255,255,255,.035);
   color:#b8c9e4;
   font-size:12px;
@@ -470,11 +470,11 @@ button,a{font:inherit}
 }
 .forms-filter-box{
   border:1px solid rgba(130,188,255,.22);
-  border-radius:18px;
-  padding:12px;
+  border-radius:20px;
+  padding:14px;
   background:rgba(255,255,255,.045);
   display:grid;
-  gap:10px;
+  gap:12px;
 }
 .forms-filter-box input{
   width:100%;
@@ -520,15 +520,15 @@ button,a{font:inherit}
 }
 .forms-stage-dots{
   display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:5px;
-  margin-top:9px;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  margin-top:11px;
 }
 .forms-stage-dot{
   border-radius:999px;
-  padding:5px 4px;
+  padding:4px 3px;
   text-align:center;
-  font-size:9px;
+  font-size:8px;
   font-weight:1000;
   color:#dbe9ff;
   border:1px solid rgba(255,255,255,.10);
@@ -572,13 +572,13 @@ button,a{font:inherit}
 }
 .forms-stage-summary{
   display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:8px;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
 }
 .forms-stage-summary button{
   border:1px solid rgba(255,255,255,.10);
-  border-radius:15px;
-  padding:10px;
+  border-radius:18px;
+  padding:13px;
   background:rgba(255,255,255,.045);
   color:#eaf2ff;
   text-align:left;
@@ -588,11 +588,11 @@ button,a{font:inherit}
 .forms-stage-summary b{display:block;font-size:12px;margin-bottom:6px}
 .forms-detail-card{
   border:1px solid rgba(130,188,255,.22);
-  border-radius:20px;
-  padding:16px;
+  border-radius:22px;
+  padding:20px;
   background:rgba(3,8,15,.38);
   display:grid;
-  gap:14px;
+  gap:18px;
 }
 .forms-field-grid{
   display:grid;
@@ -622,15 +622,15 @@ button,a{font:inherit}
 .forms-field textarea,.forms-check-item textarea{min-height:76px;resize:vertical}
 .forms-checklist{
   display:grid;
-  gap:10px;
+  gap:14px;
 }
 .forms-check-item{
   border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  padding:12px;
+  border-radius:18px;
+  padding:14px;
   background:rgba(255,255,255,.045);
   display:grid;
-  gap:10px;
+  gap:12px;
 }
 .forms-check-top{
   display:flex;
@@ -702,14 +702,16 @@ button,a{font:inherit}
   width:100%;
   border:1px solid rgba(255,255,255,.12);
   border-radius:18px;
-  padding:14px;
+  padding:16px;
   color:var(--text);
   background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.035));
   text-align:left;
   cursor:pointer;
+  display:grid;
+  gap:10px;
 }
 .briefing-card:hover,.briefing-card.active{border-color:rgba(130,188,255,.75);box-shadow:0 0 0 1px rgba(130,188,255,.22) inset}
-.briefing-card b{display:block;font-size:16px;margin:6px 0}
+.briefing-card b{display:block;font-size:17px;margin:0}
 .briefing-meta{color:#b8c9e4;font-size:12px;font-weight:800;line-height:1.45}
 .briefing-status{
   display:inline-flex;
@@ -732,13 +734,13 @@ button,a{font:inherit}
 }
 .briefing-preview-card{
   border:1px solid rgba(130,188,255,.24);
-  border-radius:20px;
-  padding:18px;
+  border-radius:24px;
+  padding:22px;
   background:
     radial-gradient(circle at 0 0,rgba(130,188,255,.18),transparent 22rem),
     linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
   display:grid;
-  gap:14px;
+  gap:20px;
 }
 .briefing-preview-head{
   display:flex;
@@ -1605,11 +1607,10 @@ modules.splice(4,0,{id:'promptSkill',icon:'prompt',title:'Prompt/Skill - Campanh
 const $=s=>document.querySelector(s);
 let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='clienteNovo',formsStatusFilter='todos',formsSearchTerm='';
 const formsTabs=[
-  {id:'clienteNovo',label:'Cliente Novo'},
-  {id:'trafficAi',label:'Traffic AI'},
-  {id:'tintim',label:'Tintim'},
-  {id:'publico',label:'Publico'},
-  {id:'pixel',label:'Pixel'}
+  {id:'clienteNovo',label:'CLIENTE NOVO'},
+  {id:'trafficAi',label:'TRAFFIC AI'},
+  {id:'pixelTintim',label:'TINTIM / PIXEL'},
+  {id:'publico',label:'PÚBLICO'}
 ];
 const formsFilters=[
   {id:'todos',label:'Todos'},
@@ -1618,9 +1619,8 @@ const formsFilters=[
   {id:'nao-iniciado',label:'Nao iniciados'}
 ];
 const checklistDefaults={
-  tintim:[],
+  pixelTintim:[],
   publico:['Visualizou 50% do video','Visitou pagina - 30 dias','Visitou pagina - 60 dias','Seguidores novos'],
-  pixel:[]
 };
 const reportGroups={
   meta:[
@@ -1848,6 +1848,7 @@ function setupEvents(){
   });
   document.body.addEventListener('change',e=>{
     if(e.target.matches('[data-check-stage]'))updateChecklistItem(e.target);
+    if(e.target.matches('[data-traffic-configured]'))updateTrafficConfigured(e.target);
   });
   document.body.addEventListener('blur',e=>{
     if(e.target.matches('[data-check-note]'))updateChecklistItem(e.target);
@@ -2002,24 +2003,40 @@ function filledValue(value){
 function baseChecklist(stage, saved=[]){
   const savedItems=Array.isArray(saved)?saved:[];
   const byName=new Map(savedItems.map(item=>[String(item.nome||item.name||'').trim(),item]));
-  const defaults=(checklistDefaults[stage]||[]).map(nome=>byName.get(nome)||{nome,criado:false,observacao:'',concluidoEm:null});
+  const defaults=(checklistDefaults[stage]||[]).map(nome=>byName.get(nome)||{id:formItemId(nome),nome,concluido:false,observacao:'',dataConclusao:null});
   const extra=savedItems.filter(item=>!defaults.some(def=>def.nome===item.nome));
-  return [...defaults,...extra].map(item=>({
+  return [...defaults,...extra].map((item,index)=>({
+    id:item.id||formItemId(item.nome||item.name||`${stage}-${index}`),
     nome:item.nome||item.name||'Item',
-    criado:!!item.criado,
+    concluido:!!(item.concluido||item.criado),
+    criado:!!(item.concluido||item.criado),
     observacao:item.observacao||item.obs||'',
-    concluidoEm:item.concluidoEm||null,
+    dataConclusao:item.dataConclusao||item.concluidoEm||null,
+    concluidoEm:item.dataConclusao||item.concluidoEm||null,
     atualizadoEm:item.atualizadoEm||null,
     responsavel:item.responsavel||''
   }));
+}
+function formItemId(value){
+  return String(value||'item')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-|-$/g,'')||'item';
 }
 function ensureFormularioState(b){
   const f=b?.formulario||{};
   const d=b?.dados||{};
   const id=d.identificacao||{};
+  const oldTintim=Array.isArray(f.tintim?.itens)?f.tintim.itens:[];
+  const oldPixel=Array.isArray(f.pixel?.itens)?f.pixel.itens:[];
+  const pixelTintimItems=Array.isArray(f.pixelTintim?.items)?f.pixelTintim.items:f.pixelTintim?.itens;
   return {
+    ...f,
     clienteNovo:{
+      ...f.clienteNovo,
       dados:{
+        ...(f.clienteNovo?.dados||{}),
         nome:f.clienteNovo?.dados?.nome||b?.cliente_nome||id.empresa||'',
         empresa:f.clienteNovo?.dados?.empresa||id.empresa||b?.empresa_nome||'',
         email:f.clienteNovo?.dados?.email||'',
@@ -2031,14 +2048,15 @@ function ensureFormularioState(b){
       concluidoEm:f.clienteNovo?.concluidoEm||null
     },
     trafficAi:{
+      ...f.trafficAi,
       link:f.trafficAi?.link||briefingFormUrl(id.empresa||b?.empresa_nome||b?.cliente_nome||''),
       enviadoEm:f.trafficAi?.enviadoEm||null,
       atualizadoEm:f.trafficAi?.atualizadoEm||b?.updatedAt||b?.timestamp||null,
-      concluidoEm:f.trafficAi?.concluidoEm||null
+      concluidoEm:f.trafficAi?.concluidoEm||null,
+      configuradoEquipe:!!(f.trafficAi?.configuradoEquipe||String(b?.status||'').includes('config'))
     },
-    tintim:{itens:baseChecklist('tintim',f.tintim?.itens)},
-    publico:{itens:baseChecklist('publico',f.publico?.itens)},
-    pixel:{itens:baseChecklist('pixel',f.pixel?.itens)}
+    publico:{...f.publico,itens:baseChecklist('publico',f.publico?.itens)},
+    pixelTintim:{...f.pixelTintim,items:baseChecklist('pixelTintim',pixelTintimItems||[...oldTintim,...oldPixel])}
   };
 }
 function calcularStatusEtapa(b,stage){
@@ -2046,18 +2064,11 @@ function calcularStatusEtapa(b,stage){
   if(stage==='trafficAi'){
     const d=b?.dados||{};
     const sections=['identificacao','avatar','produto','financeiro'];
-    const started=sections.some(key=>filledValue(d[key]));
-    const required=[
-      d.identificacao?.empresa,
-      d.identificacao?.produto,
-      d.identificacao?.tipo,
-      d.avatar?.descricao,
-      d.produto?.oque_e,
-      d.financeiro?.budget,
-      d.financeiro?.ticket
-    ];
-    if(required.every(filledValue))return 'concluido';
-    return started?'andamento':'nao-iniciado';
+    const linkCriado=filledValue(f.trafficAi.link);
+    const clienteRespondeu=sections.some(key=>filledValue(d[key]));
+    const configuradoEquipe=!!f.trafficAi.configuradoEquipe;
+    if(linkCriado&&clienteRespondeu&&configuradoEquipe)return 'concluido';
+    return (linkCriado||clienteRespondeu||configuradoEquipe)?'andamento':'nao-iniciado';
   }
   if(stage==='clienteNovo'){
     const vals=Object.values(f.clienteNovo.dados||{});
@@ -2066,9 +2077,9 @@ function calcularStatusEtapa(b,stage){
     if(done)return 'concluido';
     return started?'andamento':'nao-iniciado';
   }
-  const items=f[stage]?.itens||[];
+  const items=stage==='pixelTintim'?(f.pixelTintim?.items||[]):(f[stage]?.itens||[]);
   if(!items.length)return 'nao-iniciado';
-  const checked=items.filter(item=>item.criado).length;
+  const checked=items.filter(item=>item.concluido||item.criado).length;
   if(checked===items.length)return 'concluido';
   return checked?'andamento':'nao-iniciado';
 }
@@ -2151,7 +2162,7 @@ function renderBriefingList(){
     return `<button class="briefing-card ${b.id===selectedBriefingId?'active':''}" data-briefing-id="${esc(b.id)}" type="button">
       <span class="status-pill ${statusTone(p.geral)}">${statusText(p.geral)}</span>
       <b>${esc(s.empresa)}</b>
-      <div class="briefing-meta">Empresa: ${esc(s.empresa)}<br>${p.done} de ${p.total} etapas concluidas<br>Ultima atualizacao: ${esc(briefingDate(b.updatedAt||b.timestamp))}</div>
+      <div class="briefing-meta">${p.done} de ${p.total} etapas concluidas</div>
       <div class="forms-progress"><span style="width:${pct}%"></span></div>
       <div class="forms-stage-dots">
         ${formsTabs.map(tab=>`<span class="forms-stage-dot ${statusTone(p.statuses[tab.id])}" title="${esc(tab.label)}: ${statusText(p.statuses[tab.id])}">${esc(tab.label.split(' ')[0])}</span>`).join('')}
@@ -2211,23 +2222,32 @@ function renderFormsStageDetail(b,stage){
   }
   if(stage==='trafficAi'){
     const trafficStatus=statusText(status);
+    const linkCriado=filledValue(f.trafficAi.link);
+    const clienteRespondeu=['identificacao','avatar','produto','financeiro'].some(key=>filledValue(b?.dados?.[key]));
     return `<section class="forms-detail-card">
       <div class="forms-client-head">
         <div>
-          <h3>Traffic AI</h3>
-          <p class="forms-muted">Mantem o formulario atual recebido pelo cliente e os dados ja preenchidos.</p>
+          <h3>TRAFFIC AI</h3>
+          <p class="forms-muted">A etapa so conclui quando o link existe, o cliente respondeu e a equipe marcou a configuracao como pronta.</p>
         </div>
         <span class="status-pill ${statusTone(status)}">${trafficStatus}</span>
       </div>
       <div class="briefing-preview-grid">
-        <div class="briefing-mini"><span>Link gerado</span><b>${f.trafficAi.link?'Sim':'Nao'}</b></div>
-        <div class="briefing-mini"><span>Formulario</span><b>${status==='nao-iniciado'?'Nao iniciado':status==='concluido'?'Concluido':'Em preenchimento'}</b></div>
+        <div class="briefing-mini"><span>Link criado</span><b>${linkCriado?'Sim':'Nao'}</b></div>
+        <div class="briefing-mini"><span>Cliente respondeu</span><b>${clienteRespondeu?'Sim':'Nao'}</b></div>
+        <div class="briefing-mini"><span>Configurado pela equipe</span><b>${f.trafficAi.configuradoEquipe?'Sim':'Nao'}</b></div>
         <div class="briefing-mini"><span>Ultima atualizacao</span><b>${esc(briefingDate(f.trafficAi.atualizadoEm||b.updatedAt||b.timestamp))}</b></div>
-        <div class="briefing-mini"><span>Produto</span><b>${esc(briefingSummary(b).produto)}</b></div>
       </div>
       <div class="forms-field">
         <label>Link do formulario Traffic AI</label>
         <input readonly value="${esc(f.trafficAi.link)}">
+      </div>
+      <div class="forms-check-item">
+        <div class="forms-check-top">
+          <span>Configurado pela equipe</span>
+          <label><input type="checkbox" data-traffic-configured="${esc(b.id)}" ${f.trafficAi.configuradoEquipe?'checked':''}> Concluido</label>
+        </div>
+        <p class="forms-muted">Use esta marcacao somente quando a configuracao interna estiver pronta.</p>
       </div>
       <div class="forms-copy-row">
         <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(f.trafficAi.link)}">Copiar link</button>
@@ -2235,14 +2255,14 @@ function renderFormsStageDetail(b,stage){
       </div>
     </section>`;
   }
-  return renderChecklistStage(b,stage,f[stage]?.itens||[],status);
+  const items=stage==='pixelTintim'?(f.pixelTintim?.items||[]):(f[stage]?.itens||[]);
+  return renderChecklistStage(b,stage,items,status);
 }
 function renderChecklistStage(b,stage,items,status){
-  const titles={tintim:'Tintim',publico:'Publico',pixel:'Pixel'};
+  const titles={pixelTintim:'TINTIM / PIXEL',publico:'PÚBLICO'};
   const hints={
-    tintim:'Checklist manual preparado para receber os itens definitivos de Tintim.',
-    publico:'Publicos iniciais independentes por cliente. Novos publicos poderao ser adicionados sem reescrever a logica.',
-    pixel:'Checklist manual preparado para receber os itens definitivos de Pixel.'
+    pixelTintim:'Configuracao operacional unificada. Itens definitivos de Pixel, Tintim, eventos e conversoes serao adicionados depois.',
+    publico:'Publicos iniciais independentes por cliente. Novos publicos poderao ser adicionados sem reescrever a logica.'
   };
   const emptyHint=items.length?'':'Nenhum item definitivo cadastrado ainda. A estrutura ja esta pronta para receber novos itens.';
   return `<section class="forms-detail-card">
@@ -2258,10 +2278,10 @@ function renderChecklistStage(b,stage,items,status){
       ${items.map((item,index)=>`<div class="forms-check-item">
         <div class="forms-check-top">
           <span>${esc(item.nome)}</span>
-          <label><input type="checkbox" data-check-stage="${esc(stage)}" data-check-index="${index}" ${item.criado?'checked':''}> Criado</label>
+          <label><input type="checkbox" data-check-stage="${esc(stage)}" data-check-index="${index}" ${(item.concluido||item.criado)?'checked':''}> Concluido</label>
         </div>
         <textarea data-check-note="${esc(stage)}" data-check-index="${index}" placeholder="Observacao opcional">${esc(item.observacao||'')}</textarea>
-        <div class="forms-muted">Concluido em: ${esc(item.concluidoEm?briefingDate(item.concluidoEm):'Pendente')}</div>
+        <div class="forms-muted">Concluido em: ${esc((item.dataConclusao||item.concluidoEm)?briefingDate(item.dataConclusao||item.concluidoEm):'Pendente')}</div>
       </div>`).join('')}
     </div>
   </section>`;
@@ -2311,16 +2331,29 @@ function saveClienteNovoStage(){
   });
   saveFormularioPatch(selectedBriefingId,patch);
 }
+function updateTrafficConfigured(input){
+  const id=input.dataset.trafficConfigured||selectedBriefingId;
+  if(!id)return;
+  const patch=currentFormularioPatch(id,formulario=>{
+    formulario.trafficAi.configuradoEquipe=input.checked;
+    formulario.trafficAi.atualizadoEm=new Date().toISOString();
+    formulario.trafficAi.concluidoEm=input.checked?(formulario.trafficAi.concluidoEm||new Date().toISOString()):null;
+  });
+  saveFormularioPatch(id,patch);
+}
 function updateChecklistItem(input){
   if(!selectedBriefingId)return;
   const stage=input.dataset.checkStage||input.dataset.checkNote;
   const index=Number(input.dataset.checkIndex);
   const patch=currentFormularioPatch(selectedBriefingId,formulario=>{
-    const item=formulario[stage]?.itens?.[index];
+    const items=stage==='pixelTintim'?(formulario.pixelTintim?.items||[]):(formulario[stage]?.itens||[]);
+    const item=items[index];
     if(!item)return;
     if(input.matches('[data-check-stage]')){
+      item.concluido=input.checked;
       item.criado=input.checked;
-      item.concluidoEm=input.checked?(item.concluidoEm||new Date().toISOString()):null;
+      item.dataConclusao=input.checked?(item.dataConclusao||item.concluidoEm||new Date().toISOString()):null;
+      item.concluidoEm=item.dataConclusao;
     }else{
       item.observacao=input.value.trim();
     }
