@@ -342,14 +342,18 @@ button,a{font:inherit}
 }
 .briefing-board{
   height:100%;
-  overflow:auto;
+  overflow:hidden;
   padding:18px;
   display:grid;
   grid-template-columns:minmax(280px,420px) 1fr;
+  grid-template-rows:auto minmax(0,1fr);
   gap:16px;
   background:radial-gradient(circle at 10% 0,rgba(130,188,255,.16),transparent 32rem),#0e1117;
 }
 .briefing-board[hidden],.report-board[hidden],.frame-wrap[hidden]{
+  display:none!important;
+}
+.briefing-list[hidden],.briefing-detail[hidden],.forms-request-panel[hidden]{
   display:none!important;
 }
 .briefing-list,.briefing-detail{
@@ -358,9 +362,112 @@ button,a{font:inherit}
   background:rgba(17,24,36,.82);
   box-shadow:0 18px 60px rgba(0,0,0,.26);
   min-height:0;
+  overflow:auto;
 }
-.briefing-list{padding:14px;display:grid;gap:10px;align-content:start}
+.briefing-list{padding:14px;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}
 .briefing-list h3,.briefing-detail h3{margin:0;color:#fff}
+#briefingList{
+  min-height:0;
+  overflow:auto;
+  padding:0 2px 14px 0;
+}
+.forms-tabs{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:8px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  padding:8px;
+  background:rgba(17,24,36,.78);
+  box-shadow:0 16px 45px rgba(0,0,0,.18);
+}
+.forms-tab{
+  border:1px solid transparent;
+  border-radius:13px;
+  padding:10px 8px;
+  background:rgba(255,255,255,.035);
+  color:#b8c9e4;
+  font-size:12px;
+  font-weight:1000;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.forms-tab.active{
+  color:#06121a;
+  border-color:rgba(130,188,255,.78);
+  background:linear-gradient(135deg,var(--blue),var(--cyan),var(--purple));
+  box-shadow:0 0 24px rgba(53,216,255,.20);
+}
+.forms-request-panel{
+  grid-column:1/-1;
+  min-height:0;
+  overflow:auto;
+  border:1px solid rgba(130,188,255,.24);
+  border-radius:24px;
+  padding:18px;
+  background:
+    radial-gradient(circle at 0 0,rgba(130,188,255,.16),transparent 25rem),
+    linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+}
+.forms-request-layout{
+  display:grid;
+  grid-template-columns:minmax(260px,380px) 1fr;
+  gap:16px;
+  min-height:0;
+}
+.forms-request-card{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;
+  padding:18px;
+  background:rgba(3,8,15,.42);
+  display:grid;
+  gap:12px;
+}
+.forms-request-card h3,.forms-request-card h4{margin:0;color:#fff}
+.forms-request-card p{
+  margin:0;
+  color:#b8c9e4;
+  font-size:13px;
+  font-weight:750;
+  line-height:1.5;
+}
+.forms-request-list{
+  display:grid;
+  gap:10px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.forms-request-list li{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  padding:11px 12px;
+  background:rgba(255,255,255,.045);
+  color:#eaf2ff;
+  font-size:13px;
+  font-weight:850;
+}
+.forms-request-text{
+  width:100%;
+  min-height:430px;
+  resize:vertical;
+  border:1px solid rgba(130,188,255,.22);
+  border-radius:18px;
+  padding:16px;
+  background:#070d17;
+  color:#f4f8ff;
+  font-size:13px;
+  line-height:1.55;
+  font-weight:750;
+  outline:0;
+}
+.forms-copy-row{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
 .briefing-link-box{
   border:1px solid rgba(130,188,255,.28);
   border-radius:18px;
@@ -1029,6 +1136,8 @@ iframe{
 @media(max-width:1050px){
   .module-grid,.summary,.kpis{grid-template-columns:1fr}
   .briefing-board{grid-template-columns:1fr}
+  .forms-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .forms-request-layout{grid-template-columns:1fr}
   .report-board{grid-template-columns:1fr}
   .report-sidebar{position:static}
   .briefing-preview-grid{grid-template-columns:1fr 1fr}
@@ -1126,6 +1235,9 @@ iframe{
   }
   #openExternal{grid-column:1/3}
   .briefing-board{padding:10px}
+  .forms-tabs{grid-template-columns:1fr}
+  .forms-request-panel{padding:12px}
+  .forms-request-text{min-height:360px}
   .report-board{padding:10px}
   .report-detail-head{flex-direction:column}
   .report-actions{width:100%;justify-content:stretch}
@@ -1204,7 +1316,7 @@ iframe{
           <div class="kpi"><span>Financeiro</span><strong id="financeEntries">--</strong><small id="financeSync">Aguardando Firestore</small></div>
           <div class="kpi"><span>Cartões</span><strong id="financeCards">--</strong><small>Transações importadas</small></div>
           <div class="kpi"><span>Tarefas</span><strong id="taskCards">--</strong><small id="taskSync">Aguardando Firestore</small></div>
-          <div class="kpi"><span>Formulario Traffic AI</span><strong id="briefingCount">--</strong><small id="briefingSync">Aguardando Firestore</small></div>
+          <div class="kpi"><span>Formularios</span><strong id="briefingCount">--</strong><small id="briefingSync">Aguardando Firestore</small></div>
           <div class="kpi"><span>Relatórios</span><strong id="reportCount">5</strong><small>Meta cadastrados</small></div>
           <div class="kpi"><span>Calculadora de LEADs</span><strong>Pronta</strong><small>Módulo disponível</small></div>
         </div>
@@ -1216,7 +1328,7 @@ iframe{
           <div class="activity-line"><b>Firebase</b><span id="activitySync">Aguardando dados</span></div>
           <div class="activity-line"><b>Financeiro</b><span id="activityFinance">Conectando</span></div>
           <div class="activity-line"><b>Tarefas</b><span id="activityTasks">Conectando</span></div>
-          <div class="activity-line"><b>Formulario Traffic AI</b><span id="activityBriefings">Conectando</span></div>
+          <div class="activity-line"><b>Formularios</b><span id="activityBriefings">Conectando</span></div>
           <div class="activity-line"><b>Relatórios</b><span>5 clientes Meta</span></div>
         </div>
       </section>
@@ -1237,8 +1349,9 @@ iframe{
     <iframe id="moduleFrame" title="Módulo Dualize"></iframe>
   </div>
   <div class="briefing-board" id="briefingBoard" hidden>
+    <div class="forms-tabs" id="formsTabs" role="tablist" aria-label="Formularios"></div>
     <aside class="briefing-list">
-      <h3>Formulario Traffic AI <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
+      <h3>Traffic AI <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
       <div class="briefing-link-box">
         <label for="briefingClientName">Link para enviar ao cliente</label>
         <input id="briefingClientName" placeholder="Digite o nome da empresa">
@@ -1250,6 +1363,7 @@ iframe{
     <main class="briefing-detail" id="briefingDetail">
       <div class="briefing-empty">Selecione um briefing para ver os detalhes.</div>
     </main>
+    <section class="forms-request-panel" id="formsRequestPanel" hidden></section>
   </div>
   <div class="report-board" id="reportBoard" hidden>
     <aside class="report-panel report-sidebar">
@@ -1271,7 +1385,7 @@ iframe{
   <div class="briefing-modal-box" role="dialog" aria-modal="true" aria-labelledby="briefingModalTitle">
     <div class="briefing-modal-head">
       <div class="briefing-modal-title">
-        <h2 id="briefingModalTitle">Formulario Traffic AI</h2>
+        <h2 id="briefingModalTitle">Formularios</h2>
         <div class="briefing-meta" id="briefingModalMeta"></div>
         <div class="briefing-modal-actions" id="briefingModalActions"></div>
       </div>
@@ -1298,12 +1412,144 @@ const modules=[
   {id:'tarefas',icon:'control',title:'Tarefas',desc:'Quadro operacional, criativos, rotinas e calendário de clientes.',url:'controle-online/index.html',status:'Tempo real Firebase',metric:'Operação diária'},
   {id:'leads',icon:'calculator',title:'Calculadora de LEADs',desc:'Fórmula do lead qualificado e simulações comerciais.',url:'calculadora-lead/index.html',status:'Módulo comercial',metric:'Simulador'}
 ];
-modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formulario Traffic AI',desc:'Recebimento em tempo real dos formularios enviados pelos clientes.',url:'briefing_cliente_v4.html',status:'Novos clientes',metric:'Entrada comercial'});
+modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formularios',desc:'Central de formularios, briefings e solicitacoes de configuracao para clientes.',url:'briefing_cliente_v4.html',status:'Traffic AI e configs',metric:'Solicitacoes'});
 modules.splice(3,0,{id:'relatorios',icon:'reports',title:'Relatórios',desc:'Dashboards de Meta e Google Ads por cliente, prontos para consulta e envio.',url:'',status:'Clientes e mídia',metric:'Meta / Google Ads'});
 modules.splice(4,0,{id:'promptSkill',icon:'prompt',title:'Prompt/Skill - Campanhas',desc:'Biblioteca viva para montar prompts profissionais e skills de Meta Ads.',url:'controle-online/index.html?view=promptSkill',status:'Estratégia Meta Ads',metric:'Prompt geral'});
-modules.splice(5,0,{id:'clienteNovo',icon:'clientNew',title:'Cliente Novo',desc:'Checklists, mensagens e rotinas para iniciar campanhas com clientes novos.',url:'controle-online/index.html?view=clienteNovo',status:'Onboarding',metric:'Kit de entrada'});
 const $=s=>document.querySelector(s);
-let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='';
+let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='traffic';
+const formsTabs=[
+  {id:'traffic',label:'Traffic AI'},
+  {id:'clienteNovo',label:'Cliente Novo'},
+  {id:'configTraffic',label:'Config Traffic AI'},
+  {id:'configTintim',label:'Config Tintim'},
+  {id:'configPublico',label:'Config Publico'},
+  {id:'configPixel',label:'Config Pixel'}
+];
+const formRequestTemplates={
+  clienteNovo:{
+    title:'Cliente Novo',
+    subtitle:'Checklist para iniciar um cliente sem perder dados importantes.',
+    items:['Dados da empresa, responsavel e contatos','Acessos principais: BM, pagina, Instagram, WhatsApp, site/LP','Oferta, ticket medio, regioes atendidas e restricoes','Materiais: fotos, videos, depoimentos, identidade visual e provas','Objetivo da campanha, verba disponivel, prazo e prioridade'],
+    text:`CLIENTE NOVO - CHECKLIST DE ENTRADA
+
+Cliente/empresa:
+Responsavel:
+WhatsApp:
+Site/LP:
+Instagram:
+Pagina do Facebook:
+Business Manager:
+Conta de anuncios:
+Pixel/dataset:
+
+Objetivo inicial:
+Oferta principal:
+Ticket medio:
+Regioes atendidas:
+Restricoes/importante:
+
+Materiais necessarios:
+- Fotos/videos do produto ou servico
+- Identidade visual/logo
+- Depoimentos/provas
+- Promocoes ou condicoes comerciais
+
+Observacoes:`
+  },
+  configTraffic:{
+    title:'Configuracao Traffic AI',
+    subtitle:'Dados para registrar a oferta e orientar as decisoes do Traffic AI.',
+    items:['Produto/oferta e tipo de negocio','Avatar, dores, desejos e consciencia do publico','Diferenciais, provas e mecanismo do produto','Budget, meta de receita, ROAS e ticket medio','WhatsApp, landing pages e contas de anuncios'],
+    text:`CONFIGURACAO TRAFFIC AI
+
+Cliente:
+Produto/oferta:
+Tipo de negocio:
+Nicho:
+Pais/idioma:
+Link da pagina de vendas:
+Landing pages:
+Contas de anuncios:
+WhatsApp de destino:
+Mensagem pre-preenchida:
+
+Avatar/cliente ideal:
+Dores principais:
+Desejos principais:
+Provas disponiveis:
+Diferenciais:
+
+Budget mensal:
+Meta de receita:
+Meta de ROAS:
+Ticket medio:
+Custos por venda:
+
+Observacoes para o gestor:`
+  },
+  configTintim:{
+    title:'Config Tintim',
+    subtitle:'Solicitacao para deixar rastreamento e integracao de atendimento organizados.',
+    items:['Numero ou canal que recebera os leads','Origem/campanha que deve aparecer no atendimento','Mensagem padrao e etiquetas desejadas','Responsavel pelo atendimento','Observacoes sobre horarios, SLA ou regras'],
+    text:`CONFIG TINTIM
+
+Cliente:
+Canal/numero principal:
+Responsavel pelo atendimento:
+Origem/campanha:
+Etiqueta desejada:
+Mensagem inicial:
+Horario de atendimento:
+Regra de distribuicao:
+Observacoes:`
+  },
+  configPublico:{
+    title:'Configuracao Publico',
+    subtitle:'Base para criar ou ajustar publicos dentro do Meta Ads.',
+    items:['Publico principal e regioes','Idade, genero e idioma','Interesses, comportamentos e exclusoes','Publicos personalizados e semelhantes','Observacoes de restricao ou prioridade'],
+    text:`CONFIGURACAO PUBLICO
+
+Cliente:
+Campanha/conjunto:
+Publico desejado:
+Regiao:
+Idade:
+Genero:
+Idioma:
+Interesses:
+Comportamentos:
+Exclusoes:
+Publicos personalizados:
+Publicos semelhantes:
+Observacoes:`
+  },
+  configPixel:{
+    title:'Configuracao Pixel',
+    subtitle:'Checklist para conferir pixel, eventos e dominio antes de rodar campanha.',
+    items:['Business Manager e conta de anuncios','Pixel/dataset e dominio','Eventos configurados e eventos prioritarios','URL de teste e pagina de obrigado','Permissoes, CAPI e verificacoes pendentes'],
+    text:`CONFIGURACAO PIXEL
+
+Cliente:
+Business Manager:
+Conta de anuncios:
+Pixel/dataset:
+Dominio:
+URL principal:
+Pagina de obrigado:
+
+Eventos necessarios:
+- PageView
+- ViewContent
+- Lead
+- Purchase/CompleteRegistration
+
+CAPI configurada:
+Dominio verificado:
+Teste de eventos realizado:
+Pendencias:
+Observacoes:`
+  }
+};
 const reportGroups={
   meta:[
     {client:'Hospital do Dente',title:'Relatório Meta',url:'https://datastudio.google.com/embed/reporting/7fc66011-46da-4b5d-805a-4ec264a8ce75/page/p_ske7imsi0d'},
@@ -1425,6 +1671,61 @@ async function copyBriefingLink(){
     prompt('Copie o link do briefing:',link);
   }
 }
+function renderFormsTabs(){
+  const tabs=$('#formsTabs');
+  if(!tabs)return;
+  tabs.innerHTML=formsTabs.map(tab=>`<button class="forms-tab ${tab.id===activeFormsTab?'active':''}" type="button" data-forms-tab="${esc(tab.id)}">${esc(tab.label)}</button>`).join('');
+  const isTraffic=activeFormsTab==='traffic';
+  const list=document.querySelector('.briefing-list');
+  const detail=$('#briefingDetail');
+  const panel=$('#formsRequestPanel');
+  if(list)list.hidden=!isTraffic;
+  if(detail)detail.hidden=!isTraffic;
+  if(panel)panel.hidden=isTraffic;
+  if(!isTraffic)renderFormsRequestPanel(activeFormsTab);
+}
+function renderFormsRequestPanel(tabId){
+  const panel=$('#formsRequestPanel');
+  const data=formRequestTemplates[tabId]||formRequestTemplates.clienteNovo;
+  if(!panel)return;
+  panel.innerHTML=`<div class="forms-request-layout">
+    <aside class="forms-request-card">
+      <div>
+        <h3>${esc(data.title)}</h3>
+        <p>${esc(data.subtitle)}</p>
+      </div>
+      <ul class="forms-request-list">
+        ${data.items.map(item=>`<li>${esc(item)}</li>`).join('')}
+      </ul>
+    </aside>
+    <main class="forms-request-card">
+      <div class="briefing-preview-head">
+        <div>
+          <h4>Modelo para copiar e preencher</h4>
+          <p>Use como base para WhatsApp, checklist interno ou configuracao operacional.</p>
+        </div>
+        <div class="forms-copy-row">
+          <button class="briefing-copy" type="button" data-copy-forms-template>Copiar modelo</button>
+        </div>
+      </div>
+      <textarea class="forms-request-text" id="formsRequestText" spellcheck="false">${esc(data.text)}</textarea>
+    </main>
+  </div>`;
+}
+async function copyFormsTemplate(){
+  const text=$('#formsRequestText')?.value||'';
+  if(!text)return;
+  try{
+    await navigator.clipboard.writeText(text);
+    const btn=document.querySelector('[data-copy-forms-template]');
+    if(btn){
+      btn.textContent='Modelo copiado';
+      setTimeout(()=>btn.textContent='Copiar modelo',1400);
+    }
+  }catch(err){
+    prompt('Copie o modelo:',text);
+  }
+}
 function openModule(id){
   const mod=modules.find(m=>m.id===id)||modules[0];
   $('#workspaceTitle').textContent=mod.title;
@@ -1438,6 +1739,7 @@ function openModule(id){
     $('#reportBoard').hidden=true;
     $('#reloadFrame').hidden=true;
     updateBriefingLink();
+    renderFormsTabs();
     renderBriefingList();
     renderBriefingDetail(selectedBriefingId);
     return;
@@ -1465,6 +1767,9 @@ function setupEvents(){
   document.body.addEventListener('click',e=>{
     const target=e.target.closest('[data-module]');
     if(target) openModule(target.dataset.module);
+    const formsTab=e.target.closest('[data-forms-tab]');
+    if(formsTab){activeFormsTab=formsTab.dataset.formsTab;renderFormsTabs()}
+    if(e.target.closest('[data-copy-forms-template]')) copyFormsTemplate();
     const reportKind=e.target.closest('[data-report-kind]');
     if(reportKind){activeReportKind=reportKind.dataset.reportKind;activeReportId='';renderReports()}
     const reportSelect=e.target.closest('[data-report-select]');
