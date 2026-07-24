@@ -2665,36 +2665,76 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
 .central-badge.warn{color:#fde68a;background:rgba(251,191,36,.13);border:1px solid rgba(251,191,36,.38)}
 .central-badge.ok{color:#bbf7d0;background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.38)}
 .central-badge.bad{color:#fecaca;background:rgba(239,68,68,.13);border:1px solid rgba(239,68,68,.38)}
-.prompt-skill-tabs{
+.prompt-skill-shell{
+  display:grid;
+  gap:18px;
+  padding:8px 0 28px;
+}
+.prompt-skill-hero{
+  border:1px solid rgba(125,211,252,.32);
+  border-radius:30px;
+  padding:24px;
+  background:
+    radial-gradient(circle at 18% 10%,rgba(96,165,250,.2),transparent 34%),
+    radial-gradient(circle at 88% 24%,rgba(110,231,183,.16),transparent 30%),
+    linear-gradient(145deg,rgba(15,23,42,.9),rgba(5,11,22,.95));
+  box-shadow:inset 0 1px rgba(255,255,255,.1),0 24px 70px rgba(2,6,23,.38),0 0 42px rgba(59,130,246,.14);
+}
+.prompt-skill-hero h2{
+  margin:0;
+  font-size:clamp(28px,4vw,52px);
+  line-height:1;
+  letter-spacing:0;
+}
+.prompt-skill-hero p{
+  max-width:760px;
+  color:#b9c9df;
+  font-size:15px;
+  line-height:1.55;
+  margin:12px 0 0;
+}
+.prompt-skill-topbar{
   display:flex;
-  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
   flex-wrap:wrap;
-  margin:0 0 16px;
+  margin-top:20px;
+}
+.prompt-skill-tabs{
+  display:inline-flex;
+  gap:8px;
+  padding:6px;
+  border:1px solid rgba(148,163,184,.22);
+  border-radius:999px;
+  background:rgba(7,13,24,.62);
 }
 .prompt-skill-tabs .tab{
-  min-height:42px;
-  padding:10px 18px;
+  min-height:38px;
+  border-radius:999px;
+  padding:8px 18px;
 }
 .prompt-skill-tabs .tab.active{
-  color:#06111f!important;
-  background:linear-gradient(135deg,#7dd3fc,#8b5cf6 52%,#6ee7b7)!important;
-  box-shadow:0 0 0 2px rgba(255,255,255,.24),0 0 26px rgba(125,211,252,.35)!important;
+  color:#031527!important;
+  background:linear-gradient(135deg,#7dd3fc,#6ee7b7 55%,#a78bfa)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.18),0 0 24px rgba(56,189,248,.32)!important;
 }
-.prompt-skill-layout{
+.prompt-skill-grid{
   display:grid;
-  grid-template-columns:minmax(280px,.9fr) minmax(320px,1fr) minmax(360px,1.35fr);
-  gap:16px;
+  grid-template-columns:minmax(300px,.9fr) minmax(360px,1.1fr);
+  gap:18px;
   align-items:start;
 }
 .prompt-skill-panel{
-  border:1px solid rgba(125,211,252,.38);
+  border:1px solid rgba(125,211,252,.3);
   border-radius:24px;
   padding:18px;
-  background:linear-gradient(145deg,rgba(18,31,53,.9),rgba(8,15,29,.94));
-  box-shadow:inset 0 1px rgba(255,255,255,.08),0 0 30px rgba(99,102,241,.15);
+  background:linear-gradient(145deg,rgba(17,30,50,.84),rgba(8,15,29,.9));
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 0 30px rgba(37,99,235,.12);
 }
 .prompt-skill-panel h3{
-  margin:0 0 8px;
+  margin:0 0 6px;
+  color:#dbeafe;
 }
 .prompt-skill-panel .hint{
   color:#9fb3cf;
@@ -2708,28 +2748,31 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
 .prompt-skill-panel label{
   display:block;
   color:#93c5fd;
-  font-size:12px;
+  font-size:11px;
   font-weight:950;
-  letter-spacing:.04em;
+  letter-spacing:.05em;
   text-transform:uppercase;
   margin:0 0 6px;
 }
-.prompt-skill-panel input,.prompt-skill-panel select,.prompt-skill-panel textarea{
+.prompt-skill-panel input,.prompt-skill-panel textarea{
   width:100%;
   min-height:44px;
-  border-radius:13px;
-  border:1px solid rgba(148,163,184,.3);
-  background:rgba(7,13,24,.78);
+  border-radius:14px;
+  border:1px solid rgba(148,163,184,.28);
+  background:rgba(3,8,18,.74);
   color:#f8fafc;
-  padding:11px 13px;
+  padding:12px 14px;
   font:inherit;
 }
 .prompt-skill-panel textarea{
-  min-height:180px;
+  min-height:200px;
   resize:vertical;
 }
+.prompt-skill-master{
+  grid-column:1/-1;
+}
 .prompt-skill-master textarea{
-  min-height:560px;
+  min-height:420px;
   font-family:Consolas,"Courier New",monospace;
   font-size:13px;
   line-height:1.55;
@@ -2740,28 +2783,15 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
   gap:10px;
 }
 .prompt-skill-card{
-  border:1px solid rgba(148,163,184,.26);
+  border:1px solid rgba(148,163,184,.22);
   border-radius:18px;
-  padding:13px;
-  background:linear-gradient(145deg,rgba(15,23,42,.86),rgba(25,36,58,.72));
-  box-shadow:inset 0 1px rgba(255,255,255,.06);
+  padding:14px;
+  background:linear-gradient(145deg,rgba(15,23,42,.78),rgba(20,32,54,.68));
 }
 .prompt-skill-card strong{
   display:block;
-  margin:8px 0 5px;
+  margin:0 0 6px;
   color:#f8fafc;
-}
-.prompt-skill-chip{
-  display:inline-flex;
-  align-items:center;
-  min-height:24px;
-  padding:3px 9px;
-  border-radius:999px;
-  color:#bbf7d0;
-  background:rgba(34,197,94,.12);
-  border:1px solid rgba(34,197,94,.35);
-  font-size:11px;
-  font-weight:950;
 }
 .prompt-skill-excerpt{
   color:#b7c5d8;
@@ -2775,22 +2805,28 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
   flex-wrap:wrap;
   margin-top:12px;
 }
+.prompt-skill-actions .danger{
+  color:#fecaca;
+  border-color:rgba(248,113,113,.48);
+}
 .prompt-skill-warning{
   color:#fecaca;
   border:1px solid rgba(248,113,113,.58);
-  background:linear-gradient(135deg,rgba(127,29,29,.24),rgba(30,41,59,.5));
+  background:linear-gradient(135deg,rgba(127,29,29,.25),rgba(30,41,59,.5));
   border-radius:16px;
   padding:12px;
   margin:0 0 12px;
   box-shadow:0 0 18px rgba(248,113,113,.12);
 }
 .prompt-skill-path{
-  display:grid;
-  gap:8px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
   padding:12px;
   border-radius:16px;
-  border:1px solid rgba(125,211,252,.32);
-  background:rgba(14,23,39,.76);
+  border:1px solid rgba(125,211,252,.3);
+  background:rgba(14,23,39,.7);
   margin-bottom:12px;
 }
 .prompt-skill-path code{
@@ -2802,7 +2838,7 @@ html[data-theme="dark"] #homeView .area-calendar .week-card:hover .cal-foot{
 }
 @media(max-width:720px){
   .central-shell,.central-board{grid-template-columns:1fr}
-  .prompt-skill-layout{grid-template-columns:1fr}
+  .prompt-skill-grid{grid-template-columns:1fr}
   .prompt-skill-master textarea{min-height:360px}
   .creative-strategy-grid{grid-template-columns:1fr}
   .creative-strategy-grid .field:last-child{grid-column:auto}
@@ -2951,15 +2987,14 @@ function centralStop(id){const c=state.cards.find(x=>+x.id===+id);if(!c)return;c
 const PROMPT_SKILL_PATH='C:\\Users\\User\\.codex\\skills\\dualize-campanhas';
 function ensurePromptSkillState(){if(!state.promptSkillCampaigns)state.promptSkillCampaigns={activeTab:'prompts',promptBlocks:[],skillBlocks:[],updatedAt:''};const ps=state.promptSkillCampaigns;ps.activeTab=ps.activeTab==='skills'?'skills':'prompts';ps.promptBlocks=Array.isArray(ps.promptBlocks)?ps.promptBlocks:[];ps.skillBlocks=Array.isArray(ps.skillBlocks)?ps.skillBlocks:[];return ps}
 function promptSkillBlocks(kind){const ps=ensurePromptSkillState();return kind==='skills'?ps.skillBlocks:ps.promptBlocks}
-function promptSkillCategory(kind){return kind==='skills'?['Estrategia','Analise','Criativos','Copy','Publico','Otimizacao','Processo','Outro']:['Contexto','Persona','Oferta','Publico','Criativo','Copy','Campanha','Analise','Regras','Outro']}
 function promptSkillTextExcerpt(text){const clean=String(text||'').replace(/\s+/g,' ').trim();return clean?clean.slice(0,150)+(clean.length>150?'...':''):'Sem conteudo ainda.'}
 function promptSkillWarnings(blocks){const warnings=[],seen=new Map(),facts=new Map();blocks.forEach(b=>{const title=String(b.title||'').trim(),category=String(b.category||'Geral').trim(),titleKey=(category+'|'+title).toLowerCase();if(title){if(seen.has(titleKey))warnings.push(`Bloco duplicado em ${category}: "${title}".`);else seen.set(titleKey,true)}String(b.text||'').split(/\n+/).forEach(line=>{const m=line.match(/^\s*([A-Za-zÀ-ÿ0-9 _/.-]{3,48})\s*[:=]\s*(.{2,160})$/);if(!m)return;const key=m[1].trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),value=m[2].trim();if(!facts.has(key))facts.set(key,new Set());facts.get(key).add(value)})});facts.forEach((values,key)=>{if(values.size>1)warnings.push(`Possivel divergencia em "${key}": ${Array.from(values).join(' | ')}`)});return warnings}
 function buildPromptMaster(){const blocks=promptSkillBlocks('prompts'),warnings=promptSkillWarnings(blocks),parts=['PROMPT GERAL PROFISSIONAL - CAMPANHAS META ADS','','Atue como estrategista senior de trafego pago da Dualize Digital. Use as diretrizes abaixo para orientar analises, campanhas, criativos, publicos, funis e proximas acoes mantendo uma linha unica para todos os clientes.','','Regras de trabalho:','- Seja claro, direto, estrategico e orientado a resultado.','- Preserve o posicionamento do cliente e adapte a linguagem ao publico definido.','- Quando houver dados incompletos, sinalize o que falta antes de concluir.','- Separe sempre: diagnostico, estrategia, execucao, criativos, metricas e proximas acoes.','','BLOCOS ESTRATEGICOS CADASTRADOS'];if(!blocks.length)parts.push('- Nenhum bloco cadastrado ainda. Adicione orientacoes na aba Prompts.');blocks.forEach((b,i)=>parts.push(`\n${i+1}. ${b.title||'Bloco sem titulo'}\nCategoria: ${b.category||'Geral'}\n${b.text||''}`));if(warnings.length)parts.push('\nPONTOS EM VERMELHO PARA REVISAO ANTES DE USAR:\n'+warnings.map(w=>'- '+w).join('\n'));parts.push('\nEntrega esperada do Claude: responda com raciocinio organizado, checklist de execucao e orientacoes praticas para o gestor aplicar no Meta Ads.');return parts.join('\n')}
 function buildSkillMaster(){const blocks=promptSkillBlocks('skills'),warnings=promptSkillWarnings(blocks),parts=['SKILL GERAL - DUALIZE CAMPANHAS META ADS','','Caminho fixo sugerido para salvar/colar skills no Codex: '+PROMPT_SKILL_PATH,'','Objetivo: manter um banco vivo de habilidades, metodos, frameworks e rotinas para melhorar campanhas, analises e criativos de clientes.','','SKILLS CADASTRADAS'];if(!blocks.length)parts.push('- Nenhuma skill cadastrada ainda. Adicione metodos na aba Skills.');blocks.forEach((b,i)=>parts.push(`\n${i+1}. ${b.title||'Skill sem titulo'}\nTipo: ${b.category||'Geral'}\n${b.text||''}`));if(warnings.length)parts.push('\nPONTOS EM VERMELHO PARA REVISAO ANTES DE USAR:\n'+warnings.map(w=>'- '+w).join('\n'));parts.push('\nComo usar: cole este conteudo como base de trabalho antes de pedir analises, criacao de campanhas, auditorias ou padronizacao de processos.');return parts.join('\n')}
-function promptSkillEditor(kind){const block=promptSkillEditId?promptSkillBlocks(kind).find(b=>b.id===promptSkillEditId):null,cats=promptSkillCategory(kind);return`<section class="prompt-skill-panel"><h3>${block?'Editar bloco':'Adicionar novo bloco'}</h3><p class="hint">${kind==='skills'?'Guarde skills, frameworks e metodos de outros players ou criados por voce.':'Cole prompts, regras, ideias e orientacoes. O prompt geral sera montado automaticamente.'}</p>${kind==='skills'?`<div class="prompt-skill-path"><strong>Caminho fixo para skills</strong><code>${esc(PROMPT_SKILL_PATH)}</code><button class="mini" data-ps-copy-path type="button">Copiar caminho</button></div>`:''}<div class="field"><label>Titulo</label><input id="psTitle" value="${esc(block?.title||'')}" placeholder="${kind==='skills'?'Ex.: Analise de criativo vencedor':'Ex.: Padrao de briefing para campanhas'}"></div><div class="field"><label>Categoria</label><select id="psCategory">${cats.map(c=>`<option ${block?.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div><div class="field"><label>Conteudo</label><textarea id="psText" placeholder="Cole aqui o texto, emojis, regras, exemplos e observacoes...">${esc(block?.text||'')}</textarea></div><button class="btn primary" data-ps-save="${kind}" type="button">${block?'Atualizar bloco':'Salvar bloco'}</button>${block?`<button class="btn ghost" data-ps-cancel type="button">Cancelar edicao</button>`:''}</section>`}
-function promptSkillList(kind){const blocks=promptSkillBlocks(kind);return`<section class="prompt-skill-panel"><h3>Biblioteca ${kind==='skills'?'de skills':'de prompts'}</h3><p class="hint">Tudo que voce adicionar aqui entra no material geral automaticamente.</p><div class="prompt-skill-list">${blocks.map(b=>`<article class="prompt-skill-card"><span class="prompt-skill-chip">${esc(b.category||'Geral')}</span><strong>${esc(b.title||'Sem titulo')}</strong><p class="prompt-skill-excerpt">${esc(promptSkillTextExcerpt(b.text))}</p><div class="prompt-skill-actions"><button class="mini" data-ps-edit="${b.id}" type="button">Editar</button><button class="mini" data-ps-copy="${b.id}" type="button">Copiar</button><button class="mini danger" data-ps-delete="${b.id}" type="button">Excluir</button></div></article>`).join('')||`<p class="hint">Nenhum bloco salvo ainda.</p>`}</div></section>`}
-function renderPromptSkillHome(){const ps=ensurePromptSkillState(),kind=ps.activeTab,blocks=promptSkillBlocks(kind),warnings=promptSkillWarnings(blocks),master=kind==='skills'?buildSkillMaster():buildPromptMaster();$('#boardView').classList.add('hidden');$('#homeView').classList.remove('hidden');$('#homeView').innerHTML=`<div class="toolbar"><div><h2>Prompt/Skill - Campanhas</h2><p class="small">Monte uma base profissional para Claude, Meta Ads e processos internos sem depender de bloco de notas.</p></div><div class="actions"><button class="btn ghost" data-ps-copy-master type="button">Copiar ${kind==='skills'?'skill geral':'prompt geral'}</button><button class="btn primary" data-ps-focus type="button">+ Novo bloco</button></div></div>${centralTabs()}<div class="prompt-skill-tabs"><button class="tab ${kind==='prompts'?'active':''}" data-ps-tab="prompts" type="button">Prompts</button><button class="tab ${kind==='skills'?'active':''}" data-ps-tab="skills" type="button">Skills</button></div><div class="prompt-skill-layout">${promptSkillEditor(kind)}${promptSkillList(kind)}<section class="prompt-skill-panel prompt-skill-master"><h3>${kind==='skills'?'SKILL GERAL PROFISSIONAL':'PROMPT GERAL PROFISSIONAL'}</h3><p class="hint">Gerado automaticamente com base nos blocos salvos. Copie e cole no Claude quando precisar manter o mesmo padrao.</p>${warnings.map(w=>`<div class="prompt-skill-warning">${esc(w)}</div>`).join('')}<textarea id="psMasterText" readonly>${esc(master)}</textarea></section></div>`}
-function promptSkillSave(kind){const ps=ensurePromptSkillState(),list=promptSkillBlocks(kind),title=($('#psTitle')?.value||'').trim(),category=($('#psCategory')?.value||'Geral').trim(),text=($('#psText')?.value||'').trim();if(!title||!text){alert('Preencha titulo e conteudo do bloco.');return}const now=new Date().toISOString();if(promptSkillEditId){const b=list.find(x=>x.id===promptSkillEditId);if(b)Object.assign(b,{title,category,text,updatedAt:now})}else list.unshift({id:'ps_'+Date.now()+'_'+Math.floor(Math.random()*9999),title,category,text,createdAt:now,updatedAt:now}) ;ps.updatedAt=now;promptSkillEditId='';save();render()}
+function promptSkillEditor(kind){const block=promptSkillEditId?promptSkillBlocks(kind).find(b=>b.id===promptSkillEditId):null;return`<section class="prompt-skill-panel"><h3>${block?'Editar':'Adicionar'} ${kind==='skills'?'skill':'prompt'}</h3><p class="hint">${kind==='skills'?'Cole aqui uma skill, metodo ou framework que voce quer reaproveitar.':'Cole aqui uma regra, orientacao ou prompt solto. O prompt geral monta tudo sozinho.'}</p>${kind==='skills'?`<div class="prompt-skill-path"><strong>Caminho fixo:</strong><code>${esc(PROMPT_SKILL_PATH)}</code><button class="mini" data-ps-copy-path type="button">Copiar</button></div>`:''}<div class="field"><label>Nome da janela</label><input id="psTitle" value="${esc(block?.title||'')}" placeholder="${kind==='skills'?'Ex.: Skill de auditoria de criativo':'Ex.: Regra para campanhas de Leads'}"></div><div class="field"><label>Texto</label><textarea id="psText" placeholder="Cole o texto completo aqui. Pode usar emojis, checklist e exemplos.">${esc(block?.text||'')}</textarea></div><button class="btn primary" data-ps-save="${kind}" type="button">${block?'Salvar alteracao':'Adicionar'}</button>${block?`<button class="btn ghost" data-ps-cancel type="button">Cancelar</button>`:''}</section>`}
+function promptSkillList(kind){const blocks=promptSkillBlocks(kind);return`<section class="prompt-skill-panel"><h3>${kind==='skills'?'Skills salvas':'Prompts salvos'}</h3><p class="hint">Lista simples. Clique em editar quando quiser ajustar algo.</p><div class="prompt-skill-list">${blocks.map((b,i)=>`<article class="prompt-skill-card"><strong>${i+1}. ${esc(b.title||'Sem titulo')}</strong><p class="prompt-skill-excerpt">${esc(promptSkillTextExcerpt(b.text))}</p><div class="prompt-skill-actions"><button class="mini" data-ps-edit="${b.id}" type="button">Editar</button><button class="mini" data-ps-copy="${b.id}" type="button">Copiar</button><button class="mini danger" data-ps-delete="${b.id}" type="button">Excluir</button></div></article>`).join('')||`<p class="hint">Nenhum item salvo ainda.</p>`}</div></section>`}
+function renderPromptSkillHome(){const ps=ensurePromptSkillState(),kind=ps.activeTab,warnings=promptSkillWarnings(promptSkillBlocks(kind)),master=kind==='skills'?buildSkillMaster():buildPromptMaster();$('#boardView').classList.add('hidden');$('#homeView').classList.remove('hidden');$('#homeView').innerHTML=`<div class="prompt-skill-shell"><section class="prompt-skill-hero"><h2>Prompt/Skill - Campanhas</h2><p>Central limpa para guardar prompts, skills e montar um prompt geral profissional para usar no Claude. Por enquanto e uma biblioteca geral da Dualize, sem separar por cliente.</p><div class="prompt-skill-topbar">${centralTabs()}<div class="prompt-skill-tabs"><button class="tab ${kind==='prompts'?'active':''}" data-ps-tab="prompts" type="button">Prompts</button><button class="tab ${kind==='skills'?'active':''}" data-ps-tab="skills" type="button">Skills</button></div><div class="actions"><button class="btn ghost" data-ps-copy-master type="button">Copiar geral</button><button class="btn primary" data-ps-focus type="button">+ Adicionar</button></div></div></section><div class="prompt-skill-grid">${promptSkillEditor(kind)}${promptSkillList(kind)}<section class="prompt-skill-panel prompt-skill-master"><h3>${kind==='skills'?'SKILL GERAL PROFISSIONAL':'PROMPT GERAL PROFISSIONAL'}</h3><p class="hint">Texto final montado automaticamente com tudo que foi salvo. Divergencias aparecem em vermelho antes de copiar.</p>${warnings.map(w=>`<div class="prompt-skill-warning">${esc(w)}</div>`).join('')}<textarea id="psMasterText" readonly>${esc(master)}</textarea></section></div></div>`}
+function promptSkillSave(kind){const ps=ensurePromptSkillState(),list=promptSkillBlocks(kind),title=($('#psTitle')?.value||'').trim(),text=($('#psText')?.value||'').trim();if(!title||!text){alert('Preencha nome da janela e texto.');return}const now=new Date().toISOString(),category=kind==='skills'?'Skill':'Prompt';if(promptSkillEditId){const b=list.find(x=>x.id===promptSkillEditId);if(b)Object.assign(b,{title,category,text,updatedAt:now})}else list.unshift({id:'ps_'+Date.now()+'_'+Math.floor(Math.random()*9999),title,category,text,createdAt:now,updatedAt:now});ps.updatedAt=now;promptSkillEditId='';save();render()}
 function promptSkillCopyText(text){navigator.clipboard?.writeText(text).catch(()=>{})}
 function promptSkillBlockById(id){return promptSkillBlocks('prompts').concat(promptSkillBlocks('skills')).find(b=>b.id===id)}
 const renderHomeWithPromptSkill=renderHome;renderHome=function(){if(homeTab==='promptSkill'){renderPromptSkillHome();return}renderHomeWithPromptSkill()}
