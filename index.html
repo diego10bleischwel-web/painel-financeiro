@@ -362,14 +362,18 @@ button,a{font:inherit}
   background:rgba(17,24,36,.82);
   box-shadow:0 18px 60px rgba(0,0,0,.26);
   min-height:0;
+  min-width:0;
   overflow:auto;
 }
-.briefing-list{padding:18px;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:16px;align-content:start}
+.briefing-list{padding:18px;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:16px;align-content:start;overflow:hidden}
 .briefing-list h3,.briefing-detail h3{margin:0;color:#fff}
 #briefingList{
   min-height:0;
   overflow:auto;
-  padding:0 2px 14px 0;
+  padding:2px 4px 18px 0;
+  display:grid;
+  gap:12px;
+  align-content:start;
 }
 .forms-tabs{
   grid-column:1/-1;
@@ -398,6 +402,20 @@ button,a{font:inherit}
   border-color:rgba(130,188,255,.78);
   background:linear-gradient(135deg,var(--blue),var(--cyan),var(--purple));
   box-shadow:0 0 24px rgba(53,216,255,.20);
+}
+.forms-tab.locked{
+  color:#8d9ab1;
+  border-color:rgba(255,255,255,.10);
+  background:rgba(255,255,255,.035);
+  cursor:not-allowed;
+  box-shadow:none;
+}
+.forms-tab small{
+  display:block;
+  margin-top:5px;
+  font-size:10px;
+  line-height:1.1;
+  opacity:.82;
 }
 .forms-request-panel{
   grid-column:1/-1;
@@ -518,22 +536,6 @@ button,a{font:inherit}
   border-radius:999px;
   background:linear-gradient(135deg,#ff6b6b,#8b5cf6,#70d6a2);
 }
-.forms-stage-dots{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:6px;
-  margin-top:11px;
-}
-.forms-stage-dot{
-  border-radius:999px;
-  padding:4px 3px;
-  text-align:center;
-  font-size:8px;
-  font-weight:1000;
-  color:#dbe9ff;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.045);
-}
 .status-pill{
   display:inline-flex;
   align-items:center;
@@ -544,20 +546,25 @@ button,a{font:inherit}
   font-weight:1000;
   text-transform:uppercase;
 }
-.status-pill.done,.forms-stage-dot.done{
+.status-pill.done{
   background:rgba(112,214,162,.18);
   color:#9ef7c8;
   border:1px solid rgba(112,214,162,.45);
 }
-.status-pill.progress,.forms-stage-dot.progress{
+.status-pill.progress{
   background:rgba(139,92,246,.20);
   color:#d8c4ff;
   border:1px solid rgba(139,92,246,.45);
 }
-.status-pill.empty,.forms-stage-dot.empty{
+.status-pill.empty{
   background:rgba(255,107,107,.16);
   color:#ffb3b3;
   border:1px solid rgba(255,107,107,.42);
+}
+.status-pill.locked{
+  background:rgba(148,163,184,.14);
+  color:#a8b3c7;
+  border:1px solid rgba(148,163,184,.28);
 }
 .forms-client-head{
   display:flex;
@@ -570,22 +577,6 @@ button,a{font:inherit}
   font-size:24px;
   margin:0 0 6px;
 }
-.forms-stage-summary{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;
-}
-.forms-stage-summary button{
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:18px;
-  padding:13px;
-  background:rgba(255,255,255,.045);
-  color:#eaf2ff;
-  text-align:left;
-  cursor:pointer;
-}
-.forms-stage-summary button.active{box-shadow:0 0 0 1px rgba(130,188,255,.45) inset}
-.forms-stage-summary b{display:block;font-size:12px;margin-bottom:6px}
 .forms-detail-card{
   border:1px solid rgba(130,188,255,.22);
   border-radius:22px;
@@ -651,30 +642,23 @@ button,a{font:inherit}
   font-weight:800;
   line-height:1.45;
 }
-.briefing-link-box{
-  border:1px solid rgba(130,188,255,.28);
-  border-radius:18px;
-  padding:14px;
-  background:linear-gradient(135deg,rgba(134,185,255,.15),rgba(169,140,255,.08));
+.forms-empty-state{
+  min-height:280px;
   display:grid;
-  gap:10px;
+  place-items:center;
+  text-align:center;
+  padding:28px;
+  border:1px dashed rgba(130,188,255,.22);
+  border-radius:22px;
+  color:#b8c9e4;
+  font-weight:900;
+  line-height:1.5;
 }
-.briefing-link-box label{
-  color:#8dccff;
-  font-size:12px;
-  font-weight:1000;
-  text-transform:uppercase;
-  letter-spacing:.4px;
-}
-.briefing-link-box input{
-  width:100%;
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:12px;
-  background:rgba(5,8,13,.62);
-  color:var(--text);
-  padding:11px 12px;
-  font-weight:850;
-  outline:0;
+.forms-empty-state b{
+  display:block;
+  color:#fff;
+  font-size:20px;
+  margin-bottom:8px;
 }
 .briefing-link-preview{
   border:1px solid rgba(255,255,255,.10);
@@ -700,6 +684,7 @@ button,a{font:inherit}
 .briefing-copy:active{transform:translateY(1px)}
 .briefing-card{
   width:100%;
+  min-width:0;
   border:1px solid rgba(255,255,255,.12);
   border-radius:18px;
   padding:16px;
@@ -712,6 +697,7 @@ button,a{font:inherit}
 }
 .briefing-card:hover,.briefing-card.active{border-color:rgba(130,188,255,.75);box-shadow:0 0 0 1px rgba(130,188,255,.22) inset}
 .briefing-card b{display:block;font-size:17px;margin:0}
+.briefing-card b,.briefing-meta{overflow-wrap:anywhere}
 .briefing-meta{color:#b8c9e4;font-size:12px;font-weight:800;line-height:1.45}
 .briefing-status{
   display:inline-flex;
@@ -1323,7 +1309,7 @@ iframe{
   .briefing-board{grid-template-columns:1fr}
   .forms-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .forms-request-layout{grid-template-columns:1fr}
-  .forms-stage-summary,.forms-field-grid{grid-template-columns:1fr}
+  .forms-field-grid{grid-template-columns:1fr}
   .report-board{grid-template-columns:1fr}
   .report-sidebar{position:static}
   .briefing-preview-grid{grid-template-columns:1fr 1fr}
@@ -1421,7 +1407,15 @@ iframe{
   }
   #openExternal{grid-column:1/3}
   .briefing-board{padding:10px}
-  .forms-tabs{grid-template-columns:1fr}
+  .forms-tabs{
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x proximity;
+  }
+  .forms-tab{
+    flex:0 0 168px;
+    scroll-snap-align:start;
+  }
   .forms-request-panel{padding:12px}
   .forms-request-text{min-height:360px}
   .report-board{padding:10px}
@@ -1538,12 +1532,6 @@ iframe{
     <div class="forms-tabs" id="formsTabs" role="tablist" aria-label="Formularios"></div>
     <aside class="briefing-list">
       <h3>Clientes <span class="badge-count" id="briefingBadge" hidden>0</span></h3>
-      <div class="briefing-link-box">
-        <label for="briefingClientName">Link para enviar ao cliente</label>
-        <input id="briefingClientName" placeholder="Digite o nome da empresa">
-        <div class="briefing-link-preview" id="briefingClientLink"></div>
-        <button class="briefing-copy" id="copyBriefingLink" type="button">Copiar link do formulario</button>
-      </div>
       <div class="forms-filter-box">
         <input id="formsSearch" placeholder="Pesquisar cliente ou empresa">
         <div class="forms-filter-pills" id="formsFilters"></div>
@@ -1612,6 +1600,7 @@ const formsTabs=[
   {id:'pixelTintim',label:'TINTIM / PIXEL'},
   {id:'publico',label:'PÚBLICO'}
 ];
+const FORMS_ACTIVE_CLIENT_KEY='dualize_forms_active_client';
 const formsFilters=[
   {id:'todos',label:'Todos'},
   {id:'concluido',label:'Concluidos'},
@@ -1728,25 +1717,25 @@ async function copyReportLink(id){
     prompt('Copie o link do relatório:',active.url);
   }
 }
-function updateBriefingLink(){
-  const input=$('#briefingClientName'),preview=$('#briefingClientLink');
-  if(!preview)return;
-  preview.textContent=briefingFormUrl(input?.value||'');
+function selectedBriefing(){
+  return briefings.find(x=>String(x.id)===String(selectedBriefingId))||null;
 }
-async function copyBriefingLink(){
-  const link=briefingFormUrl($('#briefingClientName')?.value||'');
-  try{
-    await navigator.clipboard.writeText(link);
-    $('#copyBriefingLink').textContent='Link copiado';
-    setTimeout(()=>$('#copyBriefingLink').textContent='Copiar link do formulario',1400);
-  }catch(err){
-    prompt('Copie o link do briefing:',link);
-  }
+function isFormsStageLocked(b,stage){
+  return stage!=='clienteNovo'&&calcularStatusEtapa(b,'clienteNovo')!=='concluido';
 }
 function renderFormsTabs(){
   const tabs=$('#formsTabs');
   if(!tabs)return;
-  tabs.innerHTML=formsTabs.map(tab=>`<button class="forms-tab ${tab.id===activeFormsTab?'active':''}" type="button" data-forms-tab="${esc(tab.id)}">${esc(tab.label)}</button>`).join('');
+  const b=selectedBriefing();
+  tabs.innerHTML=formsTabs.map(tab=>{
+    const locked=b&&isFormsStageLocked(b,tab.id);
+    const status=b?(locked?'bloqueado':calcularStatusEtapa(b,tab.id)):'nao-iniciado';
+    const icon=locked?'LOCK':status==='concluido'?'OK':status==='andamento'?'...':'!';
+    return `<button class="forms-tab ${tab.id===activeFormsTab?'active':''} ${locked?'locked':''}" type="button" data-forms-tab="${esc(tab.id)}" title="${locked?'Conclua CLIENTE NOVO para liberar esta etapa.':statusText(status)}">
+      ${esc(icon)} ${esc(tab.label)}
+      <small>${esc(locked?'Bloqueado':statusText(status))}</small>
+    </button>`;
+  }).join('');
   renderFormsFilters();
   renderBriefingList();
   renderBriefingDetail(selectedBriefingId);
@@ -1768,7 +1757,6 @@ function openModule(id){
     $('#briefingBoard').hidden=false;
     $('#reportBoard').hidden=true;
     $('#reloadFrame').hidden=true;
-    updateBriefingLink();
     renderFormsTabs();
     renderBriefingList();
     renderBriefingDetail(selectedBriefingId);
@@ -1818,7 +1806,7 @@ function setupEvents(){
     const reportCopy=e.target.closest('[data-report-copy]');
     if(reportCopy) copyReportLink(reportCopy.dataset.reportCopy);
     const briefing=e.target.closest('[data-briefing-id]');
-    if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId)}
+    if(briefing){selectedBriefingId=briefing.dataset.briefingId;try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){};renderFormsTabs()}
     const status=e.target.closest('[data-briefing-status]');
     if(status) updateBriefingStatus(status.dataset.briefingStatus);
     const deleteBriefing=e.target.closest('[data-briefing-delete]');
@@ -1836,14 +1824,12 @@ function setupEvents(){
     const openBriefing=e.target.closest('[data-briefing-open]');
     if(openBriefing) openBriefingModal(openBriefing.dataset.briefingOpen||selectedBriefingId);
     if(e.target.closest('#briefingModalClose')||e.target.id==='briefingModal')closeBriefingModal();
-    if(e.target.closest('#copyBriefingLink')) copyBriefingLink();
   });
   document.body.addEventListener('dblclick',e=>{
     const briefing=e.target.closest('[data-briefing-id]');
-    if(briefing){selectedBriefingId=briefing.dataset.briefingId;renderBriefingList();renderBriefingDetail(selectedBriefingId);openBriefingModal(selectedBriefingId)}
+    if(briefing){selectedBriefingId=briefing.dataset.briefingId;try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){};renderFormsTabs();openBriefingModal(selectedBriefingId)}
   });
   document.body.addEventListener('input',e=>{
-    if(e.target.id==='briefingClientName')updateBriefingLink();
     if(e.target.id==='formsSearch'){formsSearchTerm=e.target.value;renderBriefingList()}
   });
   document.body.addEventListener('change',e=>{
@@ -2071,9 +2057,13 @@ function calcularStatusEtapa(b,stage){
     return (linkCriado||clienteRespondeu||configuradoEquipe)?'andamento':'nao-iniciado';
   }
   if(stage==='clienteNovo'){
+    const d=b?.dados||{},id=d.identificacao||{};
     const vals=Object.values(f.clienteNovo.dados||{});
-    const started=vals.some(filledValue)||filledValue(f.clienteNovo.link);
-    const done=['nome','empresa','email','whatsapp'].every(key=>filledValue(f.clienteNovo.dados?.[key]));
+    const oldComplete=[id.empresa,id.produto,id.tipo].every(filledValue);
+    const newComplete=['nome','empresa'].every(key=>filledValue(f.clienteNovo.dados?.[key]))
+      &&(filledValue(f.clienteNovo.dados?.email)||filledValue(f.clienteNovo.dados?.whatsapp)||oldComplete);
+    const started=vals.some(filledValue)||filledValue(f.clienteNovo.link)||filledValue(id);
+    const done=newComplete||oldComplete;
     if(done)return 'concluido';
     return started?'andamento':'nao-iniciado';
   }
@@ -2085,17 +2075,21 @@ function calcularStatusEtapa(b,stage){
 }
 function calcularProgressoCliente(b){
   const stages=formsTabs.map(tab=>tab.id);
-  const statuses=Object.fromEntries(stages.map(stage=>[stage,calcularStatusEtapa(b,stage)]));
+  const clienteNovoStatus=calcularStatusEtapa(b,'clienteNovo');
+  const statuses=Object.fromEntries(stages.map(stage=>[
+    stage,
+    stage!=='clienteNovo'&&clienteNovoStatus!=='concluido'?'bloqueado':calcularStatusEtapa(b,stage)
+  ]));
   const done=Object.values(statuses).filter(status=>status==='concluido').length;
-  const started=Object.values(statuses).some(status=>status!=='nao-iniciado');
+  const started=Object.values(statuses).some(status=>status!=='nao-iniciado'&&status!=='bloqueado');
   const geral=done===stages.length?'concluido':started?'andamento':'nao-iniciado';
   return {statuses,done,total:stages.length,geral};
 }
 function statusText(status){
-  return status==='concluido'?'Concluido':status==='andamento'?'Em andamento':'Nao iniciado';
+  return status==='bloqueado'?'Bloqueado':status==='concluido'?'Concluido':status==='andamento'?'Em andamento':'Nao iniciado';
 }
 function statusTone(status){
-  return status==='concluido'?'done':status==='andamento'?'progress':'empty';
+  return status==='bloqueado'?'locked':status==='concluido'?'done':status==='andamento'?'progress':'empty';
 }
 function clienteNovoFormUrl(b){
   const s=briefingSummary(b);
@@ -2131,10 +2125,15 @@ function refreshBriefings(){
   const map=new Map();
   [...briefingsFallback,...briefingsCollection].filter(b=>!b.deletedAt&&!b.deleted).forEach(b=>map.set(String(b.id),b));
   briefings=[...map.values()].sort((a,b)=>String(b.timestamp||'').localeCompare(String(a.timestamp||'')));
+  if(!selectedBriefingId){
+    try{selectedBriefingId=localStorage.getItem(FORMS_ACTIVE_CLIENT_KEY)||''}catch(err){}
+  }
   if(selectedBriefingId&&!briefings.some(b=>String(b.id)===String(selectedBriefingId)))selectedBriefingId='';
   if(!selectedBriefingId&&briefings[0])selectedBriefingId=briefings[0].id;
-  renderBriefingList();
-  renderBriefingDetail(selectedBriefingId);
+  if(selectedBriefingId){
+    try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){}
+  }
+  renderFormsTabs();
 }
 function setFallbackBriefings(list){
   briefingsFallback=normalizeFallbackBriefings(list);
@@ -2159,43 +2158,50 @@ function renderBriefingList(){
   list.className='';
   list.innerHTML=visible.map(b=>{
     const s=briefingSummary(b),p=calcularProgressoCliente(b),pct=Math.round((p.done/p.total)*100);
+    const empresa=b.empresa_nome&&normalizeBriefingOption(b.empresa_nome)!==normalizeBriefingOption(s.empresa)?`<div class="briefing-meta">${esc(b.empresa_nome)}</div>`:'';
     return `<button class="briefing-card ${b.id===selectedBriefingId?'active':''}" data-briefing-id="${esc(b.id)}" type="button">
       <span class="status-pill ${statusTone(p.geral)}">${statusText(p.geral)}</span>
       <b>${esc(s.empresa)}</b>
+      ${empresa}
       <div class="briefing-meta">${p.done} de ${p.total} etapas concluidas</div>
+      <div class="briefing-meta">Atualizado em ${esc(briefingDate(b.updatedAt||b.timestamp))}</div>
       <div class="forms-progress"><span style="width:${pct}%"></span></div>
-      <div class="forms-stage-dots">
-        ${formsTabs.map(tab=>`<span class="forms-stage-dot ${statusTone(p.statuses[tab.id])}" title="${esc(tab.label)}: ${statusText(p.statuses[tab.id])}">${esc(tab.label.split(' ')[0])}</span>`).join('')}
-      </div>
     </button>`;
   }).join('');
 }
 function renderBriefingDetail(id){
   const el=$('#briefingDetail');if(!el)return;
-  const b=briefings.find(x=>x.id===id)||briefings[0];
-  if(!b){el.innerHTML='<div class="briefing-empty">Selecione um cliente para ver o onboarding.</div>';return}
+  const b=briefings.find(x=>String(x.id)===String(id))||briefings[0];
+  if(!b){el.innerHTML='<div class="forms-empty-state"><div><b>Selecione um cliente</b>Escolha um cliente na lista para visualizar as configuracoes.</div></div>';return}
   selectedBriefingId=b.id;
+  try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){}
   const s=briefingSummary(b),p=calcularProgressoCliente(b),pct=Math.round((p.done/p.total)*100);
   el.innerHTML=`<div class="briefing-preview-card">
     <div class="briefing-preview-head">
       <div>
         <span class="status-pill ${statusTone(p.geral)}">${statusText(p.geral)}</span>
         <h3>${esc(s.empresa)}</h3>
-        <div class="briefing-meta">${p.done} de ${p.total} etapas concluidas | Ultima atualizacao: ${esc(briefingDate(b.updatedAt||b.timestamp))} | ID ${esc(b.cliente_id||b.id)}</div>
+        <div class="briefing-meta">${p.done} de ${p.total} etapas concluidas | Ultima atualizacao: ${esc(briefingDate(b.updatedAt||b.timestamp))}</div>
       </div>
-      <button class="briefing-open" data-briefing-open="${esc(b.id)}" type="button">Abrir dados Traffic AI</button>
     </div>
     <div class="forms-progress"><span style="width:${pct}%"></span></div>
-    <div class="forms-stage-summary">
-      ${formsTabs.map(tab=>`<button class="${activeFormsTab===tab.id?'active':''}" type="button" data-forms-tab="${esc(tab.id)}">
-        <b>${esc(tab.label)}</b><span class="status-pill ${statusTone(p.statuses[tab.id])}">${statusText(p.statuses[tab.id])}</span>
-      </button>`).join('')}
-    </div>
     ${renderFormsStageDetail(b,activeFormsTab)}
   </div>`;
 }
+function renderLockedStage(stage){
+  const tab=formsTabs.find(item=>item.id===stage);
+  return `<section class="forms-detail-card">
+    <div class="forms-empty-state">
+      <div>
+        <b>LOCK ${esc(tab?.label||'Etapa bloqueada')}</b>
+        Conclua CLIENTE NOVO para liberar esta etapa.
+      </div>
+    </div>
+  </section>`;
+}
 function renderFormsStageDetail(b,stage){
   const f=ensureFormularioState(b),status=calcularStatusEtapa(b,stage);
+  if(isFormsStageLocked(b,stage))return renderLockedStage(stage);
   if(stage==='clienteNovo'){
     const link=f.clienteNovo.link||clienteNovoFormUrl(b);
     return `<section class="forms-detail-card">
@@ -2204,7 +2210,6 @@ function renderFormsStageDetail(b,stage){
           <h3>Cliente Novo</h3>
           <p class="forms-muted">Estrutura inicial para onboarding. Campos definitivos serao adicionados depois sem alterar os dados atuais.</p>
         </div>
-        <span class="status-pill ${statusTone(status)}">${statusText(status)}</span>
       </div>
       <div class="forms-field-grid">
         ${[['nome','Nome do cliente'],['empresa','Empresa'],['email','E-mail'],['whatsapp','WhatsApp']].map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(f.clienteNovo.dados?.[key]||'')}"></div>`).join('')}
@@ -2217,11 +2222,10 @@ function renderFormsStageDetail(b,stage){
         <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(link)}">Copiar link</button>
         <button class="forms-small-action primary" type="button" data-save-form-stage="clienteNovo">Salvar Cliente Novo</button>
       </div>
-      <p class="forms-muted">Situacao: ${statusText(status)}. Atualizado em ${esc(briefingDate(f.clienteNovo.atualizadoEm||b.updatedAt||b.timestamp))}.</p>
+      <p class="forms-muted">Situacao do formulario: ${statusText(status)}. Enviado em ${esc(f.clienteNovo.enviadoEm?briefingDate(f.clienteNovo.enviadoEm):'Ainda nao registrado')}. Atualizado em ${esc(briefingDate(f.clienteNovo.atualizadoEm||b.updatedAt||b.timestamp))}.</p>
     </section>`;
   }
   if(stage==='trafficAi'){
-    const trafficStatus=statusText(status);
     const linkCriado=filledValue(f.trafficAi.link);
     const clienteRespondeu=['identificacao','avatar','produto','financeiro'].some(key=>filledValue(b?.dados?.[key]));
     return `<section class="forms-detail-card">
@@ -2230,7 +2234,6 @@ function renderFormsStageDetail(b,stage){
           <h3>TRAFFIC AI</h3>
           <p class="forms-muted">A etapa so conclui quando o link existe, o cliente respondeu e a equipe marcou a configuracao como pronta.</p>
         </div>
-        <span class="status-pill ${statusTone(status)}">${trafficStatus}</span>
       </div>
       <div class="briefing-preview-grid">
         <div class="briefing-mini"><span>Link criado</span><b>${linkCriado?'Sim':'Nao'}</b></div>
@@ -2271,7 +2274,6 @@ function renderChecklistStage(b,stage,items,status){
         <h3>${esc(titles[stage]||stage)}</h3>
         <p class="forms-muted">${esc(hints[stage]||'Checklist manual por cliente.')}</p>
       </div>
-      <span class="status-pill ${statusTone(status)}">${statusText(status)}</span>
     </div>
     ${emptyHint?`<p class="forms-muted">${esc(emptyHint)}</p>`:''}
     <div class="forms-checklist">
@@ -2334,6 +2336,8 @@ function saveClienteNovoStage(){
 function updateTrafficConfigured(input){
   const id=input.dataset.trafficConfigured||selectedBriefingId;
   if(!id)return;
+  const selected=briefings.find(x=>String(x.id)===String(id));
+  if(selected&&isFormsStageLocked(selected,'trafficAi'))return;
   const patch=currentFormularioPatch(id,formulario=>{
     formulario.trafficAi.configuradoEquipe=input.checked;
     formulario.trafficAi.atualizadoEm=new Date().toISOString();
@@ -2344,6 +2348,8 @@ function updateTrafficConfigured(input){
 function updateChecklistItem(input){
   if(!selectedBriefingId)return;
   const stage=input.dataset.checkStage||input.dataset.checkNote;
+  const selected=briefings.find(x=>String(x.id)===String(selectedBriefingId));
+  if(selected&&isFormsStageLocked(selected,stage))return;
   const index=Number(input.dataset.checkIndex);
   const patch=currentFormularioPatch(selectedBriefingId,formulario=>{
     const items=stage==='pixelTintim'?(formulario.pixelTintim?.items||[]):(formulario[stage]?.itens||[]);
@@ -2434,8 +2440,7 @@ function applyLocalBriefingPatch(id,patch){
   briefingsCollection=briefingsCollection.map(update);
   briefingsFallback=briefingsFallback.map(update);
   briefings=briefings.map(update);
-  renderBriefingList();
-  renderBriefingDetail(selectedBriefingId);
+  renderFormsTabs();
   if(activeBriefingModalId)renderBriefingModal(activeBriefingModalId);
 }
 function collectBriefingEditPayload(id){
@@ -2486,8 +2491,7 @@ function applyLocalBriefingStatus(id,status){
   briefingsCollection=briefingsCollection.map(update);
   briefingsFallback=briefingsFallback.map(update);
   briefings=briefings.map(update);
-  renderBriefingList();
-  renderBriefingDetail(selectedBriefingId);
+  renderFormsTabs();
   if(activeBriefingModalId)renderBriefingModal(activeBriefingModalId);
 }
 function updateBriefingStatus(status){
