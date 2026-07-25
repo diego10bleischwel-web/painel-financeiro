@@ -6,6 +6,10 @@ service cloud.firestore {
       allow read, update, delete: if true;
     }
 
+    match /onboardings/{onboardingId} {
+      allow create, read, update, delete: if true;
+    }
+
     match /tarefas/{docId} {
       allow read, write: if docId == 'estado_principal';
     }

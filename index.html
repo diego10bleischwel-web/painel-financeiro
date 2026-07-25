@@ -1273,6 +1273,70 @@ button,a{font:inherit}
   background:linear-gradient(135deg,#82bcff,#70d6a2);
   box-shadow:0 0 24px rgba(112,214,162,.18),inset 0 1px 0 rgba(255,255,255,.38);
 }
+.onboarding-board .briefing-link-preview{min-height:58px}
+.onboarding-progress{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+.onboarding-pill{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid rgba(130,188,255,.14);
+  border-radius:14px;
+  padding:10px 12px;
+  background:rgba(8,15,26,.54);
+  color:#b9cae6;
+  font-size:12px;
+  font-weight:900;
+}
+.onboarding-pill strong{color:#fff}
+.onboarding-status{
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:1000;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+.onboarding-status.none{
+  color:#ffd1d1;
+  background:rgba(255,107,107,.16);
+  border:1px solid rgba(255,107,107,.38);
+}
+.onboarding-status.partial{
+  color:#e5d8ff;
+  background:rgba(139,92,246,.18);
+  border:1px solid rgba(139,92,246,.48);
+}
+.onboarding-status.complete{
+  color:#c9ffe2;
+  background:rgba(112,214,162,.16);
+  border:1px solid rgba(112,214,162,.46);
+}
+.onboarding-copy-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+}
+.onboarding-copy-row button{
+  border:1px solid rgba(130,188,255,.24);
+  border-radius:999px;
+  padding:8px 10px;
+  background:rgba(130,188,255,.08);
+  color:#c8e6ff;
+  font-weight:1000;
+  cursor:pointer;
+}
+.onboarding-copy-row button:hover{
+  border-color:rgba(112,214,162,.64);
+  color:#d8ffe9;
+}
 .badge-count{
   display:inline-grid;
   place-items:center;
@@ -1746,6 +1810,21 @@ iframe{
       <div class="briefing-empty">Selecione um cliente para ver o onboarding.</div>
     </main>
   </div>
+  <div class="briefing-board onboarding-board" id="onboardingBoard" hidden>
+    <aside class="briefing-list">
+      <h3>Onboarding Completo <span class="badge-count" id="onboardingBadge" hidden>0</span></h3>
+      <div class="briefing-link-box">
+        <label for="onboardingCompanyName">Link unico para onboarding</label>
+        <input id="onboardingCompanyName" placeholder="Digite o nome da empresa">
+        <div class="briefing-link-preview" id="onboardingClientLink">Digite a empresa para gerar o link.</div>
+        <button class="briefing-copy" id="copyOnboardingLink" type="button">Copiar link do onboarding</button>
+      </div>
+      <div id="onboardingList" class="briefing-empty">Aguardando Firestore...</div>
+    </aside>
+    <main class="briefing-detail" id="onboardingDetail">
+      <div class="briefing-empty">Selecione um onboarding para ver os detalhes.</div>
+    </main>
+  </div>
   <div class="report-board" id="reportBoard" hidden>
     <aside class="report-panel report-sidebar">
       <h3>Relatórios dos clientes</h3>
@@ -1779,6 +1858,22 @@ iframe{
   </div>
 </div>
 
+<div class="briefing-modal" id="onboardingModal" aria-hidden="true">
+  <div class="briefing-modal-box" role="dialog" aria-modal="true" aria-labelledby="onboardingModalTitle">
+    <div class="briefing-modal-head">
+      <div class="briefing-modal-title">
+        <h2 id="onboardingModalTitle">Onboarding Completo</h2>
+        <div class="briefing-meta" id="onboardingModalMeta"></div>
+        <div class="briefing-modal-actions" id="onboardingModalActions"></div>
+      </div>
+      <button class="briefing-close" id="onboardingModalClose" type="button" aria-label="Fechar">Ã—</button>
+    </div>
+    <div class="briefing-modal-body">
+      <div class="briefing-modal-sections" id="onboardingModalSections"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const firebaseConfig={
   apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",
@@ -1796,8 +1891,9 @@ const modules=[
 modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formularios',desc:'Central de formularios, briefings e solicitacoes de configuracao para clientes.',url:'briefing_cliente_v4.html',status:'Traffic AI e configs',metric:'Solicitacoes'});
 modules.splice(3,0,{id:'relatorios',icon:'reports',title:'Relatórios',desc:'Dashboards de Meta e Google Ads por cliente, prontos para consulta e envio.',url:'',status:'Clientes e mídia',metric:'Meta / Google Ads'});
 modules.splice(4,0,{id:'promptSkill',icon:'prompt',title:'Prompt/Skill - Campanhas',desc:'Biblioteca viva para montar prompts profissionais e skills de Meta Ads.',url:'controle-online/index.html?view=promptSkill',status:'Estratégia Meta Ads',metric:'Prompt geral'});
+modules.splice(5,0,{id:'clienteNovo',icon:'clientNew',title:'Cliente Novo',desc:'Onboarding completo com dados operacionais e Traffic AI em um unico link.',url:'briefing_cliente_completo.html',status:'Onboarding completo',metric:'Cliente novo'});
 const $=s=>document.querySelector(s);
-let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='clienteNovo',formsStatusFilter='todos',formsSearchTerm='';
+let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='clienteNovo',formsStatusFilter='todos',formsSearchTerm='',onboardings=[],selectedOnboardingId='',activeOnboardingModalId='';
 const formsTabs=[
   {id:'clienteNovo',label:'CLIENTE NOVO'},
   {id:'trafficAi',label:'TRAFFIC AI'},
@@ -1980,6 +2076,200 @@ function renderFormsLinkPanel(){
     <button type="button" data-copy-generated-form-link>Copiar link do formulario</button>`;
   box.dataset.generatedLink=link;
 }
+function slugifyOnboardingName(name){
+  const clean=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  return clean||`cliente-${Date.now()}`;
+}
+function onboardingFormUrl(nameOrId=''){
+  const company=String(nameOrId||'').trim();
+  const id=company?slugifyOnboardingName(company):`cliente-${Date.now()}`;
+  const params=new URLSearchParams(location.search);
+  const version=params.get('v')||params.get('t')||Date.now();
+  const base=new URL('briefing_cliente_completo.html',location.href);
+  base.searchParams.set('cliente',id);
+  if(company)base.searchParams.set('empresa',company);
+  base.searchParams.set('v',version);
+  return base.toString();
+}
+function updateOnboardingLink(){
+  const preview=$('#onboardingClientLink');
+  if(!preview)return;
+  const name=$('#onboardingCompanyName')?.value||'';
+  preview.textContent=name.trim()?onboardingFormUrl(name):'Digite a empresa para gerar o link.';
+}
+async function copyOnboardingLink(){
+  const name=$('#onboardingCompanyName')?.value||'';
+  const link=onboardingFormUrl(name);
+  try{
+    await navigator.clipboard.writeText(link);
+    $('#copyOnboardingLink').textContent='Link copiado';
+    setTimeout(()=>$('#copyOnboardingLink').textContent='Copiar link do onboarding',1400);
+  }catch(err){
+    prompt('Copie o link do onboarding:',link);
+  }
+}
+function onboardingDate(v){
+  if(!v)return 'Sem data';
+  const d=v.toDate?v.toDate():new Date(v);
+  return Number.isNaN(d.getTime())?'Sem data':d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function onboardingValue(v){
+  if(Array.isArray(v))return v.length?v.join('\n'):'--';
+  if(v&&typeof v==='object')return Object.entries(v).map(([k,val])=>`${k}: ${onboardingValue(val)}`).join('\n');
+  return v||'--';
+}
+function maskDocument(v){
+  const digits=String(v||'').replace(/\D/g,'');
+  if(digits.length===11)return `***.***.***-${digits.slice(-2)}`;
+  if(digits.length===14)return `**.***.***/****-${digits.slice(-2)}`;
+  return v?'Documento informado':'--';
+}
+function onboardingClienteNovo(o){
+  return o?.formulario?.clienteNovo||{
+    identificacao:o?.dados?.identificacao||{},
+    acessos:o?.dados?.acessos||{},
+    pagamento:o?.dados?.pagamento||{},
+    investimento:o?.dados?.investimento||{},
+    publico:o?.dados?.publico||{},
+    confirmacoes:o?.dados?.confirmacoes||{}
+  };
+}
+function onboardingStatusInfo(o){
+  const status=String(o?.status||'em_preenchimento');
+  const pending=Array.isArray(o?.pendingItems)?o.pendingItems.length:0;
+  if(status==='concluido')return {label:'Completo',className:'complete'};
+  if(pending>0)return {label:`Parcial (${pending})`,className:'partial'};
+  return {label:'Sem dados',className:'none'};
+}
+function onboardingTrafficStatus(o){
+  const related=briefings.find(b=>String(b.onboardingId||b.id)===String(o.id));
+  if(!related)return {label:'Traffic AI pendente',className:'none'};
+  if(statusClass(related.status)==='configurado')return {label:'Traffic AI configurado',className:'complete'};
+  return {label:'Traffic AI recebido',className:'partial'};
+}
+function onboardingSummary(o){
+  const c=onboardingClienteNovo(o),id=c.identificacao||{},inv=c.investimento||{},pay=c.pagamento||{};
+  return {
+    empresa:id.empresa_nome||o.empresa_nome||o.cliente||'Nao identificado',
+    responsavel:id.responsavel_nome||o.responsavel_nome||'--',
+    contato:id.whatsapp||id.email||'--',
+    investimento:inv.investimento_mensal||'--',
+    metodo:pay.metodo||'--'
+  };
+}
+function onboardingSections(o,masked=false){
+  const c=onboardingClienteNovo(o),id=c.identificacao||{},ac=c.acessos||{},pay=c.pagamento||{},inv=c.investimento||{},pub=c.publico||{},conf=c.confirmacoes||{};
+  return [
+    {title:'1. Identificacao',tone:'identificacao',rows:[
+      ['Empresa',id.empresa_nome],['Responsavel',id.responsavel_nome],['CPF',masked?maskDocument(id.cpf_responsavel):id.cpf_responsavel],['CNPJ',masked?maskDocument(id.cnpj):id.cnpj],['WhatsApp',id.whatsapp],['E-mail',id.email]
+    ]},
+    {title:'2. Estrutura digital e Meta',tone:'avatar',rows:[
+      ['Instagram',ac.instagram_user],['Link Instagram',ac.instagram_link],['Pagina Facebook',ac.facebook_page_link],['Business Manager',ac.business_manager],['Conta de anuncio',ac.ad_account],['Pagina vinculada',ac.facebook_page],['Pixel',ac.pixel]
+    ]},
+    {title:'3. Pagamento',tone:'financeiro',rows:[
+      ['Metodo',pay.metodo],['Titular do cartao',pay.cartao_titular],['Tipo do cartao',pay.cartao_tipo],['Final do cartao',pay.cartao_final],['Melhor horario',pay.cartao_horario],['PIX/Boleto valor',pay.pix_valor],['PIX/Boleto data',pay.pix_data]
+    ]},
+    {title:'4. Investimento',tone:'financeiro',rows:[
+      ['Investimento mensal',inv.investimento_mensal],['Inicial disponivel',inv.investimento_inicial],['Metodo escolhido',inv.metodo_escolhido]
+    ]},
+    {title:'5. Publico alvo',tone:'produto',rows:[
+      ['Genero',pub.genero],['Idade minima',pub.idade_minima],['Idade maxima',pub.idade_maxima],['Regiao',pub.regiao],['Resumo',pub.resumo_publico],['Quem compra',pub.quem_compra],['Problema principal',pub.problema_principal]
+    ]},
+    {title:'6. Confirmacoes',tone:'identificacao',rows:[
+      ['Codigos permitidos',conf.codigos?'Sim':'Nao'],['Autorizacao',conf.autorizacao?'Sim':'Nao'],['Dados corretos',conf.correto?'Sim':'Nao']
+    ]}
+  ];
+}
+function setOnboardings(list){
+  onboardings=(Array.isArray(list)?list:[]).sort((a,b)=>String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||'')));
+  if(selectedOnboardingId&&!onboardings.some(o=>String(o.id)===String(selectedOnboardingId)))selectedOnboardingId='';
+  if(!selectedOnboardingId&&onboardings[0])selectedOnboardingId=onboardings[0].id;
+  renderOnboardingList();
+  renderOnboardingDetail(selectedOnboardingId);
+}
+function renderOnboardingList(){
+  const list=$('#onboardingList'),badge=$('#onboardingBadge');
+  if(!list)return;
+  const open=onboardings.filter(o=>String(o.status||'')!=='concluido').length;
+  badge.hidden=!open;badge.textContent=open;
+  if(!onboardings.length){list.className='briefing-empty';list.innerHTML='Nenhum onboarding recebido ainda.';return}
+  list.className='';
+  list.innerHTML=onboardings.map(o=>{
+    const s=onboardingSummary(o),st=onboardingStatusInfo(o),traffic=onboardingTrafficStatus(o);
+    return `<button class="briefing-card ${String(o.id)===String(selectedOnboardingId)?'active':''}" data-onboarding-id="${esc(o.id)}" type="button">
+      <span class="onboarding-status ${st.className}">${esc(st.label)}</span>
+      <b>${esc(s.empresa)}</b>
+      <div class="briefing-meta">Responsavel: ${esc(s.responsavel)}<br>Contato: ${esc(s.contato)}<br>Recebido: ${esc(onboardingDate(o.updatedAt||o.createdAt))}</div>
+      <span class="onboarding-status ${traffic.className}">${esc(traffic.label)}</span>
+    </button>`;
+  }).join('');
+}
+function renderOnboardingRows(section){
+  return section.rows.map(([label,value])=>`<div class="briefing-modal-row"><span>${esc(label)}</span><b>${esc(onboardingValue(value))}</b></div>`).join('');
+}
+function renderOnboardingDetail(id){
+  const el=$('#onboardingDetail');if(!el)return;
+  const o=onboardings.find(item=>String(item.id)===String(id))||onboardings[0];
+  if(!o){el.innerHTML='<div class="briefing-empty">Selecione um onboarding para ver os detalhes.</div>';return}
+  selectedOnboardingId=o.id;
+  const s=onboardingSummary(o),st=onboardingStatusInfo(o),traffic=onboardingTrafficStatus(o);
+  const sections=onboardingSections(o,true);
+  el.innerHTML=`<div class="briefing-preview-card">
+    <div class="briefing-preview-head">
+      <div>
+        <span class="onboarding-status ${st.className}">${esc(st.label)}</span>
+        <h3>${esc(s.empresa)}</h3>
+        <div class="briefing-meta">Atualizado em ${esc(onboardingDate(o.updatedAt||o.createdAt))} | ID ${esc(o.id)}</div>
+      </div>
+      <button class="briefing-open" type="button" data-onboarding-open="${esc(o.id)}">Abrir onboarding</button>
+    </div>
+    <div class="briefing-preview-grid">
+      <div><span>Responsavel</span><b>${esc(s.responsavel)}</b></div>
+      <div><span>Contato</span><b>${esc(s.contato)}</b></div>
+      <div><span>Investimento</span><b>${esc(s.investimento)}</b></div>
+      <div><span>Pagamento</span><b>${esc(s.metodo)}</b></div>
+    </div>
+    <div class="onboarding-progress">
+      <div class="onboarding-pill"><span>Status operacional</span><strong>${esc(st.label)}</strong></div>
+      <div class="onboarding-pill"><span>Traffic AI</span><strong>${esc(traffic.label)}</strong></div>
+    </div>
+    <div class="briefing-actions">
+      <button class="status-novo ${st.className==='none'?'active':''}" type="button" disabled>Nenhum</button>
+      <button class="status-analise ${st.className==='partial'?'active':''}" type="button" disabled>Parcial</button>
+      <button class="status-configurado ${st.className==='complete'?'active':''}" type="button" disabled>Completo</button>
+      <button class="danger" type="button" data-onboarding-delete="${esc(o.id)}">Excluir</button>
+    </div>
+    <p class="briefing-hint">CPF e CNPJ ficam mascarados nesta visao. Abra o onboarding para consultar todos os dados completos.</p>
+    <div class="briefing-modal-sections">${sections.slice(0,3).map(section=>`<section class="briefing-modal-section ${esc(section.tone)}"><h4>${esc(section.title)}</h4>${renderOnboardingRows(section)}</section>`).join('')}</div>
+  </div>`;
+}
+function renderOnboardingModal(id){
+  const o=onboardings.find(item=>String(item.id)===String(id));
+  if(!o)return;
+  const s=onboardingSummary(o),st=onboardingStatusInfo(o),traffic=onboardingTrafficStatus(o);
+  $('#onboardingModalTitle').textContent=s.empresa;
+  $('#onboardingModalMeta').textContent=`Atualizado em ${onboardingDate(o.updatedAt||o.createdAt)} | ID ${o.id}`;
+  $('#onboardingModalActions').innerHTML=`<span class="onboarding-status ${st.className}">${esc(st.label)}</span><span class="onboarding-status ${traffic.className}">${esc(traffic.label)}</span><button class="danger" type="button" data-onboarding-delete="${esc(o.id)}">Excluir</button>`;
+  $('#onboardingModalSections').innerHTML=onboardingSections(o,false).map(section=>`<section class="briefing-modal-section ${esc(section.tone)}"><h4>${esc(section.title)}</h4>${renderOnboardingRows(section)}</section>`).join('');
+}
+function openOnboardingModal(id){
+  activeOnboardingModalId=id;
+  renderOnboardingModal(id);
+  $('#onboardingModal').classList.add('active');
+  $('#onboardingModal').setAttribute('aria-hidden','false');
+}
+function closeOnboardingModal(){
+  activeOnboardingModalId='';
+  $('#onboardingModal')?.classList.remove('active');
+  $('#onboardingModal')?.setAttribute('aria-hidden','true');
+}
+function deleteOnboardingById(id){
+  if(!db||!id)return;
+  const o=onboardings.find(item=>String(item.id)===String(id));
+  const s=onboardingSummary(o);
+  if(!confirm(`Excluir o onboarding de ${s.empresa}?\n\nEssa acao nao pode ser desfeita.`))return;
+  db.collection('onboardings').doc(id).delete().catch(err=>alert('Nao foi possivel excluir o onboarding: '+err.message));
+}
 function openModule(id){
   const mod=modules.find(m=>m.id===id)||modules[0];
   $('#workspaceTitle').textContent=mod.title;
@@ -1991,7 +2281,9 @@ function openModule(id){
     $('#moduleFrame').src='about:blank';
     $('#briefingBoard').hidden=false;
     $('#reportBoard').hidden=true;
+    $('#onboardingBoard').hidden=true;
     $('#reloadFrame').hidden=true;
+    closeOnboardingModal();
     renderFormsTabs();
     renderBriefingList();
     renderBriefingDetail(selectedBriefingId);
@@ -2003,14 +2295,34 @@ function openModule(id){
     $('#moduleFrame').src='about:blank';
     $('#briefingBoard').hidden=true;
     $('#reportBoard').hidden=false;
+    $('#onboardingBoard').hidden=true;
     $('#reloadFrame').hidden=true;
     activeReportId='';
+    closeBriefingModal();
+    closeOnboardingModal();
     renderReports();
+    return;
+  }
+  if(id==='clienteNovo'){
+    $('#frameWrap').hidden=true;
+    $('#frameWrap').classList.remove('loading');
+    $('#moduleFrame').src='about:blank';
+    $('#briefingBoard').hidden=true;
+    $('#reportBoard').hidden=true;
+    $('#onboardingBoard').hidden=false;
+    $('#reloadFrame').hidden=true;
+    $('#openExternal').href=onboardingFormUrl($('#onboardingCompanyName')?.value||'');
+    closeBriefingModal();
+    updateOnboardingLink();
+    renderOnboardingList();
+    renderOnboardingDetail(selectedOnboardingId);
     return;
   }
   $('#briefingBoard').hidden=true;
   $('#reportBoard').hidden=true;
+  $('#onboardingBoard').hidden=true;
   closeBriefingModal();
+  closeOnboardingModal();
   $('#frameWrap').hidden=false;
   $('#reloadFrame').hidden=false;
   $('#frameWrap').classList.add('loading');
@@ -2080,16 +2392,32 @@ function setupEvents(){
     const deletePublico=e.target.closest('[data-delete-custom-publico]');
     if(deletePublico) excluirPublicoPersonalizado(deletePublico.dataset.deleteCustomPublico,Number(deletePublico.dataset.checkIndex));
     if(e.target.closest('#briefingModalClose')||e.target.id==='briefingModal')closeBriefingModal();
+    const onboarding=e.target.closest('[data-onboarding-id]');
+    if(onboarding){selectedOnboardingId=onboarding.dataset.onboardingId;renderOnboardingList();renderOnboardingDetail(selectedOnboardingId)}
+    const openOnboarding=e.target.closest('[data-onboarding-open]');
+    if(openOnboarding) openOnboardingModal(openOnboarding.dataset.onboardingOpen||selectedOnboardingId);
+    const deleteOnboarding=e.target.closest('[data-onboarding-delete]');
+    if(deleteOnboarding) deleteOnboardingById(deleteOnboarding.dataset.onboardingDelete||selectedOnboardingId);
+    if(e.target.closest('#onboardingModalClose')||e.target.id==='onboardingModal')closeOnboardingModal();
+    if(e.target.closest('#copyOnboardingLink')) copyOnboardingLink();
   });
   document.body.addEventListener('dblclick',e=>{
     const briefing=e.target.closest('[data-briefing-id]');
     if(briefing){selectedBriefingId=briefing.dataset.briefingId;try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){};renderFormsTabs();openBriefingModal(selectedBriefingId)}
+    const onboarding=e.target.closest('[data-onboarding-id]');
+    if(onboarding){selectedOnboardingId=onboarding.dataset.onboardingId;renderOnboardingList();renderOnboardingDetail(selectedOnboardingId);openOnboardingModal(selectedOnboardingId)}
   });
   document.body.addEventListener('input',e=>{
     if(e.target.id==='formsSearch'){formsSearchTerm=e.target.value;renderBriefingList()}
     if(e.target.id==='formsLinkName'){
       const box=$('#formsLinkPanel');
       if(box)box.dataset.generatedLink=briefingFormUrl(e.target.value.trim());
+    }
+    if(e.target.id==='onboardingCompanyName'){
+      updateOnboardingLink();
+      if($('#workspace').classList.contains('active')&&$('#workspaceTitle')?.textContent==='Cliente Novo'){
+        $('#openExternal').href=onboardingFormUrl(e.target.value||'');
+      }
     }
   });
   document.body.addEventListener('change',e=>{
@@ -2100,7 +2428,7 @@ function setupEvents(){
   document.body.addEventListener('blur',e=>{
     if(e.target.matches('[data-check-note]'))updateChecklistItem(e.target);
   },true);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBriefingModal()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeBriefingModal();closeOnboardingModal()}});
   $('#closeWorkspace').onclick=()=>$('#workspace').classList.remove('active');
   $('#reloadFrame').onclick=()=>{
     const frame=$('#moduleFrame');
@@ -3076,6 +3404,12 @@ function setupFirebaseSummary(){
       console.warn(err);
       $('#briefingSync').textContent='Fallback ativo';
       $('#activityBriefings').textContent='Usando sync principal';
+    });
+    db.collection('onboardings').onSnapshot(snapshot=>{
+      setOnboardings(snapshot.docs.map(doc=>({id:doc.id,...doc.data()})));
+    },err=>{
+      console.warn(err);
+      setOnboardings([]);
     });
   }catch(err){
     console.warn(err);
