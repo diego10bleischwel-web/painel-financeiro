@@ -1970,14 +1970,29 @@ function versionedUrl(url,extra={}){
   const extraParams=new URLSearchParams({...extra,v:version});
   return url+sep+extraParams.toString();
 }
-function briefingFormUrl(name=''){
+function currentVersionParam(){
   const params=new URLSearchParams(location.search);
-  const version=params.get('v')||params.get('t')||Date.now();
+  return params.get('v')||params.get('t')||Date.now();
+}
+function stableClienteIdFromName(name=''){
+  const base=String(name||'cliente')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-|-$/g,'')||'cliente';
+  return `cliente-${base}`;
+}
+function briefingModeUrl(mode='trafficAi',name='',id=''){
   const base=new URL('briefing_cliente_v4.html',location.href);
-  if(name.trim())base.searchParams.set('cliente',name.trim());
-  base.searchParams.set('v',version);
+  const cleanName=String(name||'').trim();
+  const cleanId=String(id||'').trim()||stableClienteIdFromName(cleanName);
+  base.searchParams.set('modo',mode);
+  base.searchParams.set('clienteId',cleanId);
+  if(cleanName)base.searchParams.set('cliente',cleanName);
+  base.searchParams.set('v',currentVersionParam());
   return base.toString();
 }
+function briefingFormUrl(name='',id=''){return briefingModeUrl('trafficAi',name,id);}
 function reportId(item){return `${activeReportKind}-${item.client}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function getReportItems(){return reportGroups[activeReportKind]||[]}
 function getActiveReport(){
@@ -2797,12 +2812,10 @@ function statusTone(status){
 }
 function clienteNovoFormUrl(b){
   const s=briefingSummary(b);
-  const base=new URL('briefing_cliente_v4.html',location.href);
-  const version=new URLSearchParams(location.search).get('v')||Date.now();
+  const id=b?.cliente_id||b?.id||'';
+  const base=new URL(briefingModeUrl('clienteNovo',s.empresa,id));
   base.searchParams.set('form','clienteNovo');
-  base.searchParams.set('cliente',s.empresa);
-  base.searchParams.set('id',b?.cliente_id||b?.id||'');
-  base.searchParams.set('v',version);
+  if(id)base.searchParams.set('id',id);
   return base.toString();
 }
 function filterBriefingsForForms(){
@@ -2897,7 +2910,10 @@ function renderFormsStageDetail(b,stage){
   const f=ensureFormularioState(b),status=calcularStatusEtapa(b,stage);
   if(isFormsStageLocked(b,stage))return renderLockedStage(stage);
   if(stage==='clienteNovo'){
-    const link=f.clienteNovo.link||clienteNovoFormUrl(b);
+    const s=briefingSummary(b);
+    const clienteId=b?.cliente_id||b?.id||'';
+    const trafficLink=briefingFormUrl(s.empresa,clienteId);
+    const link=clienteNovoFormUrl(b);
     return `<section class="forms-detail-card">
       <div class="forms-client-head">
         <div>
@@ -2908,12 +2924,19 @@ function renderFormsStageDetail(b,stage){
       <div class="forms-field-grid">
         ${[['nome','Nome do cliente'],['empresa','Empresa'],['email','E-mail'],['whatsapp','WhatsApp']].map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(f.clienteNovo.dados?.[key]||'')}"></div>`).join('')}
       </div>
-      <div class="forms-field">
-        <label>Link individual do cliente</label>
-        <input readonly value="${esc(link)}">
+      <div class="forms-field-grid">
+        <div class="forms-field">
+          <label>LINK TRAFFIC AI</label>
+          <input readonly value="${esc(trafficLink)}">
+        </div>
+        <div class="forms-field">
+          <label>LINK CLIENTE NOVO</label>
+          <input readonly value="${esc(link)}">
+        </div>
       </div>
       <div class="forms-copy-row">
-        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(link)}">Copiar link</button>
+        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(trafficLink)}">Copiar link Traffic AI</button>
+        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(link)}">COPIAR LINK CLIENTE NOVO</button>
         <button class="forms-small-action primary" type="button" data-save-form-stage="clienteNovo">Salvar Cliente Novo</button>
       </div>
       <p class="forms-muted">Situacao do formulario: ${statusText(status)}. Enviado em ${esc(f.clienteNovo.enviadoEm?briefingDate(f.clienteNovo.enviadoEm):'Ainda nao registrado')}. Atualizado em ${esc(briefingDate(f.clienteNovo.atualizadoEm||b.updatedAt||b.timestamp))}.</p>
