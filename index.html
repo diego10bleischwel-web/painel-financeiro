@@ -1891,7 +1891,6 @@ const modules=[
 modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formularios',desc:'Central de formularios, briefings e solicitacoes de configuracao para clientes.',url:'briefing_cliente_v4.html',status:'Traffic AI e configs',metric:'Solicitacoes'});
 modules.splice(3,0,{id:'relatorios',icon:'reports',title:'Relatórios',desc:'Dashboards de Meta e Google Ads por cliente, prontos para consulta e envio.',url:'',status:'Clientes e mídia',metric:'Meta / Google Ads'});
 modules.splice(4,0,{id:'promptSkill',icon:'prompt',title:'Prompt/Skill - Campanhas',desc:'Biblioteca viva para montar prompts profissionais e skills de Meta Ads.',url:'controle-online/index.html?view=promptSkill',status:'Estratégia Meta Ads',metric:'Prompt geral'});
-modules.splice(5,0,{id:'clienteNovo',icon:'clientNew',title:'Cliente Novo',desc:'Onboarding completo com dados operacionais e Traffic AI em um unico link.',url:'briefing_cliente_completo.html',status:'Onboarding completo',metric:'Cliente novo'});
 const $=s=>document.querySelector(s);
 let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='clienteNovo',formsStatusFilter='todos',formsSearchTerm='',onboardings=[],selectedOnboardingId='',activeOnboardingModalId='';
 const formsTabs=[
