@@ -1826,6 +1826,293 @@ iframe{
   border:0;
   background:#0e1117;
 }
+/* Tema global premium Dualize: camada visual, sem alterar regras de negocio. */
+:root{
+  --bg:#070B14;
+  --panel:#111827;
+  --panel-2:#182235;
+  --text:#F4F7FF;
+  --muted:#9EABC4;
+  --line:rgba(174,209,255,.18);
+  --blue:#58C7FF;
+  --green:#35D07F;
+  --purple:#8B6CFF;
+  --cyan:#42E8D3;
+  --deep-blue:#0B1120;
+  --amber:#8B6CFF;
+  --red:#FF6677;
+  --shadow:0 28px 90px rgba(0,0,0,.54);
+}
+html{
+  background:#070B14;
+}
+body{
+  position:relative;
+  isolation:isolate;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 11% 0%,rgba(88,199,255,.16),transparent 34rem),
+    radial-gradient(circle at 86% 9%,rgba(139,108,255,.15),transparent 32rem),
+    radial-gradient(circle at 54% 54%,rgba(66,232,211,.08),transparent 38rem),
+    linear-gradient(135deg,#070B14 0%,#0B1120 58%,#071221 100%);
+  background-attachment:fixed;
+}
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  pointer-events:none;
+  z-index:-1;
+  filter:blur(42px);
+  opacity:.72;
+}
+body::before{
+  width:38vw;
+  height:38vw;
+  left:-12vw;
+  top:16vh;
+  border-radius:42% 58% 64% 36%;
+  background:linear-gradient(135deg,rgba(88,199,255,.24),rgba(139,108,255,.10));
+}
+body::after{
+  width:34vw;
+  height:34vw;
+  right:-10vw;
+  bottom:-12vh;
+  border-radius:58% 42% 38% 62%;
+  background:linear-gradient(135deg,rgba(139,108,255,.20),rgba(66,232,211,.10));
+}
+*{
+  scrollbar-color:rgba(88,199,255,.46) rgba(7,11,20,.65);
+}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(7,11,20,.72)}
+::-webkit-scrollbar-thumb{
+  border:3px solid rgba(7,11,20,.72);
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(88,199,255,.78),rgba(139,108,255,.74));
+}
+.app,
+.workspace,
+.briefing-board,
+.report-board,
+.frame-wrap{
+  background:
+    radial-gradient(circle at 20% 0%,rgba(88,199,255,.10),transparent 30rem),
+    radial-gradient(circle at 84% 12%,rgba(139,108,255,.10),transparent 28rem),
+    linear-gradient(135deg,rgba(7,11,20,.94),rgba(11,17,32,.96));
+}
+.panel,
+.module-card,
+.kpi,
+.pill,
+.briefing-list,
+.briefing-detail,
+.briefing-preview-card,
+.forms-detail-card,
+.forms-check-section,
+.forms-link-panel,
+.forms-filter-box,
+.report-panel,
+.report-sidebar,
+.report-detail,
+.report-frame,
+.workspace,
+.briefing-modal-box,
+.briefing-modal-section,
+.briefing-section,
+.briefing-card,
+.briefing-mini,
+.forms-request-panel,
+.forms-request-card,
+.forms-tabs,
+.briefing-modal-tabs,
+.activity-line{
+  border-color:rgba(174,209,255,.18)!important;
+  background:
+    linear-gradient(145deg,rgba(24,34,53,.82),rgba(17,24,39,.88)) padding-box,
+    linear-gradient(135deg,rgba(88,199,255,.34),rgba(139,108,255,.24),rgba(66,232,211,.16)) border-box!important;
+  box-shadow:0 22px 64px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.026)!important;
+  backdrop-filter:blur(16px) saturate(1.15);
+}
+.module-card:hover,
+.panel:hover,
+.briefing-card:hover,
+.briefing-card.active,
+.report-client:hover,
+.report-client.active,
+.forms-tab:hover,
+.briefing-modal-tabs button:hover,
+.briefing-choice:hover{
+  transform:translateY(-1px);
+  border-color:rgba(139,108,255,.46)!important;
+  box-shadow:0 26px 70px rgba(0,0,0,.34),0 0 36px rgba(139,108,255,.15)!important;
+}
+.module-card h3,
+.panel h3,
+.kpi strong,
+.activity-line b{
+  background:linear-gradient(135deg,#F4F7FF 0%,#58C7FF 42%,#42E8D3 66%,#8B6CFF 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+}
+.module-badge,
+.open-chip,
+.action.primary,
+.btn.primary,
+.briefing-copy,
+.briefing-open,
+.forms-link-panel button,
+.forms-small-action.primary,
+.forms-filter-pills button.active,
+.forms-add-public,
+.report-action.primary,
+.report-tab.active,
+.briefing-modal-tabs button.active,
+.briefing-choice.active,
+.forms-tab.active{
+  border:1px solid rgba(220,236,255,.28)!important;
+  background:linear-gradient(135deg,#58C7FF 0%,#42E8D3 48%,#8B6CFF 100%)!important;
+  color:#06111F!important;
+  box-shadow:0 14px 34px rgba(88,199,255,.18),0 0 28px rgba(139,108,255,.12)!important;
+}
+.action,
+.btn,
+.forms-small-action,
+.forms-filter-pills button,
+.report-action,
+.report-tab,
+.briefing-actions button,
+.briefing-modal-actions button,
+.briefing-close,
+.briefing-copy-btn,
+.forms-tab,
+.briefing-modal-tabs button,
+.briefing-choice{
+  border-color:rgba(174,209,255,.18)!important;
+  background:rgba(24,34,53,.78)!important;
+  color:var(--text)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.20);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;
+}
+.action:hover,
+.btn:hover,
+.forms-small-action:hover,
+.forms-filter-pills button:hover,
+.report-action:hover,
+.report-tab:hover,
+.briefing-actions button:hover,
+.briefing-modal-actions button:hover,
+.briefing-close:hover,
+.briefing-copy-btn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(88,199,255,.42)!important;
+  box-shadow:0 16px 36px rgba(0,0,0,.26),0 0 24px rgba(88,199,255,.10);
+}
+input,
+textarea,
+select,
+.forms-field input,
+.forms-field textarea,
+.forms-field select,
+.forms-check-item textarea,
+.forms-link-panel input,
+.forms-filter-box input,
+.briefing-edit-field input,
+.briefing-edit-field textarea{
+  border-color:rgba(126,173,219,.20)!important;
+  background:#070B14!important;
+  color:var(--text)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.018);
+}
+input::placeholder,
+textarea::placeholder{
+  color:#9EABC4!important;
+  opacity:.78;
+}
+input:focus,
+textarea:focus,
+select:focus,
+.forms-field input:focus,
+.forms-field textarea:focus,
+.forms-field select:focus,
+.briefing-edit-field input:focus,
+.briefing-edit-field textarea:focus{
+  border-color:rgba(66,232,211,.72)!important;
+  box-shadow:0 0 0 3px rgba(139,108,255,.13),0 0 24px rgba(88,199,255,.08)!important;
+}
+.status-pill.empty,
+.forms-check-badge.pending,
+.briefing-status.novo{
+  background:rgba(255,102,119,.14)!important;
+  color:#ffd8de!important;
+  border:1px solid rgba(255,102,119,.42)!important;
+}
+.status-pill.progress,
+.briefing-status.analise{
+  background:rgba(139,108,255,.17)!important;
+  color:#ded7ff!important;
+  border:1px solid rgba(139,108,255,.46)!important;
+}
+.status-pill.done,
+.forms-check-badge.done,
+.briefing-status.configurado,
+.onboarding-status.complete{
+  background:rgba(53,208,127,.14)!important;
+  color:#c9ffdf!important;
+  border:1px solid rgba(53,208,127,.44)!important;
+}
+.status-pill.locked,
+.forms-check-badge.optional,
+.forms-check-badge.muted{
+  background:rgba(24,34,53,.70)!important;
+  color:#c9d4e8!important;
+  border:1px solid rgba(139,108,255,.26)!important;
+}
+.forms-check-item.pending{
+  background:linear-gradient(145deg,rgba(59,31,34,.92),rgba(30,16,24,.96))!important;
+  border-color:rgba(255,102,119,.40)!important;
+}
+.forms-check-item.done{
+  background:linear-gradient(145deg,rgba(22,54,38,.94),rgba(9,32,24,.98))!important;
+  border-color:rgba(53,208,127,.46)!important;
+}
+.forms-check-item.optional,
+.forms-check-item.not-applicable{
+  background:linear-gradient(145deg,rgba(24,34,53,.88),rgba(18,24,42,.96))!important;
+  border-color:rgba(139,108,255,.26)!important;
+}
+.briefing-actions button.status-analise,
+.briefing-modal-actions button.status-analise,
+.briefing-modal-section.financeiro h4,
+.activity-line span{
+  color:#b7acff!important;
+}
+.briefing-actions button.status-analise.active,
+.briefing-modal-actions button.status-analise.active{
+  background:rgba(139,108,255,.18)!important;
+  border-color:rgba(139,108,255,.46)!important;
+  color:#ded7ff!important;
+}
+.briefing-modal-section.financeiro{
+  background:linear-gradient(135deg,rgba(88,199,255,.08),rgba(139,108,255,.08))!important;
+  border-color:rgba(139,108,255,.26)!important;
+}
+.briefing-modal-section.financeiro h4::before{
+  background:linear-gradient(135deg,#58C7FF,#8B6CFF)!important;
+}
+.workspace-head,
+.briefing-modal-head,
+.briefing-modal-body,
+.top{
+  background:rgba(7,11,20,.86)!important;
+  border-color:rgba(174,209,255,.14)!important;
+}
+.frame-wrap.loading:before,
+.frame-wrap,
+iframe{
+  background:#070B14;
+}
 @media(max-width:1050px){
   .module-grid,.summary,.kpis{grid-template-columns:1fr}
   .briefing-board{grid-template-columns:1fr}

@@ -290,6 +290,226 @@ body.dark-theme .value input.amount-recebido{
   border-color:rgba(134,239,172,.46)!important;
   color:#bdf7ce!important;
 }
+/* Tema global premium Dualize: camada visual, sem alterar dados ou calculos. */
+:root,
+body.dark-theme{
+  --bg:#070B14;
+  --card:#111827;
+  --text:#F4F7FF;
+  --muted:#9EABC4;
+  --line:rgba(174,209,255,.18);
+  --dark:#F4F7FF;
+  --brown:#58C7FF;
+  --brown-soft:rgba(139,108,255,.16);
+  --green:rgba(53,208,127,.14);
+  --green-text:#35D07F;
+  --yellow:rgba(139,108,255,.16);
+  --yellow-text:#C8C0FF;
+  --orange:rgba(88,199,255,.14);
+  --orange-text:#58C7FF;
+  --red:rgba(255,102,119,.14);
+  --red-text:#FF6677;
+  --blue:rgba(88,199,255,.14);
+  --blue-text:#58C7FF;
+  --shadow:0 24px 72px rgba(0,0,0,.46);
+}
+html{background:#070B14}
+body,
+body.dark-theme{
+  position:relative;
+  isolation:isolate;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 0%,rgba(88,199,255,.16),transparent 34rem),
+    radial-gradient(circle at 86% 10%,rgba(139,108,255,.14),transparent 32rem),
+    radial-gradient(circle at 50% 58%,rgba(66,232,211,.07),transparent 40rem),
+    linear-gradient(135deg,#070B14 0%,#0B1120 58%,#071221 100%)!important;
+  background-attachment:fixed!important;
+}
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  pointer-events:none;
+  z-index:-1;
+  filter:blur(44px);
+  opacity:.70;
+}
+body::before{
+  left:-12vw;
+  top:12vh;
+  width:36vw;
+  height:36vw;
+  border-radius:42% 58% 64% 36%;
+  background:linear-gradient(135deg,rgba(88,199,255,.22),rgba(139,108,255,.10));
+}
+body::after{
+  right:-10vw;
+  bottom:-12vh;
+  width:34vw;
+  height:34vw;
+  border-radius:58% 42% 38% 62%;
+  background:linear-gradient(135deg,rgba(139,108,255,.20),rgba(66,232,211,.10));
+}
+*{scrollbar-color:rgba(88,199,255,.48) rgba(7,11,20,.70)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(7,11,20,.72)}
+::-webkit-scrollbar-thumb{border:3px solid rgba(7,11,20,.72);border-radius:999px;background:linear-gradient(180deg,rgba(88,199,255,.78),rgba(139,108,255,.74))}
+header,
+.card,
+.entry-row,
+.kpi,
+.bank-card,
+.saas-card,
+.pill,
+.view-toggle,
+.tab,
+.exec-hero-v3,
+.exec-panel-v3,
+.exec-kpi-v3,
+.exec-bank-v3,
+.bank-summary-card,
+.plan-action,
+.receipt-history,
+.transfer-shell,
+.pix-import-box,
+.modal-box,
+.report-card,
+.reports-shell,
+.report-view{
+  border-color:rgba(174,209,255,.18)!important;
+  background:
+    linear-gradient(145deg,rgba(24,34,53,.82),rgba(17,24,39,.90)) padding-box,
+    linear-gradient(135deg,rgba(88,199,255,.34),rgba(139,108,255,.24),rgba(66,232,211,.16)) border-box!important;
+  box-shadow:0 22px 64px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.026)!important;
+  backdrop-filter:blur(16px) saturate(1.15);
+}
+.card:hover,
+.entry-row:hover,
+.kpi:hover,
+.bank-card:hover,
+.saas-card:hover,
+.tab:hover,
+.plan-action:hover{
+  transform:translateY(-1px);
+  border-color:rgba(139,108,255,.46)!important;
+  box-shadow:0 26px 70px rgba(0,0,0,.34),0 0 36px rgba(139,108,255,.15)!important;
+}
+h1,
+.brand small,
+.card-head h2,
+.exec-hero-v3 h2,
+.exec-total-v3,
+.exec-kpi-v3 strong{color:var(--text)}
+.brand small,
+.exec-badge-v3,
+.bank-card small,
+.suggestion{color:#58C7FF!important}
+.tab.active,
+.btn,
+.btn.primary,
+.theme-toggle,
+.view-toggle button.active,
+body.dark-theme .tab.active,
+body.dark-theme .view-toggle button.active,
+body.dark-theme .btn{
+  border:1px solid rgba(220,236,255,.28)!important;
+  background:linear-gradient(135deg,#58C7FF 0%,#42E8D3 48%,#8B6CFF 100%)!important;
+  color:#06111F!important;
+  box-shadow:0 14px 34px rgba(88,199,255,.18),0 0 28px rgba(139,108,255,.12)!important;
+}
+.btn.soft,
+.filter-select,
+.icon-btn,
+.round-nav,
+.today-chip,
+.report-tab,
+.report-action{
+  border-color:rgba(174,209,255,.18)!important;
+  background:rgba(24,34,53,.78)!important;
+  color:var(--text)!important;
+}
+input,
+select,
+textarea,
+.form input,
+.form select,
+.mini-input,
+.custom-values-box textarea,
+.value input,
+.pix-import-box textarea,
+body.dark-theme input,
+body.dark-theme select,
+body.dark-theme textarea,
+body.dark-theme .form input,
+body.dark-theme .form select,
+body.dark-theme .mini-input,
+body.dark-theme .custom-values-box textarea,
+body.dark-theme .value input{
+  border-color:rgba(126,173,219,.20)!important;
+  background:#070B14!important;
+  color:var(--text)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.018);
+}
+input::placeholder,
+textarea::placeholder{color:#9EABC4!important;opacity:.78}
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:rgba(66,232,211,.72)!important;
+  box-shadow:0 0 0 3px rgba(139,108,255,.13),0 0 24px rgba(88,199,255,.08)!important;
+}
+input[readonly],
+select:disabled,
+body.dark-theme input[readonly],
+body.dark-theme select:disabled{
+  background:rgba(24,34,53,.52)!important;
+  color:#9EABC4!important;
+}
+.status-pill.pago,
+.status-pill.recebido{
+  background:rgba(53,208,127,.16)!important;
+  color:#C9FFDF!important;
+  border:1px solid rgba(53,208,127,.44)!important;
+}
+.status-pill.parcial,
+.status-pill.receita,
+.status-pill.pendente{
+  background:rgba(139,108,255,.17)!important;
+  color:#DED7FF!important;
+  border:1px solid rgba(139,108,255,.46)!important;
+}
+.status-pill.fixo{
+  background:rgba(88,199,255,.14)!important;
+  color:#BFEAFF!important;
+  border:1px solid rgba(88,199,255,.38)!important;
+}
+.value input.amount-nao-pago,
+.amount-debt,
+.exec-kpi-v3.red strong,
+.bank-card.negative strong{color:#FF6677!important}
+.amount-income,
+.exec-kpi-v3.green strong,
+.bank-card.positive strong{color:#35D07F!important}
+table,
+.bank-table,
+.saas-table{color:var(--text)}
+td,
+th,
+.card-head,
+body.dark-theme .card-head,
+body.dark-theme .bank-table td,
+body.dark-theme .saas-table td,
+body.dark-theme .exec-line-v3{border-color:rgba(174,209,255,.14)!important}
+.exec-donut-v3{
+  background:conic-gradient(#58C7FF 0deg 120deg,#8B6CFF 120deg 280deg,#42E8D3 280deg 360deg)!important;
+  box-shadow:inset 0 0 0 1px rgba(174,209,255,.18);
+}
+.exec-donut-v3::before{background:#111827!important}
+.exec-fill-v3{background:linear-gradient(90deg,#58C7FF,#8B6CFF,#42E8D3)!important}
+.bank-card.positive,
+.bank-card.negative,
+.bank-card.neutral{background:linear-gradient(145deg,rgba(24,34,53,.82),rgba(17,24,39,.90))!important}
 @media(max-width:1180px){
   .exec-origin-inline{grid-template-columns:repeat(2,minmax(0,1fr))}
   .exec-card-dashboard .exec-panel-title-v3{grid-template-columns:minmax(0,1fr) auto}

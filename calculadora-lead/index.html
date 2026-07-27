@@ -493,6 +493,22 @@ body.owner .funnel-bar.sales{width:19%}
   .status{grid-template-columns:1fr}
   .profile-toggle{display:grid}
 }
+/* Tema global premium Dualize: camada visual sem alterar calculos. */
+:root{--bg:#070B14;--panel:#111827;--input:#070B14;--text:#F4F7FF;--muted:#9EABC4;--line:rgba(174,209,255,.18);--blue:#58C7FF;--purple:#8B6CFF;--cyan:#42E8D3;--green:#35D07F;--bad:#FF6677}
+html{background:#070B14}
+body{position:relative;isolation:isolate;background:radial-gradient(circle at 12% 0%,rgba(88,199,255,.16),transparent 34rem),radial-gradient(circle at 86% 10%,rgba(139,108,255,.14),transparent 32rem),radial-gradient(circle at 52% 58%,rgba(66,232,211,.07),transparent 40rem),linear-gradient(135deg,#070B14 0%,#0B1120 58%,#071221 100%)!important;background-attachment:fixed!important}
+body::before,body::after{content:"";position:fixed;pointer-events:none;z-index:-1;filter:blur(44px);opacity:.70}
+body::before{left:-12vw;top:12vh;width:36vw;height:36vw;border-radius:42% 58% 64% 36%;background:linear-gradient(135deg,rgba(88,199,255,.22),rgba(139,108,255,.10))}
+body::after{right:-10vw;bottom:-12vh;width:34vw;height:34vw;border-radius:58% 42% 38% 62%;background:linear-gradient(135deg,rgba(139,108,255,.20),rgba(66,232,211,.10))}
+*{scrollbar-color:rgba(88,199,255,.48) rgba(7,11,20,.70)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(7,11,20,.72)}
+::-webkit-scrollbar-thumb{border:3px solid rgba(7,11,20,.72);border-radius:999px;background:linear-gradient(180deg,rgba(88,199,255,.78),rgba(139,108,255,.74))}
+.panel,.metric,.status,.diagnosis,.insight,.profile-toggle,.funnel-traffic-card{border-color:rgba(174,209,255,.18)!important;background:linear-gradient(145deg,rgba(24,34,53,.82),rgba(17,24,39,.90)) padding-box,linear-gradient(135deg,rgba(88,199,255,.34),rgba(139,108,255,.24),rgba(66,232,211,.16)) border-box!important;box-shadow:0 22px 64px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.026)!important;backdrop-filter:blur(16px) saturate(1.15)}
+.profile-toggle button.active,.reset-btn{background:linear-gradient(135deg,#58C7FF 0%,#42E8D3 48%,#8B6CFF 100%)!important;color:#06111F!important;border-color:rgba(220,236,255,.28)!important}
+.profile-toggle button{background:rgba(24,34,53,.78)!important;border-color:rgba(174,209,255,.18)!important;color:var(--text)!important}
+input{border-color:rgba(126,173,219,.20)!important;background:#070B14!important;color:var(--text)!important}
+input:focus{border-color:rgba(66,232,211,.72)!important;box-shadow:0 0 0 3px rgba(139,108,255,.13),0 0 24px rgba(88,199,255,.08)!important}
 </style>
 </head>
 <body class="owner is-empty">
