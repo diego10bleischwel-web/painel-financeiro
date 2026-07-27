@@ -33,22 +33,37 @@ details{border:1px solid rgba(111,184,255,.25);background:rgba(18,27,44,.62);bor
 .success{display:none;text-align:center;padding:32px}.success.show{display:grid;gap:12px}.success h2{font-size:34px;margin:0;color:#6ee7b7}
 @media(max-width:760px){.top{display:grid}.stepper{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.actions{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#071226 18%);padding-top:18px}.card-head{align-items:flex-start}}
 /* Tema global premium Dualize: camada visual sem alterar envio ou dados. */
-:root{--bg:#070B14;--panel:#111827;--panel2:#182235;--line:rgba(174,209,255,.18);--text:#F4F7FF;--muted:#9EABC4;--blue:#58C7FF;--cyan:#42E8D3;--green:#35D07F;--purple:#8B6CFF;--red:#FF6677;--yellow:#8B6CFF}
-html{background:#070B14}
-body{position:relative;isolation:isolate;background:radial-gradient(circle at 12% 0%,rgba(88,199,255,.16),transparent 34rem),radial-gradient(circle at 86% 10%,rgba(139,108,255,.14),transparent 32rem),radial-gradient(circle at 52% 58%,rgba(66,232,211,.07),transparent 40rem),linear-gradient(135deg,#070B14 0%,#0B1120 58%,#071221 100%)!important;background-attachment:fixed!important}
+:root{--bg:#07050D;--panel:#181028;--panel2:#241636;--line:rgba(183,148,246,.18);--text:#F4F7FF;--muted:#9EABC4;--blue:#8B5CF6;--cyan:#B794F6;--green:#35E68A;--purple:#E755FF;--red:#FF5F76;--yellow:#E755FF}
+html{background:#07050D}
+body{position:relative;isolation:isolate;background:radial-gradient(circle at 12% 0%,rgba(139,92,246,.16),transparent 34rem),radial-gradient(circle at 86% 10%,rgba(139,108,255,.14),transparent 32rem),radial-gradient(circle at 52% 58%,rgba(183,148,246,.07),transparent 40rem),linear-gradient(135deg,#07050D 0%,#0E0918 58%,#140820 100%)!important;background-attachment:fixed!important}
 body::before,body::after{content:"";position:fixed;pointer-events:none;z-index:-1;filter:blur(44px);opacity:.70}
-body::before{left:-12vw;top:12vh;width:36vw;height:36vw;border-radius:42% 58% 64% 36%;background:linear-gradient(135deg,rgba(88,199,255,.22),rgba(139,108,255,.10))}
-body::after{right:-10vw;bottom:-12vh;width:34vw;height:34vw;border-radius:58% 42% 38% 62%;background:linear-gradient(135deg,rgba(139,108,255,.20),rgba(66,232,211,.10))}
-*{scrollbar-color:rgba(88,199,255,.48) rgba(7,11,20,.70)}
+body::before{left:-12vw;top:12vh;width:36vw;height:36vw;border-radius:42% 58% 64% 36%;background:linear-gradient(135deg,rgba(139,92,246,.22),rgba(139,108,255,.10))}
+body::after{right:-10vw;bottom:-12vh;width:34vw;height:34vw;border-radius:58% 42% 38% 62%;background:linear-gradient(135deg,rgba(139,108,255,.20),rgba(183,148,246,.10))}
+*{scrollbar-color:rgba(139,92,246,.48) rgba(7,5,13,.70)}
 ::-webkit-scrollbar{width:11px;height:11px}
-::-webkit-scrollbar-track{background:rgba(7,11,20,.72)}
-::-webkit-scrollbar-thumb{border:3px solid rgba(7,11,20,.72);border-radius:999px;background:linear-gradient(180deg,rgba(88,199,255,.78),rgba(139,108,255,.74))}
-.card,.step,.save-pill,.check,details,.note,.error{border-color:rgba(174,209,255,.18)!important;background:linear-gradient(145deg,rgba(24,34,53,.82),rgba(17,24,39,.90)) padding-box,linear-gradient(135deg,rgba(88,199,255,.34),rgba(139,108,255,.24),rgba(66,232,211,.16)) border-box!important;box-shadow:0 22px 64px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.026)!important;backdrop-filter:blur(16px) saturate(1.15)}
-.step.active,.choice.active,.btn{background:linear-gradient(135deg,#58C7FF 0%,#42E8D3 48%,#8B6CFF 100%)!important;color:#06111F!important;border-color:rgba(220,236,255,.28)!important}
-.btn.secondary,.choice{background:rgba(24,34,53,.78)!important;border-color:rgba(174,209,255,.18)!important;color:#F4F7FF!important}
-input,textarea,select{border-color:rgba(126,173,219,.20)!important;background:#070B14!important;color:var(--text)!important}
-input:focus,textarea:focus,select:focus{border-color:rgba(66,232,211,.72)!important;box-shadow:0 0 0 3px rgba(139,108,255,.13),0 0 24px rgba(88,199,255,.08)!important}
+::-webkit-scrollbar-track{background:rgba(7,5,13,.72)}
+::-webkit-scrollbar-thumb{border:3px solid rgba(7,5,13,.72);border-radius:999px;background:linear-gradient(180deg,rgba(139,92,246,.78),rgba(139,108,255,.74))}
+.card,.step,.save-pill,.check,details,.note,.error{border-color:rgba(183,148,246,.18)!important;background:linear-gradient(145deg,rgba(24,16,40,.82),rgba(14,9,24,.90)) padding-box,linear-gradient(135deg,rgba(139,92,246,.34),rgba(139,108,255,.24),rgba(183,148,246,.16)) border-box!important;box-shadow:0 22px 64px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.026)!important;backdrop-filter:blur(16px) saturate(1.15)}
+.step.active,.choice.active,.btn{background:linear-gradient(135deg,#8B5CF6 0%,#B794F6 48%,#E755FF 100%)!important;color:#06111F!important;border-color:rgba(220,236,255,.28)!important}
+.btn.secondary,.choice{background:rgba(24,16,40,.78)!important;border-color:rgba(183,148,246,.18)!important;color:#F4F7FF!important}
+input,textarea,select{border-color:rgba(183,148,246,.20)!important;background:#07050D!important;color:var(--text)!important}
+input:focus,textarea:focus,select:focus{border-color:rgba(183,148,246,.72)!important;box-shadow:0 0 0 3px rgba(139,108,255,.13),0 0 24px rgba(139,92,246,.08)!important}
 input::placeholder,textarea::placeholder{color:#9EABC4!important;opacity:.78}
+/* Tema roxo neon final: somente visual do formulario completo. */
+:root{--bg:#07050D;--panel:rgba(24,16,40,.78);--panel2:#0E0918;--line:rgba(183,148,246,.28);--text:#FFFFFF;--muted:#BEB4D3;--blue:#8B5CF6;--cyan:#4DEBFF;--green:#35E68A;--purple:#8B5CF6;--red:#FF5F76;--yellow:#B794F6}
+html{background:#07050D!important}
+body{background:radial-gradient(circle at 9% 4%,rgba(231,85,255,.23),transparent 28rem),radial-gradient(circle at 88% 7%,rgba(139,92,246,.26),transparent 33rem),radial-gradient(circle at 58% 80%,rgba(183,148,246,.16),transparent 38rem),linear-gradient(135deg,#07050D 0%,#0E0918 54%,#140820 100%)!important;background-attachment:fixed!important;color:#FFFFFF}
+body::before{background:linear-gradient(135deg,rgba(231,85,255,.24),rgba(139,92,246,.13))!important}
+body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,255,.08))!important}
+*{scrollbar-color:rgba(231,85,255,.62) rgba(9,6,17,.80)}
+::-webkit-scrollbar-track{background:#090611}
+::-webkit-scrollbar-thumb{border-color:#090611;background:linear-gradient(180deg,#8B5CF6,#E755FF)}
+.card,.step,.save-pill,.check,details,.note,.error{background:linear-gradient(145deg,rgba(24,16,40,.84),rgba(14,9,24,.74)) padding-box,linear-gradient(135deg,rgba(139,92,246,.45),rgba(231,85,255,.28),rgba(183,148,246,.22)) border-box!important;border-color:rgba(183,148,246,.30)!important;box-shadow:0 26px 86px rgba(5,0,16,.58),inset 0 1px 0 rgba(255,255,255,.055)!important}
+.step.active,.choice.active,.btn{background:linear-gradient(135deg,#8B5CF6 0%,#E755FF 56%,#B794F6 100%)!important;color:#0B0611!important;border-color:rgba(255,255,255,.24)!important}
+.btn.secondary,.choice{background:linear-gradient(145deg,rgba(24,16,40,.92),rgba(38,24,65,.82))!important;border-color:rgba(183,148,246,.38)!important;color:#FFFFFF!important}
+input,textarea,select{border-color:rgba(183,148,246,.26)!important;background:#090611!important;color:#FFFFFF!important}
+input:focus,textarea:focus,select:focus{border-color:#B794F6!important;box-shadow:0 0 0 3px rgba(139,92,246,.20),0 0 24px rgba(231,85,255,.12)!important}
+input::placeholder,textarea::placeholder{color:#BEB4D3!important;opacity:.78}
 </style>
 </head>
 <body>
