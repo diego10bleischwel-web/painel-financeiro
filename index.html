@@ -2082,13 +2082,17 @@ function renderFormsLinkPanel(){
   const box=$('#formsLinkPanel');
   if(!box)return;
   const current=selectedBriefing();
-  const s=current?briefingSummary(current):null;
-  const value=s?.empresa||'';
-  const link=current?ensureFormularioState(current).trafficAi.link:briefingFormUrl(value);
+  const clienteNovoLink=current?clienteNovoFormUrl(current):'';
+  const trafficLink=current?ensureFormularioState(current).trafficAi.link:'';
   box.innerHTML=`<label>Link para enviar ao cliente</label>
-    <input id="formsLinkName" value="${esc(value)}" placeholder="Digite o nome da empresa">
-    <button type="button" data-copy-generated-form-link>Copiar link do formulario</button>`;
-  box.dataset.generatedLink=link;
+    <div class="forms-copy-row">
+      <span class="forms-muted">CLIENTE NOVO</span>
+      <button type="button" data-copy-client-link="${esc(clienteNovoLink)}" ${current?'':'disabled'}>COPIAR LINK CLIENTE NOVO</button>
+    </div>
+    <div class="forms-copy-row">
+      <span class="forms-muted">TRAFFIC AI</span>
+      <button type="button" data-copy-client-link="${esc(trafficLink)}" ${current?'':'disabled'}>COPIAR LINK TRAFFIC AI</button>
+    </div>`;
 }
 function slugifyOnboardingName(name){
   const clean=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
@@ -2381,27 +2385,15 @@ function setupEvents(){
     if(formsTab){activeFormsTab=formsTab.dataset.formsTab;renderFormsTabs()}
     const formsFilter=e.target.closest('[data-forms-filter]');
     if(formsFilter){formsStatusFilter=formsFilter.dataset.formsFilter;renderBriefingList()}
-    const copyGeneratedFormLink=e.target.closest('[data-copy-generated-form-link]');
-    if(copyGeneratedFormLink){
-      const name=($('#formsLinkName')?.value||'').trim();
-      const current=selectedBriefing();
-      const currentName=current?briefingSummary(current).empresa:'';
-      const link=current&&normalizeBriefingOption(name)===normalizeBriefingOption(currentName)
-        ? ensureFormularioState(current).trafficAi.link
-        : briefingFormUrl(name);
-      navigator.clipboard?.writeText(link).then(()=>{
-        copyGeneratedFormLink.textContent='Link copiado';
-        setTimeout(()=>copyGeneratedFormLink.textContent='Copiar link do formulario',1400);
-      }).catch(()=>prompt('Copie o link:',link));
-    }
     const saveForm=e.target.closest('[data-save-form-stage="clienteNovo"]');
     if(saveForm) saveClienteNovoStage();
     const copyClientLink=e.target.closest('[data-copy-client-link]');
     if(copyClientLink){
       const link=copyClientLink.dataset.copyClientLink||'';
+      const originalLabel=copyClientLink.textContent;
       navigator.clipboard?.writeText(link).then(()=>{
         copyClientLink.textContent='Link copiado';
-        setTimeout(()=>copyClientLink.textContent='Copiar link',1400);
+        setTimeout(()=>copyClientLink.textContent=originalLabel,1400);
       }).catch(()=>prompt('Copie o link:',link));
     }
     const reportKind=e.target.closest('[data-report-kind]');
@@ -2454,10 +2446,6 @@ function setupEvents(){
   });
   document.body.addEventListener('input',e=>{
     if(e.target.id==='formsSearch'){formsSearchTerm=e.target.value;renderBriefingList()}
-    if(e.target.id==='formsLinkName'){
-      const box=$('#formsLinkPanel');
-      if(box)box.dataset.generatedLink=briefingFormUrl(e.target.value.trim());
-    }
     if(e.target.id==='onboardingCompanyName'){
       updateOnboardingLink();
       if($('#workspace').classList.contains('active')&&$('#workspaceTitle')?.textContent==='Cliente Novo'){
@@ -2945,10 +2933,6 @@ function renderFormsStageDetail(b,stage){
   const f=ensureFormularioState(b),status=calcularStatusEtapa(b,stage);
   if(isFormsStageLocked(b,stage))return renderLockedStage(stage);
   if(stage==='clienteNovo'){
-    const s=briefingSummary(b);
-    const clienteId=b?.cliente_id||b?.id||'';
-    const trafficLink=briefingFormUrl(s.empresa,clienteId);
-    const link=clienteNovoFormUrl(b);
     const dados=f.clienteNovo.dados||{};
     const pagamento=String(dados.forma_pagamento||'').toLowerCase();
     const baseFields=[
@@ -2996,19 +2980,7 @@ function renderFormsStageDetail(b,stage){
         ${extraFields.map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(dados[key]||'')}"></div>`).join('')}
       </div>
       <p class="forms-muted">Durante a configuracao, poderao chegar codigos por SMS ou aplicativo. Nossa equipe entrara em contato para concluir o acesso.</p>
-      <div class="forms-field-grid">
-        <div class="forms-field">
-          <label>LINK TRAFFIC AI</label>
-          <input readonly value="${esc(trafficLink)}">
-        </div>
-        <div class="forms-field">
-          <label>LINK CLIENTE NOVO</label>
-          <input readonly value="${esc(link)}">
-        </div>
-      </div>
       <div class="forms-copy-row">
-        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(trafficLink)}">Copiar link Traffic AI</button>
-        <button class="forms-small-action primary" type="button" data-copy-client-link="${esc(link)}">COPIAR LINK CLIENTE NOVO</button>
         <button class="forms-small-action primary" type="button" data-save-form-stage="clienteNovo">Salvar Cliente Novo</button>
       </div>
       <p class="forms-muted">Situacao do formulario: ${statusText(status)}. Enviado em ${esc(f.clienteNovo.enviadoEm?briefingDate(f.clienteNovo.enviadoEm):'Ainda nao registrado')}. Atualizado em ${esc(briefingDate(f.clienteNovo.atualizadoEm||b.updatedAt||b.timestamp))}.</p>
