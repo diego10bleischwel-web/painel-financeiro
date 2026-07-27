@@ -823,6 +823,256 @@ button,a{font:inherit}
   font-size:20px;
   margin-bottom:8px;
 }
+/* Refinamento visual da janela FORMULARIOS. Mantem a logica intacta e atua so na camada visual. */
+#briefingBoard{
+  background:
+    radial-gradient(circle at 12% 0,rgba(80,199,255,.13),transparent 34rem),
+    radial-gradient(circle at 88% 10%,rgba(139,92,246,.10),transparent 30rem),
+    linear-gradient(135deg,#050b16 0%,#081424 55%,#06111f 100%);
+}
+#briefingBoard .briefing-list,
+#briefingBoard .briefing-detail{
+  border-color:rgba(205,229,255,.16);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(17,29,48,.94),rgba(9,18,33,.98));
+  box-shadow:0 20px 58px rgba(0,0,0,.24),inset 0 0 0 1px rgba(255,255,255,.018);
+}
+#briefingBoard .briefing-list{
+  gap:14px;
+}
+#briefingBoard #briefingList{
+  gap:10px;
+  padding-right:2px;
+}
+#briefingBoard .forms-link-panel,
+#briefingBoard .forms-filter-box{
+  border-color:rgba(195,225,255,.16);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(18,33,55,.90),rgba(8,18,32,.96));
+  box-shadow:0 12px 32px rgba(0,0,0,.18);
+}
+#briefingBoard .forms-link-panel{
+  gap:12px;
+  padding:13px;
+}
+#briefingBoard .forms-link-panel .forms-copy-row{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+  padding:10px;
+  border:1px solid rgba(205,229,255,.12);
+  border-radius:14px;
+  background:rgba(4,11,22,.44);
+}
+#briefingBoard .forms-link-panel label{
+  color:#b9dcff;
+  font-size:10px;
+  letter-spacing:.06em;
+}
+#briefingBoard .forms-link-panel button,
+#briefingBoard .briefing-copy,
+#briefingBoard .briefing-open,
+#briefingBoard .forms-small-action.primary,
+#briefingBoard .forms-add-public{
+  min-height:38px;
+  border:1px solid rgba(210,232,255,.24);
+  border-radius:14px;
+  background:linear-gradient(135deg,#67c8ff 0%,#8b5cf6 100%);
+  color:#04111f;
+  box-shadow:0 12px 28px rgba(60,128,255,.16);
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,filter .18s ease;
+}
+#briefingBoard .forms-link-panel button:hover,
+#briefingBoard .briefing-copy:hover,
+#briefingBoard .briefing-open:hover,
+#briefingBoard .forms-small-action.primary:hover,
+#briefingBoard .forms-add-public:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.36);
+  box-shadow:0 16px 32px rgba(82,113,255,.22);
+  filter:saturate(1.04);
+}
+#briefingBoard .forms-tabs{
+  gap:8px;
+  padding:7px;
+  border-color:rgba(205,229,255,.13);
+  border-radius:18px;
+  background:rgba(8,17,31,.78);
+  box-shadow:none;
+}
+#briefingBoard .forms-tab{
+  border-color:rgba(205,229,255,.10);
+  border-radius:13px;
+  padding:11px 12px;
+  background:linear-gradient(145deg,rgba(23,35,55,.92),rgba(11,21,38,.98));
+  color:#c4d4ec;
+  box-shadow:none;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease;
+}
+#briefingBoard .forms-tab:hover{
+  transform:translateY(-1px);
+  border-color:rgba(126,197,255,.34);
+  color:#f0f7ff;
+}
+#briefingBoard .forms-tab.active{
+  color:#04111f;
+  border-color:rgba(255,255,255,.30);
+  background:linear-gradient(135deg,#5cc8ff 0%,#8b5cf6 100%);
+  box-shadow:0 12px 30px rgba(82,113,255,.20);
+}
+#briefingBoard .forms-tab small{
+  margin-top:5px;
+  font-size:9px;
+  line-height:1.15;
+  opacity:.72;
+}
+#briefingBoard .briefing-card{
+  gap:8px;
+  padding:12px 14px;
+  border-color:rgba(205,229,255,.12);
+  border-radius:15px;
+  background:linear-gradient(145deg,rgba(20,31,49,.90),rgba(10,20,36,.96));
+  box-shadow:none;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+#briefingBoard .briefing-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(126,197,255,.40);
+  background:linear-gradient(145deg,rgba(25,39,62,.92),rgba(12,24,43,.98));
+}
+#briefingBoard .briefing-card.active{
+  border-color:rgba(105,197,255,.72);
+  box-shadow:0 0 0 1px rgba(105,197,255,.18) inset,0 12px 30px rgba(37,99,235,.12);
+}
+#briefingBoard .briefing-card b{
+  font-size:15px;
+  line-height:1.25;
+}
+#briefingBoard .briefing-meta{
+  font-size:11px;
+  line-height:1.4;
+}
+#briefingBoard .briefing-preview-card,
+#briefingBoard .forms-detail-card,
+#briefingBoard .forms-check-section{
+  border-color:rgba(205,229,255,.15);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(16,28,47,.92),rgba(8,18,33,.98));
+  box-shadow:0 18px 48px rgba(0,0,0,.20),inset 0 0 0 1px rgba(255,255,255,.016);
+}
+#briefingBoard .briefing-preview-card,
+#briefingBoard .forms-detail-card{
+  padding:22px;
+}
+#briefingBoard .forms-client-head{
+  padding-bottom:14px;
+  border-bottom:1px solid rgba(205,229,255,.10);
+}
+#briefingBoard .forms-client-head h3{
+  font-size:23px;
+}
+#briefingBoard .forms-field{
+  gap:8px;
+}
+#briefingBoard .forms-field label,
+#briefingBoard .forms-check-item label{
+  color:#d8e8fb;
+  font-size:11px;
+  letter-spacing:.04em;
+}
+#briefingBoard .forms-field input,
+#briefingBoard .forms-field textarea,
+#briefingBoard .forms-field select,
+#briefingBoard .forms-check-item textarea{
+  border-color:rgba(126,173,219,.18);
+  border-radius:13px;
+  background:#071220;
+  color:#f7fbff;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.015);
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+#briefingBoard .forms-field input:focus,
+#briefingBoard .forms-field textarea:focus,
+#briefingBoard .forms-field select:focus,
+#briefingBoard .forms-check-item textarea:focus{
+  border-color:rgba(92,200,255,.68);
+  background:#081525;
+  box-shadow:0 0 0 3px rgba(92,200,255,.12);
+}
+#briefingBoard .forms-checklist{
+  gap:12px;
+}
+#briefingBoard .forms-check-item{
+  border-color:rgba(255,107,107,.34);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(59,31,34,.92),rgba(34,18,24,.96));
+  box-shadow:none;
+}
+#briefingBoard .forms-check-item.done{
+  border-color:rgba(112,214,162,.46);
+  background:linear-gradient(145deg,rgba(22,54,38,.94),rgba(12,32,25,.98));
+  box-shadow:0 0 0 1px rgba(112,214,162,.06),0 12px 30px rgba(0,0,0,.16);
+}
+#briefingBoard .forms-check-item.optional,
+#briefingBoard .forms-check-item.not-applicable{
+  border-color:rgba(180,164,255,.22);
+  background:linear-gradient(145deg,rgba(34,36,55,.88),rgba(18,23,38,.96));
+}
+#briefingBoard .forms-check-item:hover{
+  box-shadow:0 14px 28px rgba(0,0,0,.18);
+}
+#briefingBoard .forms-check-top input{
+  width:24px;
+  height:24px;
+  border-color:rgba(255,255,255,.86);
+  border-radius:7px;
+}
+#briefingBoard .forms-check-top input:checked{
+  background:#22c55e;
+  border-color:#8df0b9;
+}
+#briefingBoard .forms-check-badge,
+#briefingBoard .status-pill,
+#briefingBoard .briefing-status{
+  border-radius:999px;
+  box-shadow:none;
+}
+#briefingBoard .forms-check-badge.pending,
+#briefingBoard .status-pill.empty{
+  color:#ffd6d6;
+  background:rgba(255,107,107,.15);
+  border:1px solid rgba(255,107,107,.38);
+}
+#briefingBoard .status-pill.progress{
+  color:#ded3ff;
+  background:rgba(139,92,246,.17);
+  border:1px solid rgba(139,92,246,.42);
+}
+#briefingBoard .forms-check-badge.done,
+#briefingBoard .status-pill.done{
+  color:#d8ffe8;
+  background:rgba(112,214,162,.15);
+  border:1px solid rgba(112,214,162,.42);
+}
+#briefingBoard .forms-check-badge.optional,
+#briefingBoard .forms-check-badge.muted,
+#briefingBoard .status-pill.locked{
+  color:#d6deee;
+  background:rgba(148,163,184,.12);
+  border:1px solid rgba(180,164,255,.22);
+}
+#briefingBoard .forms-progress{
+  height:7px;
+  border:1px solid rgba(205,229,255,.10);
+  background:rgba(5,13,25,.84);
+}
+#briefingBoard .forms-progress span{
+  background:linear-gradient(90deg,#5cc8ff,#8b5cf6,#6ee7b7);
+}
+#briefingBoard .forms-empty-state{
+  border-color:rgba(205,229,255,.18);
+  background:rgba(8,18,33,.42);
+}
 .briefing-link-preview{
   border:1px solid rgba(255,255,255,.10);
   border-radius:12px;
