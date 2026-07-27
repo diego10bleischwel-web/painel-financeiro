@@ -633,7 +633,7 @@ button,a{font:inherit}
   font-weight:1000;
   text-transform:uppercase;
 }
-.forms-field input,.forms-field textarea,.forms-check-item textarea{
+.forms-field input,.forms-field textarea,.forms-field select,.forms-check-item textarea{
   width:100%;
   border:1px solid rgba(255,255,255,.12);
   border-radius:12px;
@@ -2105,6 +2105,37 @@ function onboardingFormUrl(nameOrId=''){
   base.searchParams.set('v',version);
   return base.toString();
 }
+function clienteNovoDadosPadrao(b){
+  const f=b?.formulario||{};
+  const current=f.clienteNovo?.dados||{};
+  const grouped=f.clienteNovo||{};
+  const id=grouped.identificacao||b?.dados?.identificacao||{};
+  const ac=grouped.acessos||{};
+  const pay=grouped.pagamento||{};
+  const inv=grouped.investimento||{};
+  const pub=grouped.publico||{};
+  return {
+    ...current,
+    responsavel_nome:current.responsavel_nome||id.responsavel_nome||current.nome||'',
+    cpf:current.cpf||id.cpf_responsavel||'',
+    nome_empresa:current.nome_empresa||id.empresa_nome||current.empresa||b?.empresa_nome||b?.cliente_nome||'',
+    cnpj:current.cnpj||id.cnpj||'',
+    instagram_usuario:current.instagram_usuario||ac.instagram_user||'',
+    instagram_senha:current.instagram_senha||'',
+    facebook_usuario:current.facebook_usuario||ac.facebook_page_link||'',
+    facebook_senha:current.facebook_senha||'',
+    forma_pagamento:current.forma_pagamento||pay.metodo||inv.metodo_escolhido||'',
+    valor_mensal_investimento:current.valor_mensal_investimento||inv.investimento_mensal||'',
+    genero_publico:current.genero_publico||pub.genero||'',
+    idade_publico:current.idade_publico||[pub.idade_minima,pub.idade_maxima].filter(Boolean).join(' a '),
+    localizacao_publico:current.localizacao_publico||pub.regiao||'',
+    cartao_numero:current.cartao_numero||'',
+    cartao_nome_impresso:current.cartao_nome_impresso||pay.cartao_titular||'',
+    cartao_validade:current.cartao_validade||'',
+    cartao_codigo_seguranca:current.cartao_codigo_seguranca||'',
+    valor_investimento_inicial:current.valor_investimento_inicial||inv.investimento_inicial||pay.pix_valor||''
+  };
+}
 function updateOnboardingLink(){
   const preview=$('#onboardingClientLink');
   if(!preview)return;
@@ -2691,17 +2722,12 @@ function ensureFormularioState(b){
   const pixelTintimItems=Array.isArray(pixelTintimSource.items)?pixelTintimSource.items:pixelTintimSource.itens;
   const publicoSource=f.publico||{};
   const oldPublicoItems=Array.isArray(publicoSource.itens)?publicoSource.itens:[];
+  const clienteNovoDados=clienteNovoDadosPadrao(b);
   return {
     ...f,
     clienteNovo:{
       ...f.clienteNovo,
-      dados:{
-        ...(f.clienteNovo?.dados||{}),
-        nome:f.clienteNovo?.dados?.nome||b?.cliente_nome||id.empresa||'',
-        empresa:f.clienteNovo?.dados?.empresa||id.empresa||b?.empresa_nome||'',
-        email:f.clienteNovo?.dados?.email||'',
-        whatsapp:f.clienteNovo?.dados?.whatsapp||id.whatsapp_numero||''
-      },
+      dados:clienteNovoDados,
       link:f.clienteNovo?.link||'',
       enviadoEm:f.clienteNovo?.enviadoEm||null,
       atualizadoEm:f.clienteNovo?.atualizadoEm||null,
@@ -2750,10 +2776,17 @@ function calcularStatusEtapa(b,stage){
   }
   if(stage==='clienteNovo'){
     const d=b?.dados||{},id=d.identificacao||{};
-    const vals=Object.values(f.clienteNovo.dados||{});
+    const dados=f.clienteNovo.dados||{};
+    const vals=Object.values(dados);
     const oldComplete=[id.empresa,id.produto,id.tipo].every(filledValue);
-    const newComplete=['nome','empresa'].every(key=>filledValue(f.clienteNovo.dados?.[key]))
-      &&(filledValue(f.clienteNovo.dados?.email)||filledValue(f.clienteNovo.dados?.whatsapp)||oldComplete);
+    const baseRequired=['responsavel_nome','cpf','nome_empresa','cnpj','instagram_usuario','instagram_senha','facebook_usuario','facebook_senha','forma_pagamento','valor_mensal_investimento','genero_publico','idade_publico','localizacao_publico'];
+    const payment=String(dados.forma_pagamento||'').toLowerCase();
+    const paymentRequired=payment==='cartao'||payment==='cartão'
+      ? ['cartao_numero','cartao_nome_impresso','cartao_validade','cartao_codigo_seguranca']
+      : payment==='pix'||payment==='boleto'
+        ? ['valor_investimento_inicial']
+        : [];
+    const newComplete=[...baseRequired,...paymentRequired].every(key=>filledValue(dados[key]));
     const started=vals.some(filledValue)||filledValue(f.clienteNovo.link)||filledValue(id);
     const done=newComplete||oldComplete;
     if(done)return 'concluido';
@@ -2812,9 +2845,12 @@ function statusTone(status){
 function clienteNovoFormUrl(b){
   const s=briefingSummary(b);
   const id=b?.cliente_id||b?.id||'';
-  const base=new URL(briefingModeUrl('clienteNovo',s.empresa,id));
+  const base=new URL('briefing_cliente_completo.html',location.href);
+  base.searchParams.set('clienteId',id||stableClienteIdFromName(s.empresa));
+  base.searchParams.set('cliente',s.empresa);
+  base.searchParams.set('empresa',s.empresa);
   base.searchParams.set('form','clienteNovo');
-  if(id)base.searchParams.set('id',id);
+  base.searchParams.set('v',currentVersionParam());
   return base.toString();
 }
 function filterBriefingsForForms(){
@@ -2913,16 +2949,53 @@ function renderFormsStageDetail(b,stage){
     const clienteId=b?.cliente_id||b?.id||'';
     const trafficLink=briefingFormUrl(s.empresa,clienteId);
     const link=clienteNovoFormUrl(b);
+    const dados=f.clienteNovo.dados||{};
+    const pagamento=String(dados.forma_pagamento||'').toLowerCase();
+    const baseFields=[
+      ['responsavel_nome','NOME DO RESPONSAVEL'],
+      ['cpf','CPF'],
+      ['nome_empresa','NOME DA EMPRESA'],
+      ['cnpj','CNPJ'],
+      ['instagram_usuario','USUARIO DO INSTAGRAM'],
+      ['instagram_senha','SENHA DO INSTAGRAM'],
+      ['facebook_usuario','USUARIO DO FACEBOOK'],
+      ['facebook_senha','SENHA DO FACEBOOK']
+    ];
+    const publicFields=[
+      ['valor_mensal_investimento','VALOR MENSAL DE INVESTIMENTO'],
+      ['genero_publico','GENERO DO PUBLICO'],
+      ['idade_publico','IDADE DO PUBLICO'],
+      ['localizacao_publico','LOCALIZACAO DO PUBLICO']
+    ];
+    const cartaoFields=[
+      ['cartao_numero','NUMERO DO CARTAO'],
+      ['cartao_nome_impresso','NOME IMPRESSO'],
+      ['cartao_validade','VALIDADE'],
+      ['cartao_codigo_seguranca','CODIGO DE SEGURANCA']
+    ];
+    const extraFields=pagamento==='cartao'||pagamento==='cartão'?cartaoFields:(pagamento==='pix'||pagamento==='boleto'?[['valor_investimento_inicial','VALOR DO INVESTIMENTO INICIAL']]:[]);
     return `<section class="forms-detail-card">
       <div class="forms-client-head">
         <div>
           <h3>Cliente Novo</h3>
-          <p class="forms-muted">Estrutura inicial para onboarding. Campos definitivos serao adicionados depois sem alterar os dados atuais.</p>
+          <p class="forms-muted">Formulario de dados iniciais do cliente. As respostas ficam salvas somente nesta aba.</p>
         </div>
       </div>
       <div class="forms-field-grid">
-        ${[['nome','Nome do cliente'],['empresa','Empresa'],['email','E-mail'],['whatsapp','WhatsApp']].map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(f.clienteNovo.dados?.[key]||'')}"></div>`).join('')}
+        ${baseFields.map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(dados[key]||'')}"></div>`).join('')}
+        <div class="forms-field">
+          <label>FORMA DE PAGAMENTO</label>
+          <select data-form-field="clienteNovo" data-field="forma_pagamento">
+            ${['','CARTÃO','PIX','BOLETO'].map(option=>{
+              const current=String(dados.forma_pagamento||'').toUpperCase().replace('CARTAO','CARTÃO');
+              return `<option value="${esc(option)}" ${current===option?'selected':''}>${esc(option||'Selecione')}</option>`;
+            }).join('')}
+          </select>
+        </div>
+        ${publicFields.map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(dados[key]||'')}"></div>`).join('')}
+        ${extraFields.map(([key,label])=>`<div class="forms-field"><label>${esc(label)}</label><input data-form-field="clienteNovo" data-field="${esc(key)}" value="${esc(dados[key]||'')}"></div>`).join('')}
       </div>
+      <p class="forms-muted">Durante a configuracao, poderao chegar codigos por SMS ou aplicativo. Nossa equipe entrara em contato para concluir o acesso.</p>
       <div class="forms-field-grid">
         <div class="forms-field">
           <label>LINK TRAFFIC AI</label>
@@ -3083,7 +3156,15 @@ function saveClienteNovoStage(){
     });
     formulario.clienteNovo.link=formulario.clienteNovo.link||clienteNovoFormUrl(briefings.find(x=>String(x.id)===String(selectedBriefingId)));
     formulario.clienteNovo.atualizadoEm=new Date().toISOString();
-    if(['nome','empresa','email','whatsapp'].every(key=>filledValue(formulario.clienteNovo.dados[key]))){
+    const dados=formulario.clienteNovo.dados||{};
+    const payment=String(dados.forma_pagamento||'').toLowerCase();
+    const baseRequired=['responsavel_nome','cpf','nome_empresa','cnpj','instagram_usuario','instagram_senha','facebook_usuario','facebook_senha','forma_pagamento','valor_mensal_investimento','genero_publico','idade_publico','localizacao_publico'];
+    const paymentRequired=payment==='cartao'||payment==='cartão'
+      ? ['cartao_numero','cartao_nome_impresso','cartao_validade','cartao_codigo_seguranca']
+      : payment==='pix'||payment==='boleto'
+        ? ['valor_investimento_inicial']
+        : [];
+    if([...baseRequired,...paymentRequired].every(key=>filledValue(dados[key]))){
       formulario.clienteNovo.concluidoEm=formulario.clienteNovo.concluidoEm||new Date().toISOString();
     }
   });

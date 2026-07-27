@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Onboarding Completo do Cliente - Dualize Digital</title>
+<title>Cliente Novo - Dualize Digital</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -14,7 +14,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:20px}
 .brand{display:grid;gap:5px}.brand b{letter-spacing:.14em;text-transform:uppercase;color:#7dd3fc;font-size:12px}.brand h1{margin:0;font-size:clamp(30px,5vw,52px);line-height:.98}.brand p{margin:0;color:var(--muted)}
 .save-pill{border:1px solid rgba(111,184,255,.35);background:rgba(18,27,44,.82);border-radius:999px;padding:11px 15px;color:#bfe4ff;box-shadow:0 0 28px rgba(51,214,255,.16)}
-.stepper{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:22px 0}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:22px 0}
 .step{border:1px solid var(--line);background:rgba(18,27,44,.76);border-radius:16px;padding:10px;text-align:center;color:var(--muted);font-size:12px}
 .step.active{color:#fff;border-color:rgba(51,214,255,.8);box-shadow:0 0 22px rgba(51,214,255,.18);background:linear-gradient(135deg,rgba(139,92,246,.28),rgba(51,214,255,.18))}
 .card{border:1px solid rgba(111,184,255,.35);border-radius:24px;background:linear-gradient(145deg,rgba(22,33,52,.94),rgba(12,22,38,.96));box-shadow:0 22px 70px rgba(0,0,0,.35);overflow:hidden}
@@ -39,8 +39,8 @@ details{border:1px solid rgba(111,184,255,.25);background:rgba(18,27,44,.62);bor
   <header class="top">
     <div class="brand">
       <b>Dualize Digital</b>
-      <h1>Onboarding Completo do Cliente</h1>
-      <p>Um unico formulario para iniciar a operacao e alimentar o Traffic AI.</p>
+      <h1>Cliente Novo</h1>
+      <p>Formulario para registrar os dados iniciais de configuracao.</p>
     </div>
     <div class="save-pill" id="saveStatus">Conectando Firebase...</div>
   </header>
@@ -60,100 +60,118 @@ const db=firebase.firestore();
 const params=new URLSearchParams(location.search);
 const clean=s=>String(s||'').trim();
 const makeId=()=>`onb_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
-let clientId=clean(params.get('cliente'))||makeId();
-if(!params.get('cliente')){params.set('cliente',clientId);history.replaceState(null,'',`${location.pathname}?${params.toString()}`)}
-let current=0,saveTimer=null,loaded=false;
+let clientId=clean(params.get('clienteId'))||clean(params.get('id'))||clean(params.get('cliente'))||makeId();
+if(!params.get('clienteId')){params.set('clienteId',clientId);history.replaceState(null,'',`${location.pathname}?${params.toString()}`)}
+let current=0,saveTimer=null,loaded=false,existingClienteNovo={},existingBriefing={};
 const steps=[
-  {key:'identificacao',title:'Identificacao',sub:'Responsavel e empresa'},
-  {key:'acessos',title:'Estrutura digital',sub:'Meta e canais'},
-  {key:'pagamento',title:'Pagamento',sub:'Forma dos anuncios'},
-  {key:'investimento',title:'Investimento',sub:'Valores iniciais'},
-  {key:'publico',title:'Publico-alvo',sub:'Dados estrategicos'},
-  {key:'confirmacoes',title:'Confirmacoes',sub:'Autorizacoes'}
+  {key:'dados',title:'Dados',sub:'Responsavel e empresa'},
+  {key:'acessos',title:'Acessos',sub:'Instagram e Facebook'},
+  {key:'pagamento',title:'Pagamento',sub:'Investimento e forma'},
+  {key:'publico',title:'Publico',sub:'Perfil de campanha'}
 ];
 const fields={
-  identificacao:{responsavel_nome:'',cpf_responsavel:'',empresa_nome:clean(params.get('empresa'))||'',cnpj:'',whatsapp:'',email:''},
-  acessos:{instagram_user:'',instagram_link:'',facebook_page_link:'',business_manager:'',ad_account:'',facebook_page:'',pixel:''},
-  pagamento:{metodo:'',cartao_titular:'',cartao_tipo:'',cartao_final:'',cartao_horario:'',pix_valor:'',pix_data:''},
-  investimento:{investimento_mensal:'',investimento_inicial:'',metodo_escolhido:''},
-  publico:{genero:'',idade_minima:'',idade_maxima:'',regiao:'',resumo_publico:'',quem_compra:'',problema_principal:''},
-  confirmacoes:{codigos:false,autorizacao:false,correto:false}
+  responsavel_nome:'',
+  cpf:'',
+  nome_empresa:clean(params.get('empresa'))||clean(params.get('cliente'))||'',
+  cnpj:'',
+  instagram_usuario:'',
+  instagram_senha:'',
+  facebook_usuario:'',
+  facebook_senha:'',
+  forma_pagamento:'',
+  valor_mensal_investimento:'',
+  genero_publico:'',
+  idade_publico:'',
+  localizacao_publico:'',
+  cartao_numero:'',
+  cartao_nome_impresso:'',
+  cartao_validade:'',
+  cartao_codigo_seguranca:'',
+  valor_investimento_inicial:''
 };
-let data=JSON.parse(JSON.stringify(fields));
-const required=['responsavel_nome','cpf_responsavel','empresa_nome','cnpj','whatsapp','email','metodo','investimento_mensal','investimento_inicial','metodo_escolhido','genero','idade_minima','idade_maxima','regiao','resumo_publico','quem_compra','problema_principal','codigos','autorizacao','correto'];
+let data={...fields};
+const baseRequired=['responsavel_nome','cpf','nome_empresa','cnpj','instagram_usuario','instagram_senha','facebook_usuario','facebook_senha','forma_pagamento','valor_mensal_investimento','genero_publico','idade_publico','localizacao_publico'];
 function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 function stepHtml(){
   return steps.map((s,i)=>`<button class="step ${i===current?'active':''}" type="button" data-step="${i}"><b>${i+1}</b><br>${esc(s.title)}</button>`).join('');
 }
-function optionButtons(group,name,opts){
-  const val=data[group][name]||'';
-  return `<div class="choices" data-choice-group="${group}" data-choice-name="${name}">${opts.map(o=>`<button class="choice ${val===o?'active':''}" type="button" data-choice-value="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+function optionButtons(name,opts){
+  const val=data[name]||'';
+  return `<div class="choices" data-choice-name="${name}">${opts.map(o=>`<button class="choice ${val===o?'active':''}" type="button" data-choice-value="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
 }
-function input(group,name,label,opts={}){
-  const value=data[group][name]||'';
-  const req=required.includes(name);
+function input(name,label,opts={}){
+  const value=data[name]||'';
+  const req=requiredFields().includes(name);
   const type=opts.type||'text';
   const tag=req?'<span class="tag">obrigatorio</span>':'<span class="tag optional">opcional</span>';
-  return `<div class="field ${opts.full?'full':''}"><label>${label}${tag}</label>${opts.hint?`<div class="hint">${opts.hint}</div>`:''}<input data-field="${name}" data-group="${group}" type="${type}" placeholder="${esc(opts.placeholder||'')}" value="${esc(value)}"></div>`;
+  return `<div class="field ${opts.full?'full':''}"><label>${label}${tag}</label>${opts.hint?`<div class="hint">${opts.hint}</div>`:''}<input data-field="${name}" type="${type}" placeholder="${esc(opts.placeholder||'')}" value="${esc(value)}"></div>`;
 }
-function textarea(group,name,label,placeholder){
-  return `<div class="field full"><label>${label}<span class="tag">obrigatorio</span></label><textarea data-field="${name}" data-group="${group}" placeholder="${esc(placeholder||'')}">${esc(data[group][name]||'')}</textarea></div>`;
+function paymentFields(){
+  const payment=String(data.forma_pagamento||'').toUpperCase();
+  if(payment==='CARTAO'||payment==='CARTÃO'){
+    return `${input('cartao_numero','NUMERO DO CARTAO',{placeholder:'Digite o numero do cartao'})}${input('cartao_nome_impresso','NOME IMPRESSO',{placeholder:'Como aparece no cartao'})}${input('cartao_validade','VALIDADE',{placeholder:'MM/AA'})}${input('cartao_codigo_seguranca','CODIGO DE SEGURANCA',{placeholder:'CVV'})}`;
+  }
+  if(payment==='PIX'||payment==='BOLETO'){
+    return input('valor_investimento_inicial','VALOR DO INVESTIMENTO INICIAL',{placeholder:'R$ 0,00',full:true});
+  }
+  return '';
 }
 function render(){
   document.getElementById('stepper').innerHTML=stepHtml();
   const s=steps[current];
   let inner='';
-  if(s.key==='identificacao')inner=`${input('identificacao','responsavel_nome','Nome do responsavel',{placeholder:'Nome completo'})}${input('identificacao','cpf_responsavel','CPF do responsavel',{placeholder:'000.000.000-00'})}${input('identificacao','empresa_nome','Nome da empresa',{placeholder:'Nome da empresa'})}${input('identificacao','cnpj','CNPJ',{placeholder:'00.000.000/0000-00'})}${input('identificacao','whatsapp','WhatsApp',{placeholder:'(00) 00000-0000'})}${input('identificacao','email','E-mail',{type:'email',placeholder:'contato@empresa.com'})}`;
-  if(s.key==='acessos')inner=`${input('acessos','instagram_user','Instagram usuario ou ID',{placeholder:'@empresa ou ID'})}${input('acessos','instagram_link','Link do Instagram',{placeholder:'https://instagram.com/...'})}${input('acessos','facebook_page_link','Link da pagina do Facebook',{placeholder:'https://facebook.com/...'})}<div class="field full"><label>Tem Business Manager?</label>${optionButtons('acessos','business_manager',['Sim','Nao','Nao sei'])}</div><div class="field"><label>Tem conta de anuncios?</label>${optionButtons('acessos','ad_account',['Sim','Nao','Nao sei'])}</div><div class="field"><label>Tem pagina do Facebook?</label>${optionButtons('acessos','facebook_page',['Sim','Nao','Nao sei'])}</div><div class="field full"><label>Tem Pixel instalado?</label>${optionButtons('acessos','pixel',['Sim','Nao','Nao sei'])}</div><div class="note field full">Nao envie senhas, codigos temporarios, token, numero completo do cartao, CVV ou acesso bancario por este formulario.</div>`;
-  if(s.key==='pagamento')inner=`<div class="field full"><label>Forma de pagamento dos anuncios<span class="tag">obrigatorio</span></label>${optionButtons('pagamento','metodo',['Cartao','PIX','Boleto','Ainda nao definido'])}</div>${input('pagamento','cartao_titular','Titular do cartao',{placeholder:'Somente nome do titular'})}<div class="field"><label>Preferencia do cartao</label>${optionButtons('pagamento','cartao_tipo',['Fisico','Virtual','Nao sei'])}</div>${input('pagamento','cartao_final','Final do cartao',{placeholder:'Ultimos 4 digitos, opcional'})}${input('pagamento','cartao_horario','Melhor horario para configuracao acompanhada',{placeholder:'Ex: 14h as 17h'})}${input('pagamento','pix_valor','Valor do primeiro investimento',{placeholder:'R$ 0,00'})}${input('pagamento','pix_data','Data do primeiro deposito',{type:'date'})}<div class="note field full">Por seguranca, nunca informe numero completo do cartao, validade completa, CVV, senha ou codigo recebido por SMS/e-mail.</div>`;
-  if(s.key==='investimento')inner=`${input('investimento','investimento_mensal','Investimento mensal em anuncios',{placeholder:'R$ 0,00'})}${input('investimento','investimento_inicial','Investimento inicial disponivel',{placeholder:'R$ 0,00'})}<div class="field full"><label>Metodo escolhido<span class="tag">obrigatorio</span></label>${optionButtons('investimento','metodo_escolhido',['Cartao','PIX','Boleto','Ainda nao definido'])}</div>`;
-  if(s.key==='publico')inner=`<div class="field"><label>Genero principal<span class="tag">obrigatorio</span></label>${optionButtons('publico','genero',['Todos','Homens','Mulheres','Nao sei'])}</div>${input('publico','idade_minima','Idade minima',{type:'number',placeholder:'18'})}${input('publico','idade_maxima','Idade maxima',{type:'number',placeholder:'55'})}${input('publico','regiao','Cidade/regiao',{placeholder:'Cidade, estado ou raio de atendimento'})}${textarea('publico','resumo_publico','Resumo do publico-alvo','Quem e a pessoa que queremos atingir?')}${textarea('publico','quem_compra','Quem compra ou decide?','Descreva quem normalmente compra ou aprova a compra.')}${textarea('publico','problema_principal','Principal necessidade/problema','Qual problema, desejo ou urgencia motiva a compra?')}`;
-  if(s.key==='confirmacoes')inner=`<details open><summary>Como vamos comecar</summary><ul><li>Conferimos a estrutura Meta e os dados da empresa.</li><li>Validamos forma de pagamento e investimento inicial.</li><li>Usamos o publico-alvo para orientar o Traffic AI e a estrategia.</li><li>Se houver verificacao, ela sera feita com acompanhamento e sem pedir senhas.</li></ul></details><div class="checks"><label class="check"><input data-field="codigos" data-group="confirmacoes" type="checkbox" ${data.confirmacoes.codigos?'checked':''}> Estou ciente de que codigos de verificacao podem ser solicitados somente durante configuracao acompanhada.</label><label class="check"><input data-field="autorizacao" data-group="confirmacoes" type="checkbox" ${data.confirmacoes.autorizacao?'checked':''}> Autorizo o uso das informacoes para configuracao e gestao das campanhas.</label><label class="check"><input data-field="correto" data-group="confirmacoes" type="checkbox" ${data.confirmacoes.correto?'checked':''}> Confirmo que as informacoes preenchidas estao corretas.</label></div><div class="note ok-note">A Dualize Digital nao solicita senha, CVV, token bancario nem codigo temporario por formulario.</div>`;
+  if(s.key==='dados')inner=`${input('responsavel_nome','NOME DO RESPONSAVEL',{placeholder:'Nome completo'})}${input('cpf','CPF',{placeholder:'000.000.000-00'})}${input('nome_empresa','NOME DA EMPRESA',{placeholder:'Nome da empresa'})}${input('cnpj','CNPJ',{placeholder:'00.000.000/0000-00'})}`;
+  if(s.key==='acessos')inner=`${input('instagram_usuario','USUARIO DO INSTAGRAM',{placeholder:'@usuario'})}${input('instagram_senha','SENHA DO INSTAGRAM',{type:'password',placeholder:'Senha do Instagram'})}${input('facebook_usuario','USUARIO DO FACEBOOK',{placeholder:'Usuario ou e-mail'})}${input('facebook_senha','SENHA DO FACEBOOK',{type:'password',placeholder:'Senha do Facebook'})}<div class="note field full">Durante a configuracao, poderao chegar codigos por SMS ou aplicativo. Nossa equipe entrara em contato para concluir o acesso.</div>`;
+  if(s.key==='pagamento')inner=`<div class="field full"><label>FORMA DE PAGAMENTO<span class="tag">obrigatorio</span></label>${optionButtons('forma_pagamento',['CARTÃO','PIX','BOLETO'])}</div>${input('valor_mensal_investimento','VALOR MENSAL DE INVESTIMENTO',{placeholder:'R$ 0,00',full:true})}${paymentFields()}`;
+  if(s.key==='publico')inner=`${input('genero_publico','GENERO DO PUBLICO',{placeholder:'Ex: Todos, mulheres, homens'})}${input('idade_publico','IDADE DO PUBLICO',{placeholder:'Ex: 25 a 55 anos'})}${input('localizacao_publico','LOCALIZACAO DO PUBLICO',{placeholder:'Cidade, estado ou regiao',full:true})}`;
   document.getElementById('formCard').innerHTML=`<div class="card-head"><div class="num">${current+1}</div><div><h2>${esc(s.title)}</h2><p>${esc(s.sub)}</p></div></div><div class="body"><div class="grid">${inner}</div><div class="error" id="errorBox"></div><div class="actions"><button class="btn secondary" id="prevBtn" type="button" ${current===0?'disabled':''}>Voltar</button><button class="btn" id="nextBtn" type="button">${current===steps.length-1?'Enviar formulario':'Salvar e continuar'}</button></div></div>`;
 }
 function collectFromDom(){
   document.querySelectorAll('[data-field]').forEach(el=>{
-    const group=el.dataset.group,field=el.dataset.field;
-    data[group][field]=el.type==='checkbox'?el.checked:clean(el.value);
+    data[el.dataset.field]=clean(el.value);
   });
 }
 function setChoice(btn){
-  const wrap=btn.closest('[data-choice-group]');
-  data[wrap.dataset.choiceGroup][wrap.dataset.choiceName]=btn.dataset.choiceValue;
+  const wrap=btn.closest('[data-choice-name]');
+  data[wrap.dataset.choiceName]=btn.dataset.choiceValue;
   render();
   scheduleSave();
 }
 function pendingItems(){
-  const flat={...data.identificacao,...data.acessos,...data.pagamento,...data.investimento,...data.publico,...data.confirmacoes};
-  return required.filter(key=>!flat[key]);
+  return requiredFields().filter(key=>!clean(data[key]));
 }
-function trafficPayload(){
-  return {
-    identificacao:{empresa:data.identificacao.empresa_nome,produto:'--',tipo:'--',nicho:data.publico.problema_principal||data.publico.resumo_publico,idioma:'Portugues (BR)',pais:'Brasil',link:data.acessos.instagram_link||data.acessos.facebook_page_link||'--'},
-    avatar:{descricao:data.publico.resumo_publico,profissao_tipica:data.publico.quem_compra,idade_minima:data.publico.idade_minima,idade_maxima:data.publico.idade_maxima,genero:data.publico.genero,consciencia:'--',dores:data.publico.problema_principal,desejos:data.publico.quem_compra,provas:'--',regiao:data.publico.regiao},
-    produto:{o_que_vende:'--',diferencial_unico:'--',diferenciais:'--'},
-    financeiro:{budget:data.investimento.investimento_mensal,meta_receita:'--',meta_roas:'auto',ticket:'--'}
-  };
+function requiredFields(){
+  const payment=String(data.forma_pagamento||'').toUpperCase();
+  if(payment==='CARTAO'||payment==='CARTÃO')return [...baseRequired,'cartao_numero','cartao_nome_impresso','cartao_validade','cartao_codigo_seguranca'];
+  if(payment==='PIX'||payment==='BOLETO')return [...baseRequired,'valor_investimento_inicial'];
+  return baseRequired;
 }
 async function saveProgress(final=false){
   collectFromDom();
   const missing=pendingItems();
   const status=final&&missing.length===0?'concluido':'em_preenchimento';
   const now=new Date().toISOString();
-  const doc={
-    id:clientId,cliente:clientId,source:'onboarding_completo',status,createdAt:loaded?undefined:now,updatedAt:now,completedAt:status==='concluido'?now:null,
-    empresa_nome:data.identificacao.empresa_nome,responsavel_nome:data.identificacao.responsavel_nome,
-    formulario:{clienteNovo:{identificacao:data.identificacao,acessos:data.acessos,pagamento:data.pagamento,investimento:data.investimento,confirmacoes:data.confirmacoes},trafficAi:trafficPayload()},
-    dados:data,pendingItems:missing
+  const clienteNovo={
+    ...existingClienteNovo,
+    dados:{...data},
+    link:location.href,
+    status,
+    enviadoEm:existingClienteNovo.enviadoEm||now,
+    atualizadoEm:now,
+    concluidoEm:status==='concluido'?(existingClienteNovo.concluidoEm||now):(existingClienteNovo.concluidoEm||null),
+    pendencias:missing
   };
-  Object.keys(doc).forEach(k=>doc[k]===undefined&&delete doc[k]);
-  await db.collection('onboardings').doc(clientId).set(doc,{merge:true});
-  if(status==='concluido'){
-    await db.collection('briefings').doc(clientId).set({
-      id:clientId,onboardingId:clientId,source:'onboarding_completo',status:'novo',timestamp:Date.now(),updatedAt:now,
-      empresa_nome:data.identificacao.empresa_nome,cliente_nome:data.identificacao.empresa_nome,dados:trafficPayload()
-    },{merge:true});
-  }
+  await db.collection('briefings').doc(clientId).set({
+    id:clientId,
+    cliente_id:clientId,
+    cliente_nome:data.nome_empresa||clientId,
+    empresa_nome:data.nome_empresa||clientId,
+    status:existingBriefing.status||'novo',
+    timestamp:existingBriefing.timestamp||Date.now(),
+    updatedAt:now,
+    formulario:{clienteNovo}
+  },{merge:true});
+  existingClienteNovo=clienteNovo;
   loaded=true;
   document.getElementById('saveStatus').textContent=status==='concluido'?'Concluido e salvo online':'Salvo online';
 }
@@ -174,12 +192,14 @@ async function next(){
 }
 async function load(){
   try{
-    const snap=await db.collection('onboardings').doc(clientId).get();
+    const snap=await db.collection('briefings').doc(clientId).get();
     if(snap.exists){
-      const saved=snap.data().dados||{};
-      Object.keys(data).forEach(group=>data[group]={...data[group],...(saved[group]||{})});
+      existingBriefing=snap.data()||{};
+      existingClienteNovo=snap.data().formulario?.clienteNovo||{};
+      const saved=existingClienteNovo.dados||{};
+      data={...data,...saved};
       loaded=true;
-      if(snap.data().status==='concluido'){document.getElementById('formCard').hidden=true;document.getElementById('successBox').classList.add('show')}
+      if(existingClienteNovo.status==='concluido'){document.getElementById('formCard').hidden=true;document.getElementById('successBox').classList.add('show')}
     }
     document.getElementById('saveStatus').textContent='Formulario pronto';
   }catch(err){document.getElementById('saveStatus').textContent='Erro Firebase: '+err.message}
