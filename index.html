@@ -3160,22 +3160,25 @@ function fallbackCopyText(text,done){
   area.remove();
 }
 const briefingSectionOrder=[
-  {key:'identificacao',tone:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP'],['landing_pages','Landing pages'],['contas_anuncios','Contas de anuncios'],['whatsapp_numero','WhatsApp'],['whatsapp_mensagem','Mensagem WhatsApp']]},
-  {key:'avatar',tone:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas']]},
+  {key:'identificacao',tone:'identificacao',title:'1. Identificacao',fields:[['empresa','Empresa'],['produto','Produto'],['tipo','Tipo'],['objetivo','Objetivo'],['nicho','Nicho'],['idioma','Idioma'],['pais','Pais alvo'],['link','Link'],['texto_lp','Texto LP'],['landing_pages','Landing pages'],['contas_anuncios','Contas de anuncios'],['whatsapp_numero','WhatsApp'],['whatsapp_mensagem','Mensagem WhatsApp']]},
+  {key:'avatar',tone:'avatar',title:'2. Cliente ideal',fields:[['descricao','Descricao'],['profissao','Profissao tipica'],['idade_min','Idade minima'],['idade_max','Idade maxima'],['genero','Genero'],['consciencia','Consciencia'],['dores','Dores'],['desejos','Desejos'],['provas','Provas'],['objecoes','Objecoes']]},
   {key:'produto',tone:'produto',title:'3. Produto',fields:[['oque_e','O que vende'],['mecanismo','Diferencial unico'],['diferenciais','Diferenciais'],['como_funciona','Como funciona'],['features','Features']]},
   {key:'financeiro-planejamento',source:'financeiro',tone:'financeiro',title:'Planejamento',fields:[['budget','Budget mensal'],['meta_receita','Meta receita'],['meta_roas','Meta ROAS']]},
-  {key:'financeiro-custos',source:'financeiro',tone:'financeiro',title:'Performance e custos',fields:[['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos']]},
-  {key:'financeiro-oferta',source:'financeiro',tone:'financeiro',title:'Oferta',fields:[['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]}
+  {key:'financeiro-custos',source:'financeiro',tone:'financeiro',title:'Performance e custos',fields:[['ticket','Ticket medio'],['custo_produto','Custo do produto'],['impostos','Impostos'],['taxa_plataforma','Taxa plataforma'],['taxa_fixa','Taxa fixa'],['outros_custos','Outros custos'],['taxa_fechamento','Taxa de fechamento'],['custo_conversa_ideal','Custo conversa ideal'],['custo_conversa_maximo','Custo conversa maximo']]},
+  {key:'financeiro-oferta',source:'financeiro',tone:'financeiro',title:'Oferta',fields:[['preco','Preco'],['preco_parcelado','Preco parcelado'],['preco_riscado','Preco riscado'],['garantia','Garantia'],['urgencia','Urgencia real'],['bonus','Bonus incluidos']]},
+  {key:'identidade',tone:'identidade',title:'5. Identidade visual',fields:[['cor_primaria','Cor primaria'],['cor_secundaria','Cor secundaria'],['cor_fundo','Cor fundo'],['cor_destaque','Cor destaque'],['fonte_headline','Fonte headline'],['fonte_body','Fonte body'],['logo','Logo'],['fotos_produto','Fotos do produto'],['screenshots_software','Screenshots de software'],['notas_visuais','Notas visuais']]}
 ];
 const briefingTabs=[
   {id:'identificacao',label:'Identificacao',sections:['identificacao']},
   {id:'avatar',label:'Avatar',sections:['avatar']},
   {id:'produto',label:'Produto',sections:['produto']},
-  {id:'financeiro',label:'Financeiro',sections:['financeiro-planejamento','financeiro-custos','financeiro-oferta']}
+  {id:'financeiro',label:'Financeiro',sections:['financeiro-planejamento','financeiro-custos','financeiro-oferta']},
+  {id:'identidade',label:'Identidade',sections:['identidade']}
 ];
 const briefingFieldSchema={
   identificacao:{
-    tipo:{kind:'choice',options:['Infoproduto','E-commerce','SaaS','Serviço Local','Leads B2B','Não sei']},
+    tipo:{kind:'choice',options:['Infoproduto','E-commerce','SaaS','Serviço Local','Leads B2B','Outro','Não sei']},
+    objetivo:{kind:'choice',options:['Vendas Diretas - CPA e ROAS','WhatsApp - custo por conversa','Leads - CPL','Negocio Local - custo por contato']},
     idioma:{kind:'choice',options:['Português (BR)','Inglês','Espanhol','Outro']},
     pais:{kind:'choice',options:['Brasil','EUA','Portugal','Outro']},
     link:{kind:'input'},
@@ -3193,7 +3196,8 @@ const briefingFieldSchema={
     descricao:{kind:'textarea'},
     dores:{kind:'textarea',array:true},
     desejos:{kind:'textarea',array:true},
-    provas:{kind:'textarea',array:true}
+    provas:{kind:'textarea',array:true},
+    objecoes:{kind:'textarea',array:true}
   },
   produto:{
     oque_e:{kind:'textarea'},
@@ -3212,12 +3216,27 @@ const briefingFieldSchema={
     taxa_plataforma:{kind:'input'},
     taxa_fixa:{kind:'input'},
     outros_custos:{kind:'textarea'},
+    taxa_fechamento:{kind:'input'},
+    custo_conversa_ideal:{kind:'input'},
+    custo_conversa_maximo:{kind:'input'},
     preco:{kind:'textarea'},
     preco_parcelado:{kind:'textarea'},
     preco_riscado:{kind:'textarea'},
     garantia:{kind:'textarea'},
     urgencia:{kind:'textarea'},
     bonus:{kind:'textarea'}
+  },
+  identidade:{
+    cor_primaria:{kind:'input'},
+    cor_secundaria:{kind:'input'},
+    cor_fundo:{kind:'input'},
+    cor_destaque:{kind:'input'},
+    fonte_headline:{kind:'input'},
+    fonte_body:{kind:'input'},
+    logo:{kind:'textarea',array:true},
+    fotos_produto:{kind:'textarea',array:true},
+    screenshots_software:{kind:'textarea',array:true},
+    notas_visuais:{kind:'textarea'}
   }
 };
 function normalizeBriefingOption(value){

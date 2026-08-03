@@ -263,6 +263,13 @@ body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,2
           <div class="step-name">Financeiro</div>
         </div>
       </div>
+      <div class="step-line" id="sl4" style="margin-top:14px;"></div>
+      <div class="step-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="step-dot" id="sd5" onclick="goStep(5)">5</div>
+          <div class="step-name">Identidade</div>
+        </div>
+      </div>
     </div>
     <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
   </div>
@@ -273,7 +280,7 @@ body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,2
   <div class="intro">
     <div class="badge-intro"><span></span>Dualize Digital</div>
     <h1>Conta pra gente sobre<br>o seu negócio</h1>
-    <p>Preencha as 4 etapas abaixo e ajude a IA a criar criativos e copies muito mais certeiros. Leva menos de 5 minutos.</p>
+    <p>Preencha as 5 etapas abaixo e ajude a IA a criar criativos e copies muito mais certeiros. Leva menos de 5 minutos.</p>
     <div class="steps-preview">
       <div class="sp-item"><div class="sp-num" style="background:rgba(79,107,255,.2);color:#818CF8;">1</div><div><div class="sp-text">Identificação do Negócio</div><div class="sp-sub">Nome, tipo e nicho</div></div></div>
       <div class="sp-item"><div class="sp-num" style="background:rgba(16,185,129,.2);color:#34D399;">2</div><div><div class="sp-text">Seu Cliente Ideal</div><div class="sp-sub">Perfil, dores e desejos</div></div></div>
@@ -333,7 +340,19 @@ body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,2
           <div class="chip" data-val="SaaS" data-tip="Software ou plataforma por assinatura"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>SaaS</div>
           <div class="chip" data-val="Serviço Local" data-tip="Atende presencialmente numa cidade"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Serviço Local</div>
           <div class="chip" data-val="Leads B2B" data-tip="Vende para empresas, gera contatos qualificados ou faz atendimento direto no WhatsApp 1x1"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Leads B2B</div>
+          <div class="chip" data-val="Outro" data-tip="Outro modelo de negocio"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Outro</div>
           <div class="chip chip-ns" data-val="Não sei" data-tip="Não tem certeza? Preencheremos juntos"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#6B7280"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Não sei</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Objetivo</span><span class="req">obrigatorio</span><span class="info-btn" onclick="tog('info-objetivo')">o que e isso?</span></div>
+        <div class="info-panel" id="info-objetivo"><strong>Qual meta a campanha deve perseguir?</strong><br>Essa escolha orienta como analisamos os resultados: venda direta, conversas no WhatsApp, leads ou contatos locais.</div>
+        <div class="chips" data-group="objetivo" data-multi="false">
+          <div class="chip" data-val="Vendas Diretas - CPA e ROAS" data-tip="Meta para venda direta com CPA e ROAS"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Vendas Diretas - CPA e ROAS</div>
+          <div class="chip" data-val="WhatsApp - custo por conversa" data-tip="Meta para atendimento direto no WhatsApp"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>WhatsApp - custo por conversa</div>
+          <div class="chip" data-val="Leads - CPL" data-tip="Meta para geracao de leads qualificados"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Leads - CPL</div>
+          <div class="chip" data-val="Negocio Local - custo por contato" data-tip="Meta para contato local, rota, ligacao ou mensagem"><svg class="ck" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="7" fill="#4F6BFF"/><path d="M4 7l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>Negocio Local - custo por contato</div>
         </div>
       </div>
 
@@ -588,6 +607,18 @@ body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,2
         </button>
       </div>
 
+      <div class="field">
+        <div class="field-top"><span class="field-label">Objecoes</span><span class="opt">opcional</span></div>
+        <div class="field-hint">O que pode travar a compra? Ex: preco, prazo, confianca, tempo ou duvida.</div>
+        <div class="repeat-list" id="list-objecoes">
+          <div class="repeat-item"><span class="rnum">1</span><input class="input" placeholder="Ex: E caro, nao tenho tempo, ja tentei e nao funcionou..." oninput="upProg()"/></div>
+        </div>
+        <button class="add-btn" onclick="addR('list-objecoes',5,'Objecao adicional...')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#4F6BFF" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#4F6BFF" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Adicionar objecao
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -795,6 +826,27 @@ body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,2
             <input class="input" id="outros" placeholder="Ex: frete, embalagem, comissão de afiliado..."/>
           </div>
 
+          <div class="field">
+            <div class="field-top"><span class="field-label">Taxa de fechamento (conversa -> venda)</span><span class="opt">opcional</span></div>
+            <div class="field-hint">Percentual estimado das conversas ou leads que viram venda.</div>
+            <div style="display:flex;align-items:center;gap:8px;max-width:180px">
+              <input class="input pval" id="taxa_fechamento" placeholder="Ex: 20" oninput="numOnly(this)" onblur="fmtPct(this)"/>
+              <span style="color:var(--muted);font-size:13px;font-weight:600;">%</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-top"><span class="field-label">Custo por conversa ideal (override)</span><span class="opt">opcional</span></div>
+            <div class="field-hint">Preencha apenas se ja tiver uma meta validada.</div>
+            <div class="money-w" style="max-width:220px"><span class="mpfx">R$</span><input class="input mval" id="custo_conv_ideal" placeholder="Auto" oninput="numOnly(this)" onblur="fmtMoney(this)"/></div>
+          </div>
+
+          <div class="field" style="margin-bottom:0">
+            <div class="field-top"><span class="field-label">Custo por conversa maximo (override)</span><span class="opt">opcional</span></div>
+            <div class="field-hint">Valor maximo aceitavel antes de revisar campanha/oferta.</div>
+            <div class="money-w" style="max-width:220px"><span class="mpfx">R$</span><input class="input mval" id="custo_conv_max" placeholder="Auto" oninput="numOnly(this)" onblur="fmtMoney(this)"/></div>
+          </div>
+
         </div>
       </div>
 
@@ -853,6 +905,51 @@ body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,2
 </div>
 
 <!-- ══════════════ SUCCESS ══════════════ -->
+<!-- ETAPA 5 - IDENTIDADE -->
+<div class="page" id="page5">
+  <div class="step-card">
+    <div class="step-card-header">
+      <div class="sc-num" style="background:rgba(139,92,246,.2);color:#B794F6;font-size:16px;">5</div>
+      <div class="sc-info"><h2>Identidade Visual</h2><p>Paleta, fontes e arquivos que orientam os criativos</p></div>
+    </div>
+    <div class="step-card-body">
+      <div class="field">
+        <div class="field-top"><span class="field-label">Paleta de cores</span><span class="opt">opcional</span></div>
+        <div class="field-hint">Informe os codigos ou nomes das cores principais da marca.</div>
+        <div class="grid-2">
+          <input class="input" id="cor_primaria" placeholder="Primaria: #000000"/>
+          <input class="input" id="cor_secundaria" placeholder="Secundaria: #000000"/>
+          <input class="input" id="cor_fundo" placeholder="Fundo: #000000"/>
+          <input class="input" id="cor_destaque" placeholder="Destaque: #000000"/>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Tipografia</span><span class="opt">opcional</span></div>
+        <div class="grid-2">
+          <input class="input" id="fonte_headline" placeholder="Headline: Montserrat"/>
+          <input class="input" id="fonte_body" placeholder="Body: Inter"/>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Logo</span><span class="opt">opcional</span></div>
+        <input class="input" id="logo_file" type="file" accept="image/*,.svg"/>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Fotos do produto</span><span class="opt">opcional</span></div>
+        <input class="input" id="fotos_produto" type="file" accept="image/*" multiple/>
+      </div>
+      <div class="field">
+        <div class="field-top"><span class="field-label">Screenshots de software</span><span class="opt">opcional</span></div>
+        <input class="input" id="screenshots_software" type="file" accept="image/*" multiple/>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="field-top"><span class="field-label">Notas visuais</span><span class="opt">opcional</span></div>
+        <textarea class="input" id="notas_visuais" rows="3" placeholder="Ex: minimalista, fundo escuro, gold accents. Evitar cores vibrantes."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="success-page" id="pageSuccess">
   <div class="s-icon">🎉</div>
   <div class="s-title">Formulario enviado!</div>
@@ -875,7 +972,7 @@ body::after{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(77,235,2
 <script>
 // ── STATE ──────────────────────────────────────────────
 let cur = 0; // 0=intro, 1-4=etapas, 5=success
-const TOTAL = 4;
+const TOTAL = 5;
 const firebaseConfig={
   apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",
   authDomain:"dualize-projeto.firebaseapp.com",
@@ -942,7 +1039,7 @@ function updateUI(){
     }
   }
   // Label
-  const labels=['','Etapa 1 de 4 — Negócio','Etapa 2 de 4 — Cliente','Etapa 3 de 4 — Produto','Etapa 4 de 4 — Financeiro'];
+  const labels=['','Etapa 1 de 5 - Negocio','Etapa 2 de 5 - Cliente','Etapa 3 de 5 - Produto','Etapa 4 de 5 - Financeiro','Etapa 5 de 5 - Identidade'];
   document.getElementById('stepLabel').innerHTML = cur>0 ? `<b>${labels[cur]}</b>` : 'Início';
   // Buttons
   const footer=document.getElementById('footerNav');
@@ -970,7 +1067,7 @@ function rs(g){return!!document.querySelector(`.radio-cards[data-group="${g}"] .
 function lv(id){return[...document.querySelectorAll(`#${id} input`)].some(i=>i.value.trim());}
 
 const checks = [
-  ()=>!!gv('nome_empresa'), ()=>!!gv('nome_produto'), ()=>cs('tipo'), ()=>!!gv('nicho'), ()=>cs('idioma'), ()=>cs('pais'),
+  ()=>!!gv('nome_empresa'), ()=>!!gv('nome_produto'), ()=>cs('tipo'), ()=>cs('objetivo'), ()=>!!gv('nicho'), ()=>cs('idioma'), ()=>cs('pais'),
   ()=>!!gv('avatar_desc'), ()=>cs('genero'), ()=>rs('consciencia'),
   ()=>lv('list-dores'), ()=>lv('list-desejos'),
   ()=>!!gv('oque_e'), ()=>!!gv('mecanismo'), ()=>lv('list-difs'),
@@ -986,10 +1083,11 @@ function upProg(){
 // ── VALIDATE ──────────────────────────────────────────
 function validate(step){
   const rules = {
-    1:[{v:()=>!!gv('nome_empresa'),m:'Nome da empresa'},{v:()=>!!gv('nome_produto'),m:'Nome do produto'},{v:()=>cs('tipo'),m:'Tipo de negócio'},{v:()=>!!gv('nicho'),m:'Nicho'},{v:()=>cs('idioma'),m:'Idioma dos anúncios'},{v:()=>cs('pais'),m:'País alvo'}],
+    1:[{v:()=>!!gv('nome_empresa'),m:'Nome da empresa'},{v:()=>!!gv('nome_produto'),m:'Nome do produto'},{v:()=>cs('tipo'),m:'Tipo de negocio'},{v:()=>cs('objetivo'),m:'Objetivo'},{v:()=>!!gv('nicho'),m:'Nicho'},{v:()=>cs('idioma'),m:'Idioma dos anuncios'},{v:()=>cs('pais'),m:'Pais alvo'}],
     2:[{v:()=>!!gv('avatar_desc'),m:'Descrição do cliente'},{v:()=>cs('genero'),m:'Gênero'},{v:()=>rs('consciencia'),m:'Nível de consciência'},{v:()=>lv('list-dores'),m:'Pelo menos uma dor'},{v:()=>lv('list-desejos'),m:'Pelo menos um desejo'}],
     3:[{v:()=>!!gv('oque_e'),m:'O que você vende'},{v:()=>!!gv('mecanismo'),m:'Por que é diferente'},{v:()=>lv('list-difs'),m:'Pelo menos um diferencial'}],
-    4:[{v:()=>!!gv('budget'),m:'Budget mensal'},{v:()=>!!gv('ticket'),m:'Ticket médio'}],
+    4:[{v:()=>!!gv('budget'),m:'Budget mensal'},{v:()=>!!gv('ticket'),m:'Ticket medio'}],
+    5:[],
   };
   const fails=(rules[step]||[]).filter(r=>!r.v()).map(r=>r.m);
   return fails.length?fails:null;
@@ -1031,6 +1129,7 @@ function addR(id,max,ph){
 function gl(id){return[...document.querySelectorAll(`#${id} input`)].map(i=>i.value.trim()).filter(Boolean);}
 function gc(g){return[...document.querySelectorAll(`.chips[data-group="${g}"] .chip.active`)].map(c=>c.dataset.val).join(', ');}
 function gr(g){const e=document.querySelector(`.radio-cards[data-group="${g}"] .radio-card.active`);return e?e.dataset.val:'';}
+function gf(id){const e=document.getElementById(id);return e&&e.files?[...e.files].map(file=>file.name):[];}
 async function saveBriefingOnline(briefing){
   if(!briefingDb)throw new Error('Firebase nao inicializado.');
   try{
@@ -1052,16 +1151,18 @@ async function saveBriefingOnline(briefing){
 }
 
 async function submitForm(){
-  const err=validate(4);if(err){alert('Preencha:\n\n• '+err.join('\n• '));return;}
+  const err=[1,2,3,4].flatMap(step=>validate(step)||[]);
+  if(err.length){alert('Preencha:\n\n• '+err.join('\n• '));return;}
   const btnNext=document.getElementById('btnNext'),btnTxt=document.getElementById('btnNextTxt'),oldTxt=btnTxt.textContent;
   btnNext.disabled=true;btnTxt.textContent='Enviando...';
   const data={
-    '1. IDENTIFICACAO':{'Empresa':gv('nome_empresa'),'Produto':gv('nome_produto'),'Tipo':gc('tipo'),'Nicho':gv('nicho'),'Idioma':gc('idioma'),'Pais alvo':gc('pais'),'Link':gv('link_lp')||'--','Texto LP':gv('texto_lp')||'--','Landing pages':gl('list-landing-pages').join(' | ')||'--','Contas de anuncios':gl('list-contas-anuncios').join(' | ')||'--','WhatsApp':gv('whatsapp_numero')||'--','Mensagem WhatsApp':gv('whatsapp_mensagem')||'--'},
-    '2. CLIENTE IDEAL':{'Descrição':gv('avatar_desc'),'Profissão típica':gv('profissao')||'—','Idade':document.getElementById('sv_min').textContent+' a '+document.getElementById('sv_max').textContent+' anos','Gênero':gc('genero'),'Consciência':gr('consciencia'),'Dores':gl('list-dores').join(' | '),'Desejos':gl('list-desejos').join(' | '),'Provas':gl('list-provas').join(' | ')||'—'},
+    '1. IDENTIFICACAO':{'Empresa':gv('nome_empresa'),'Produto':gv('nome_produto'),'Tipo':gc('tipo'),'Objetivo':gc('objetivo'),'Nicho':gv('nicho'),'Idioma':gc('idioma'),'Pais alvo':gc('pais'),'Link':gv('link_lp')||'--','Texto LP':gv('texto_lp')||'--','Landing pages':gl('list-landing-pages').join(' | ')||'--','Contas de anuncios':gl('list-contas-anuncios').join(' | ')||'--','WhatsApp':gv('whatsapp_numero')||'--','Mensagem WhatsApp':gv('whatsapp_mensagem')||'--'},
+    '2. CLIENTE IDEAL':{'Descricao':gv('avatar_desc'),'Profissao tipica':gv('profissao')||'--','Idade':document.getElementById('sv_min').textContent+' a '+document.getElementById('sv_max').textContent+' anos','Genero':gc('genero'),'Consciencia':gr('consciencia'),'Dores':gl('list-dores').join(' | '),'Desejos':gl('list-desejos').join(' | '),'Provas':gl('list-provas').join(' | ')||'--','Objecoes':gl('list-objecoes').join(' | ')||'--'},
     '3. PRODUTO':{'O que vende':gv('oque_e'),'Diferencial único':gv('mecanismo'),'Diferenciais':gl('list-difs').join(' | '),'Como funciona':gv('como_funciona')||'—','Features':gl('list-features').join(' | ')||'—'},
-    '4. FINANCEIRO — Planejamento':{'Budget mensal':'R$ '+gv('budget'),'Meta receita':'R$ '+gv('meta_rec'),'Meta ROAS':gv('meta_roas')||'Auto','Ticket médio':'R$ '+gv('ticket')},
-    '4. FINANCEIRO — Custos por venda':{'Custo produto':gv('custo_prod')?'R$ '+gv('custo_prod'):'—','Impostos':gv('impostos')?gv('impostos')+'%':'—','Taxa plataforma':gv('taxa_plat')?gv('taxa_plat')+'%':'—','Taxa fixa':gv('taxa_fixa')?'R$ '+gv('taxa_fixa'):'—','Outros custos':gv('outros')||'—'},
-    '4. FINANCEIRO — Oferta':{'Preço':gv('preco')||'—','Parcelado':gv('preco_parc')||'—','Preço riscado':gv('preco_risc')||'—','Garantia':gv('garantia')||'—','Urgência':gv('urgencia')||'—','Bônus':gv('bonus')||'—'},
+    '4. FINANCEIRO - Planejamento':{'Budget mensal':'R$ '+gv('budget'),'Meta receita':'R$ '+gv('meta_rec'),'Meta ROAS':gv('meta_roas')||'Auto','Ticket médio':'R$ '+gv('ticket')},
+    '4. FINANCEIRO - Custos por venda':{'Custo produto':gv('custo_prod')?'R$ '+gv('custo_prod'):'--','Impostos':gv('impostos')?gv('impostos')+'%':'--','Taxa plataforma':gv('taxa_plat')?gv('taxa_plat')+'%':'--','Taxa fixa':gv('taxa_fixa')?'R$ '+gv('taxa_fixa'):'--','Outros custos':gv('outros')||'--','Taxa fechamento':gv('taxa_fechamento')?gv('taxa_fechamento')+'%':'--','Custo conversa ideal':gv('custo_conv_ideal')?'R$ '+gv('custo_conv_ideal'):'--','Custo conversa maximo':gv('custo_conv_max')?'R$ '+gv('custo_conv_max'):'--'},
+    '4. FINANCEIRO - Oferta':{'Preco':gv('preco')||'--','Parcelado':gv('preco_parc')||'--','Preco riscado':gv('preco_risc')||'--','Garantia':gv('garantia')||'--','Urgencia':gv('urgencia')||'--','Bonus':gv('bonus')||'--'},
+    '5. IDENTIDADE VISUAL':{'Cor primaria':gv('cor_primaria')||'--','Cor secundaria':gv('cor_secundaria')||'--','Cor fundo':gv('cor_fundo')||'--','Cor destaque':gv('cor_destaque')||'--','Fonte headline':gv('fonte_headline')||'--','Fonte body':gv('fonte_body')||'--','Logo':gf('logo_file').join(' | ')||'--','Fotos produto':gf('fotos_produto').join(' | ')||'--','Screenshots software':gf('screenshots_software').join(' | ')||'--','Notas visuais':gv('notas_visuais')||'--'},
   };
   const briefing={
     timestamp:new Date().toISOString(),
@@ -1071,10 +1172,11 @@ async function submitForm(){
     status:'novo',
     resumo:data,
     dados:{
-      identificacao:{empresa:gv('nome_empresa'),produto:gv('nome_produto'),tipo:gc('tipo'),nicho:gv('nicho'),idioma:gc('idioma'),pais:gc('pais'),link:gv('link_lp')||null,texto_lp:gv('texto_lp')||null,landing_pages:gl('list-landing-pages'),contas_anuncios:gl('list-contas-anuncios'),whatsapp_numero:gv('whatsapp_numero')||null,whatsapp_mensagem:gv('whatsapp_mensagem')||null},
-      avatar:{descricao:gv('avatar_desc'),profissao:gv('profissao')||null,idade_min:document.getElementById('sv_min').textContent,idade_max:document.getElementById('sv_max').textContent,genero:gc('genero'),consciencia:gr('consciencia'),dores:gl('list-dores'),desejos:gl('list-desejos'),provas:gl('list-provas')},
+      identificacao:{empresa:gv('nome_empresa'),produto:gv('nome_produto'),tipo:gc('tipo'),objetivo:gc('objetivo'),nicho:gv('nicho'),idioma:gc('idioma'),pais:gc('pais'),link:gv('link_lp')||null,texto_lp:gv('texto_lp')||null,landing_pages:gl('list-landing-pages'),contas_anuncios:gl('list-contas-anuncios'),whatsapp_numero:gv('whatsapp_numero')||null,whatsapp_mensagem:gv('whatsapp_mensagem')||null},
+      avatar:{descricao:gv('avatar_desc'),profissao:gv('profissao')||null,idade_min:document.getElementById('sv_min').textContent,idade_max:document.getElementById('sv_max').textContent,genero:gc('genero'),consciencia:gr('consciencia'),dores:gl('list-dores'),desejos:gl('list-desejos'),provas:gl('list-provas'),objecoes:gl('list-objecoes')},
       produto:{oque_e:gv('oque_e'),mecanismo:gv('mecanismo'),diferenciais:gl('list-difs'),como_funciona:gv('como_funciona')||null,features:gl('list-features')},
-      financeiro:{budget:gv('budget'),meta_receita:gv('meta_rec'),meta_roas:gv('meta_roas')||'auto',ticket:gv('ticket'),custo_produto:gv('custo_prod')||null,impostos:gv('impostos')||null,taxa_plataforma:gv('taxa_plat')||null,taxa_fixa:gv('taxa_fixa')||null,outros_custos:gv('outros')||null,preco:gv('preco')||null,preco_parcelado:gv('preco_parc')||null,preco_riscado:gv('preco_risc')||null,garantia:gv('garantia')||null,urgencia:gv('urgencia')||null,bonus:gv('bonus')||null}
+      financeiro:{budget:gv('budget'),meta_receita:gv('meta_rec'),meta_roas:gv('meta_roas')||'auto',ticket:gv('ticket'),custo_produto:gv('custo_prod')||null,impostos:gv('impostos')||null,taxa_plataforma:gv('taxa_plat')||null,taxa_fixa:gv('taxa_fixa')||null,outros_custos:gv('outros')||null,taxa_fechamento:gv('taxa_fechamento')||null,custo_conversa_ideal:gv('custo_conv_ideal')||null,custo_conversa_maximo:gv('custo_conv_max')||null,preco:gv('preco')||null,preco_parcelado:gv('preco_parc')||null,preco_riscado:gv('preco_risc')||null,garantia:gv('garantia')||null,urgencia:gv('urgencia')||null,bonus:gv('bonus')||null},
+      identidade:{cor_primaria:gv('cor_primaria')||null,cor_secundaria:gv('cor_secundaria')||null,cor_fundo:gv('cor_fundo')||null,cor_destaque:gv('cor_destaque')||null,fonte_headline:gv('fonte_headline')||null,fonte_body:gv('fonte_body')||null,logo:gf('logo_file'),fotos_produto:gf('fotos_produto'),screenshots_software:gf('screenshots_software'),notas_visuais:gv('notas_visuais')||null}
     }
   };
   try{
