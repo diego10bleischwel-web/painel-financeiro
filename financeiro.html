@@ -1387,6 +1387,13 @@ function inferCarryFromMonth(e){
   if(Number.isFinite(direct))return direct;
   const parts=String(e&&e.carryForwardKey||'').split(':').map(Number);
   if(parts.length>=2&&Number.isFinite(parts[1]))return parts[1];
+  const obs=statusKey(e&&e.observacao);
+  const target=carryForwardTargetMonth(e);
+  const limit=Math.max(Number(state.currentMonth||0)+12,24);
+  for(let i=0;i<=limit;i++){
+    if(obs.includes(statusKey(monthLabel(i))))return i;
+  }
+  if(obs.includes('mesanterioremaberto')&&Number.isFinite(target)&&target>0)return target-1;
   const start=Number(e&&e.inicio);
   return Number.isFinite(start)&&start>0?start-1:NaN;
 }
@@ -1522,7 +1529,32 @@ function normalizeOverdueDebit(e,targetMonth){
   if(Number.isFinite(target)&&Number(e.carryTargetMonth)!==target){ e.carryTargetMonth=target; changed=true; }
   if(Number.isFinite(sourceMonth)&&Number.isFinite(target)&&e.carryFromId&&String(e.carryForwardKey||'').split(':').length<3){ e.carryForwardKey=carryForwardKeyFor({id:e.carryFromId},sourceMonth,target); changed=true; }
   if(carryForwardTargetMonth(e)===Number(targetMonth)&&Number.isFinite(sourceMonth)&&e.observacao&&/m[êe]s anterior/i.test(e.observacao)){ e.observacao=String(e.observacao).replace(/m[êe]s anterior/ig,monthLabel(sourceMonth)); changed=true; }
+  if(carryForwardTargetMonth(e)===Number(targetMonth)&&Number.isFinite(sourceMonth)){
+    const wanted=`Gerado automaticamente: ${monthLabel(sourceMonth)} em aberto.`;
+    const current=String(e.observacao||'');
+    if(!current.includes(wanted)){
+      e.observacao=[current.replace(/Gerado automaticamente:[^.]*\./g,'').trim(),wanted].filter(Boolean).join(' ');
+      changed=true;
+    }
+  }
   return changed;
+}
+function overdueDedupeKey(e,targetMonth){
+  const sourceId=Number(e&&e.carryFromId), sourceMonth=inferCarryFromMonth(e), target=carryForwardTargetMonth(e);
+  if(Number.isFinite(sourceId)&&Number.isFinite(sourceMonth))return `src:${sourceId}:${sourceMonth}:${target}`;
+  return ['fallback',statusKey(e&&e.nome),String(e&&e.dia||''),statusKey(e&&e.banco),statusKey(displayValueAtMonth(e,targetMonth)||configuredValue(e,targetMonth)||e?.valor),Number.isFinite(sourceMonth)?sourceMonth:'semmes',target].join(':');
+}
+function dedupeOverdueDebits(targetMonth){
+  const seen=new Set();
+  const before=state.entries.length;
+  state.entries=state.entries.filter(e=>{
+    if(!isOverdueDebit(e)||carryForwardTargetMonth(e)!==Number(targetMonth))return true;
+    const key=overdueDedupeKey(e,targetMonth);
+    if(seen.has(key)&&!isPaidDebitStatus(currentStatus(e)))return false;
+    seen.add(key);
+    return true;
+  });
+  return state.entries.length!==before;
 }
 function ensureOverdueDebitsForCurrentMonth(){
   const targetMonth=Number(state.currentMonth);
@@ -1531,6 +1563,7 @@ function ensureOverdueDebitsForCurrentMonth(){
   const originals=state.entries.filter(e=>e.tipo==='debito'&&!isOverdueDebit(e));
   const byId=new Map(originals.map(e=>[Number(e.id),e]));
   state.entries.forEach(e=>{ if(normalizeOverdueDebit(e,targetMonth))changed=true; });
+  if(dedupeOverdueDebits(targetMonth))changed=true;
   state.entries=state.entries.filter(e=>{
     if(!isOverdueDebit(e)||carryForwardTargetMonth(e)!==targetMonth)return true;
     const source=byId.get(Number(e.carryFromId)), sourceMonth=inferCarryFromMonth(e);
@@ -1547,6 +1580,7 @@ function ensureOverdueDebitsForCurrentMonth(){
     }
   });
   state.entries.filter(e=>isOverdueDebit(e)&&carryForwardTargetMonth(e)<targetMonth).forEach(e=>{ if(createCarryForwardFromOverdue(e,targetMonth))changed=true; });
+  if(dedupeOverdueDebits(targetMonth))changed=true;
   if(changed)persist();
   return changed;
 }
