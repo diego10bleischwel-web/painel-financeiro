@@ -1379,7 +1379,8 @@ function currentStatus(e){
 function statusAtMonth(e,month){ const key=String(month); if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key]; return baseStatus(e); }
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.repeticoes-effectiveMonthOffset(e,state.currentMonth))}
 function isOverdueDebit(e){ return e&&e.tipo==='debito'&&(e.atrasado||e.carryForwardKey); }
-function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(isOverdueDebit(e)&&currentStatus(e)!=='pago')return 'mês anterior em aberto'; if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(currentStatus(e)==='naoPago')return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
+function overdueOriginLabel(e){ const m=Number(e&&e.carryFromMonth); return Number.isFinite(m)?`${monthLabel(m).split(' ')[0]} em aberto`:'mês anterior em aberto'; }
+function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(isOverdueDebit(e)&&currentStatus(e)!=='pago')return overdueOriginLabel(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(currentStatus(e)==='naoPago')return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
 function visibleAtMonth(e,month){ return month>=e.inicio && effectiveMonthOffset(e,month)<e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(month)]); }
 function displayValueAtMonth(e,month){ if(e.tipo!=='receita')return configuredValue(e,month); const remaining=remainingAmount(e,month); return remaining?moneyInput(remaining,'receita'):configuredValue(e,month); }
 function setCurrentStatus(e,status){
@@ -1397,20 +1398,31 @@ function isParcelledDebit(e){
   const reps=Number(e.repeticoes||1);
   return reps>1&&reps<999;
 }
-function carryForwardKey(e){ return `${e.id}:${state.currentMonth}`; }
-function removeCarryForwardDebit(e){
-  const key=carryForwardKey(e), before=state.entries.length;
-  state.entries=state.entries.filter(x=>x.carryForwardKey!==key);
+function carryForwardKeyFor(e,sourceMonth,targetMonth){ return `${e.id}:${sourceMonth}:${targetMonth}`; }
+function legacyCarryForwardKeyFor(e,sourceMonth){ return `${e.id}:${sourceMonth}`; }
+function carryForwardKey(e){ return carryForwardKeyFor(e,state.currentMonth,state.currentMonth+1); }
+function carryForwardTargetMonth(x){ return Number.isFinite(Number(x.carryTargetMonth))?Number(x.carryTargetMonth):Number(x.inicio); }
+function hasCarryForwardDebit(e,sourceMonth,targetMonth){
+  const key=carryForwardKeyFor(e,sourceMonth,targetMonth), legacy=legacyCarryForwardKeyFor(e,sourceMonth);
+  return state.entries.some(x=>x!==e && isOverdueDebit(x) && (x.carryForwardKey===key || (x.carryForwardKey===legacy && carryForwardTargetMonth(x)===Number(targetMonth)) || (Number(x.carryFromId)===Number(e.id) && Number(x.carryFromMonth)===Number(sourceMonth) && carryForwardTargetMonth(x)===Number(targetMonth))));
+}
+function removeCarryForwardDebit(e,sourceMonth=state.currentMonth,targetMonth){
+  const key=carryForwardKeyFor(e,sourceMonth,targetMonth??state.currentMonth), legacy=legacyCarryForwardKeyFor(e,sourceMonth), before=state.entries.length;
+  state.entries=state.entries.filter(x=>{
+    if(!isOverdueDebit(x))return true;
+    const sameSource=Number(x.carryFromId)===Number(e.id) && Number(x.carryFromMonth)===Number(sourceMonth);
+    const sameTarget=targetMonth===undefined || carryForwardTargetMonth(x)===Number(targetMonth);
+    return !(sameSource&&sameTarget) && x.carryForwardKey!==key && !(x.carryForwardKey===legacy&&sameTarget);
+  });
   return state.entries.length!==before;
 }
-function createCarryForwardDebit(e){
-  if(isParcelledDebit(e))return false;
-  const key=carryForwardKey(e);
-  if(state.entries.some(x=>x.carryForwardKey===key))return false;
-  const value=displayValue(e)||configuredValue(e)||'';
+function createCarryForwardDebitForMonth(e,sourceMonth,targetMonth=state.currentMonth){
+  if(isOverdueDebit(e)||!visibleAtMonth(e,sourceMonth)||statusAtMonth(e,sourceMonth)==='pago')return false;
+  if(hasCarryForwardDebit(e,sourceMonth,targetMonth))return false;
+  const value=displayValueAtMonth(e,sourceMonth)||configuredValue(e,sourceMonth)||'';
   const clone=JSON.parse(JSON.stringify(e));
   clone.id=state.nextId++;
-  clone.inicio=state.currentMonth+1;
+  clone.inicio=targetMonth;
   clone.repeticoes=1;
   clone.status='pendente';
   clone.original='pendente';
@@ -1418,18 +1430,20 @@ function createCarryForwardDebit(e){
   clone.hiddenMes={};
   clone.recebimentosMes={};
   clone.recebimentoRascunhoMes={};
-  clone.carryForwardKey=key;
+  clone.carryForwardKey=carryForwardKeyFor(e,sourceMonth,targetMonth);
   clone.carryFromId=e.id;
-  clone.carryFromMonth=state.currentMonth;
+  clone.carryFromMonth=sourceMonth;
+  clone.carryTargetMonth=targetMonth;
   clone.atrasado=true;
   clone.categoria='Atrasado';
-  clone.observacao=[e.observacao,'Gerado automaticamente por não pago no mês anterior.'].filter(Boolean).join(' ');
+  clone.observacao=[e.observacao,`Gerado automaticamente: ${monthLabel(sourceMonth)} em aberto.`].filter(Boolean).join(' ');
   clone.valor=value;
   clone.valorModo='fixo';
   clone.valoresMes={};
   state.entries.push(clone);
   return true;
 }
+function createCarryForwardDebit(e){ return createCarryForwardDebitForMonth(e,state.currentMonth,state.currentMonth+1); }
 function markDebitAsNotPaid(e){
   if(currentStatus(e)==='naoPago'){
     setCurrentStatus(e,baseStatus(e));
@@ -1438,6 +1452,27 @@ function markDebitAsNotPaid(e){
   }
   setCurrentStatus(e,'naoPago');
   createCarryForwardDebit(e);
+}
+function ensureOverdueDebitsForCurrentMonth(){
+  const targetMonth=Number(state.currentMonth);
+  if(targetMonth<=0)return false;
+  let changed=false;
+  const originals=state.entries.filter(e=>e.tipo==='debito'&&!isOverdueDebit(e));
+  const byId=new Map(originals.map(e=>[Number(e.id),e]));
+  state.entries=state.entries.filter(e=>{
+    if(!isOverdueDebit(e)||carryForwardTargetMonth(e)!==targetMonth)return true;
+    const source=byId.get(Number(e.carryFromId)), sourceMonth=Number(e.carryFromMonth);
+    const keep=source&&Number.isFinite(sourceMonth)&&sourceMonth<targetMonth&&visibleAtMonth(source,sourceMonth)&&statusAtMonth(source,sourceMonth)!=='pago';
+    if(!keep)changed=true;
+    return keep;
+  });
+  originals.forEach(e=>{
+    for(let m=Number(e.inicio||0);m<targetMonth;m++){
+      if(visibleAtMonth(e,m)&&statusAtMonth(e,m)!=='pago'&&createCarryForwardDebitForMonth(e,m,targetMonth))changed=true;
+    }
+  });
+  if(changed)persist();
+  return changed;
 }
 function deleteEntry(id){
   const ent=state.entries.find(x=>x.id===id);
@@ -1471,7 +1506,7 @@ function statusClass(e){ const st=currentStatus(e); if(e.tipo==='receita') retur
 function valueIsLocked(e){ const status=currentStatus(e); return (status==='pago'||status==='recebido')&&hasEnteredValue(e); }
 function renderMonths(){ const cur=$('#startMonthInput').value||state.currentMonth; $('#monthSelect').innerHTML=''; $('#startMonthInput').innerHTML=''; for(let i=0;i<=maxMonth();i++){ $('#monthSelect').add(new Option(monthLabel(i),i)); $('#startMonthInput').add(new Option(monthLabel(i),i)); } $('#monthSelect').value=state.currentMonth; $('#startMonthInput').value=Math.min(Number(cur),maxMonth()); }
 function renderCardMonths(){ const sel=$('#cardImportMonth'); if(!sel)return; const old=sel.value||state.currentMonth; sel.innerHTML=''; for(let i=0;i<=maxMonth()+12;i++)sel.add(new Option(monthLabel(i),i)); sel.value=Math.min(Number(old),maxMonth()+12); renderCardOptions(); }
-function row(e){ const overdue=isOverdueDebit(e)&&currentStatus(e)!=='pago', small=overdue?'Atrasado':(e.tipo==='receita'?(e.origem||e.categoria||'Receita'):(e.categoria||'Sem categoria')), bank=e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado', bankLabel=e.tipo==='receita'?'Recebe em':'Baixa em'; const restLabel=rowRestLabel(e); const showRest=e.tipo==='debito', locked=valueIsLocked(e), valueClass='amount-'+statusClass(e); return `<div class="entry-row ${overdue?'overdue-row':''}" data-id="${e.id}" draggable="false">
+function row(e){ const overdue=isOverdueDebit(e)&&currentStatus(e)!=='pago', small=overdue?`Atrasado - ${overdueOriginLabel(e)}`:(e.tipo==='receita'?(e.origem||e.categoria||'Receita'):(e.categoria||'Sem categoria')), bank=e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado', bankLabel=e.tipo==='receita'?'Recebe em':'Baixa em'; const restLabel=rowRestLabel(e); const showRest=e.tipo==='debito', locked=valueIsLocked(e), valueClass='amount-'+statusClass(e); return `<div class="entry-row ${overdue?'overdue-row':''}" data-id="${e.id}" draggable="false">
 <div class="row-tools"><button class="icon-btn edit-btn" title="Editar">✎</button><button class="icon-btn delete-btn" title="Excluir">🗑</button></div>
 <div class="handle">↕</div><div class="name"><strong>${e.nome}</strong><small>${small}</small><small class="entry-bank">${bankLabel}: ${bank}</small></div>
 <div class="day"><small>Dia</small>${e.dia}</div><div class="value"><input class="${valueClass}${locked?' locked':''}" value="${e.tipo==='receita'?revenueInputValue(e):(displayValue(e)||'')}" ${locked?'readonly title="Altere o status antes de editar o valor"':''}></div>
@@ -1487,7 +1522,8 @@ function calc(){
   const limiteCartao=Math.max(0,receitaDisp-deb);
   return {receitaPrev,receitaRec,receitaPendente,receitaRecPropria,receitaNubank,repasseLara,voltaParaNubank,sobraLara,deb,pago,pagoProprio,pagoNubank,totalDeb:deb+pago,fix:fixPendentes,totalFix,totalFixPendente,totalMensal,totalMensalPendente,semValor,lin,debPendentes,receitasLancadas,receitasPendentes,mensaisPendentes,emp,mkt,traf,saldoProjetado:receitaDisp-deb,receitaDisp,limiteCartao};
 }
-function previousPendingSummary(){ const month=state.currentMonth-1; if(month<0)return {month,debts:[],incomes:[],debtTotal:0,incomeTotal:0}; const debts=state.entries.filter(e=>e.tipo==='debito'&&visibleAtMonth(e,month)&&!['pago','naoPago'].includes(statusAtMonth(e,month))).map(e=>({name:e.nome,value:parseMoney(displayValueAtMonth(e,month))})); const incomes=state.entries.filter(e=>e.tipo==='receita'&&visibleAtMonth(e,month)&&statusAtMonth(e,month)!=='recebido').map(e=>({name:e.nome,value:parseMoney(displayValueAtMonth(e,month))})); return {month,debts,incomes,debtTotal:debts.reduce((s,x)=>s+x.value,0),incomeTotal:incomes.reduce((s,x)=>s+x.value,0)}; }
+function sourceMonthSettledByCarry(e,month){ return state.entries.some(x=>isOverdueDebit(x)&&Number(x.carryFromId)===Number(e.id)&&Number(x.carryFromMonth)===Number(month)&&carryForwardTargetMonth(x)===Number(state.currentMonth)&&currentStatus(x)==='pago'); }
+function previousPendingSummary(){ const debts=[], incomes=[]; for(let month=0;month<state.currentMonth;month++){ state.entries.filter(e=>e.tipo==='debito'&&!isOverdueDebit(e)&&visibleAtMonth(e,month)&&statusAtMonth(e,month)!=='pago'&&!sourceMonthSettledByCarry(e,month)).forEach(e=>debts.push({month,name:e.nome,value:parseMoney(displayValueAtMonth(e,month))})); state.entries.filter(e=>e.tipo==='receita'&&visibleAtMonth(e,month)&&statusAtMonth(e,month)!=='recebido').forEach(e=>incomes.push({month,name:e.nome,value:parseMoney(displayValueAtMonth(e,month))})); } return {month:state.currentMonth-1,debts,incomes,debtTotal:debts.reduce((s,x)=>s+x.value,0),incomeTotal:incomes.reduce((s,x)=>s+x.value,0)}; }
 function bankBalances(){ const map={}; banks.filter(b=>b!=='Nenhum').forEach(b=>map[b]={entrada:0,saida:0,saldo:0,terceiroEntrada:0,terceiroSaida:0,terceiroSaldo:0,reservadoTerceiros:0,saldoProprio:0}); entries('receita').forEach(e=>{const received=receivedAmount(e);if(received>0&&map[e.banco])map[e.banco].entrada+=received}); entries('debito').forEach(e=>{if(currentStatus(e)==='pago'&&map[e.banco])map[e.banco].saida+=parseMoney(displayValue(e))}); state.transfers.forEach(t=>{const v=parseMoney(t.valor); if(map[t.from])map[t.from].saida+=v; if(map[t.to])map[t.to].entrada+=v;}); state.thirdMovements.forEach(m=>{const v=parseMoney(m.valor); if(map[m.bank]){ if(m.type==='entrada'){map[m.bank].entrada+=v;map[m.bank].terceiroEntrada+=v;} else {map[m.bank].saida+=v;map[m.bank].terceiroSaida+=v;} }}); Object.keys(map).forEach(b=>{map[b].saldo=map[b].entrada-map[b].saida;map[b].terceiroSaldo=map[b].terceiroEntrada-map[b].terceiroSaida;map[b].reservadoTerceiros=Math.max(0,map[b].terceiroSaldo);map[b].saldoProprio=map[b].saldo-map[b].reservadoTerceiros;}); return map;}
 function addToMap(map,key,value){ if(!key)return; map[key]=(map[key]||0)+Number(value||0); }
 function moneyLines(map,limit=6,empty='Sem dados.',amountClass='amount-debt'){ const rows=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,limit); return rows.length?rows.map(([k,v])=>`<div class="exec-line-v3"><span>${k}</span><strong class="${amountClass}">${br(v)}</strong></div>`).join(''):`<div class="exec-line-v3"><span>${empty}</span><strong class="amount-neutral">-</strong></div>`; }
@@ -1518,7 +1554,7 @@ function renderMonthCardSummary(){ const s=cardMonthSummary(); const monthLines=
     sectionPanel('Recorrentes no cartao','Assinaturas/cobrancas mensais dentro das faturas.',null,'',s.recurringLines||'<div class="exec-line-v3"><span>Nenhum recorrente detectado no cartao</span><strong class="amount-neutral">-</strong></div>'),
     sectionPanel('Debitos fixos/mensais','Lancamentos cadastrados em Debitos do mes, fora dos cartoes.',null,'',debitRecurringLines())
   ].join(''); renderPaymentSummary(); }
-function renderCarryoverAlert(){ const el=$('#carryAlert'); if(!el)return; const s=previousPendingSummary(); const totalCount=s.debts.length+s.incomes.length; if(!totalCount){ el.className='carry-alert'; el.innerHTML=''; return; } const badge=$('#healthBadge'); if(badge)badge.textContent='Pendencias anteriores'; const debtTxt=s.debts.length?`${s.debts.length} debitos (${br(s.debtTotal)})`:'nenhum debito'; const incomeTxt=s.incomes.length?`${s.incomes.length} receitas (${br(s.incomeTotal)})`:'nenhuma receita'; const chips=[...s.debts.slice(0,3).map(x=>`<span class="carry-chip">Debito: ${x.name} ${x.value?br(x.value):'sem valor'}</span>`),...s.incomes.slice(0,3).map(x=>`<span class="carry-chip">Receita: ${x.name} ${x.value?br(x.value):'sem valor'}</span>`)]; const extra=totalCount>chips.length?`<span class="carry-chip">+${totalCount-chips.length} pendentes</span>`:''; el.className='carry-alert active'; el.innerHTML=`<b>Pendencias de ${monthLabel(s.month)}</b><small>Antes de fechar ${monthLabel(state.currentMonth)}, ainda existem ${debtTxt} e ${incomeTxt} do mes anterior sem baixa.</small><div class="carry-alert-list">${chips.join('')}${extra}</div>`; }
+function renderCarryoverAlert(){ const el=$('#carryAlert'); if(!el)return; const s=previousPendingSummary(); const totalCount=s.debts.length+s.incomes.length; if(!totalCount){ el.className='carry-alert'; el.innerHTML=''; return; } const badge=$('#healthBadge'); if(badge)badge.textContent='Pendencias anteriores'; const debtTxt=s.debts.length?`${s.debts.length} debitos (${br(s.debtTotal)})`:'nenhum debito'; const incomeTxt=s.incomes.length?`${s.incomes.length} receitas (${br(s.incomeTotal)})`:'nenhuma receita'; const chips=[...s.debts.slice(0,3).map(x=>`<span class="carry-chip">Debito: ${x.name} - ${monthLabel(x.month).split(' ')[0]} ${x.value?br(x.value):'sem valor'}</span>`),...s.incomes.slice(0,3).map(x=>`<span class="carry-chip">Receita: ${x.name} - ${monthLabel(x.month).split(' ')[0]} ${x.value?br(x.value):'sem valor'}</span>`)]; const extra=totalCount>chips.length?`<span class="carry-chip">+${totalCount-chips.length} pendentes</span>`:''; el.className='carry-alert active'; el.innerHTML=`<b>Pendencias anteriores em aberto</b><small>Antes de fechar ${monthLabel(state.currentMonth)}, ainda existem ${debtTxt} e ${incomeTxt} de meses anteriores sem baixa.</small><div class="carry-alert-list">${chips.join('')}${extra}</div>`; }
 function updateTotals(){ const c=calc(), b=bankBalances(), saldoBanco=Object.values(b).reduce((s,x)=>s+x.saldo,0), terceirosReservados=Object.values(b).reduce((s,x)=>s+x.reservadoTerceiros,0), saldoProprio=saldoBanco-terceirosReservados; $('#incomeInput').value=br(c.receitaPendente); $('#totalReceita').textContent=br(c.receitaPendente); $('#qtdReceitasLancadas').textContent=c.receitasPendentes; $('#totalDebitos').textContent=brDeb(c.deb); $('#qtdDebitosLancados').textContent=c.debPendentes; $('#saldoProjetado').textContent=br(c.sobraLara); if($('#laraResumo'))$('#laraResumo').textContent=`NuBank: ${br(c.receitaNubank)} - pagos ${br(c.pagoNubank)} - repasse ${br(c.repasseLara)}`; $('#qtdFixos').textContent=br(c.limiteCartao); $('#totalFixos').textContent='Sobra para cartão variável sem negativar'; $('#mensaisSemValor').textContent=brDeb(c.totalMensalPendente); $('#totalMensaisValor').textContent=c.mensaisPendentes+' débitos mensais pendentes'; $('#planSaldo').textContent=br(c.saldoProjetado); $('#planFixos').textContent=c.fix; $('#planPendentes').textContent=c.semValor; $('#dashReceita').textContent=br(c.receitaPendente); $('#dashDebitos').textContent=brDeb(c.deb); $('#dashSaldo').textContent=br(c.saldoProjetado); $('#dashEmpresa').textContent=br(c.emp); $('#dashMarketing').textContent=br(c.mkt); $('#dashTrafego').textContent=br(c.traf); $('#dashSaldoBanco').textContent=br(saldoProprio); $('#biggestWeight').textContent=c.totalFix>=c.totalMensal?'Maior peso em débitos fixos':'Maior peso em débitos mensais'; const pct=v=>c.receitaPrev?Math.round(v/c.receitaPrev*100):0; $('#pctEmpresa').textContent=pct(c.emp)+'%'; $('#pctMarketing').textContent=pct(c.mkt)+'%'; $('#pctTrafego').textContent=pct(c.traf)+'%'; $('#barEmpresa').style.width=pct(c.emp)+'%'; $('#barMarketing').style.width=pct(c.mkt)+'%'; $('#barTrafego').style.width=pct(c.traf)+'%'; $('#healthBadge').textContent=saldoProprio<0||c.saldoProjetado<0?'Atenção':'Saudável'; const planClass=c.saldoProjetado<0||saldoProprio<0?'danger':(c.semValor>0||c.sobraLara>0||terceirosReservados>0?'warn':'ok'); const planMsg=c.saldoProjetado<0?`Atencao: no mes selecionado, faltam ${br(Math.abs(c.saldoProjetado))} considerando receitas recebidas e debitos pendentes desse mes. Para nao fechar negativo, novos gastos variaveis/cartoes devem ficar em ate ${br(c.limiteCartao)}.`:(c.sobraLara>0?`⚠ Com o que foi lançado no NuBank, a sobra estimada da Lara é ${br(c.sobraLara)}. Lance os pagamentos que ela fez como débitos pagos no NuBank para esse número ficar real.`:(c.semValor>0?'⚠ Existem lançamentos sem valor. Preencha para ter uma projeção real.':'✓ Mês projetado com equilíbrio. Use o limite de cartão seguro antes de gastar mais.')); $('#planningText').className='planning-smart '+planClass; $('#planningText').innerHTML=planMsg; renderCarryoverAlert(); updateCleanDashboard(c,b,saldoProprio,terceirosReservados); renderMonthCardSummary(); renderBanks(b); renderThird();}
 
 function updateCleanDashboard(c,b,saldoProprio,terceirosReservados){
@@ -1610,7 +1646,7 @@ function deleteThirdPersonMovements(){
   renderAll();
   setTab('terceiros');
 }
-function renderAll(){ recategorizeCardTransactions(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); }
+function renderAll(){ recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); }
 function setTab(id){ $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id)); $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id)); }
 function autoViewMode(){return window.matchMedia('(max-width: 760px)').matches?'mobile':'desktop'}
 function setView(mode,manual=true){ document.body.classList.toggle('mobile-view',mode==='mobile'); $('#btnDesktop').classList.toggle('active',mode==='desktop'); $('#btnMobile').classList.toggle('active',mode==='mobile'); if(manual)localStorage.setItem('dualizeViewMode',mode); }
