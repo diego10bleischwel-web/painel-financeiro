@@ -1268,8 +1268,10 @@ async function configureSync(){
 function moneyInput(n,tipo){ return tipo==='debito' ? '-'+br(n) : br(n); }
 function monthLabel(i){ return new Date(state.baseYear,state.baseMonth+i,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase()); }
 function entryIsoDate(e){ const d=new Date(state.baseYear,state.baseMonth+state.currentMonth,Math.max(1,Number(e.dia)||1)); return d.toISOString().slice(0,10); }
-function unpaidDebitMonthsBefore(e,month=state.currentMonth){ if(e.tipo!=='debito'||!e.statusMes)return 0; const start=Number(e.inicio||0); return Object.entries(e.statusMes).filter(([m,st])=>st==='naoPago'&&Number(m)>=start&&Number(m)<month).length; }
-function unpaidDebitMonths(e){ if(e.tipo!=='debito'||!e.statusMes)return 0; const start=Number(e.inicio||0); return Object.entries(e.statusMes).filter(([m,st])=>st==='naoPago'&&Number(m)>=start).length; }
+function statusKey(status){ return String(status||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function isUnpaidDebitStatus(status){ return statusKey(status)==='naopago'; }
+function unpaidDebitMonthsBefore(e,month=state.currentMonth){ if(e.tipo!=='debito'||!e.statusMes)return 0; const start=Number(e.inicio||0); return Object.entries(e.statusMes).filter(([m,st])=>isUnpaidDebitStatus(st)&&Number(m)>=start&&Number(m)<month).length; }
+function unpaidDebitMonths(e){ if(e.tipo!=='debito'||!e.statusMes)return 0; const start=Number(e.inicio||0); return Object.entries(e.statusMes).filter(([m,st])=>isUnpaidDebitStatus(st)&&Number(m)>=start).length; }
 function monthOffset(e,month=state.currentMonth){return Math.max(0,month-Number(e.inicio||0));}
 function effectiveMonthOffset(e,month=state.currentMonth){return Math.max(0,monthOffset(e,month)-unpaidDebitMonthsBefore(e,month));}
 function visible(e){return state.currentMonth>=e.inicio && effectiveMonthOffset(e,state.currentMonth)<e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(state.currentMonth)])}
@@ -1377,7 +1379,7 @@ function currentStatus(e){
   return baseStatus(e);
 }
 function statusAtMonth(e,month){ const key=String(month); if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key]; return baseStatus(e); }
-function isPaidDebitStatus(status){ return status==='pago'||status==='pagoAtraso'; }
+function isPaidDebitStatus(status){ const key=statusKey(status); return key==='pago'||key==='pagoatraso'; }
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.repeticoes-effectiveMonthOffset(e,state.currentMonth))}
 function isOverdueDebit(e){ return e&&e.tipo==='debito'&&(e.atrasado||e.carryForwardKey); }
 function inferCarryFromMonth(e){
@@ -1389,7 +1391,7 @@ function inferCarryFromMonth(e){
   return Number.isFinite(start)&&start>0?start-1:NaN;
 }
 function overdueOriginLabel(e){ const m=inferCarryFromMonth(e); return Number.isFinite(m)?`${monthLabel(m)} em aberto`:'Data original em aberto'; }
-function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(isOverdueDebit(e))return overdueOriginLabel(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(currentStatus(e)==='naoPago')return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
+function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(isOverdueDebit(e))return overdueOriginLabel(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(isUnpaidDebitStatus(currentStatus(e)))return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
 function visibleAtMonth(e,month){ return month>=e.inicio && effectiveMonthOffset(e,month)<e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(month)]); }
 function displayValueAtMonth(e,month){ if(e.tipo!=='receita')return configuredValue(e,month); const remaining=remainingAmount(e,month); return remaining?moneyInput(remaining,'receita'):configuredValue(e,month); }
 function setCurrentStatus(e,status){
@@ -1431,8 +1433,8 @@ function removeCarryForwardDebit(e,sourceMonth=state.currentMonth,targetMonth){
   });
   return state.entries.length!==before;
 }
-function createCarryForwardDebitForMonth(e,sourceMonth,targetMonth=state.currentMonth){
-  if(isOverdueDebit(e)||!visibleAtMonth(e,sourceMonth)||isPaidDebitStatus(statusAtMonth(e,sourceMonth)))return false;
+function createCarryForwardDebitForMonth(e,sourceMonth,targetMonth=state.currentMonth,force=false){
+  if(isOverdueDebit(e)||(!force&&!visibleAtMonth(e,sourceMonth))||isPaidDebitStatus(statusAtMonth(e,sourceMonth)))return false;
   if(hasCarryForwardDebit(e,sourceMonth,targetMonth))return false;
   const value=displayValueAtMonth(e,sourceMonth)||configuredValue(e,sourceMonth)||'';
   const clone=JSON.parse(JSON.stringify(e));
@@ -1459,6 +1461,10 @@ function createCarryForwardDebitForMonth(e,sourceMonth,targetMonth=state.current
   return true;
 }
 function createCarryForwardDebit(e){ return createCarryForwardDebitForMonth(e,state.currentMonth,state.currentMonth+1); }
+function explicitUnpaidMonths(e,targetMonth=state.currentMonth){
+  if(!e||e.tipo!=='debito'||!e.statusMes)return [];
+  return Object.entries(e.statusMes).map(([m,st])=>({month:Number(m),status:st})).filter(x=>Number.isFinite(x.month)&&x.month<targetMonth&&isUnpaidDebitStatus(x.status)).map(x=>x.month);
+}
 function createCarryForwardFromOverdue(e,targetMonth=state.currentMonth){
   if(!isOverdueDebit(e)||isPaidDebitStatus(currentStatus(e)))return false;
   const sourceMonth=inferCarryFromMonth(e), sourceId=Number(e.carryFromId), overdueTarget=carryForwardTargetMonth(e), source=state.entries.find(x=>Number(x.id)===sourceId);
@@ -1484,7 +1490,7 @@ function createCarryForwardFromOverdue(e,targetMonth=state.currentMonth){
   return true;
 }
 function markDebitAsNotPaid(e){
-  if(currentStatus(e)==='naoPago'){
+  if(isUnpaidDebitStatus(currentStatus(e))){
     setCurrentStatus(e,baseStatus(e));
     removeCarryForwardDebit(e);
     return;
@@ -1528,11 +1534,14 @@ function ensureOverdueDebitsForCurrentMonth(){
   state.entries=state.entries.filter(e=>{
     if(!isOverdueDebit(e)||carryForwardTargetMonth(e)!==targetMonth)return true;
     const source=byId.get(Number(e.carryFromId)), sourceMonth=inferCarryFromMonth(e);
-    const keep=isPaidDebitStatus(currentStatus(e)) || (source&&Number.isFinite(sourceMonth)&&sourceMonth<targetMonth&&visibleAtMonth(source,sourceMonth)&&!isPaidDebitStatus(statusAtMonth(source,sourceMonth)));
+    const keep=isPaidDebitStatus(currentStatus(e)) || (source&&Number.isFinite(sourceMonth)&&sourceMonth<targetMonth&&((visibleAtMonth(source,sourceMonth)&&!isPaidDebitStatus(statusAtMonth(source,sourceMonth)))||isUnpaidDebitStatus(statusAtMonth(source,sourceMonth))));
     if(!keep)changed=true;
     return keep;
   });
   originals.forEach(e=>{
+    explicitUnpaidMonths(e,targetMonth).forEach(m=>{
+      if(createCarryForwardDebitForMonth(e,m,targetMonth,true))changed=true;
+    });
     for(let m=Number(e.inicio||0);m<targetMonth;m++){
       if(visibleAtMonth(e,m)&&!isPaidDebitStatus(statusAtMonth(e,m))&&createCarryForwardDebitForMonth(e,m,targetMonth))changed=true;
     }
@@ -1568,8 +1577,8 @@ function deleteEntry(id){
   persist();
   renderAll();
 }
-function statusText(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'Recebido':(st==='parcial'?'Parcial':'Pendente'); if(st==='pagoAtraso') return 'Pago em atraso'; if(st==='pago') return 'Pago'; if(st==='naoPago') return 'Não pago'; if(isOverdueDebit(e))return 'Atrasado'; return e.original==='fixo'?'Débito fixo':'Débito mensal'; }
-function statusClass(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'recebido':(st==='parcial'?'parcial':'receita'); if(isPaidDebitStatus(st)) return 'pago'; if(st==='naoPago') return 'nao-pago'; if(isOverdueDebit(e))return 'atrasado'; return e.original==='fixo'?'fixo':'pendente'; }
+function statusText(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'Recebido':(st==='parcial'?'Parcial':'Pendente'); if(isPaidDebitStatus(st)&&statusKey(st)==='pagoatraso') return 'Pago em atraso'; if(isPaidDebitStatus(st)) return 'Pago'; if(isUnpaidDebitStatus(st)) return 'Não pago'; if(isOverdueDebit(e))return 'Atrasado'; return e.original==='fixo'?'Débito fixo':'Débito mensal'; }
+function statusClass(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'recebido':(st==='parcial'?'parcial':'receita'); if(isPaidDebitStatus(st)) return 'pago'; if(isUnpaidDebitStatus(st)) return 'nao-pago'; if(isOverdueDebit(e))return 'atrasado'; return e.original==='fixo'?'fixo':'pendente'; }
 function valueIsLocked(e){ const status=currentStatus(e); return (isPaidDebitStatus(status)||status==='recebido')&&hasEnteredValue(e); }
 function renderMonths(){ const cur=$('#startMonthInput').value||state.currentMonth; $('#monthSelect').innerHTML=''; $('#startMonthInput').innerHTML=''; for(let i=0;i<=maxMonth();i++){ $('#monthSelect').add(new Option(monthLabel(i),i)); $('#startMonthInput').add(new Option(monthLabel(i),i)); } $('#monthSelect').value=state.currentMonth; $('#startMonthInput').value=Math.min(Number(cur),maxMonth()); }
 function renderCardMonths(){ const sel=$('#cardImportMonth'); if(!sel)return; const old=sel.value||state.currentMonth; sel.innerHTML=''; for(let i=0;i<=maxMonth()+12;i++)sel.add(new Option(monthLabel(i),i)); sel.value=Math.min(Number(old),maxMonth()+12); renderCardOptions(); }
@@ -1582,7 +1591,7 @@ function renderLists(){ $('#debitList').innerHTML=entries('debito').map(row).joi
 function calc(){
   let receitaPrev=0,receitaRec=0,receitaPendente=0,receitaRecPropria=0,receitaNubank=0,deb=0,pago=0,pagoProprio=0,pagoNubank=0,fix=0,totalFix=0,totalMensal=0,semValor=0,lin=0,receitasLancadas=0,receitasPendentes=0,debPendentes=0,fixPendentes=0,mensaisPendentes=0,totalFixPendente=0,totalMensalPendente=0,emp=0,mkt=0,traf=0,repasseLara=0,voltaParaNubank=0;
   entries('receita').forEach(e=>{receitasLancadas++;const total=parseMoney(configuredValue(e)), received=receivedAmount(e), remaining=remainingAmount(e);receitaPrev+=total;receitaRec+=received;receitaPendente+=remaining;if(received>0){if(e.banco===SPOUSE_BANK)receitaNubank+=received;else receitaRecPropria+=received;}if(remaining>.005)receitasPendentes++;if(e.origem==='Empresa'||e.categoria==='Empresa')emp+=total;if(e.origem==='Marketing')mkt+=total;if(e.origem==='Tráfego Pago')traf+=total;if(e.origem==='Marketing + Tráfego'){mkt+=parseMoney(e.valorMarketing);traf+=parseMoney(e.valorTrafego);} });
-  entries('debito').forEach(e=>{lin++;const v=parseMoney(displayValue(e)), st=currentStatus(e); if(isPaidDebitStatus(st)){pago+=v;if(e.banco===SPOUSE_BANK)pagoNubank+=v;else pagoProprio+=v;} else if(st!=='naoPago'){deb+=v;debPendentes++;} if(e.original==='fixo'){totalFix+=v;if(!isPaidDebitStatus(st)&&st!=='naoPago'){fixPendentes++;totalFixPendente+=v;}} if(e.original==='pendente'){if(v>0)totalMensal+=v;if(!isPaidDebitStatus(st)&&st!=='naoPago'){mensaisPendentes++;totalMensalPendente+=v;} if(!hasEnteredValue(e))semValor++;} });
+  entries('debito').forEach(e=>{lin++;const v=parseMoney(displayValue(e)), st=currentStatus(e); if(isPaidDebitStatus(st)){pago+=v;if(e.banco===SPOUSE_BANK)pagoNubank+=v;else pagoProprio+=v;} else if(!isUnpaidDebitStatus(st)){deb+=v;debPendentes++;} if(e.original==='fixo'){totalFix+=v;if(!isPaidDebitStatus(st)&&!isUnpaidDebitStatus(st)){fixPendentes++;totalFixPendente+=v;}} if(e.original==='pendente'){if(v>0)totalMensal+=v;if(!isPaidDebitStatus(st)&&!isUnpaidDebitStatus(st)){mensaisPendentes++;totalMensalPendente+=v;} if(!hasEnteredValue(e))semValor++;} });
   state.transfers.forEach(t=>{const v=parseMoney(t.valor); if(t.from===SPOUSE_BANK&&ownBanks().includes(t.to))repasseLara+=v; if(ownBanks().includes(t.from)&&t.to===SPOUSE_BANK)voltaParaNubank+=v;});
   const sobraLara=Math.max(0,receitaNubank-pagoNubank-repasseLara+voltaParaNubank);
   const receitaDisp=receitaRecPropria+repasseLara-pagoProprio;
@@ -1801,7 +1810,7 @@ function editEntry(id){
   $('#formTitle').textContent='Editar lançamento';
   $('#typeInput').value=e.tipo;
   syncFormType();
-  const stAtual=currentStatus(e); const statusParaFormulario = e.tipo==='receita' ? stAtual : (['pago','pagoAtraso','naoPago'].includes(stAtual) ? e.original : (e.original || stAtual));
+  const stAtual=currentStatus(e); const statusParaFormulario = e.tipo==='receita' ? stAtual : ((isPaidDebitStatus(stAtual)||isUnpaidDebitStatus(stAtual)) ? e.original : (e.original || stAtual));
   $('#descInput').value=e.nome;
   $('#dayInput').value=e.dia;
   $('#valueInput').value=configuredValue(e);
