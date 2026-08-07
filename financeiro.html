@@ -883,7 +883,7 @@ function persist(){
   try{
     if(!applyingRemote){ state.lastSync=Date.now(); state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2); setSyncPending(true); }
     localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
-    scheduleCloudSave();
+    scheduleCloudSave(180);
   }catch(err){ console.warn('Não foi possível salvar no navegador.',err); }
 }
 const banks=['Nenhum','PF Sicredi','PJ Sicredi','NuBank','Caixa','Santander'];
@@ -1185,7 +1185,7 @@ function postCloudState(payload){
       syncRevision:String(payload.syncRevision||''),
       lastSync:Number(payload.lastSync||Date.now()),
       updatedAt:Date.now()
-    }).then(()=>true);
+    },{merge:true}).then(()=>true);
   }
   const body=JSON.stringify({action:'save',data:payload});
   const controller=new AbortController();
