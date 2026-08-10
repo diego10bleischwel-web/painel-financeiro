@@ -3560,20 +3560,32 @@ function briefingDedupeKey(b){
   const name=s.empresa||b.empresa_nome||b.cliente_nome||'';
   return normalizeBriefingOption(name);
 }
-function briefingListRank(b){
-  const p=calcularProgressoCliente(b);
-  const updated=Date.parse(b.updatedAt||b.timestamp||'')||0;
-  return (p.done*1000000000000)+updated;
+function briefingContentScore(value){
+  if(Array.isArray(value))return value.reduce((total,item)=>total+briefingContentScore(item),0);
+  if(value&&typeof value==='object')return Object.values(value).reduce((total,item)=>total+briefingContentScore(item),0);
+  const text=String(value??'').trim();
+  return text&&text!=='--'?1:0;
 }
 function dedupeBriefingsForList(list){
-  const map=new Map();
+  const groups=new Map();
   (Array.isArray(list)?list:[]).forEach(b=>{
     const key=briefingDedupeKey(b);
-    if(!key){map.set(String(b.id),b);return}
-    const current=map.get(key);
-    if(!current||briefingListRank(b)>briefingListRank(current))map.set(key,b);
+    const groupKey=key||String(b.id);
+    if(!groups.has(groupKey))groups.set(groupKey,[]);
+    groups.get(groupKey).push(b);
   });
-  return [...map.values()].sort((a,b)=>String(b.timestamp||b.updatedAt||'').localeCompare(String(a.timestamp||a.updatedAt||'')));
+  const visible=[];
+  groups.forEach(group=>{
+    if(group.length===1){visible.push(group[0]);return}
+    const scored=group.map(item=>({item,score:briefingContentScore(item.dados||{})}));
+    const withContent=scored.filter(entry=>entry.score>0).map(entry=>entry.item);
+    if(withContent.length){
+      visible.push(...withContent);
+      return;
+    }
+    visible.push(group.slice().sort((a,b)=>String(b.timestamp||b.updatedAt||'').localeCompare(String(a.timestamp||a.updatedAt||'')))[0]);
+  });
+  return visible.sort((a,b)=>String(b.timestamp||b.updatedAt||'').localeCompare(String(a.timestamp||a.updatedAt||'')));
 }
 function normalizeFallbackBriefings(list){
   return (Array.isArray(list)?list:[]).map((b,i)=>({
