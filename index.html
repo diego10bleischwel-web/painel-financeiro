@@ -2735,7 +2735,7 @@ async function copyReportLink(id){
   }
 }
 function selectedBriefing(){
-  return briefings.find(x=>String(x.id)===String(selectedBriefingId))||null;
+  return resolveBestBriefing(selectedBriefingId);
 }
 function isFormsStageLocked(b,stage){
   return stage!=='clienteNovo'&&stage!=='trafficAi'&&calcularStatusEtapa(b,'clienteNovo')!=='concluido';
@@ -3566,6 +3566,22 @@ function briefingContentScore(value){
   const text=String(value??'').trim();
   return text&&text!=='--'?1:0;
 }
+function briefingRecordScore(b){
+  const dataScore=briefingContentScore(b?.dados||{});
+  const updated=Date.parse(b?.updatedAt||b?.timestamp||'')||0;
+  return (dataScore*1000000000000)+updated;
+}
+function duplicateBriefingGroupFor(id){
+  const current=briefings.find(item=>String(item.id)===String(id));
+  if(!current)return [];
+  const key=briefingDedupeKey(current);
+  return key?briefings.filter(item=>briefingDedupeKey(item)===key):[current];
+}
+function resolveBestBriefing(id){
+  const group=duplicateBriefingGroupFor(id);
+  if(group.length)return group.slice().sort((a,b)=>briefingRecordScore(b)-briefingRecordScore(a))[0];
+  return briefings.find(x=>String(x.id)===String(id))||null;
+}
 function dedupeBriefingsForList(list){
   const groups=new Map();
   (Array.isArray(list)?list:[]).forEach(b=>{
@@ -3577,13 +3593,7 @@ function dedupeBriefingsForList(list){
   const visible=[];
   groups.forEach(group=>{
     if(group.length===1){visible.push(group[0]);return}
-    const scored=group.map(item=>({item,score:briefingContentScore(item.dados||{})}));
-    const withContent=scored.filter(entry=>entry.score>0).map(entry=>entry.item);
-    if(withContent.length){
-      visible.push(...withContent);
-      return;
-    }
-    visible.push(group.slice().sort((a,b)=>String(b.timestamp||b.updatedAt||'').localeCompare(String(a.timestamp||a.updatedAt||'')))[0]);
+    visible.push(group.slice().sort((a,b)=>briefingRecordScore(b)-briefingRecordScore(a))[0]);
   });
   return visible.sort((a,b)=>String(b.timestamp||b.updatedAt||'').localeCompare(String(a.timestamp||a.updatedAt||'')));
 }
@@ -3625,7 +3635,8 @@ function renderBriefingList(){
   $('#activityBriefings').textContent=briefings.length?`${briefings.length} recebido(s)`:'Nenhum formulario';
   const visible=dedupeBriefingsForList(filterBriefingsForForms());
   if(selectedBriefingId&&!visible.some(b=>String(b.id)===String(selectedBriefingId))){
-    selectedBriefingId=visible[0]?.id||'';
+    const bestDuplicate=resolveBestBriefing(selectedBriefingId);
+    selectedBriefingId=bestDuplicate&&visible.some(b=>String(b.id)===String(bestDuplicate.id))?bestDuplicate.id:(visible[0]?.id||'');
     if(selectedBriefingId){try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){}}
   }
   if(!briefings.length){list.className='briefing-empty';list.innerHTML='Nenhum cliente recebido ainda.';return}
@@ -3646,7 +3657,7 @@ function renderBriefingList(){
 }
 function renderBriefingDetail(id){
   const el=$('#briefingDetail');if(!el)return;
-  const b=briefings.find(x=>String(x.id)===String(id))||briefings[0];
+  const b=resolveBestBriefing(id)||briefings[0];
   if(!b){el.innerHTML='<div class="forms-empty-state"><div><b>Selecione um cliente</b>Escolha um cliente na lista para visualizar as configuracoes.</div></div>';return}
   selectedBriefingId=b.id;
   try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){}
