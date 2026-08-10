@@ -1428,6 +1428,9 @@ button,a{font:inherit}
   gap:6px;
   margin-top:2px;
 }
+.briefing-answer-list.only-lines{
+  margin-top:0;
+}
 .briefing-answer-item{
   display:flex;
   justify-content:space-between;
@@ -1457,6 +1460,43 @@ button,a{font:inherit}
   transform:translateY(-1px);
   border-color:rgba(255,255,255,.34);
   background:rgba(130,188,255,.14);
+}
+.briefing-lines-editor{
+  display:grid;
+  gap:10px;
+}
+.briefing-lines-list{
+  display:grid;
+  gap:8px;
+}
+.briefing-line-edit{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 38px;
+  gap:8px;
+  align-items:center;
+}
+.briefing-line-edit input{
+  min-width:0;
+}
+.briefing-line-remove{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  border:1px solid rgba(255,95,118,.28);
+  background:rgba(255,95,118,.08);
+  color:#ff9cab;
+  font-weight:1000;
+  cursor:pointer;
+}
+.briefing-line-add{
+  justify-self:flex-start;
+  border:1px solid rgba(183,148,246,.34);
+  border-radius:999px;
+  background:rgba(139,92,246,.12);
+  color:#f4edff;
+  padding:9px 13px;
+  font-weight:900;
+  cursor:pointer;
 }
 .briefing-edit-grid{
   display:grid;
@@ -3046,6 +3086,10 @@ function setupEvents(){
     if(reportCopy) copyReportLink(reportCopy.dataset.reportCopy);
     const copyAnswer=e.target.closest('[data-copy-answer]');
     if(copyAnswer) copyAnswerText(copyAnswer);
+    const addBriefingLine=e.target.closest('[data-briefing-array-add]');
+    if(addBriefingLine){addBriefingArrayLine(addBriefingLine);return}
+    const removeBriefingLine=e.target.closest('[data-briefing-array-remove]');
+    if(removeBriefingLine){removeBriefingArrayLine(removeBriefingLine);return}
     const briefing=e.target.closest('[data-briefing-id]');
     if(briefing){selectedBriefingId=briefing.dataset.briefingId;try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){};renderFormsTabs()}
     const status=e.target.closest('[data-briefing-status]');
@@ -3088,6 +3132,7 @@ function setupEvents(){
   });
   document.body.addEventListener('input',e=>{
     if(e.target.id==='formsSearch'){formsSearchTerm=e.target.value;renderBriefingList()}
+    if(e.target.matches('[data-briefing-array-line]'))syncBriefingArrayEditor(e.target.closest('[data-briefing-lines-editor]'));
     if(e.target.id==='onboardingCompanyName'){
       updateOnboardingLink();
       if($('#workspace').classList.contains('active')&&$('#workspaceTitle')?.textContent==='Cliente Novo'){
@@ -3121,6 +3166,12 @@ function splitCopyItems(value){
   if(!text||text==='--')return [];
   return text.split(/\r?\n+/).map(item=>item.trim()).filter(Boolean);
 }
+function briefingArrayValues(value){
+  if(Array.isArray(value))return value.map(item=>String(item||'').trim()).filter(Boolean);
+  const text=String(value||'').trim();
+  if(!text||text==='--')return [];
+  return text.split(/\r?\n+/).map(item=>item.trim()).filter(Boolean);
+}
 function renderCopyButton(text,label='Copiar resposta'){
   return `<button class="briefing-copy-btn" type="button" title="${esc(label)}" data-copy-answer="${esc(text)}">Copiar</button>`;
 }
@@ -3130,8 +3181,7 @@ function renderBriefingAnswer(row){
   if(!items.length)return '<b>--</b>';
   if(items.length===1)return `<div class="briefing-answer-main"><b>${esc(text)}</b>${renderCopyButton(text)}</div>`;
   return `<div class="briefing-answer">
-    <div class="briefing-answer-main"><b>${esc(text)}</b>${renderCopyButton(text,'Copiar tudo')}</div>
-    <div class="briefing-answer-list">
+    <div class="briefing-answer-list only-lines">
       ${items.map(item=>`<div class="briefing-answer-item"><span>${esc(item)}</span>${renderCopyButton(item,'Copiar item')}</div>`).join('')}
     </div>
   </div>`;
@@ -3278,7 +3328,7 @@ function parseBriefingEditValue(source,key,value){
   const config=briefingFieldConfig(source,key);
   if(config.array){
     return String(value||'')
-      .split(/\n|,/)
+      .split(/\r?\n+/)
       .map(item=>item.trim())
       .filter(Boolean);
   }
@@ -3505,6 +3555,26 @@ function clienteNovoFormUrl(b){
 function filterBriefingsForForms(){
   return briefings;
 }
+function briefingDedupeKey(b){
+  const s=briefingSummary(b);
+  const name=s.empresa||b.empresa_nome||b.cliente_nome||'';
+  return normalizeBriefingOption(name);
+}
+function briefingListRank(b){
+  const p=calcularProgressoCliente(b);
+  const updated=Date.parse(b.updatedAt||b.timestamp||'')||0;
+  return (p.done*1000000000000)+updated;
+}
+function dedupeBriefingsForList(list){
+  const map=new Map();
+  (Array.isArray(list)?list:[]).forEach(b=>{
+    const key=briefingDedupeKey(b);
+    if(!key){map.set(String(b.id),b);return}
+    const current=map.get(key);
+    if(!current||briefingListRank(b)>briefingListRank(current))map.set(key,b);
+  });
+  return [...map.values()].sort((a,b)=>String(b.timestamp||b.updatedAt||'').localeCompare(String(a.timestamp||a.updatedAt||'')));
+}
 function normalizeFallbackBriefings(list){
   return (Array.isArray(list)?list:[]).map((b,i)=>({
     id:b.firestore_id||b.fallback_id||b.cliente_id||`fallback-${i}`,
@@ -3541,7 +3611,11 @@ function renderBriefingList(){
   $('#briefingCount').textContent=String(briefings.length);
   $('#briefingSync').textContent=novos?`${novos} novo(s)`:'Atualizado';
   $('#activityBriefings').textContent=briefings.length?`${briefings.length} recebido(s)`:'Nenhum formulario';
-  const visible=filterBriefingsForForms();
+  const visible=dedupeBriefingsForList(filterBriefingsForForms());
+  if(selectedBriefingId&&!visible.some(b=>String(b.id)===String(selectedBriefingId))){
+    selectedBriefingId=visible[0]?.id||'';
+    if(selectedBriefingId){try{localStorage.setItem(FORMS_ACTIVE_CLIENT_KEY,selectedBriefingId)}catch(err){}}
+  }
   if(!briefings.length){list.className='briefing-empty';list.innerHTML='Nenhum cliente recebido ainda.';return}
   if(!visible.length){list.className='briefing-empty';list.innerHTML='Nenhum cliente recebido ainda.';return}
   list.className='';
@@ -3935,7 +4009,57 @@ function renderBriefingEditControl(row){
   if(config.kind==='input'){
     return `<input ${common} type="${esc(config.type||'text')}" value="${esc(value)}">`;
   }
+  if(config.array){
+    const values=briefingArrayValues(row.value);
+    const rows=values.length?values:[''];
+    return `<div class="briefing-lines-editor" data-briefing-lines-editor>
+      <input type="hidden" ${common} value="${esc(values.join('\n'))}">
+      <div class="briefing-lines-list">
+        ${rows.map((item,index)=>`<div class="briefing-line-edit">
+          <input data-briefing-array-line type="text" value="${esc(item)}" placeholder="Linha ${index+1}">
+          <button class="briefing-line-remove" data-briefing-array-remove type="button" title="Remover linha">x</button>
+        </div>`).join('')}
+      </div>
+      <button class="briefing-line-add" data-briefing-array-add type="button">+ Adicionar linha</button>
+    </div>`;
+  }
   return `<textarea ${common} rows="${value.length>140?5:3}">${esc(value)}</textarea>`;
+}
+function syncBriefingArrayEditor(editor){
+  if(!editor)return;
+  const hidden=editor.querySelector('[data-briefing-field]');
+  if(!hidden)return;
+  const values=[...editor.querySelectorAll('[data-briefing-array-line]')]
+    .map(input=>input.value.trim())
+    .filter(Boolean);
+  hidden.value=values.join('\n');
+}
+function addBriefingArrayLine(button){
+  const editor=button.closest('[data-briefing-lines-editor]');
+  const list=editor?.querySelector('.briefing-lines-list');
+  if(!editor||!list)return;
+  const row=document.createElement('div');
+  row.className='briefing-line-edit';
+  row.innerHTML=`<input data-briefing-array-line type="text" placeholder="Nova linha">
+    <button class="briefing-line-remove" data-briefing-array-remove type="button" title="Remover linha">x</button>`;
+  list.appendChild(row);
+  row.querySelector('input')?.focus();
+  syncBriefingArrayEditor(editor);
+}
+function removeBriefingArrayLine(button){
+  const editor=button.closest('[data-briefing-lines-editor]');
+  const list=editor?.querySelector('.briefing-lines-list');
+  const row=button.closest('.briefing-line-edit');
+  if(!editor||!list||!row)return;
+  row.remove();
+  if(!list.querySelector('[data-briefing-array-line]')){
+    const empty=document.createElement('div');
+    empty.className='briefing-line-edit';
+    empty.innerHTML=`<input data-briefing-array-line type="text" placeholder="Nova linha">
+      <button class="briefing-line-remove" data-briefing-array-remove type="button" title="Remover linha">x</button>`;
+    list.appendChild(empty);
+  }
+  syncBriefingArrayEditor(editor);
 }
 function selectBriefingChoice(choice){
   const field=choice.closest('.briefing-edit-field');
