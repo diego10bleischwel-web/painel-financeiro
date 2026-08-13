@@ -1248,6 +1248,41 @@ async function saveCloudState(){
   }catch(err){ console.warn(err); setSyncPending(true); setSyncStatus('Sync pendente'); scheduleCloudSave(5000); }
   finally{ syncSaving=false; }
 }
+async function persistInlineValueEdit(){
+  if(!syncReady) setupFirestoreSync();
+  if(!firestoreReady&&!syncUrl){
+    setSyncPending(true);
+    setSyncStatus('ERRO AO SALVAR');
+    return false;
+  }
+  clearTimeout(syncTimer);
+  const sentAt=Date.now();
+  const sentRevision='rev-'+sentAt+'-'+Math.random().toString(36).slice(2);
+  state.lastSync=sentAt;
+  state.syncRevision=sentRevision;
+  setSyncPending(true);
+  setSyncStatus('SALVANDO...');
+  try{
+    await postCloudState(statePayload());
+    const remote=await confirmCloudSave(sentAt,sentRevision);
+    if(remote&&Array.isArray(remote.entries)&&String(remote.syncRevision||'')===sentRevision){
+      saveLocalSnapshot();
+      setSyncPending(false);
+      setSyncStatus('SALVO NA NUVEM');
+      return true;
+    }
+    setSyncPending(true);
+    setSyncStatus('ERRO AO SALVAR');
+    scheduleCloudSave(3000);
+    return false;
+  }catch(err){
+    console.warn('Falha ao salvar valor editado na nuvem.',err);
+    setSyncPending(true);
+    setSyncStatus('ERRO AO SALVAR');
+    scheduleCloudSave(5000);
+    return false;
+  }
+}
 async function configureSync(){
   const url=prompt('Cole a URL do Web App do Google Apps Script para sincronizar online. Deixe vazio para usar somente este navegador.',syncUrl);
   if(url===null)return;
@@ -1918,7 +1953,44 @@ function saveEntry(){
   persist(); clearForm(); setTab(obj.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(obj.id);
 }
 function focusEntry(id, blink=false){ setTimeout(()=>{ const el=document.querySelector(`.entry-row[data-id=\"${id}\"]`); if(!el)return; el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('focus-return'); if(blink){ el.classList.remove('import-blink'); void el.offsetWidth; el.classList.add('import-blink'); } el.setAttribute('tabindex','-1'); el.focus({preventScroll:true}); setTimeout(()=>el.classList.remove('focus-return'),1800); if(blink)setTimeout(()=>el.classList.remove('import-blink'),2400); },60);}
-function saveInlineValue(input){ const ent=state.entries.find(x=>x.id===Number(input.closest('.entry-row').dataset.id)); if(!ent)return; if(valueIsLocked(ent)){input.value=ent.tipo==='receita'?revenueInputValue(ent):(displayValue(ent)||'');return;} const raw=String(input.value||'').trim(), v=parseMoney(raw), formatted=raw?moneyInput(v,ent.tipo):''; if(ent.tipo==='receita'){ const remaining=remainingAmount(ent), received=receivedAmount(ent); if(!v){setReceiptDraft(ent,'');input.value=displayValue(ent);persist();return;} if(v>remaining+.005)setDisplayValue(ent,moneyInput(received+v,'receita')); setReceiptDraft(ent,formatted); persist(); renderAll(); focusEntry(ent.id); return; } if(formatted===displayValue(ent))return; if(ent.original==='pendente'){ setDisplayValue(ent,formatted); } else if(hasFutureMonths(ent)){ const choice=futureEditChoice(ent); if(choice===null){ input.value=displayValue(ent); return; } if(choice==='future') setValueFromCurrentForward(ent,formatted); else setDisplayValue(ent,formatted); } else setDisplayValue(ent,formatted); persist(); renderAll(); focusEntry(ent.id);}
+async function saveInlineValue(input){
+  const ent=state.entries.find(x=>x.id===Number(input.closest('.entry-row').dataset.id));
+  if(!ent)return;
+  if(valueIsLocked(ent)){
+    input.value=ent.tipo==='receita'?revenueInputValue(ent):(displayValue(ent)||'');
+    return;
+  }
+  const raw=String(input.value||'').trim(), v=parseMoney(raw), formatted=raw?moneyInput(v,ent.tipo):'';
+  if(ent.tipo==='receita'){
+    const remaining=remainingAmount(ent), received=receivedAmount(ent);
+    if(!v){
+      setReceiptDraft(ent,'');
+      input.value=displayValue(ent);
+      await persistInlineValueEdit();
+      return;
+    }
+    if(v>remaining+.005)setDisplayValue(ent,moneyInput(received+v,'receita'));
+    setReceiptDraft(ent,formatted);
+    await persistInlineValueEdit();
+    renderAll();
+    focusEntry(ent.id);
+    return;
+  }
+  if(formatted===displayValue(ent))return;
+  if(ent.original==='pendente'){
+    setDisplayValue(ent,formatted);
+  } else if(hasFutureMonths(ent)){
+    const choice=futureEditChoice(ent);
+    if(choice===null){
+      input.value=displayValue(ent);
+      return;
+    }
+    if(choice==='future') setValueFromCurrentForward(ent,formatted); else setDisplayValue(ent,formatted);
+  } else setDisplayValue(ent,formatted);
+  await persistInlineValueEdit();
+  renderAll();
+  focusEntry(ent.id);
+}
 function resetThirdEditor(focus=true){
   editingThirdId='';
   $('#thirdPerson').value='';
