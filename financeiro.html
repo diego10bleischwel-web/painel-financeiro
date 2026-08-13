@@ -1907,7 +1907,7 @@ function nextOrderForDay(entry,excludeId=null){
   const maxOrder=sameDay.reduce((max,e)=>Number.isFinite(e.ordem)?Math.max(max,e.ordem):max,-1);
   return maxOrder>=0?maxOrder+1:sameDay.length;
 }
-function saveEntry(){
+async function saveEntry(){
   const obj=formObj();
   const idx=state.entries.findIndex(e=>e.id===obj.id);
   const original=obj.tipo==='receita'?'receitaPendente':(obj.status==='fixo'?'fixo':'pendente');
@@ -1927,7 +1927,9 @@ function saveEntry(){
       const selectedStatus=$('#statusInput').value;
       const formStatus=obj.tipo==='receita'?selectedStatus:(selectedStatus==='fixo'?'fixo':'pendente');
       if(formStatus!==baseStatus(previous)) setCurrentStatus(previous,formStatus);
-      persist(); clearForm(); setTab(previous.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(previous.id);
+      const saved=await persistInlineValueEdit();
+      if(!saved){ renderAll(); focusEntry(previous.id); return; }
+      clearForm(); setTab(previous.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(previous.id);
       return;
     }
     const originalEnd=Number(previous.inicio||0)+Number(previous.repeticoes||1), oldRepeat=Number(previous.repeticoes||1), oldLifetime=oldRepeat>=999;
@@ -1950,7 +1952,9 @@ function saveEntry(){
     obj.statusMes={};
     state.entries.push(obj);
   }
-  persist(); clearForm(); setTab(obj.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(obj.id);
+  const saved=await persistInlineValueEdit();
+  if(!saved){ renderAll(); focusEntry(obj.id); return; }
+  clearForm(); setTab(obj.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(obj.id);
 }
 function focusEntry(id, blink=false){ setTimeout(()=>{ const el=document.querySelector(`.entry-row[data-id=\"${id}\"]`); if(!el)return; el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('focus-return'); if(blink){ el.classList.remove('import-blink'); void el.offsetWidth; el.classList.add('import-blink'); } el.setAttribute('tabindex','-1'); el.focus({preventScroll:true}); setTimeout(()=>el.classList.remove('focus-return'),1800); if(blink)setTimeout(()=>el.classList.remove('import-blink'),2400); },60);}
 async function saveInlineValue(input){
