@@ -855,7 +855,30 @@ ensureThirdMovementIds();
 function filterDeletedEntries(entries,map=state.deletedEntries){
   return (Array.isArray(entries)?entries:[]).filter(e=>!map?.[String(e.id)]);
 }
+function deletedCardTransactionKey(t){ return 'cardtx:'+(t?.key||cardTxKey(t)); }
+function filterDeletedCardTransactions(transactions,map=state.deletedEntries){
+  return (Array.isArray(transactions)?transactions:[]).filter(t=>!map?.[deletedCardTransactionKey(t)]);
+}
+function rememberDeletedEntry(e){
+  if(e&&e.id!==undefined&&e.id!==null) state.deletedEntries[String(e.id)]=Date.now();
+}
+function rememberDeletedCardTransaction(t){
+  if(t) state.deletedEntries[deletedCardTransactionKey(t)]=Date.now();
+}
+function removeEntriesAndRemember(predicate){
+  const removed=[];
+  state.entries=state.entries.filter(e=>{
+    if(predicate(e)){
+      rememberDeletedEntry(e);
+      removed.push(e);
+      return false;
+    }
+    return true;
+  });
+  return removed;
+}
 state.entries=filterDeletedEntries(state.entries);
+state.cardTransactions=filterDeletedCardTransactions(state.cardTransactions);
 function thirdPersonDeletedAt(person,map=state.deletedThirdPeople){ return Number(map?.[String(person||'').trim()]||0); }
 function filterDeletedThirdMovements(movements,map=state.deletedThirdPeople){
   return (Array.isArray(movements)?movements:[]).filter(m=>{
@@ -1016,7 +1039,7 @@ function mergeCloudIntoLocal(remote){
   const transfers=mergeByKey(state.transfers,remote.transfers,t=>'transfer:'+(t.id??[t.kind,t.from,t.to,t.valor,t.date,t.note].join('|')));
   const third=mergeByKey(filterDeletedThirdMovements(state.thirdMovements,deletedThirdPeople),filterDeletedThirdMovements(remote.thirdMovements,deletedThirdPeople),m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')));
   const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
-  const cardTx=mergeByKey(state.cardTransactions,remote.cardTransactions,t=>'cardtx:'+(t.key||cardTxKey(t)));
+  const cardTx=mergeByKey(filterDeletedCardTransactions(state.cardTransactions,deletedEntries),filterDeletedCardTransactions(remote.cardTransactions,deletedEntries),t=>'cardtx:'+(t.key||cardTxKey(t)));
   const deletedChanged=JSON.stringify(deletedThirdPeople)!==JSON.stringify(state.deletedThirdPeople)||JSON.stringify(deletedEntries)!==JSON.stringify(state.deletedEntries);
   const changed=entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed||deletedChanged||entries.items.length!==state.entries.length||third.items.length!==state.thirdMovements.length;
   if(!changed)return false;
@@ -1064,7 +1087,9 @@ function applyCloudState(data){
   const filteredThirdMovements=filterDeletedThirdMovements(remoteThirdMovements,deletedThirdPeople);
   const remoteEntries=Array.isArray(data.entries)?structuredClone(data.entries):[];
   const filteredEntries=filterDeletedEntries(remoteEntries,deletedEntries);
-  const deletionNeedsUpload=JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
+  const remoteCardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
+  const filteredCardTransactions=filterDeletedCardTransactions(remoteCardTransactions,deletedEntries);
+  const deletionNeedsUpload=JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
   applyingRemote=true;
   state.currentMonth=currentMonthIndex();
   state.nextId=Number(data.nextId||503);
@@ -1073,7 +1098,7 @@ function applyCloudState(data){
   state.transfers=Array.isArray(data.transfers)?structuredClone(data.transfers):[];
   state.deletedThirdPeople=deletedThirdPeople;
   state.thirdMovements=ensureThirdMovementIds(filteredThirdMovements);
-  state.cardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
+  state.cardTransactions=filteredCardTransactions;
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
   state.lastSync=Number(data.lastSync||Date.now());
   state.syncRevision=String(data.syncRevision||'');
@@ -1106,7 +1131,7 @@ function applyRecoveredState(data, uploadNow=false){
   state.transfers=Array.isArray(data.transfers)?structuredClone(data.transfers):(Array.isArray(data.bankTransfers)?structuredClone(data.bankTransfers):[]);
   state.deletedThirdPeople=deletedThirdPeople;
   state.thirdMovements=ensureThirdMovementIds(filterDeletedThirdMovements(Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):(Array.isArray(data.thirdPartyMovements)?structuredClone(data.thirdPartyMovements):[]),deletedThirdPeople));
-  state.cardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
+  state.cardTransactions=filterDeletedCardTransactions(Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[],deletedEntries);
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
   state.lastSync=Date.now();
   state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2);
@@ -1286,6 +1311,9 @@ async function persistInlineValueEdit(){
     return true;
   }
 }
+async function persistCriticalChange(){
+  return persistInlineValueEdit();
+}
 async function configureSync(){
   const url=prompt('Cole a URL do Web App do Google Apps Script para sincronizar online. Deixe vazio para usar somente este navegador.',syncUrl);
   if(url===null)return;
@@ -1423,6 +1451,7 @@ function statusAtMonth(e,month){ const key=String(month); if(e.statusMes && Obje
 function isPaidDebitStatus(status){ const key=statusKey(status); return key==='pago'||key==='pagoatraso'; }
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.repeticoes-effectiveMonthOffset(e,state.currentMonth))}
 function isOverdueDebit(e){ return e&&e.tipo==='debito'&&(e.atrasado||e.carryForwardKey); }
+function isOverdueIncome(e){ return e&&e.tipo==='receita'&&(e.receitaAtrasada||e.incomeCarryForwardKey); }
 function inferCarryFromMonth(e){
   const direct=Number(e&&e.carryFromMonth);
   if(Number.isFinite(direct))return direct;
@@ -1439,7 +1468,15 @@ function inferCarryFromMonth(e){
   return Number.isFinite(start)&&start>0?start-1:NaN;
 }
 function overdueOriginLabel(e){ const m=inferCarryFromMonth(e); return Number.isFinite(m)?`${monthLabel(m)} em aberto`:'Data original em aberto'; }
-function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(isOverdueDebit(e))return overdueOriginLabel(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(isUnpaidDebitStatus(currentStatus(e)))return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
+function inferIncomeCarryFromMonth(e){
+  const direct=Number(e&&e.incomeCarryFromMonth);
+  if(Number.isFinite(direct))return direct;
+  const parts=String(e&&e.incomeCarryForwardKey||'').split(':').map(Number);
+  if(parts.length>=2&&Number.isFinite(parts[1]))return parts[1];
+  return NaN;
+}
+function incomeOverdueOriginLabel(e){ const m=inferIncomeCarryFromMonth(e); return Number.isFinite(m)?`${monthLabel(m)} pendente`:'Receita anterior pendente'; }
+function rowRestLabel(e){ const modo=e.valorModo||'fixo', r=rest(e); if(isOverdueDebit(e))return overdueOriginLabel(e); if(isOverdueIncome(e))return incomeOverdueOriginLabel(e); if(hasCardProjection(e))return r==='vitalício'?'faturas importadas':(r===1?'último mês projetado':`${r} meses projetados`); if(isUnpaidDebitStatus(currentStatus(e)))return r==='vitalício'?'vitalício pendente':(r===1?'última pendente':`${r} restantes`); if(modo==='branco')return 'valor variável'; if(modo==='personalizado')return `parcela ${effectiveMonthOffset(e)+1}/${e.repeticoes>=999?'∞':e.repeticoes}`; return e.repeticoes>=999?'vitalício':(r===1?'último mês':`${r} restantes`); }
 function visibleAtMonth(e,month){ return month>=e.inicio && effectiveMonthOffset(e,month)<e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(month)]); }
 function displayValueAtMonth(e,month){ if(e.tipo!=='receita')return configuredValue(e,month); const remaining=remainingAmount(e,month); return remaining?moneyInput(remaining,'receita'):configuredValue(e,month); }
 function setCurrentStatus(e,status){
@@ -1477,7 +1514,9 @@ function removeCarryForwardDebit(e,sourceMonth=state.currentMonth,targetMonth){
     if(!isOverdueDebit(x))return true;
     const sameSource=Number(x.carryFromId)===Number(e.id) && inferCarryFromMonth(x)===Number(sourceMonth);
     const sameTarget=targetMonth===undefined || carryForwardTargetMonth(x)===Number(targetMonth);
-    return !(sameSource&&sameTarget) && x.carryForwardKey!==key && !(x.carryForwardKey===legacy&&sameTarget);
+    const remove=(sameSource&&sameTarget) || x.carryForwardKey===key || (x.carryForwardKey===legacy&&sameTarget);
+    if(remove) rememberDeletedEntry(x);
+    return !remove;
   });
   return state.entries.length!==before;
 }
@@ -1509,6 +1548,106 @@ function createCarryForwardDebitForMonth(e,sourceMonth,targetMonth=state.current
   return true;
 }
 function createCarryForwardDebit(e){ return createCarryForwardDebitForMonth(e,state.currentMonth,state.currentMonth+1); }
+function incomeCarryForwardKeyFor(e,sourceMonth,targetMonth){ return `${e.id}:${sourceMonth}:${targetMonth}`; }
+function incomeCarryForwardTargetMonth(e){
+  const direct=Number(e&&e.incomeCarryTargetMonth);
+  if(Number.isFinite(direct))return direct;
+  const parts=String(e&&e.incomeCarryForwardKey||'').split(':').map(Number);
+  if(parts.length>=3&&Number.isFinite(parts[2]))return parts[2];
+  return Number(e&&e.inicio);
+}
+function hasCarryForwardIncome(e,sourceMonth,targetMonth){
+  const key=incomeCarryForwardKeyFor(e,sourceMonth,targetMonth);
+  return state.entries.some(x=>x!==e && isOverdueIncome(x) && (x.incomeCarryForwardKey===key || (Number(x.incomeCarryFromId)===Number(e.id) && inferIncomeCarryFromMonth(x)===Number(sourceMonth) && incomeCarryForwardTargetMonth(x)===Number(targetMonth))));
+}
+function removeCarryForwardIncome(e,sourceMonth,targetMonth){
+  const before=state.entries.length;
+  state.entries=state.entries.filter(x=>{
+    if(!isOverdueIncome(x))return true;
+    const sameSource=Number(x.incomeCarryFromId)===Number(e.id);
+    const sameMonth=sourceMonth===undefined || inferIncomeCarryFromMonth(x)===Number(sourceMonth);
+    const sameTarget=targetMonth===undefined || incomeCarryForwardTargetMonth(x)===Number(targetMonth);
+    const remove=sameSource&&sameMonth&&sameTarget;
+    if(remove)rememberDeletedEntry(x);
+    return !remove;
+  });
+  return state.entries.length!==before;
+}
+function sourceIncomeSettledByCarry(e,month,targetMonth=state.currentMonth){
+  return state.entries.some(x=>isOverdueIncome(x)&&Number(x.incomeCarryFromId)===Number(e.id)&&inferIncomeCarryFromMonth(x)===Number(month)&&incomeCarryForwardTargetMonth(x)===Number(targetMonth)&&currentStatus(x)==='recebido');
+}
+function createCarryForwardIncomeForMonth(e,sourceMonth,targetMonth=state.currentMonth){
+  if(isOverdueIncome(e)||!visibleAtMonth(e,sourceMonth)||revenueStatus(e,sourceMonth)==='recebido'||sourceIncomeSettledByCarry(e,sourceMonth,targetMonth)||hasCarryForwardIncome(e,sourceMonth,targetMonth))return false;
+  const value=displayValueAtMonth(e,sourceMonth)||configuredValue(e,sourceMonth)||'';
+  if(!parseMoney(value))return false;
+  const clone=JSON.parse(JSON.stringify(e));
+  clone.id=state.nextId++;
+  clone.inicio=targetMonth;
+  clone.repeticoes=1;
+  clone.status='receitaPendente';
+  clone.original='receitaPendente';
+  clone.statusMes={};
+  clone.hiddenMes={};
+  clone.recebimentosMes={};
+  clone.recebimentoRascunhoMes={};
+  clone.incomeCarryForwardKey=incomeCarryForwardKeyFor(e,sourceMonth,targetMonth);
+  clone.incomeCarryFromId=e.id;
+  clone.incomeCarryFromMonth=sourceMonth;
+  clone.incomeCarryTargetMonth=targetMonth;
+  clone.receitaAtrasada=true;
+  clone.categoria=e.categoria||'Receita atrasada';
+  clone.observacao=[e.observacao,`Gerado automaticamente: receita de ${monthLabel(sourceMonth)} pendente.`].filter(Boolean).join(' ');
+  clone.valor=moneyInput(parseMoney(value),'receita');
+  clone.valorModo='fixo';
+  clone.valoresMes={};
+  state.entries.push(clone);
+  return true;
+}
+function markIncomeCarryAsReceived(e){
+  const sourceMonth=inferIncomeCarryFromMonth(e), source=state.entries.find(x=>Number(x.id)===Number(e.incomeCarryFromId));
+  if(source&&Number.isFinite(sourceMonth)){
+    if(!source.statusMes)source.statusMes={};
+    source.statusMes[String(sourceMonth)]='recebido';
+  }
+}
+function reopenIncomeCarry(e){
+  const sourceMonth=inferIncomeCarryFromMonth(e), source=state.entries.find(x=>Number(x.id)===Number(e.incomeCarryFromId));
+  if(source&&Number.isFinite(sourceMonth)&&source.statusMes)delete source.statusMes[String(sourceMonth)];
+}
+function normalizeOverdueIncome(e,targetMonth){
+  if(!isOverdueIncome(e))return false;
+  let changed=false;
+  const sourceMonth=inferIncomeCarryFromMonth(e), target=incomeCarryForwardTargetMonth(e);
+  if(Number.isFinite(sourceMonth)&&Number(e.incomeCarryFromMonth)!==sourceMonth){ e.incomeCarryFromMonth=sourceMonth; changed=true; }
+  if(Number.isFinite(target)&&Number(e.incomeCarryTargetMonth)!==target){ e.incomeCarryTargetMonth=target; changed=true; }
+  if(Number.isFinite(sourceMonth)&&Number.isFinite(target)&&e.incomeCarryFromId&&String(e.incomeCarryForwardKey||'').split(':').length<3){ e.incomeCarryForwardKey=incomeCarryForwardKeyFor({id:e.incomeCarryFromId},sourceMonth,target); changed=true; }
+  if(incomeCarryForwardTargetMonth(e)===Number(targetMonth)&&Number.isFinite(sourceMonth)){
+    const wanted=`Gerado automaticamente: receita de ${monthLabel(sourceMonth)} pendente.`;
+    const current=String(e.observacao||'');
+    if(!current.includes(wanted)){
+      e.observacao=[current.replace(/Gerado automaticamente:[^.]*\./g,'').trim(),wanted].filter(Boolean).join(' ');
+      changed=true;
+    }
+  }
+  return changed;
+}
+function overdueIncomeDedupeKey(e,targetMonth){
+  const sourceId=Number(e&&e.incomeCarryFromId), sourceMonth=inferIncomeCarryFromMonth(e), target=incomeCarryForwardTargetMonth(e);
+  if(Number.isFinite(sourceId)&&Number.isFinite(sourceMonth))return `income:${sourceId}:${sourceMonth}:${target}`;
+  return ['income-fallback',statusKey(e&&e.nome),String(e&&e.dia||''),statusKey(e&&e.banco),statusKey(displayValueAtMonth(e,targetMonth)||configuredValue(e,targetMonth)||e?.valor),Number.isFinite(sourceMonth)?sourceMonth:'semmes',target].join(':');
+}
+function dedupeOverdueIncomes(targetMonth){
+  const seen=new Set();
+  const before=state.entries.length;
+  state.entries=state.entries.filter(e=>{
+    if(!isOverdueIncome(e)||incomeCarryForwardTargetMonth(e)!==Number(targetMonth))return true;
+    const key=overdueIncomeDedupeKey(e,targetMonth);
+    if(seen.has(key)&&currentStatus(e)!=='recebido'){ rememberDeletedEntry(e); return false; }
+    seen.add(key);
+    return true;
+  });
+  return state.entries.length!==before;
+}
 function explicitUnpaidMonths(e,targetMonth=state.currentMonth){
   if(!e||e.tipo!=='debito'||!e.statusMes)return [];
   return Object.entries(e.statusMes).map(([m,st])=>({month:Number(m),status:st})).filter(x=>Number.isFinite(x.month)&&x.month<targetMonth&&isUnpaidDebitStatus(x.status)).map(x=>x.month);
@@ -1591,7 +1730,7 @@ function dedupeOverdueDebits(targetMonth){
   state.entries=state.entries.filter(e=>{
     if(!isOverdueDebit(e)||carryForwardTargetMonth(e)!==Number(targetMonth))return true;
     const key=overdueDedupeKey(e,targetMonth);
-    if(seen.has(key)&&!isPaidDebitStatus(currentStatus(e)))return false;
+    if(seen.has(key)&&!isPaidDebitStatus(currentStatus(e))){ rememberDeletedEntry(e); return false; }
     seen.add(key);
     return true;
   });
@@ -1625,31 +1764,61 @@ function ensureOverdueDebitsForCurrentMonth(){
   if(changed)persist();
   return changed;
 }
-function deleteEntry(id){
+function ensureOverdueIncomesForCurrentMonth(){
+  const targetMonth=Number(state.currentMonth);
+  if(targetMonth<=0)return false;
+  let changed=false;
+  const originals=state.entries.filter(e=>e.tipo==='receita'&&!isOverdueIncome(e));
+  const byId=new Map(originals.map(e=>[Number(e.id),e]));
+  state.entries.forEach(e=>{ if(normalizeOverdueIncome(e,targetMonth))changed=true; });
+  if(dedupeOverdueIncomes(targetMonth))changed=true;
+  state.entries=state.entries.filter(e=>{
+    if(!isOverdueIncome(e)||incomeCarryForwardTargetMonth(e)!==targetMonth)return true;
+    const source=byId.get(Number(e.incomeCarryFromId)), sourceMonth=inferIncomeCarryFromMonth(e);
+    const keep=currentStatus(e)==='recebido' || (source&&Number.isFinite(sourceMonth)&&sourceMonth<targetMonth&&visibleAtMonth(source,sourceMonth)&&revenueStatus(source,sourceMonth)!=='recebido');
+    if(!keep)changed=true;
+    return keep;
+  });
+  originals.forEach(e=>{
+    for(let m=Number(e.inicio||0);m<targetMonth;m++){
+      if(createCarryForwardIncomeForMonth(e,m,targetMonth))changed=true;
+    }
+  });
+  if(dedupeOverdueIncomes(targetMonth))changed=true;
+  if(changed)persist();
+  return changed;
+}
+async function deleteEntry(id){
   const ent=state.entries.find(x=>x.id===id);
   if(!ent)return;
-  const choice=prompt('Excluir lançamento:\n1 - Somente o mês selecionado\n2 - Este mês e próximos meses\n\nDigite 1 ou 2:','1');
+  const choice=prompt('Excluir lançamento:\n1 - Somente o mês selecionado\n2 - Todos os meses deste lançamento\n\nDigite 1 ou 2:','1');
   if(choice===null)return;
   const opt=String(choice).trim();
   if(opt==='1'){
-    if(!ent.hiddenMes) ent.hiddenMes={};
-    ent.hiddenMes[String(state.currentMonth)]=true;
-  }else if(opt==='2'){
-    if(state.currentMonth<=ent.inicio){
-      state.deletedEntries[String(id)]=Date.now();
-      state.entries=state.entries.filter(x=>x.id!==id);
+    if(isOverdueDebit(ent) || Number(ent.repeticoes||1)<=1){
+      removeEntriesAndRemember(x=>x.id===id);
     }else{
-      ent.repeticoes=Math.max(0,state.currentMonth-ent.inicio);
-      if(ent.statusMes) Object.keys(ent.statusMes).forEach(k=>{ if(Number(k)>=state.currentMonth) delete ent.statusMes[k]; });
-      if(ent.hiddenMes) Object.keys(ent.hiddenMes).forEach(k=>{ if(Number(k)>=state.currentMonth) delete ent.hiddenMes[k]; });
-      if(ent.recebimentosMes) Object.keys(ent.recebimentosMes).forEach(k=>{ if(Number(k)>=state.currentMonth) delete ent.recebimentosMes[k]; });
-      if(ent.recebimentoRascunhoMes) Object.keys(ent.recebimentoRascunhoMes).forEach(k=>{ if(Number(k)>=state.currentMonth) delete ent.recebimentoRascunhoMes[k]; });
+      if(!ent.hiddenMes) ent.hiddenMes={};
+      ent.hiddenMes[String(state.currentMonth)]=true;
     }
+    removeCarryForwardDebit(ent,state.currentMonth,state.currentMonth);
+    removeCarryForwardIncome(ent,state.currentMonth,state.currentMonth);
+  }else if(opt==='2'){
+    if(ent.cardName){
+      state.cardTransactions=state.cardTransactions.filter(t=>{
+        const remove=t.card===ent.cardName;
+        if(remove) rememberDeletedCardTransaction(t);
+        return !remove;
+      });
+    }
+    removeEntriesAndRemember(x=>x.id===id);
+    for(let m=state.currentMonth;m<=maxMonth()+12;m++) removeCarryForwardDebit(ent,m);
+    removeCarryForwardIncome(ent);
   }else{
-    alert('Digite 1 para excluir só este mês ou 2 para excluir este mês e os próximos.');
+    alert('Digite 1 para excluir só este mês ou 2 para excluir todos os meses deste lançamento.');
     return;
   }
-  persist();
+  await persistCriticalChange();
   renderAll();
 }
 function statusText(e){ const st=currentStatus(e); if(e.tipo==='receita') return st==='recebido'?'Recebido':(st==='parcial'?'Parcial':'Pendente'); if(isPaidDebitStatus(st)&&statusKey(st)==='pagoatraso') return 'Pago em atraso'; if(isPaidDebitStatus(st)) return 'Pago'; if(isUnpaidDebitStatus(st)) return 'Não pago'; if(isOverdueDebit(e))return 'Atrasado'; return e.original==='fixo'?'Débito fixo':'Débito mensal'; }
@@ -1657,7 +1826,7 @@ function statusClass(e){ const st=currentStatus(e); if(e.tipo==='receita') retur
 function valueIsLocked(e){ const status=currentStatus(e); return (isPaidDebitStatus(status)||status==='recebido')&&hasEnteredValue(e); }
 function renderMonths(){ const cur=$('#startMonthInput').value||state.currentMonth; $('#monthSelect').innerHTML=''; $('#startMonthInput').innerHTML=''; for(let i=0;i<=maxMonth();i++){ $('#monthSelect').add(new Option(monthLabel(i),i)); $('#startMonthInput').add(new Option(monthLabel(i),i)); } $('#monthSelect').value=state.currentMonth; $('#startMonthInput').value=Math.min(Number(cur),maxMonth()); }
 function renderCardMonths(){ const sel=$('#cardImportMonth'); if(!sel)return; const old=sel.value||state.currentMonth; sel.innerHTML=''; for(let i=0;i<=maxMonth()+12;i++)sel.add(new Option(monthLabel(i),i)); sel.value=Math.min(Number(old),maxMonth()+12); renderCardOptions(); }
-function row(e){ const overdue=isOverdueDebit(e)&&!isPaidDebitStatus(currentStatus(e)), small=isOverdueDebit(e)?`Atrasado - ${overdueOriginLabel(e)}`:(e.tipo==='receita'?(e.origem||e.categoria||'Receita'):(e.categoria||'Sem categoria')), bank=e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado', bankLabel=e.tipo==='receita'?'Recebe em':'Baixa em'; const restLabel=rowRestLabel(e); const showRest=e.tipo==='debito', locked=valueIsLocked(e), valueClass='amount-'+statusClass(e); return `<div class="entry-row ${overdue?'overdue-row':''}" data-id="${e.id}" draggable="false">
+function row(e){ const overdue=isOverdueDebit(e)&&!isPaidDebitStatus(currentStatus(e)), overdueIncome=isOverdueIncome(e)&&currentStatus(e)!=='recebido', small=isOverdueDebit(e)?`Atrasado - ${overdueOriginLabel(e)}`:(isOverdueIncome(e)?`Receita anterior - ${incomeOverdueOriginLabel(e)}`:(e.tipo==='receita'?(e.origem||e.categoria||'Receita'):(e.categoria||'Sem categoria'))), bank=e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado', bankLabel=e.tipo==='receita'?'Recebe em':'Baixa em'; const restLabel=rowRestLabel(e); const showRest=e.tipo==='debito'||isOverdueIncome(e), locked=valueIsLocked(e), valueClass='amount-'+statusClass(e); return `<div class="entry-row ${overdue||overdueIncome?'overdue-row':''}" data-id="${e.id}" draggable="false">
 <div class="row-tools"><button class="icon-btn edit-btn" title="Editar">✎</button><button class="icon-btn delete-btn" title="Excluir">🗑</button></div>
 <div class="handle">↕</div><div class="name"><strong>${e.nome}</strong><small>${small}</small><small class="entry-bank">${bankLabel}: ${bank}</small></div>
 <div class="day"><small>Dia</small>${e.dia}</div><div class="value"><input class="${valueClass}${locked?' locked':''}" value="${e.tipo==='receita'?revenueInputValue(e):(displayValue(e)||'')}" ${locked?'readonly title="Altere o status antes de editar o valor"':''}></div>
@@ -1797,7 +1966,7 @@ function deleteThirdPersonMovements(){
   renderAll();
   setTab('terceiros');
 }
-function renderAll(){ recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); }
+function renderAll(){ recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); ensureOverdueIncomesForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); }
 function setTab(id){ $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id)); $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id)); }
 function autoViewMode(){return window.matchMedia('(max-width: 760px)').matches?'mobile':'desktop'}
 function setView(mode,manual=true){ document.body.classList.toggle('mobile-view',mode==='mobile'); $('#btnDesktop').classList.toggle('active',mode==='desktop'); $('#btnMobile').classList.toggle('active',mode==='mobile'); if(manual)localStorage.setItem('dualizeViewMode',mode); }
@@ -1869,7 +2038,7 @@ function groupedCardTotals(card){
   return grouped;
 }
 function previewCardImport(){ updateCardImportState(); if(!$('#cardImportName').value){ $('#cardImportPreview').innerHTML='Selecione o cartão que receberá esta fatura antes de pré-visualizar.'; return; } const text=$('#cardImportText').value||'', rows=parseCardImport(), nextOfficial=nextInvoiceTotalRow($('#cardImportName').value,Number($('#cardImportMonth').value||state.currentMonth)), hasTotal=rows.some(x=>x.invoiceTotal&&Number(x.month)===Number($('#cardImportMonth').value||state.currentMonth)), current=rows.filter(r=>(r.invoiceTotal&&Number(r.month)===Number($('#cardImportMonth').value||state.currentMonth))||(!hasTotal&&!r.futureTotal)).reduce((s,r)=>s+r.value,0), futureOfficial=rows.find(r=>r.futureTotal)?.value||0, future=rows.filter(r=>!r.invoiceTotal&&!r.futureTotal&&r.installments>r.installment).reduce((s,r)=>s+r.value*(r.installments-r.installment),0), byCat={}, plans=parseCardPlans(text); rows.filter(r=>!r.invoiceTotal&&!r.futureTotal).forEach(r=>{byCat[r.category]=(byCat[r.category]||0)+r.value;}); const planHtml=plans.length?`<br><br><b>Opções de parcelamento da fatura</b><br>${plans.map(p=>`Entrada ${br(p.entrada)} + ${p.parcelas}x de ${br(p.valorParcela)} = ${br(p.total)} (${p.cet})`).join('<br>')}<br><small>Use como escape somente se a receita não fechar o mês; aumenta dívida futura.</small>`:''; $('#cardImportPreview').innerHTML=rows.length?`<b>${rows.filter(r=>!r.futureTotal).length} itens encontrados</b><br>Total da fatura atual: ${br(current)}${nextOfficial?`<br>Próximo mês oficial: ${br(nextOfficial.value)}`:''}<br>Parcelas futuras projetadas: ${br(futureOfficial||future)}<br><br><b>Por categoria</b><br>${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')||'Sem categorias reconhecidas'}${planHtml}<br><br>`+rows.filter(r=>!r.futureTotal).slice(0,14).map(r=>`${r.invoiceTotal?'Fatura':(r.date||'-')} • ${r.desc} • ${br(r.value)} • ${r.installment}/${r.installments} • ${r.category}`).join('<br>'):'Nenhum item reconhecido. Cole linhas com descrição e valor.'; }
-function applyCardImport(){ if(!$('#cardImportName').value)return alert('Selecione o cartão para importar antes de atualizar o débito.'); const actual=parseCardImport(); if(!actual.length)return alert('Nenhum item reconhecido para importar.'); const card=$('#cardImportName').value, month=Number($('#cardImportMonth').value||state.currentMonth), hasTotal=actual.some(r=>r.invoiceTotal&&Number(r.month)===month); state.cardTransactions=state.cardTransactions.filter(t=>!(t.card===card&&(Number(t.month)===month||(t.projected&&Number(t.month)>=month)||(Number(t.month)===month+1&&t.invoiceTotal&&/pr[oó]xima/i.test(String(t.subCategory||t.desc||'')))))); actual.forEach(row=>{ const end=row.invoiceTotal?0:(row.installments-row.installment); for(let offset=0;offset<=end;offset++){ const tx={...row,month:row.invoiceTotal?Number(row.month):month+offset,installment:row.invoiceTotal?1:row.installment+offset,projected:row.invoiceTotal?false:offset>0,analyticsOnly:hasTotal&&!row.invoiceTotal&&offset===0,key:''}; if(row.invoiceTotal&&Number(row.month)===month)tx.desc='Total fechado da fatura '+card; tx.key=cardTxKey(tx)+(tx.analyticsOnly?'|analise':''); const idx=state.cardTransactions.findIndex(x=>x.key===tx.key); if(idx>=0)state.cardTransactions[idx]=tx; else state.cardTransactions.push(tx); } }); rebuildCardEntries(); const importedEntry=state.entries.find(e=>e.cardName===card); persist(); renderAll(); resetCardImportForm(); setTab('debitos'); alert('Fatura importada. Débito do mês atualizado e parcelas futuras projetadas.'); focusEntry(importedEntry?.id,true); }
+async function applyCardImport(){ if(!$('#cardImportName').value)return alert('Selecione o cartão para importar antes de atualizar o débito.'); const actual=parseCardImport(); if(!actual.length)return alert('Nenhum item reconhecido para importar.'); const card=$('#cardImportName').value, month=Number($('#cardImportMonth').value||state.currentMonth), hasTotal=actual.some(r=>r.invoiceTotal&&Number(r.month)===month); state.cardTransactions=state.cardTransactions.filter(t=>!(t.card===card&&(Number(t.month)===month||(t.projected&&Number(t.month)>=month)||(Number(t.month)===month+1&&t.invoiceTotal&&/pr[oó]xima/i.test(String(t.subCategory||t.desc||'')))))); actual.forEach(row=>{ const end=row.invoiceTotal?0:(row.installments-row.installment); for(let offset=0;offset<=end;offset++){ const tx={...row,month:row.invoiceTotal?Number(row.month):month+offset,installment:row.invoiceTotal?1:row.installment+offset,projected:row.invoiceTotal?false:offset>0,analyticsOnly:hasTotal&&!row.invoiceTotal&&offset===0,key:''}; if(row.invoiceTotal&&Number(row.month)===month)tx.desc='Total fechado da fatura '+card; tx.key=cardTxKey(tx)+(tx.analyticsOnly?'|analise':''); delete state.deletedEntries[deletedCardTransactionKey(tx)]; const idx=state.cardTransactions.findIndex(x=>x.key===tx.key); if(idx>=0)state.cardTransactions[idx]=tx; else state.cardTransactions.push(tx); } }); rebuildCardEntries(); const importedEntry=state.entries.find(e=>e.cardName===card); await persistCriticalChange(); renderAll(); resetCardImportForm(); setTab('debitos'); alert('Fatura importada. Débito do mês atualizado e parcelas futuras projetadas.'); focusEntry(importedEntry?.id,true); }
 function rebuildCardEntries(){ let changed=false; const cards=[...new Set(state.cardTransactions.map(t=>t.card))]; cards.forEach(card=>{ const grouped=groupedCardTotals(card); const months=Object.keys(grouped).map(Number); if(!months.length)return; const first=Math.min(...months); const name='Fatura '+card, alias=cardEntryAlias(card); let e=state.entries.find(x=>x.cardName===card)||state.entries.find(x=>String(x.nome||'').toUpperCase()===alias)||state.entries.find(x=>x.nome===name); if(!e){ e={id:state.nextId++,tipo:'debito',nome:alias,dia:cardDueDay(card),valor:'',valorModo:'branco',valoresMes:{},cardValueOverrides:{},status:'pendente',original:'pendente',inicio:first,repeticoes:999,categoria:'Cartão Crédito',forma:'Cartão',banco:cardBank(card),observacao:'Gerado pelo importador de cartões.',cardName:card,statusMes:{}}; state.entries.push(e); changed=true; } const overrides={...(e.cardValueOverrides||{})}; const before=JSON.stringify({inicio:e.inicio,repeticoes:e.repeticoes,valorModo:e.valorModo,categoria:e.categoria,forma:e.forma,banco:e.banco,dia:e.dia,cardName:e.cardName,valoresMes:e.valoresMes,cardValueOverrides:e.cardValueOverrides}); e.inicio=Math.min(Number(e.inicio??first),first); e.repeticoes=999; e.valorModo='branco'; e.categoria='Cartão Crédito'; e.forma='Cartão'; e.banco=cardBank(card); e.dia=e.dia||cardDueDay(card); e.cardName=card; e.cardValueOverrides=overrides; e.valoresMes={}; Object.entries(grouped).forEach(([m,total])=>{ const month=Number(m); e.valoresMes[Math.max(0,month-e.inicio)]=overrides[String(month)]||moneyInput(total,'debito'); }); if(before!==JSON.stringify({inicio:e.inicio,repeticoes:e.repeticoes,valorModo:e.valorModo,categoria:e.categoria,forma:e.forma,banco:e.banco,dia:e.dia,cardName:e.cardName,valoresMes:e.valoresMes,cardValueOverrides:e.cardValueOverrides}))changed=true; }); return changed; }
 function renderCardImports(){ const table=$('#cardImportTable'); if(!table)return; const rows=state.cardTransactions.slice().sort((a,b)=>Number(a.month)-Number(b.month)||a.card.localeCompare(b.card)), summaryRows=dedupedCardTransactions(rows); table.innerHTML='<tr><td><b>Mês</b></td><td><b>Cartão</b></td><td><b>Descrição</b></td><td><b>Categoria</b></td><td><b>Valor</b></td></tr>'+rows.filter(t=>!t.futureTotal&&!isCardNoise(t)).slice(-100).map(t=>`<tr><td>${monthLabel(Number(t.month))}</td><td>${t.card}</td><td>${t.desc}${t.analyticsOnly?' <small>(cat.)</small>':(t.projected?' <small>(proj.)</small>':'')}</td><td>${t.category} / ${t.subCategory}</td><td>${br(t.value)}</td></tr>`).join(''); const byCard={}, byCat={}, byFuture={}; summaryRows.forEach(t=>{ byCard[t.card]=(byCard[t.card]||0)+t.value; if(isCardCategoryTx(t)&&!t.projected)byCat[t.category]=(byCat[t.category]||0)+t.value; if(isCardCategoryTx(t)&&t.projected)byFuture[monthLabel(Number(t.month))]=(byFuture[monthLabel(Number(t.month))]||0)+t.value; }); $('#cardImportSummary').innerHTML=rows.length?`<b>Por cartão</b><br>${Object.entries(byCard).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')}<br><br><b>Por categoria limpa</b><br>${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')||'Sem categorias reconhecidas'}<br><br><b>Próximos meses</b><br>${Object.entries(byFuture).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')||'Sem parcelas futuras'}`:'Cole uma fatura para começar.'; }
 function syncFormType(){ const rec=$('#typeInput').value==='receita'; $('#incomeExtraFields').style.display=rec?'grid':'none'; $('#statusInput').innerHTML=rec?'<option value="receitaPendente">Receita pendente</option><option value="recebido">Recebido</option>':'<option value="pendente">Débito mensal</option><option value="fixo">Débito fixo</option>'; const valueLabel=$('#valueInput')?.previousElementSibling; if(valueLabel)valueLabel.textContent=rec?'Valor contratado':'Valor'; syncCategory(); $('#splitValueFields').style.display=(rec&&$('#originInput').value==='Marketing + Tráfego')?'grid':'none'; syncValueMode(); syncPixKey(); updateSplitTotal();}
@@ -2035,19 +2204,19 @@ function editThirdMovement(id){
   renderThird(true);
   setTimeout(()=>$('#thirdPerson')?.focus(),40);
 }
-function deleteThirdMovement(){
+async function deleteThirdMovement(){
   const move=thirdMovementById(editingThirdId);
   if(!move)return alert('Abra um lançamento com 2 cliques para excluir.');
   if(!confirm(`Excluir este lançamento de "${move.person}"?\n\n${move.date||'-'} • ${move.type||'-'} • ${move.valor||'-'}\n${move.note||''}`))return;
   state.thirdMovements=state.thirdMovements.filter(m=>thirdMovementId(m)!==editingThirdId);
   resetThirdEditor(false);
-  persist();
+  await persistCriticalChange();
   renderAll();
   setTab('terceiros');
   renderThird(true);
   setTimeout(()=>$('#thirdPerson')?.focus(),40);
 }
-function saveThirdMovement(){
+async function saveThirdMovement(){
   const v=parseMoney($('#thirdValue').value);
   if(!$('#thirdPerson').value||!v||!$('#thirdBank').value||!$('#thirdType').value)return alert('Preencha pessoa, banco, tipo e valor.');
   const payload={person:$('#thirdPerson').value,date:$('#thirdDate').value,bank:$('#thirdBank').value,type:$('#thirdType').value,valor:br(v),note:$('#thirdNote').value};
@@ -2055,7 +2224,7 @@ function saveThirdMovement(){
   if(editing) Object.assign(editing,payload, {updatedAt:Date.now()});
   else state.thirdMovements.push({id:'third-'+Date.now()+'-'+Math.random().toString(36).slice(2),createdAt:Date.now(),...payload});
   resetThirdEditor(false);
-  persist();
+  await persistCriticalChange();
   updateTotals();
   setTab('terceiros');
   renderThird(true);
@@ -2199,7 +2368,7 @@ function syncTransferBanks(changed=''){
   const options=Array.from(to.options).map(o=>o.value).filter(v=>v&&v!==from.value);
   if(options.length) to.value=options[0];
 }
-function saveTransferMovement(){
+async function saveTransferMovement(){
   const v=parseMoney($('#transferValue').value);
   if(!v)return;
   const kind=$('#transferType').value;
@@ -2209,7 +2378,7 @@ function saveTransferMovement(){
   state.transfers.push({id:'transfer-'+Date.now()+'-'+Math.random().toString(36).slice(2),kind,from,to,valor:br(v),note:$('#transferNote').value,date:new Date().toISOString().slice(0,10)});
   $('#transferValue').value='';
   $('#transferNote').value='';
-  persist();
+  await persistCriticalChange();
   updateTotals();
 }
 function selectedMonthToday(){
@@ -2217,7 +2386,7 @@ function selectedMonthToday(){
   const day=Math.min(today.getDate(),new Date(year,realMonth+1,0).getDate());
   return new Date(year,realMonth,day).toISOString().slice(0,10);
 }
-function applyBankBalanceAdjustment(bank,rawValue){
+async function applyBankBalanceAdjustment(bank,rawValue){
   if(!bank)return;
   if(!String(rawValue||'').trim())return alert('Informe o saldo novo do banco.');
   const desired=parseSignedMoney(rawValue);
@@ -2238,7 +2407,7 @@ function applyBankBalanceAdjustment(bank,rawValue){
     note:'Ajuste de saldo do banco para '+br(desired),
     date
   });
-  persist();
+  await persistCriticalChange();
   renderAll();
   setTab('bancos');
 }
@@ -2263,7 +2432,7 @@ function bindThirdPixImport(){
   if(btn&&input)btn.onclick=()=>input.click();
   if(input)input.onchange=()=>readThirdPixFile(input.files&&input.files[0]);
   if(parseBtn)parseBtn.onclick=applyThirdPixImport;
-}function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $('#syncBtn').onclick=configureSync; $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#themeToggle').onclick=toggleTheme; $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);saveLocalSnapshot();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#transferType').onchange=syncTransferType; $('#transferFrom').onchange=()=>syncTransferBanks('from'); $('#transferTo').onchange=()=>syncTransferBanks('to'); $('#saveTransferBtn').onclick=saveTransferMovement; $('#searchBankMovementsBtn').onclick=()=>renderBankMovements(true); $('#previewCardImportBtn').onclick=previewCardImport; $('#applyCardImportBtn').onclick=applyCardImport; $('#addCardBtn').onclick=addCard; $('#cardImportName').onchange=()=>{updateCardImportState();previewCardImport();}; $('#cardImportText').addEventListener('input',updateCardImportState); $('#cardNextInvoiceValue').addEventListener('input',previewCardImport); $('#newCardBank').onchange=updateCardImportState; $('#saveThirdBtn').onclick=saveThirdMovement; $('#deleteThirdMoveBtn').onclick=deleteThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>renderThird(true); $('#deleteThirdPersonBtn').onclick=deleteThirdPersonMovements; document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('dblclick',e=>{const thirdRow=e.target.closest('tr[data-third-id]'); if(thirdRow){ editThirdMovement(thirdRow.dataset.thirdId); return; } const btn=e.target.closest('.status-pill');if(!btn)return; const row=btn.closest('.entry-row'); const ent=state.entries.find(x=>x.id===Number(row.dataset.id)); if(!ent)return; const hasValue=canSettleEntry(ent); const stBefore=currentStatus(ent); if(!hasValue && !['pago','recebido'].includes(stBefore)){ alert('Informe um valor antes de marcar como pago/recebido.'); return; } const st=currentStatus(ent); if(ent.tipo==='receita')setCurrentStatus(ent, st==='recebido'?'receitaPendente':'recebido'); else { if(st==='pago')setCurrentStatus(ent,baseStatus(ent)); else { setCurrentStatus(ent,'pago'); removeCarryForwardDebit(ent); } } persist(); renderAll();}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','otherValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput'||id==='otherValueInput')updateSplitTotal(); validate();})}); }
+}function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $('#syncBtn').onclick=configureSync; $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#themeToggle').onclick=toggleTheme; $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);saveLocalSnapshot();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#transferType').onchange=syncTransferType; $('#transferFrom').onchange=()=>syncTransferBanks('from'); $('#transferTo').onchange=()=>syncTransferBanks('to'); $('#saveTransferBtn').onclick=saveTransferMovement; $('#searchBankMovementsBtn').onclick=()=>renderBankMovements(true); $('#previewCardImportBtn').onclick=previewCardImport; $('#applyCardImportBtn').onclick=applyCardImport; $('#addCardBtn').onclick=addCard; $('#cardImportName').onchange=()=>{updateCardImportState();previewCardImport();}; $('#cardImportText').addEventListener('input',updateCardImportState); $('#cardNextInvoiceValue').addEventListener('input',previewCardImport); $('#newCardBank').onchange=updateCardImportState; $('#saveThirdBtn').onclick=saveThirdMovement; $('#deleteThirdMoveBtn').onclick=deleteThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>renderThird(true); $('#deleteThirdPersonBtn').onclick=deleteThirdPersonMovements; document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('dblclick',async e=>{const thirdRow=e.target.closest('tr[data-third-id]'); if(thirdRow){ editThirdMovement(thirdRow.dataset.thirdId); return; } const btn=e.target.closest('.status-pill');if(!btn)return; const row=btn.closest('.entry-row'); const ent=state.entries.find(x=>x.id===Number(row.dataset.id)); if(!ent)return; const hasValue=canSettleEntry(ent); const stBefore=currentStatus(ent); if(!hasValue && !['pago','recebido'].includes(stBefore)){ alert('Informe um valor antes de marcar como pago/recebido.'); return; } const st=currentStatus(ent); if(ent.tipo==='receita')setCurrentStatus(ent, st==='recebido'?'receitaPendente':'recebido'); else { if(st==='pago')setCurrentStatus(ent,baseStatus(ent)); else { setCurrentStatus(ent,'pago'); removeCarryForwardDebit(ent); } } await persistCriticalChange(); renderAll();}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','otherValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput'||id==='otherValueInput')updateSplitTotal(); validate();})}); }
 
 function enableDragSorting(){
   let draggedRow=null;
@@ -2325,7 +2494,7 @@ function enableSyncSafety(){
 }
 
 function enableDebitStatusShortcuts(){
-  document.body.addEventListener('dblclick',e=>{
+  document.body.addEventListener('dblclick',async e=>{
     if(!e.shiftKey&&!e.ctrlKey)return;
     const btn=e.target.closest('.status-pill'); if(!btn)return;
     const row=btn.closest('.entry-row'); if(!row)return;
@@ -2336,12 +2505,12 @@ function enableDebitStatusShortcuts(){
     const st=currentStatus(ent);
     if(e.ctrlKey){ setCurrentStatus(ent,baseStatus(ent)); removeCarryForwardDebit(ent); }
     else markDebitAsNotPaid(ent);
-    persist();
+    await persistCriticalChange();
     renderAll();
   },true);
 }
 function enableDebitPaidLateSettlement(){
-  document.body.addEventListener('dblclick',e=>{
+  document.body.addEventListener('dblclick',async e=>{
     if(e.shiftKey||e.ctrlKey)return;
     const btn=e.target.closest('.status-pill'); if(!btn)return;
     const row=btn.closest('.entry-row'); if(!row)return;
@@ -2357,13 +2526,13 @@ function enableDebitPaidLateSettlement(){
     if(isPaidDebitStatus(st)) isOverdueDebit(ent)?reopenOverdueDebit(ent):setCurrentStatus(ent,baseStatus(ent));
     else if(isOverdueDebit(ent)) markOverdueAsPaid(ent);
     else { setCurrentStatus(ent,'pago'); removeCarryForwardDebit(ent); }
-    persist();
+    await persistCriticalChange();
     renderAll();
   },true);
 }
 
 function enableRevenuePartialReceipts(){
-  document.body.addEventListener('dblclick',e=>{
+  document.body.addEventListener('dblclick',async e=>{
     const btn=e.target.closest('.status-pill'); if(!btn)return;
     const row=btn.closest('.entry-row'); if(!row)return;
     const ent=state.entries.find(x=>x.id===Number(row.dataset.id));
@@ -2374,7 +2543,8 @@ function enableRevenuePartialReceipts(){
     if(st==='recebido'&&!draft){
       if(!confirm(`"${ent.nome}" já está totalmente recebido. Deseja apagar as baixas deste mês e voltar para Pendente?`))return;
       clearReceipts(ent);
-      persist();
+      if(isOverdueIncome(ent))reopenIncomeCarry(ent);
+      await persistCriticalChange();
       renderAll();
       return;
     }
@@ -2382,7 +2552,8 @@ function enableRevenuePartialReceipts(){
     if(!amount)return alert('Não existe saldo pendente para receber.');
     if(amount>remaining+.005)return alert(`O recebimento não pode ultrapassar o saldo de ${br(remaining)}.`);
     addReceipt(ent,amount);
-    persist();
+    if(isOverdueIncome(ent)&&currentStatus(ent)==='recebido')markIncomeCarryAsReceived(ent);
+    await persistCriticalChange();
     renderAll();
     focusEntry(ent.id);
   },true);
