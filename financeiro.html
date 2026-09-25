@@ -856,8 +856,11 @@ function ensureThirdMovementIds(list=state.thirdMovements){
   return list;
 }
 ensureThirdMovementIds();
+function deletedCarryDebitKey(e){ const source=Number(e&&e.carryFromId), sourceMonth=inferCarryFromMonth(e), target=carryForwardTargetMonth(e); return Number.isFinite(source)&&Number.isFinite(sourceMonth)&&Number.isFinite(target)?'carry:'+carryForwardKeyFor({id:source},sourceMonth,target):''; }
+function deletedCarryIncomeKey(e){ const source=Number(e&&e.incomeCarryFromId), sourceMonth=inferIncomeCarryFromMonth(e), target=incomeCarryForwardTargetMonth(e); return Number.isFinite(source)&&Number.isFinite(sourceMonth)&&Number.isFinite(target)?'incomeCarry:'+incomeCarryForwardKeyFor({id:source},sourceMonth,target):''; }
+function entryDeletionKey(e){ if(isOverdueDebit(e))return deletedCarryDebitKey(e); if(isOverdueIncome(e))return deletedCarryIncomeKey(e); return ''; }
 function filterDeletedEntries(entries,map=state.deletedEntries){
-  return (Array.isArray(entries)?entries:[]).filter(e=>!map?.[String(e.id)]);
+  return (Array.isArray(entries)?entries:[]).filter(e=>!map?.[String(e.id)]&&!(entryDeletionKey(e)&&map?.[entryDeletionKey(e)]));
 }
 function deletedCardTransactionKey(t){ return 'cardtx:'+(t?.key||cardTxKey(t)); }
 function filterDeletedCardTransactions(transactions,map=state.deletedEntries){
@@ -865,6 +868,8 @@ function filterDeletedCardTransactions(transactions,map=state.deletedEntries){
 }
 function rememberDeletedEntry(e){
   if(e&&e.id!==undefined&&e.id!==null) state.deletedEntries[String(e.id)]=Date.now();
+  const carryKey=entryDeletionKey(e);
+  if(carryKey)state.deletedEntries[carryKey]=Date.now();
 }
 function rememberDeletedCardTransaction(t){
   if(t) state.deletedEntries[deletedCardTransactionKey(t)]=Date.now();
@@ -1546,6 +1551,7 @@ function removeCarryForwardDebit(e,sourceMonth=state.currentMonth,targetMonth){
 }
 function createCarryForwardDebitForMonth(e,sourceMonth,targetMonth=state.currentMonth,force=false){
   if(isOverdueDebit(e)||(!force&&!visibleAtMonth(e,sourceMonth))||isPaidDebitStatus(statusAtMonth(e,sourceMonth)))return false;
+  if(state.deletedEntries?.['carry:'+carryForwardKeyFor(e,sourceMonth,targetMonth)])return false;
   if(hasCarryForwardDebit(e,sourceMonth,targetMonth))return false;
   const value=displayValueAtMonth(e,sourceMonth)||configuredValue(e,sourceMonth)||'';
   const clone=JSON.parse(JSON.stringify(e));
@@ -1602,6 +1608,7 @@ function sourceIncomeSettledByCarry(e,month,targetMonth=state.currentMonth){
 }
 function createCarryForwardIncomeForMonth(e,sourceMonth,targetMonth=state.currentMonth){
   if(isOverdueIncome(e)||!visibleAtMonth(e,sourceMonth)||revenueStatus(e,sourceMonth)==='recebido'||sourceIncomeSettledByCarry(e,sourceMonth,targetMonth)||hasCarryForwardIncome(e,sourceMonth,targetMonth))return false;
+  if(state.deletedEntries?.['incomeCarry:'+incomeCarryForwardKeyFor(e,sourceMonth,targetMonth)])return false;
   const value=displayValueAtMonth(e,sourceMonth)||configuredValue(e,sourceMonth)||'';
   if(!parseMoney(value))return false;
   const clone=JSON.parse(JSON.stringify(e));
@@ -1828,16 +1835,26 @@ async function deleteEntry(id){
     removeCarryForwardDebit(ent,state.currentMonth,state.currentMonth);
     removeCarryForwardIncome(ent,state.currentMonth,state.currentMonth);
   }else if(opt==='2'){
-    if(ent.cardName){
+    const sourceDebitId=isOverdueDebit(ent)?Number(ent.carryFromId):Number(ent.id);
+    const sourceIncomeId=isOverdueIncome(ent)?Number(ent.incomeCarryFromId):Number(ent.id);
+    const targetCard=(ent.cardName||isCardEntryName(ent.nome))?standardCardName(ent.cardName||ent.nome):'';
+    if(targetCard){
       state.cardTransactions=state.cardTransactions.filter(t=>{
-        const remove=t.card===ent.cardName;
+        const remove=standardCardName(t.card)===targetCard;
         if(remove) rememberDeletedCardTransaction(t);
         return !remove;
       });
     }
-    removeEntriesAndRemember(x=>x.id===id);
-    for(let m=state.currentMonth;m<=maxMonth()+12;m++) removeCarryForwardDebit(ent,m);
-    removeCarryForwardIncome(ent);
+    removeEntriesAndRemember(x=>{
+      if(x.id===id)return true;
+      if(Number.isFinite(sourceDebitId)&&(Number(x.id)===sourceDebitId||Number(x.carryFromId)===sourceDebitId))return true;
+      if(Number.isFinite(sourceIncomeId)&&(Number(x.id)===sourceIncomeId||Number(x.incomeCarryFromId)===sourceIncomeId))return true;
+      return !!(targetCard&&x.cardName&&standardCardName(x.cardName)===targetCard);
+    });
+    const sourceDebit=state.entries.find(x=>Number(x.id)===sourceDebitId)||ent;
+    const sourceIncome=state.entries.find(x=>Number(x.id)===sourceIncomeId)||ent;
+    for(let m=0;m<=maxMonth()+12;m++) removeCarryForwardDebit(sourceDebit,m);
+    removeCarryForwardIncome(sourceIncome);
   }else{
     alert('Digite 1 para excluir só este mês ou 2 para excluir todos os meses deste lançamento.');
     return;
