@@ -1687,6 +1687,7 @@ function createCarryForwardFromOverdue(e,targetMonth=state.currentMonth){
   if(!isOverdueDebit(e)||isPaidDebitStatus(currentStatus(e)))return false;
   const sourceMonth=inferCarryFromMonth(e), sourceId=Number(e.carryFromId), overdueTarget=carryForwardTargetMonth(e), source=state.entries.find(x=>Number(x.id)===sourceId);
   if(!Number.isFinite(sourceMonth)||!Number.isFinite(sourceId)||sourceMonth>=targetMonth)return false;
+  if(state.deletedEntries?.['carry:'+carryForwardKeyFor({id:sourceId},sourceMonth,targetMonth)])return false;
   if(Number.isFinite(overdueTarget)&&isPaidDebitStatus(statusAtMonth(e,overdueTarget)))return false;
   if(source&&isPaidDebitStatus(statusAtMonth(source,sourceMonth)))return false;
   if(hasCarryForwardDebit({id:sourceId},sourceMonth,targetMonth))return false;
@@ -1859,6 +1860,7 @@ async function deleteEntry(id){
     alert('Digite 1 para excluir só este mês ou 2 para excluir todos os meses deste lançamento.');
     return;
   }
+  renderAll();
   await persistCriticalChange();
   renderAll();
 }
