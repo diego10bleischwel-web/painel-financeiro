@@ -1661,7 +1661,12 @@ function currentStatus(e){
   if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key];
   return baseStatus(e);
 }
-function statusAtMonth(e,month){ const key=String(month); if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key]; return baseStatus(e); }
+function statusAtMonth(e,month){
+  const key=String(month);
+  if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key];
+  if(Number(month)<Number(state.currentMonth)) return e.tipo==='receita'?'recebido':'pago';
+  return baseStatus(e);
+}
 function isPaidDebitStatus(status){ const key=statusKey(status); return key==='pago'||key==='pagoatraso'; }
 function rest(e){return e.repeticoes>=999?'vitalício':Math.max(0,e.repeticoes-effectiveMonthOffset(e,state.currentMonth))}
 function isOverdueDebit(e){ return e&&e.tipo==='debito'&&(e.atrasado||e.carryForwardKey); }
