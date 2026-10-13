@@ -819,12 +819,7 @@ function loadSavedState(){
   }catch(err){ console.warn('Não foi possível carregar dados salvos.',err); return null; }
 }
 function loadBackupState(){
-  try{
-    const raw=localStorage.getItem(CLOUD_BACKUP_KEY);
-    if(!raw) return null;
-    const backup=JSON.parse(raw);
-    return backup&&backup.data&&Array.isArray(backup.data.entries)?backup.data:null;
-  }catch(err){ console.warn('Não foi possível carregar backup local.',err); return null; }
+  return null;
 }
 function entryCount(data){ return (Array.isArray(data?.entries)?data.entries.length:0)+(Array.isArray(data?.cardTransactions)?data.cardTransactions.length:0)+(Array.isArray(data?.transfers)?data.transfers.length:0)+(Array.isArray(data?.thirdMovements)?data.thirdMovements.length:0); }
 function historicalStatusScore(data){
@@ -2804,7 +2799,7 @@ function enableRevenuePartialReceipts(){
   },true);
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const recoveredHistory=recoverStatusHistoryFromLocalBackups(); const cleanedDeletionLocks=cleanGeneratedDeletionLocks(); const sanitized=sanitizeFinancialState(); if(cardsChanged||categoriesChanged||cardEntriesChanged||recoveredHistory||cleanedDeletionLocks||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const cleanedDeletionLocks=cleanGeneratedDeletionLocks(); const sanitized=sanitizeFinancialState(); if(cardsChanged||categoriesChanged||cardEntriesChanged||cleanedDeletionLocks||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl) syncFromCloud(); }
 init();
 });
 </script>
