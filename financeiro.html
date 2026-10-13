@@ -1044,12 +1044,30 @@ function generatedEntryScore(e){
   const target=isOverdueIncome(e)?incomeCarryForwardTargetMonth(e):carryForwardTargetMonth(e);
   return (isPaidDebitStatus(st)||st==='recebido'?1000:0)+(parseMoney(displayValueAtMonth(e,target)||configuredValue(e,target)||e?.valor)?100:0)+(Number(e.id)||0)/1000000;
 }
+function sourceMonthSettledByAnyCarry(sourceId,sourceMonth){
+  return state.entries.some(x=>isOverdueDebit(x)&&Number(x.carryFromId)===Number(sourceId)&&inferCarryFromMonth(x)===Number(sourceMonth)&&isPaidDebitStatus(currentStatus(x)));
+}
 function sanitizeFinancialState(){
   let changed=false;
+  const originalsById=new Map(state.entries.filter(e=>e.tipo==='debito'&&!isOverdueDebit(e)).map(e=>[Number(e.id),e]));
+  state.entries.forEach(e=>{
+    if(!isOverdueDebit(e))return;
+    const sourceId=Number(e.carryFromId), sourceMonth=inferCarryFromMonth(e), source=originalsById.get(sourceId);
+    if(!Number.isFinite(sourceId)||!Number.isFinite(sourceMonth))return;
+    const settled=isPaidDebitStatus(currentStatus(e))||sourceMonthSettledByAnyCarry(sourceId,sourceMonth)||(source&&isPaidDebitStatus(statusAtMonth(source,sourceMonth)));
+    if(settled&&source){
+      if(!source.statusMes)source.statusMes={};
+      if(!isPaidDebitStatus(source.statusMes[String(sourceMonth)]))source.statusMes[String(sourceMonth)]='pagoAtraso';
+    }
+  });
   const keep=new Map(), remove=new Set();
   state.entries.forEach(e=>{
     const key=isOverdueDebit(e)?'deb:'+overdueDedupeKey(e,carryForwardTargetMonth(e)):(isOverdueIncome(e)?'inc:'+overdueIncomeDedupeKey(e,incomeCarryForwardTargetMonth(e)):'');
     if(!key)return;
+    if(isOverdueDebit(e)){
+      const sourceId=Number(e.carryFromId), sourceMonth=inferCarryFromMonth(e), source=originalsById.get(sourceId);
+      if(source&&Number.isFinite(sourceMonth)&&isPaidDebitStatus(statusAtMonth(source,sourceMonth))){ remove.add(e); return; }
+    }
     const current=keep.get(key);
     if(!current){ keep.set(key,e); return; }
     const winner=generatedEntryScore(e)>generatedEntryScore(current)?e:current;
@@ -1827,7 +1845,8 @@ function ensureOverdueDebitsForCurrentMonth(){
   state.entries=state.entries.filter(e=>{
     if(!isOverdueDebit(e)||carryForwardTargetMonth(e)!==targetMonth)return true;
     const source=byId.get(Number(e.carryFromId)), sourceMonth=inferCarryFromMonth(e);
-    const keep=isPaidDebitStatus(currentStatus(e)) || (source&&Number.isFinite(sourceMonth)&&sourceMonth<targetMonth&&((visibleAtMonth(source,sourceMonth)&&!isPaidDebitStatus(statusAtMonth(source,sourceMonth)))||isUnpaidDebitStatus(statusAtMonth(source,sourceMonth))));
+    const settled=source&&Number.isFinite(sourceMonth)&&(isPaidDebitStatus(statusAtMonth(source,sourceMonth))||sourceMonthSettledByAnyCarry(source.id,sourceMonth));
+    const keep=!settled && (source&&Number.isFinite(sourceMonth)&&sourceMonth<targetMonth&&((visibleAtMonth(source,sourceMonth)&&!isPaidDebitStatus(statusAtMonth(source,sourceMonth)))||isUnpaidDebitStatus(statusAtMonth(source,sourceMonth))));
     if(!keep)changed=true;
     return keep;
   });
@@ -1945,7 +1964,7 @@ function calc(){
   const limiteCartao=Math.max(0,receitaDisp-deb);
   return {receitaPrev,receitaRec,receitaPendente,receitaRecPropria,receitaNubank,repasseLara,voltaParaNubank,sobraLara,deb,pago,pagoProprio,pagoNubank,totalDeb:deb+pago,fix:fixPendentes,totalFix,totalFixPendente,totalMensal,totalMensalPendente,semValor,lin,debPendentes,receitasLancadas,receitasPendentes,mensaisPendentes,emp,mkt,traf,saldoProjetado:receitaDisp-deb,receitaDisp,limiteCartao};
 }
-function sourceMonthSettledByCarry(e,month){ return state.entries.some(x=>isOverdueDebit(x)&&Number(x.carryFromId)===Number(e.id)&&inferCarryFromMonth(x)===Number(month)&&carryForwardTargetMonth(x)===Number(state.currentMonth)&&isPaidDebitStatus(currentStatus(x))); }
+function sourceMonthSettledByCarry(e,month){ return sourceMonthSettledByAnyCarry(e.id,month); }
 function previousPendingSummary(){ const debts=[], incomes=[]; for(let month=0;month<state.currentMonth;month++){ state.entries.filter(e=>e.tipo==='debito'&&!isOverdueDebit(e)&&visibleAtMonth(e,month)&&!isPaidDebitStatus(statusAtMonth(e,month))&&!sourceMonthSettledByCarry(e,month)).forEach(e=>debts.push({month,name:e.nome,value:parseMoney(displayValueAtMonth(e,month))})); state.entries.filter(e=>e.tipo==='receita'&&visibleAtMonth(e,month)&&statusAtMonth(e,month)!=='recebido').forEach(e=>incomes.push({month,name:e.nome,value:parseMoney(displayValueAtMonth(e,month))})); } return {month:state.currentMonth-1,debts,incomes,debtTotal:debts.reduce((s,x)=>s+x.value,0),incomeTotal:incomes.reduce((s,x)=>s+x.value,0)}; }
 function bankBalances(){ const map={}; banks.filter(b=>b!=='Nenhum').forEach(b=>map[b]={entrada:0,saida:0,saldo:0,terceiroEntrada:0,terceiroSaida:0,terceiroSaldo:0,reservadoTerceiros:0,saldoProprio:0}); entries('receita').forEach(e=>{const received=receivedAmount(e);if(received>0&&map[e.banco])map[e.banco].entrada+=received}); entries('debito').forEach(e=>{if(isPaidDebitStatus(currentStatus(e))&&map[e.banco])map[e.banco].saida+=parseMoney(displayValue(e))}); state.transfers.forEach(t=>{const v=parseMoney(t.valor); if(map[t.from])map[t.from].saida+=v; if(map[t.to])map[t.to].entrada+=v;}); state.thirdMovements.forEach(m=>{const v=parseMoney(m.valor); if(map[m.bank]){ if(m.type==='entrada'){map[m.bank].entrada+=v;map[m.bank].terceiroEntrada+=v;} else {map[m.bank].saida+=v;map[m.bank].terceiroSaida+=v;} }}); Object.keys(map).forEach(b=>{map[b].saldo=map[b].entrada-map[b].saida;map[b].terceiroSaldo=map[b].terceiroEntrada-map[b].terceiroSaida;map[b].reservadoTerceiros=Math.max(0,map[b].terceiroSaldo);map[b].saldoProprio=map[b].saldo-map[b].reservadoTerceiros;}); return map;}
 function addToMap(map,key,value){ if(!key)return; map[key]=(map[key]||0)+Number(value||0); }
