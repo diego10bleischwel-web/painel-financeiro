@@ -1026,11 +1026,57 @@ function saveCloudApplyBackup(){
     localStorage.setItem(CLOUD_BACKUP_KEY,JSON.stringify({savedAt:Date.now(),data:statePayload()}));
   }catch(err){ console.warn('Nao foi possivel criar backup local antes da nuvem.',err); }
 }
-function mergeByKey(local,remote,keyFn){
+function mergeByKey(local,remote,keyFn,mergeFn){
   const map=new Map(), localKeys=new Set();
+  let mergedChanged=false;
   (Array.isArray(local)?local:[]).forEach(item=>{ const key=keyFn(item); if(key){ localKeys.add(key); map.set(key,item); } });
-  (Array.isArray(remote)?remote:[]).forEach(item=>{ const key=keyFn(item); if(key&&!map.has(key)) map.set(key,item); });
-  return {items:[...map.values()],changed:[...map.keys()].some(key=>!localKeys.has(key))};
+  (Array.isArray(remote)?remote:[]).forEach(item=>{ const key=keyFn(item); if(!key)return; if(map.has(key)&&mergeFn){ const before=JSON.stringify(map.get(key)); const merged=mergeFn(map.get(key),item); if(before!==JSON.stringify(merged))mergedChanged=true; map.set(key,merged); } else if(!map.has(key)) map.set(key,item); });
+  return {items:[...map.values()],changed:mergedChanged||[...map.keys()].some(key=>!localKeys.has(key))};
+}
+function statusPriority(status){
+  const key=statusKey(status);
+  if(key==='pago'||key==='pagoatraso'||key==='recebido')return 4;
+  if(key==='parcial')return 3;
+  if(key==='naopago')return 2;
+  if(key==='fixo'||key==='pendente'||key==='receitapendente')return 1;
+  return status?1:0;
+}
+function mergeStatusMaps(a={},b={}){
+  const out={...(a||{})};
+  Object.entries(b||{}).forEach(([month,status])=>{
+    if(!Object.prototype.hasOwnProperty.call(out,month)||statusPriority(status)>statusPriority(out[month]))out[month]=status;
+  });
+  return out;
+}
+function mergeObjectMaps(a={},b={},preferNonEmpty=false){
+  const out={...(a||{})};
+  Object.entries(b||{}).forEach(([key,value])=>{
+    if(!Object.prototype.hasOwnProperty.call(out,key)||(preferNonEmpty&&!String(out[key]||'').trim()&&String(value||'').trim()))out[key]=value;
+  });
+  return out;
+}
+function mergeReceiptMaps(a={},b={}){
+  const out={...(a||{})};
+  Object.entries(b||{}).forEach(([month,items])=>{
+    const current=Array.isArray(out[month])?out[month]:[];
+    const seen=new Set(current.map(r=>r.id||[r.date,r.amount,r.valor,r.bank].join('|')));
+    const merged=[...current];
+    (Array.isArray(items)?items:[]).forEach(r=>{ const key=r.id||[r.date,r.amount,r.valor,r.bank].join('|'); if(!seen.has(key)){ seen.add(key); merged.push(r); } });
+    out[month]=merged;
+  });
+  return out;
+}
+function mergeFinancialEntry(local,remote){
+  const base={...remote,...local};
+  base.statusMes=mergeStatusMaps(remote.statusMes,local.statusMes);
+  base.valoresMes=mergeObjectMaps(remote.valoresMes,local.valoresMes,true);
+  base.cardValueOverrides=mergeObjectMaps(remote.cardValueOverrides,local.cardValueOverrides,true);
+  base.hiddenMes=mergeObjectMaps(remote.hiddenMes,local.hiddenMes);
+  base.recebimentosMes=mergeReceiptMaps(remote.recebimentosMes,local.recebimentosMes);
+  base.recebimentoRascunhoMes=mergeObjectMaps(remote.recebimentoRascunhoMes,local.recebimentoRascunhoMes,true);
+  if((!base.valor||!String(base.valor).trim())&&remote.valor)base.valor=remote.valor;
+  if((!base.valor||!String(base.valor).trim())&&local.valor)base.valor=local.valor;
+  return base;
 }
 function entryMergeKey(e){
   const carryKey=entryDeletionKey(e);
@@ -1094,6 +1140,22 @@ function sanitizeFinancialState(){
   }
   return changed;
 }
+function recoverStatusHistoryFromLocalBackups(){
+  let changed=false;
+  [CLOUD_BACKUP_KEY,CLOUD_BACKUP_KEY_2].forEach(key=>{
+    try{
+      const backup=JSON.parse(localStorage.getItem(key)||'null');
+      const data=backup&&backup.data;
+      if(!data||!Array.isArray(data.entries))return;
+      const recovered=mergeByKey(state.entries,filterDeletedEntries(structuredClone(data.entries)),entryMergeKey,mergeFinancialEntry);
+      if(JSON.stringify(recovered.items.map(e=>e.statusMes||{}))!==JSON.stringify(state.entries.map(e=>e.statusMes||{}))){
+        state.entries=recovered.items;
+        changed=true;
+      }
+    }catch(err){ console.warn('Nao foi possivel recuperar historico do backup local.',err); }
+  });
+  return changed;
+}
 function mergeCloudIntoLocal(remote){
   if(!remote||!Array.isArray(remote.entries))return false;
   const before=entryCount(state);
@@ -1106,7 +1168,7 @@ function mergeCloudIntoLocal(remote){
   if(remote.deletedThirdPeople&&typeof remote.deletedThirdPeople==='object'){
     Object.entries(remote.deletedThirdPeople).forEach(([person,ts])=>{ deletedThirdPeople[person]=Math.max(Number(deletedThirdPeople[person]||0),Number(ts||0)); });
   }
-  const entries=mergeByKey(filterDeletedEntries(state.entries,deletedEntries),filterDeletedEntries(remote.entries,deletedEntries),entryMergeKey);
+  const entries=mergeByKey(filterDeletedEntries(state.entries,deletedEntries),filterDeletedEntries(remote.entries,deletedEntries),entryMergeKey,mergeFinancialEntry);
   const transfers=mergeByKey(state.transfers,remote.transfers,t=>'transfer:'+(t.id??[t.kind,t.from,t.to,t.valor,t.date,t.note].join('|')));
   const third=mergeByKey(filterDeletedThirdMovements(state.thirdMovements,deletedThirdPeople),filterDeletedThirdMovements(remote.thirdMovements,deletedThirdPeople),m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')));
   const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
@@ -1160,14 +1222,15 @@ function applyCloudState(data){
   const filteredThirdMovements=filterDeletedThirdMovements(remoteThirdMovements,deletedThirdPeople);
   const remoteEntries=Array.isArray(data.entries)?structuredClone(data.entries):[];
   const filteredEntries=filterDeletedEntries(remoteEntries,deletedEntries);
+  const mergedEntries=mergeByKey(filterDeletedEntries(state.entries,deletedEntries),filteredEntries,entryMergeKey,mergeFinancialEntry);
   const remoteCardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   const filteredCardTransactions=filterDeletedCardTransactions(remoteCardTransactions,deletedEntries);
-  const deletionNeedsUpload=JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
+  const deletionNeedsUpload=mergedEntries.changed||JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
   applyingRemote=true;
   state.currentMonth=currentMonthIndex();
   state.nextId=Number(data.nextId||503);
   state.deletedEntries=deletedEntries;
-  state.entries=filteredEntries;
+  state.entries=mergedEntries.items;
   state.transfers=Array.isArray(data.transfers)?structuredClone(data.transfers):[];
   state.deletedThirdPeople=deletedThirdPeople;
   state.thirdMovements=ensureThirdMovementIds(filteredThirdMovements);
@@ -2685,7 +2748,7 @@ function enableRevenuePartialReceipts(){
   },true);
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const sanitized=sanitizeFinancialState(); if(cardsChanged||categoriesChanged||cardEntriesChanged||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const recoveredHistory=recoverStatusHistoryFromLocalBackups(); const sanitized=sanitizeFinancialState(); if(cardsChanged||categoriesChanged||cardEntriesChanged||recoveredHistory||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
 init();
 });
 </script>
