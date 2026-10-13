@@ -1032,6 +1032,50 @@ function mergeByKey(local,remote,keyFn){
   (Array.isArray(remote)?remote:[]).forEach(item=>{ const key=keyFn(item); if(key&&!map.has(key)) map.set(key,item); });
   return {items:[...map.values()],changed:[...map.keys()].some(key=>!localKeys.has(key))};
 }
+function entryMergeKey(e){
+  const carryKey=entryDeletionKey(e);
+  if(carryKey)return 'entry:'+carryKey;
+  if(isOverdueDebit(e))return 'entry:overdue:'+overdueDedupeKey(e,carryForwardTargetMonth(e));
+  if(isOverdueIncome(e))return 'entry:income-overdue:'+overdueIncomeDedupeKey(e,incomeCarryForwardTargetMonth(e));
+  return 'entry:'+(e.id??String(e.nome||'')+'|'+String(e.dia||'')+'|'+String(e.inicio||''));
+}
+function generatedEntryScore(e){
+  const st=currentStatus(e);
+  const target=isOverdueIncome(e)?incomeCarryForwardTargetMonth(e):carryForwardTargetMonth(e);
+  return (isPaidDebitStatus(st)||st==='recebido'?1000:0)+(parseMoney(displayValueAtMonth(e,target)||configuredValue(e,target)||e?.valor)?100:0)+(Number(e.id)||0)/1000000;
+}
+function sanitizeFinancialState(){
+  let changed=false;
+  const keep=new Map(), remove=new Set();
+  state.entries.forEach(e=>{
+    const key=isOverdueDebit(e)?'deb:'+overdueDedupeKey(e,carryForwardTargetMonth(e)):(isOverdueIncome(e)?'inc:'+overdueIncomeDedupeKey(e,incomeCarryForwardTargetMonth(e)):'');
+    if(!key)return;
+    const current=keep.get(key);
+    if(!current){ keep.set(key,e); return; }
+    const winner=generatedEntryScore(e)>generatedEntryScore(current)?e:current;
+    const loser=winner===e?current:e;
+    keep.set(key,winner);
+    remove.add(loser);
+  });
+  if(remove.size){
+    state.entries=state.entries.filter(e=>{ if(remove.has(e)){ rememberDeletedEntry(e); return false; } return true; });
+    changed=true;
+  }
+  const txSeen=new Set();
+  const beforeTx=state.cardTransactions.length;
+  state.cardTransactions=state.cardTransactions.filter(t=>{
+    const key=t.invoiceTotal||t.futureTotal ? cardTxKey(t) : cardTxDedupeKey(t);
+    if(txSeen.has(key)){ rememberDeletedCardTransaction(t); return false; }
+    txSeen.add(key);
+    return true;
+  });
+  if(state.cardTransactions.length!==beforeTx)changed=true;
+  if(changed){
+    state.nextId=Math.max(Number(state.nextId||503),...state.entries.map(e=>Number(e.id||0)+1));
+    console.warn('Duplicidades financeiras removidas com seguranca.');
+  }
+  return changed;
+}
 function mergeCloudIntoLocal(remote){
   if(!remote||!Array.isArray(remote.entries))return false;
   const before=entryCount(state);
@@ -1044,7 +1088,7 @@ function mergeCloudIntoLocal(remote){
   if(remote.deletedThirdPeople&&typeof remote.deletedThirdPeople==='object'){
     Object.entries(remote.deletedThirdPeople).forEach(([person,ts])=>{ deletedThirdPeople[person]=Math.max(Number(deletedThirdPeople[person]||0),Number(ts||0)); });
   }
-  const entries=mergeByKey(filterDeletedEntries(state.entries,deletedEntries),filterDeletedEntries(remote.entries,deletedEntries),e=>'entry:'+(e.id??String(e.nome||'')+'|'+String(e.dia||'')+'|'+String(e.inicio||'')));
+  const entries=mergeByKey(filterDeletedEntries(state.entries,deletedEntries),filterDeletedEntries(remote.entries,deletedEntries),entryMergeKey);
   const transfers=mergeByKey(state.transfers,remote.transfers,t=>'transfer:'+(t.id??[t.kind,t.from,t.to,t.valor,t.date,t.note].join('|')));
   const third=mergeByKey(filterDeletedThirdMovements(state.thirdMovements,deletedThirdPeople),filterDeletedThirdMovements(remote.thirdMovements,deletedThirdPeople),m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')));
   const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
@@ -1066,9 +1110,11 @@ function mergeCloudIntoLocal(remote){
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
+  const sanitized=sanitizeFinancialState();
   saveLocalSnapshot();
   applyingRemote=false;
   setSyncPending(true);
+  if(sanitized) scheduleCloudSave(250);
   console.warn('Sync mesclado para evitar perda de dados.',{antes:before,depois:entryCount(state)});
   renderAll();
   return true;
@@ -1114,11 +1160,12 @@ function applyCloudState(data){
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
-  setSyncPending(deletionNeedsUpload);
+  const sanitized=sanitizeFinancialState();
+  setSyncPending(deletionNeedsUpload||sanitized);
   saveLocalSnapshot();
   applyingRemote=false;
   renderAll();
-  if(deletionNeedsUpload) scheduleCloudSave(250);
+  if(deletionNeedsUpload||sanitized) scheduleCloudSave(250);
   return true;
 }
 function applyRecoveredState(data, uploadNow=false){
@@ -1147,12 +1194,13 @@ function applyRecoveredState(data, uploadNow=false){
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
+  const sanitized=sanitizeFinancialState();
   saveLocalSnapshot();
   applyingRemote=false;
-  setSyncPending(!!uploadNow);
+  setSyncPending(!!uploadNow||sanitized);
   setSyncStatus(uploadNow?'JSON restaurado, enviando...':'JSON restaurado local');
   renderAll();
-  if(uploadNow) scheduleCloudSave(250);
+  if(uploadNow||sanitized) scheduleCloudSave(250);
   return true;
 }
 async function restoreJsonFile(file){
@@ -2618,7 +2666,7 @@ function enableRevenuePartialReceipts(){
   },true);
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; if(cardsChanged||categoriesChanged||cardEntriesChanged) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const sanitized=sanitizeFinancialState(); if(cardsChanged||categoriesChanged||cardEntriesChanged||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
 init();
 });
 </script>
