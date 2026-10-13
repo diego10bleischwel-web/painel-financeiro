@@ -790,6 +790,7 @@ const THEME_KEY='dualizeFinanceThemeV1';
 const MONTH_SCOPE_KEY='dualizeFinanceMonthScopeCurrentOnlyV1';
 const CLOUD_BACKUP_KEY='dualizeFinanceBackupBeforeCloudV1';
 const CLOUD_BACKUP_KEY_2='dualizeFinanceBackupBeforeCloudV2';
+const CLOUD_BACKUP_HISTORY_KEY='dualizeFinanceBackupHistoryV1';
 const FIRESTORE_COLLECTION='painel_financeiro';
 const FIRESTORE_DOC='estado_principal';
 const FIREBASE_CONFIG={
@@ -826,6 +827,14 @@ function loadBackupState(){
   }catch(err){ console.warn('Não foi possível carregar backup local.',err); return null; }
 }
 function entryCount(data){ return (Array.isArray(data?.entries)?data.entries.length:0)+(Array.isArray(data?.cardTransactions)?data.cardTransactions.length:0)+(Array.isArray(data?.transfers)?data.transfers.length:0)+(Array.isArray(data?.thirdMovements)?data.thirdMovements.length:0); }
+function historicalStatusScore(data){
+  return (Array.isArray(data?.entries)?data.entries:[]).reduce((sum,e)=>{
+    const statusCount=e&&e.statusMes&&typeof e.statusMes==='object'?Object.keys(e.statusMes).length:0;
+    const valueCount=e&&e.valoresMes&&typeof e.valoresMes==='object'?Object.keys(e.valoresMes).length:0;
+    const receiptCount=e&&e.recebimentosMes&&typeof e.recebimentosMes==='object'?Object.keys(e.recebimentosMes).length:0;
+    return sum+statusCount*10+valueCount*3+receiptCount*5;
+  },0);
+}
 const savedStateRaw=loadSavedState();
 const backupState=loadBackupState();
 const recoveredFromBackup=entryCount(backupState)>entryCount(savedStateRaw);
@@ -1023,7 +1032,11 @@ function saveCloudApplyBackup(){
   try{
     const previous=localStorage.getItem(CLOUD_BACKUP_KEY);
     if(previous) localStorage.setItem(CLOUD_BACKUP_KEY_2,previous);
-    localStorage.setItem(CLOUD_BACKUP_KEY,JSON.stringify({savedAt:Date.now(),data:statePayload()}));
+    const snapshot={savedAt:Date.now(),data:statePayload()};
+    localStorage.setItem(CLOUD_BACKUP_KEY,JSON.stringify(snapshot));
+    const history=JSON.parse(localStorage.getItem(CLOUD_BACKUP_HISTORY_KEY)||'[]');
+    history.unshift(snapshot);
+    localStorage.setItem(CLOUD_BACKUP_HISTORY_KEY,JSON.stringify(history.slice(0,20)));
   }catch(err){ console.warn('Nao foi possivel criar backup local antes da nuvem.',err); }
 }
 function mergeByKey(local,remote,keyFn,mergeFn){
@@ -1122,7 +1135,7 @@ function sanitizeFinancialState(){
     remove.add(loser);
   });
   if(remove.size){
-    state.entries=state.entries.filter(e=>{ if(remove.has(e)){ rememberDeletedEntry(e); return false; } return true; });
+    state.entries=state.entries.filter(e=>!remove.has(e));
     changed=true;
   }
   const txSeen=new Set();
@@ -1142,17 +1155,57 @@ function sanitizeFinancialState(){
 }
 function recoverStatusHistoryFromLocalBackups(){
   let changed=false;
-  [CLOUD_BACKUP_KEY,CLOUD_BACKUP_KEY_2].forEach(key=>{
+  const candidates=[];
+  const addCandidate=data=>{ if(data&&Array.isArray(data.entries))candidates.push(data); };
+  [STORAGE_KEY,CLOUD_BACKUP_KEY,CLOUD_BACKUP_KEY_2].forEach(key=>{
     try{
-      const backup=JSON.parse(localStorage.getItem(key)||'null');
-      const data=backup&&backup.data;
-      if(!data||!Array.isArray(data.entries))return;
+      const parsed=JSON.parse(localStorage.getItem(key)||'null');
+      addCandidate(parsed&&parsed.data?parsed.data:parsed);
+    }catch(err){ console.warn('Nao foi possivel recuperar historico do backup local.',err); }
+  });
+  try{
+    const history=JSON.parse(localStorage.getItem(CLOUD_BACKUP_HISTORY_KEY)||'[]');
+    (Array.isArray(history)?history:[]).forEach(item=>addCandidate(item&&item.data?item.data:item));
+  }catch(err){ console.warn('Nao foi possivel ler historico de backups locais.',err); }
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(!/^dualizeFinance/i.test(String(key||'')))continue;
+      const parsed=JSON.parse(localStorage.getItem(key)||'null');
+      addCandidate(parsed&&parsed.data?parsed.data:parsed);
+    }
+  }catch(err){ console.warn('Nao foi possivel varrer backups locais.',err); }
+  candidates
+    .sort((a,b)=>(historicalStatusScore(b)+entryCount(b))-(historicalStatusScore(a)+entryCount(a)))
+    .forEach(data=>{
       const recovered=mergeByKey(state.entries,filterDeletedEntries(structuredClone(data.entries)),entryMergeKey,mergeFinancialEntry);
       if(JSON.stringify(recovered.items.map(e=>e.statusMes||{}))!==JSON.stringify(state.entries.map(e=>e.statusMes||{}))){
         state.entries=recovered.items;
         changed=true;
       }
-    }catch(err){ console.warn('Nao foi possivel recuperar historico do backup local.',err); }
+    });
+  return changed;
+}
+function cleanGeneratedDeletionLocks(){
+  let changed=false;
+  Object.keys(state.deletedEntries||{}).forEach(key=>{
+    const debit=String(key).match(/^carry:(\d+):(\d+):(\d+)$/);
+    if(debit){
+      const source=state.entries.find(e=>e.tipo==='debito'&&!isOverdueDebit(e)&&Number(e.id)===Number(debit[1]));
+      if(source&&!isPaidDebitStatus(statusAtMonth(source,Number(debit[2])))){
+        delete state.deletedEntries[key];
+        changed=true;
+      }
+      return;
+    }
+    const income=String(key).match(/^incomeCarry:(\d+):(\d+):(\d+)$/);
+    if(income){
+      const source=state.entries.find(e=>e.tipo==='receita'&&!isOverdueIncome(e)&&Number(e.id)===Number(income[1]));
+      if(source&&revenueStatus(source,Number(income[2]))!=='recebido'){
+        delete state.deletedEntries[key];
+        changed=true;
+      }
+    }
   });
   return changed;
 }
@@ -1190,11 +1243,12 @@ function mergeCloudIntoLocal(remote){
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
+  const cleanedDeletionLocks=cleanGeneratedDeletionLocks();
   const sanitized=sanitizeFinancialState();
   saveLocalSnapshot();
   applyingRemote=false;
   setSyncPending(true);
-  if(sanitized) scheduleCloudSave(250);
+  if(cleanedDeletionLocks||sanitized) scheduleCloudSave(250);
   console.warn('Sync mesclado para evitar perda de dados.',{antes:before,depois:entryCount(state)});
   renderAll();
   return true;
@@ -1241,12 +1295,13 @@ function applyCloudState(data){
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
+  const cleanedDeletionLocks=cleanGeneratedDeletionLocks();
   const sanitized=sanitizeFinancialState();
-  setSyncPending(deletionNeedsUpload||sanitized);
+  setSyncPending(deletionNeedsUpload||cleanedDeletionLocks||sanitized);
   saveLocalSnapshot();
   applyingRemote=false;
   renderAll();
-  if(deletionNeedsUpload||sanitized) scheduleCloudSave(250);
+  if(deletionNeedsUpload||cleanedDeletionLocks||sanitized) scheduleCloudSave(250);
   return true;
 }
 function applyRecoveredState(data, uploadNow=false){
@@ -1275,13 +1330,14 @@ function applyRecoveredState(data, uploadNow=false){
   state.entries.forEach(normalizeEntry);
   recategorizeCardTransactions();
   if(state.cardTransactions.length) rebuildCardEntries();
+  const cleanedDeletionLocks=cleanGeneratedDeletionLocks();
   const sanitized=sanitizeFinancialState();
   saveLocalSnapshot();
   applyingRemote=false;
-  setSyncPending(!!uploadNow||sanitized);
+  setSyncPending(!!uploadNow||cleanedDeletionLocks||sanitized);
   setSyncStatus(uploadNow?'JSON restaurado, enviando...':'JSON restaurado local');
   renderAll();
-  if(uploadNow||sanitized) scheduleCloudSave(250);
+  if(uploadNow||cleanedDeletionLocks||sanitized) scheduleCloudSave(250);
   return true;
 }
 async function restoreJsonFile(file){
@@ -1666,14 +1722,14 @@ function hasCarryForwardDebit(e,sourceMonth,targetMonth){
   const key=carryForwardKeyFor(e,sourceMonth,targetMonth), legacy=legacyCarryForwardKeyFor(e,sourceMonth);
   return state.entries.some(x=>x!==e && isOverdueDebit(x) && (x.carryForwardKey===key || (x.carryForwardKey===legacy && carryForwardTargetMonth(x)===Number(targetMonth)) || (Number(x.carryFromId)===Number(e.id) && inferCarryFromMonth(x)===Number(sourceMonth) && carryForwardTargetMonth(x)===Number(targetMonth))));
 }
-function removeCarryForwardDebit(e,sourceMonth=state.currentMonth,targetMonth){
+function removeCarryForwardDebit(e,sourceMonth=state.currentMonth,targetMonth,remember=false){
   const key=carryForwardKeyFor(e,sourceMonth,targetMonth??state.currentMonth), legacy=legacyCarryForwardKeyFor(e,sourceMonth), before=state.entries.length;
   state.entries=state.entries.filter(x=>{
     if(!isOverdueDebit(x))return true;
     const sameSource=Number(x.carryFromId)===Number(e.id) && inferCarryFromMonth(x)===Number(sourceMonth);
     const sameTarget=targetMonth===undefined || carryForwardTargetMonth(x)===Number(targetMonth);
     const remove=(sameSource&&sameTarget) || x.carryForwardKey===key || (x.carryForwardKey===legacy&&sameTarget);
-    if(remove) rememberDeletedEntry(x);
+    if(remove&&remember) rememberDeletedEntry(x);
     return !remove;
   });
   return state.entries.length!==before;
@@ -1719,7 +1775,7 @@ function hasCarryForwardIncome(e,sourceMonth,targetMonth){
   const key=incomeCarryForwardKeyFor(e,sourceMonth,targetMonth);
   return state.entries.some(x=>x!==e && isOverdueIncome(x) && (x.incomeCarryForwardKey===key || (Number(x.incomeCarryFromId)===Number(e.id) && inferIncomeCarryFromMonth(x)===Number(sourceMonth) && incomeCarryForwardTargetMonth(x)===Number(targetMonth))));
 }
-function removeCarryForwardIncome(e,sourceMonth,targetMonth){
+function removeCarryForwardIncome(e,sourceMonth,targetMonth,remember=false){
   const before=state.entries.length;
   state.entries=state.entries.filter(x=>{
     if(!isOverdueIncome(x))return true;
@@ -1727,7 +1783,7 @@ function removeCarryForwardIncome(e,sourceMonth,targetMonth){
     const sameMonth=sourceMonth===undefined || inferIncomeCarryFromMonth(x)===Number(sourceMonth);
     const sameTarget=targetMonth===undefined || incomeCarryForwardTargetMonth(x)===Number(targetMonth);
     const remove=sameSource&&sameMonth&&sameTarget;
-    if(remove)rememberDeletedEntry(x);
+    if(remove&&remember)rememberDeletedEntry(x);
     return !remove;
   });
   return state.entries.length!==before;
@@ -1802,7 +1858,7 @@ function dedupeOverdueIncomes(targetMonth){
   state.entries=state.entries.filter(e=>{
     if(!isOverdueIncome(e)||incomeCarryForwardTargetMonth(e)!==Number(targetMonth))return true;
     const key=overdueIncomeDedupeKey(e,targetMonth);
-    if(seen.has(key)&&currentStatus(e)!=='recebido'){ rememberDeletedEntry(e); return false; }
+    if(seen.has(key)&&currentStatus(e)!=='recebido')return false;
     seen.add(key);
     return true;
   });
@@ -1891,7 +1947,7 @@ function dedupeOverdueDebits(targetMonth){
   state.entries=state.entries.filter(e=>{
     if(!isOverdueDebit(e)||carryForwardTargetMonth(e)!==Number(targetMonth))return true;
     const key=overdueDedupeKey(e,targetMonth);
-    if(seen.has(key)&&!isPaidDebitStatus(currentStatus(e))){ rememberDeletedEntry(e); return false; }
+    if(seen.has(key)&&!isPaidDebitStatus(currentStatus(e)))return false;
     seen.add(key);
     return true;
   });
@@ -1963,8 +2019,8 @@ async function deleteEntry(id){
       if(!ent.hiddenMes) ent.hiddenMes={};
       ent.hiddenMes[String(state.currentMonth)]=true;
     }
-    removeCarryForwardDebit(ent,state.currentMonth,state.currentMonth);
-    removeCarryForwardIncome(ent,state.currentMonth,state.currentMonth);
+    removeCarryForwardDebit(ent,state.currentMonth,state.currentMonth,true);
+    removeCarryForwardIncome(ent,state.currentMonth,state.currentMonth,true);
   }else if(opt==='2'){
     const sourceDebitId=isOverdueDebit(ent)?Number(ent.carryFromId):Number(ent.id);
     const sourceIncomeId=isOverdueIncome(ent)?Number(ent.incomeCarryFromId):Number(ent.id);
@@ -1984,8 +2040,8 @@ async function deleteEntry(id){
     });
     const sourceDebit=state.entries.find(x=>Number(x.id)===sourceDebitId)||ent;
     const sourceIncome=state.entries.find(x=>Number(x.id)===sourceIncomeId)||ent;
-    for(let m=0;m<=maxMonth()+12;m++) removeCarryForwardDebit(sourceDebit,m);
-    removeCarryForwardIncome(sourceIncome);
+    for(let m=0;m<=maxMonth()+12;m++) removeCarryForwardDebit(sourceDebit,m,undefined,true);
+    removeCarryForwardIncome(sourceIncome,undefined,undefined,true);
   }else{
     alert('Digite 1 para excluir só este mês ou 2 para excluir todos os meses deste lançamento.');
     return;
@@ -2748,7 +2804,7 @@ function enableRevenuePartialReceipts(){
   },true);
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const recoveredHistory=recoverStatusHistoryFromLocalBackups(); const sanitized=sanitizeFinancialState(); if(cardsChanged||categoriesChanged||cardEntriesChanged||recoveredHistory||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const recoveredHistory=recoverStatusHistoryFromLocalBackups(); const cleanedDeletionLocks=cleanGeneratedDeletionLocks(); const sanitized=sanitizeFinancialState(); if(cardsChanged||categoriesChanged||cardEntriesChanged||recoveredHistory||cleanedDeletionLocks||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableRevenuePartialReceipts(); enableDebitStatusShortcuts(); enableDebitPaidLateSettlement(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; if(recoveredFromBackup){ saveLocalSnapshot(); setSyncPending(true); setSyncStatus('Backup restaurado'); } else setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl){ if(recoveredFromBackup) scheduleCloudSave(300); else syncFromCloud(); }}
 init();
 });
 </script>
