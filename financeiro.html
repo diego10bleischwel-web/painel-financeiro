@@ -2020,6 +2020,19 @@ function ensureOverdueIncomesForCurrentMonth(){
   if(changed)persist();
   return changed;
 }
+function trimEntryBeforeMonth(e,month=state.currentMonth){
+  const start=Number(e.inicio||0), reps=Number(e.repeticoes||1), end=start+reps;
+  if(!Number.isFinite(start)||month<=start||month>=end)return false;
+  e.repeticoes=Math.max(1,month-start);
+  if(e.hiddenMes)Object.keys(e.hiddenMes).forEach(m=>{ if(Number(m)>=month)delete e.hiddenMes[m]; });
+  if(e.statusMes)Object.keys(e.statusMes).forEach(m=>{ if(Number(m)>=month)delete e.statusMes[m]; });
+  if(e.recebimentosMes)Object.keys(e.recebimentosMes).forEach(m=>{ if(Number(m)>=month)delete e.recebimentosMes[m]; });
+  if(e.recebimentoRascunhoMes)Object.keys(e.recebimentoRascunhoMes).forEach(m=>{ if(Number(m)>=month)delete e.recebimentoRascunhoMes[m]; });
+  if(e.valoresMes)Object.keys(e.valoresMes).forEach(off=>{ if(start+Number(off)>=month)delete e.valoresMes[off]; });
+  if(Array.isArray(e.valoresParcelas))e.valoresParcelas=e.valoresParcelas.slice(0,month-start);
+  if(e.cardValueOverrides)Object.keys(e.cardValueOverrides).forEach(m=>{ if(Number(m)>=month)delete e.cardValueOverrides[m]; });
+  return true;
+}
 async function deleteEntry(id){
   const ent=state.entries.find(x=>x.id===id);
   if(!ent)return;
@@ -2039,23 +2052,33 @@ async function deleteEntry(id){
     const sourceDebitId=isOverdueDebit(ent)?Number(ent.carryFromId):Number(ent.id);
     const sourceIncomeId=isOverdueIncome(ent)?Number(ent.incomeCarryFromId):Number(ent.id);
     const targetCard=(ent.cardName||isCardEntryName(ent.nome))?standardCardName(ent.cardName||ent.nome):'';
+    const sourceDebit=state.entries.find(x=>Number(x.id)===sourceDebitId)||ent;
+    const sourceIncome=state.entries.find(x=>Number(x.id)===sourceIncomeId)||ent;
+    const trimmed=!isOverdueDebit(ent)&&!isOverdueIncome(ent)&&trimEntryBeforeMonth(ent,state.currentMonth);
     if(targetCard){
       state.cardTransactions=state.cardTransactions.filter(t=>{
-        const remove=standardCardName(t.card)===targetCard;
+        const remove=standardCardName(t.card)===targetCard&&(!trimmed||Number(t.month)>=state.currentMonth);
         if(remove) rememberDeletedCardTransaction(t);
         return !remove;
       });
     }
-    removeEntriesAndRemember(x=>{
+    if(trimmed){
+      state.entries=state.entries.filter(x=>{
+        if(x===ent)return true;
+        const remove=(Number.isFinite(sourceDebitId)&&Number(x.carryFromId)===sourceDebitId&&carryForwardTargetMonth(x)>=state.currentMonth)||(Number.isFinite(sourceIncomeId)&&Number(x.incomeCarryFromId)===sourceIncomeId&&incomeCarryForwardTargetMonth(x)>=state.currentMonth);
+        if(remove)rememberDeletedEntry(x);
+        return !remove;
+      });
+    }else removeEntriesAndRemember(x=>{
       if(x.id===id)return true;
       if(Number.isFinite(sourceDebitId)&&(Number(x.id)===sourceDebitId||Number(x.carryFromId)===sourceDebitId))return true;
       if(Number.isFinite(sourceIncomeId)&&(Number(x.id)===sourceIncomeId||Number(x.incomeCarryFromId)===sourceIncomeId))return true;
       return !!(targetCard&&x.cardName&&standardCardName(x.cardName)===targetCard);
     });
-    const sourceDebit=state.entries.find(x=>Number(x.id)===sourceDebitId)||ent;
-    const sourceIncome=state.entries.find(x=>Number(x.id)===sourceIncomeId)||ent;
-    for(let m=0;m<=maxMonth()+12;m++) removeCarryForwardDebit(sourceDebit,m,undefined,true);
-    removeCarryForwardIncome(sourceIncome,undefined,undefined,true);
+    for(let m=trimmed?state.currentMonth:0;m<=maxMonth()+12;m++){
+      removeCarryForwardDebit(sourceDebit,m,undefined,true);
+      removeCarryForwardIncome(sourceIncome,m,undefined,true);
+    }
   }else{
     alert('Digite 1 para excluir só este mês ou 2 para excluir todos os meses deste lançamento.');
     return;
