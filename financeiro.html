@@ -793,6 +793,11 @@ const CLOUD_BACKUP_KEY_2='dualizeFinanceBackupBeforeCloudV2';
 const CLOUD_BACKUP_HISTORY_KEY='dualizeFinanceBackupHistoryV1';
 const FIRESTORE_COLLECTION='painel_financeiro';
 const FIRESTORE_DOC='estado_principal';
+const FORCE_CLOUD_RELOAD=new URLSearchParams(location.search).get('forceCloud')==='1';
+if(FORCE_CLOUD_RELOAD){
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(PENDING_SYNC_KEY);
+}
 const FIREBASE_CONFIG={
   apiKey:"AIzaSyAryTmLH5_kYevS2Zt3csh9eUlA7whkLdE",
   authDomain:"dualize-projeto.firebaseapp.com",
