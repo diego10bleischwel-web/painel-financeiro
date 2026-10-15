@@ -794,7 +794,7 @@ const CLOUD_BACKUP_HISTORY_KEY='dualizeFinanceBackupHistoryV1';
 const FIRESTORE_COLLECTION='painel_financeiro';
 const FIRESTORE_DOC='estado_principal';
 const FORCE_CLOUD_RELOAD=new URLSearchParams(location.search).get('forceCloud')==='1';
-if(FORCE_CLOUD_RELOAD){
+if(FORCE_CLOUD_RELOAD&&localStorage.getItem(PENDING_SYNC_KEY)!=='1'){
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(PENDING_SYNC_KEY);
 }
@@ -847,7 +847,7 @@ const state={
   currentMonth:currentMonthIndex(),
   debitFilter:'todos',
   nextId:Number(savedState?.nextId||503),
-  entries:savedState?.entries?.length?structuredClone(savedState.entries):structuredClone(INITIAL_ENTRIES),
+  entries:Array.isArray(savedState?.entries)?structuredClone(savedState.entries):structuredClone(INITIAL_ENTRIES),
   deletedEntries:savedState?.deletedEntries&&typeof savedState.deletedEntries==='object'?structuredClone(savedState.deletedEntries):{},
   transfers:Array.isArray(savedState?.transfers)?structuredClone(savedState.transfers):[],
   thirdMovements:Array.isArray(savedState?.thirdMovements)?structuredClone(savedState.thirdMovements):[],
@@ -898,13 +898,34 @@ function removeEntriesAndRemember(predicate){
 state.entries=filterDeletedEntries(state.entries);
 state.cardTransactions=filterDeletedCardTransactions(state.cardTransactions);
 function thirdPersonDeletedAt(person,map=state.deletedThirdPeople){ return Number(map?.[String(person||'').trim()]||0); }
-function filterDeletedThirdMovements(movements,map=state.deletedThirdPeople){
+function filterDeletedThirdMovements(movements,map=state.deletedThirdPeople,deleted=state.deletedEntries){
   return (Array.isArray(movements)?movements:[]).filter(m=>{
+    if(deleted?.['third:'+m.id])return false;
     const deletedAt=thirdPersonDeletedAt(m.person,map);
     return !deletedAt || Number(m.createdAt||0)>deletedAt;
   });
 }
 state.thirdMovements=filterDeletedThirdMovements(state.thirdMovements);
+let savedEntryVersions=new Map(state.entries.map(e=>[entryMergeKey(e),JSON.stringify(e)]));
+let savedThirdVersions=new Map(state.thirdMovements.map(m=>[String(m.id),JSON.stringify(m)]));
+function stampChangedEntries(){
+  const present=new Set(state.entries.map(entryMergeKey));
+  savedEntryVersions.forEach((serialized,key)=>{
+    if(!present.has(key))rememberDeletedEntry(JSON.parse(serialized));
+  });
+  state.entries.forEach(e=>{
+    if(savedEntryVersions.get(entryMergeKey(e))!==JSON.stringify(e)) e.updatedAt=Math.max(Date.now(),Number(e.updatedAt||0)+1);
+  });
+  const thirdIds=new Set(state.thirdMovements.map(m=>String(m.id)));
+  savedThirdVersions.forEach((serialized,id)=>{ if(!thirdIds.has(id))state.deletedEntries['third:'+id]=Date.now(); });
+  state.thirdMovements.forEach(m=>{
+    if(savedThirdVersions.get(String(m.id))!==JSON.stringify(m))m.updatedAt=Math.max(Date.now(),Number(m.updatedAt||0)+1);
+  });
+}
+function rememberEntryVersions(){
+  savedEntryVersions=new Map(state.entries.map(e=>[entryMergeKey(e),JSON.stringify(e)]));
+  savedThirdVersions=new Map(state.thirdMovements.map(m=>[String(m.id),JSON.stringify(m)]));
+}
 function statePayload(){
   return {
     currentMonth:state.currentMonth,
@@ -922,12 +943,15 @@ function statePayload(){
 }
 function persist(){
   try{
+    if(!applyingRemote)stampChangedEntries();
     if(!applyingRemote){ state.lastSync=Date.now(); state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2); setSyncPending(true); }
     localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
+    rememberEntryVersions();
     scheduleCloudSave(180);
   }catch(err){ console.warn('Não foi possível salvar no navegador.',err); }
 }
 function persistLocalChange(){
+  stampChangedEntries();
   state.lastSync=Date.now();
   state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2);
   setSyncPending(true);
@@ -984,6 +1008,7 @@ function startFirestoreRealtime(){
   firestoreSnapshotStarted=true;
   firestoreUnsubscribe=firestoreDocRef.onSnapshot({includeMetadataChanges:true},snapshot=>{
     if(snapshot.metadata&&snapshot.metadata.hasPendingWrites)return;
+    if(snapshot.metadata&&snapshot.metadata.fromCache)return;
     const remote=snapshot.exists?firestorePayload(snapshot.data()):null;
     if(!remote||!Array.isArray(remote.entries)){
       if(entryCount(state)>0&&syncReady) scheduleCloudSave(500);
@@ -1011,7 +1036,7 @@ function startFirestoreRealtime(){
 }
 function loadCloudState(){
   if(firestoreReady&&firestoreDocRef){
-    return firestoreDocRef.get().then(snapshot=>snapshot.exists?firestorePayload(snapshot.data()):null);
+    return firestoreDocRef.get({source:'server'}).then(snapshot=>snapshot.exists?firestorePayload(snapshot.data()):null);
   }
   return new Promise((resolve,reject)=>{
     if(!syncUrl) return resolve(null);
@@ -1027,6 +1052,7 @@ function loadCloudState(){
 }
 function saveLocalSnapshot(){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
+  rememberEntryVersions();
 }
 function saveCloudApplyBackup(){
   try{
@@ -1080,6 +1106,10 @@ function mergeReceiptMaps(a={},b={}){
   return out;
 }
 function mergeFinancialEntry(local,remote){
+  // Uma edição completa inclui apagar valores, reabrir status e cortar meses futuros.
+  if(Number(local.updatedAt||0)||Number(remote.updatedAt||0)){
+    return structuredClone(Number(remote.updatedAt||0)>Number(local.updatedAt||0)?remote:local);
+  }
   const base={...remote,...local};
   base.statusMes=mergeStatusMaps(remote.statusMes,local.statusMes);
   base.valoresMes=mergeObjectMaps(remote.valoresMes,local.valoresMes,true);
@@ -1187,27 +1217,8 @@ function recoverStatusHistoryFromLocalBackups(){
   return changed;
 }
 function cleanGeneratedDeletionLocks(){
-  let changed=false;
-  Object.keys(state.deletedEntries||{}).forEach(key=>{
-    const debit=String(key).match(/^carry:(\d+):(\d+):(\d+)$/);
-    if(debit){
-      const source=state.entries.find(e=>e.tipo==='debito'&&!isOverdueDebit(e)&&Number(e.id)===Number(debit[1]));
-      if(source&&!isPaidDebitStatus(statusAtMonth(source,Number(debit[2])))){
-        delete state.deletedEntries[key];
-        changed=true;
-      }
-      return;
-    }
-    const income=String(key).match(/^incomeCarry:(\d+):(\d+):(\d+)$/);
-    if(income){
-      const source=state.entries.find(e=>e.tipo==='receita'&&!isOverdueIncome(e)&&Number(e.id)===Number(income[1]));
-      if(source&&revenueStatus(source,Number(income[2]))!=='recebido'){
-        delete state.deletedEntries[key];
-        changed=true;
-      }
-    }
-  });
-  return changed;
+  // Exclusões explícitas continuam válidas mesmo quando a origem está em aberto.
+  return false;
 }
 function mergeCloudIntoLocal(remote){
   if(!remote||!Array.isArray(remote.entries))return false;
@@ -1223,7 +1234,7 @@ function mergeCloudIntoLocal(remote){
   }
   const entries=mergeByKey(filterDeletedEntries(state.entries,deletedEntries),filterDeletedEntries(remote.entries,deletedEntries),entryMergeKey,mergeFinancialEntry);
   const transfers=mergeByKey(state.transfers,remote.transfers,t=>'transfer:'+(t.id??[t.kind,t.from,t.to,t.valor,t.date,t.note].join('|')));
-  const third=mergeByKey(filterDeletedThirdMovements(state.thirdMovements,deletedThirdPeople),filterDeletedThirdMovements(remote.thirdMovements,deletedThirdPeople),m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')));
+  const third=mergeByKey(filterDeletedThirdMovements(state.thirdMovements,deletedThirdPeople,deletedEntries),filterDeletedThirdMovements(remote.thirdMovements,deletedThirdPeople,deletedEntries),m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')),(local,remote)=>Number(remote.updatedAt||0)>Number(local.updatedAt||0)?remote:local);
   const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
   const cardTx=mergeByKey(filterDeletedCardTransactions(state.cardTransactions,deletedEntries),filterDeletedCardTransactions(remote.cardTransactions,deletedEntries),t=>'cardtx:'+(t.key||cardTxKey(t)));
   const deletedChanged=JSON.stringify(deletedThirdPeople)!==JSON.stringify(state.deletedThirdPeople)||JSON.stringify(deletedEntries)!==JSON.stringify(state.deletedEntries);
@@ -1255,14 +1266,6 @@ function mergeCloudIntoLocal(remote){
 }
 function applyCloudState(data){
   if(!data||!Array.isArray(data.entries))return false;
-  const localCount=entryCount(state), remoteCount=entryCount(data);
-  if(localCount>0 && (remoteCount===0 || remoteCount<localCount*.7)){
-    console.warn('Sincronização bloqueada: a nuvem veio vazia ou muito menor que os dados locais.');
-    setSyncPending(true);
-    setSyncStatus('Sync protegido');
-    scheduleCloudSave(600);
-    return false;
-  }
   saveCloudApplyBackup();
   const deletedEntries={...state.deletedEntries};
   if(data.deletedEntries&&typeof data.deletedEntries==='object'){
@@ -1273,16 +1276,15 @@ function applyCloudState(data){
     Object.entries(data.deletedThirdPeople).forEach(([person,ts])=>{ deletedThirdPeople[person]=Math.max(Number(deletedThirdPeople[person]||0),Number(ts||0)); });
   }
   const remoteThirdMovements=Array.isArray(data.thirdMovements)?structuredClone(data.thirdMovements):[];
-  const filteredThirdMovements=filterDeletedThirdMovements(remoteThirdMovements,deletedThirdPeople);
+  const filteredThirdMovements=filterDeletedThirdMovements(remoteThirdMovements,deletedThirdPeople,deletedEntries);
   const remoteEntries=Array.isArray(data.entries)?structuredClone(data.entries):[];
   const filteredEntries=filterDeletedEntries(remoteEntries,deletedEntries);
-  const mergedEntries=mergeByKey(filterDeletedEntries(state.entries,deletedEntries),filteredEntries,entryMergeKey,mergeFinancialEntry);
+  const mergedEntries=mergeByKey(filteredEntries,filterDeletedEntries(state.entries,deletedEntries),entryMergeKey,mergeFinancialEntry);
   const remoteCardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   const filteredCardTransactions=filterDeletedCardTransactions(remoteCardTransactions,deletedEntries);
   const deletionNeedsUpload=mergedEntries.changed||JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
   applyingRemote=true;
-  state.currentMonth=currentMonthIndex();
-  state.nextId=Number(data.nextId||503);
+  state.nextId=Math.max(Number(state.nextId||503),Number(data.nextId||503),...mergedEntries.items.map(e=>Number(e.id||0)+1));
   state.deletedEntries=deletedEntries;
   state.entries=mergedEntries.items;
   state.transfers=Array.isArray(data.transfers)?structuredClone(data.transfers):[];
@@ -1298,6 +1300,7 @@ function applyCloudState(data){
   const cleanedDeletionLocks=cleanGeneratedDeletionLocks();
   const sanitized=sanitizeFinancialState();
   setSyncPending(deletionNeedsUpload||cleanedDeletionLocks||sanitized);
+  if(syncPending){ state.lastSync=Date.now(); state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2); }
   saveLocalSnapshot();
   applyingRemote=false;
   renderAll();
@@ -1354,7 +1357,7 @@ async function restoreJsonFile(file){
 }
 function remoteHasMoreData(remote){
   const localCount=entryCount(state), remoteCount=entryCount(remote);
-  return remote&&Array.isArray(remote.entries)&&remoteCount>=10&&(localCount===0||remoteCount>localCount*1.3);
+  return !syncPending&&remote&&Array.isArray(remote.entries)&&remoteCount>=10&&(localCount===0||remoteCount>localCount*1.3);
 }
 async function syncFromCloud(){
   if(!firestoreReady&&!syncUrl){ setSyncStatus('Sync local'); return; }
@@ -1367,7 +1370,7 @@ async function syncFromCloud(){
       return;
     }
     if(syncPending){
-      if(Number(state.lastSync||0)>=Number(remote?.lastSync||0)) scheduleCloudSave(100);
+      scheduleCloudSave(100);
       setSyncStatus('Sync pendente');
       return;
     }
@@ -1449,11 +1452,6 @@ async function saveCloudState(){
       const merged=mergeCloudIntoLocal(before);
       if(merged) setSyncStatus('Sync mesclando...');
     }
-    if(remoteHasMoreData(before)){
-      applyCloudState(before);
-      setSyncStatus(syncSavedLabel(Number(before.lastSync||Date.now())));
-      return;
-    }
     const sentAt=Number(state.lastSync||Date.now());
     const sentRevision=String(state.syncRevision||'');
     await postCloudState(statePayload());
@@ -1476,7 +1474,7 @@ async function saveCloudState(){
 }
 async function persistInlineValueEdit(){
   if(!syncReady) setupFirestoreSync();
-  const {sentAt,sentRevision}=persistLocalChange();
+  persistLocalChange();
   if(!firestoreReady&&!syncUrl){
     setSyncPending(true);
     setSyncStatus('SALVO LOCAL - SYNC PENDENTE');
@@ -1484,26 +1482,11 @@ async function persistInlineValueEdit(){
   }
   clearTimeout(syncTimer);
   setSyncStatus('SALVANDO...');
-  try{
-    await postCloudState(statePayload());
-    const remote=await confirmCloudSave(sentAt,sentRevision);
-    if(remote&&Array.isArray(remote.entries)&&String(remote.syncRevision||'')===sentRevision){
-      saveLocalSnapshot();
-      setSyncPending(false);
-      setSyncStatus('SALVO NA NUVEM');
-      return true;
-    }
-    setSyncPending(true);
-    setSyncStatus('ERRO AO SALVAR');
-    scheduleCloudSave(3000);
-    return true;
-  }catch(err){
-    console.warn('Falha ao salvar valor editado na nuvem.',err);
-    setSyncPending(true);
-    setSyncStatus('ERRO AO SALVAR');
-    scheduleCloudSave(5000);
-    return true;
-  }
+  // Usa a mesma fila do salvamento automático para não enviar estados fora de ordem.
+  while(syncSaving) await delay(100);
+  clearTimeout(syncTimer);
+  await saveCloudState();
+  return !syncPending;
 }
 async function persistCriticalChange(){
   return persistInlineValueEdit();
@@ -1511,7 +1494,7 @@ async function persistCriticalChange(){
 async function saveNowManual(){
   if(!syncReady) syncReady=true;
   setupFirestoreSync();
-  saveLocalSnapshot();
+  persistLocalChange();
   if(!firestoreReady&&!syncUrl){
     setSyncPending(true);
     setSyncStatus('SALVO LOCAL - SYNC PENDENTE');
@@ -1554,7 +1537,14 @@ function unpaidDebitMonths(e){ if(e.tipo!=='debito'||!e.statusMes)return 0; cons
 function monthOffset(e,month=state.currentMonth){return Math.max(0,month-Number(e.inicio||0));}
 function effectiveMonthOffset(e,month=state.currentMonth){return Math.max(0,monthOffset(e,month)-unpaidDebitMonthsBefore(e,month));}
 function visible(e){return state.currentMonth>=e.inicio && effectiveMonthOffset(e,state.currentMonth)<e.repeticoes && !(e.hiddenMes&&e.hiddenMes[String(state.currentMonth)])}
-function configuredValue(e,month=state.currentMonth){ if(!e)return ''; const modo=e.valorModo||'fixo', absKey=String(month); const off=monthOffset(e,month); if(e.cardValueOverrides&&Object.prototype.hasOwnProperty.call(e.cardValueOverrides,absKey)) return e.cardValueOverrides[absKey] || ''; if(e.valoresMes&&Object.prototype.hasOwnProperty.call(e.valoresMes,off)) return e.valoresMes[off] || ''; if(modo==='personalizado'){ const eff=effectiveMonthOffset(e,month); return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[eff]:'') || ''; } if(modo==='branco') return ''; return e.valor||''; }
+function configuredValue(e,month=state.currentMonth){ if(!e)return ''; const modo=e.valorModo||'fixo', absKey=String(month); const off=monthOffset(e,month); if(e.cardValueOverrides&&Object.prototype.hasOwnProperty.call(e.cardValueOverrides,absKey)) return e.cardValueOverrides[absKey] || ''; if(e.tipo==='debito'&&!isOverdueDebit(e)&&entryCardName(e)){
+  // Faturas antigas/projetadas não preenchem automaticamente a cobrança atual.
+  const explicitStatus=e.statusMes?.[absKey];
+  if(month>=currentMonthIndex()&&!isPaidDebitStatus(explicitStatus)&&!isUnpaidDebitStatus(explicitStatus))return '';
+  if(e.valoresMes&&Object.prototype.hasOwnProperty.call(e.valoresMes,off))return e.valoresMes[off] || '';
+  if(modo==='personalizado')return e.valoresParcelas?.[effectiveMonthOffset(e,month)] || '';
+  return modo==='branco'?'':e.valor||'';
+} if(e.valoresMes&&Object.prototype.hasOwnProperty.call(e.valoresMes,off)) return e.valoresMes[off] || ''; if(modo==='personalizado'){ const eff=effectiveMonthOffset(e,month); return (Array.isArray(e.valoresParcelas)?e.valoresParcelas[eff]:'') || ''; } if(modo==='branco') return ''; return e.valor||''; }
 function hasEnteredValue(e,month=state.currentMonth){ return String(configuredValue(e,month)||'').trim()!==''; }
 function canSettleEntry(e){ return e?.tipo==='debito' ? hasEnteredValue(e) : parseMoney(displayValue(e))>0; }
 function receiptHistory(e,month=state.currentMonth){ const rows=e&&e.recebimentosMes&&e.recebimentosMes[String(month)]; return Array.isArray(rows)?rows:[]; }
@@ -1567,9 +1557,9 @@ function revenueInputValue(e){ return receiptDraft(e)||displayValue(e); }
 function setReceiptDraft(e,formatted){ if(!e.recebimentoRascunhoMes)e.recebimentoRascunhoMes={}; const key=String(state.currentMonth); if(formatted)e.recebimentoRascunhoMes[key]=formatted; else delete e.recebimentoRascunhoMes[key]; }
 function addReceipt(e,amount){ if(!e.recebimentosMes)e.recebimentosMes={}; const key=String(state.currentMonth); if(!Array.isArray(e.recebimentosMes[key]))e.recebimentosMes[key]=[]; e.recebimentosMes[key].push({id:'receipt-'+Date.now()+'-'+Math.random().toString(36).slice(2),date:new Date().toISOString().slice(0,10),amount:Number(amount.toFixed(2)),bank:e.banco||'Nenhum',createdAt:new Date().toISOString()}); setReceiptDraft(e,''); const remaining=remainingAmount(e); setCurrentStatus(e,remaining>.005?'parcial':'recebido'); }
 function clearReceipts(e){ if(e.recebimentosMes)delete e.recebimentosMes[String(state.currentMonth)]; setReceiptDraft(e,''); setCurrentStatus(e,'receitaPendente'); }
-function setCardValueOverride(e,formatted,month=state.currentMonth){ if(!e||!e.cardName)return; if(!e.cardValueOverrides||typeof e.cardValueOverrides!=='object')e.cardValueOverrides={}; const key=String(month); if(formatted)e.cardValueOverrides[key]=formatted; else delete e.cardValueOverrides[key]; }
+function setCardValueOverride(e,formatted,month=state.currentMonth){ if(!e||!e.cardName)return; if(!e.cardValueOverrides||typeof e.cardValueOverrides!=='object')e.cardValueOverrides={}; const key=String(month); e.cardValueOverrides[key]=formatted; }
 function syncCardOverridesFromValoresMes(e){ if(!e||!e.cardName||!e.valoresMes)return; if(!e.cardValueOverrides||typeof e.cardValueOverrides!=='object')e.cardValueOverrides={}; const start=Number(e.inicio||0); Object.entries(e.valoresMes).forEach(([off,val])=>{ const month=start+Number(off); if(val)e.cardValueOverrides[String(month)]=val; }); }
-function setDisplayValue(e,formatted){ const modo=e.valorModo||'fixo'; const off=monthOffset(e); setCardValueOverride(e,formatted); if(modo==='personalizado'){ if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[]; e.valoresParcelas[off]=formatted; } else { if(!e.valoresMes) e.valoresMes={}; if(formatted)e.valoresMes[off]=formatted; else delete e.valoresMes[off]; } }
+function setDisplayValue(e,formatted){ const modo=e.valorModo||'fixo'; const off=monthOffset(e); setCardValueOverride(e,formatted); if(modo==='personalizado'){ if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[]; e.valoresParcelas[off]=formatted; } else { if(!e.valoresMes) e.valoresMes={}; e.valoresMes[off]=formatted; } }
 function hasFutureMonths(e){ return state.currentMonth>=Number(e.inicio||0) && state.currentMonth<Number(e.inicio||0)+Number(e.repeticoes||1)-1; }
 function futureEditChoice(e){
   const answer=prompt(`Aplicar ajuste de "${e.nome}" em quais meses?\n\n1 = somente este mes\n2 = este mes e proximos`, '2');
@@ -1581,6 +1571,7 @@ function futureEditChoice(e){
   return futureEditChoice(e);
 }
 function setValueFromCurrentForward(e,formatted){
+  if(entryCardName(e)&&!isOverdueDebit(e)){ setDisplayValue(e,formatted); return; }
   const start=Math.max(state.currentMonth,Number(e.inicio||0)), end=Number(e.inicio||0)+Number(e.repeticoes||1);
   if((e.valorModo||'fixo')==='personalizado'){
     if(!Array.isArray(e.valoresParcelas)) e.valoresParcelas=[];
@@ -2317,8 +2308,26 @@ function groupedCardTotals(card){
   return grouped;
 }
 function previewCardImport(){ updateCardImportState(); if(!$('#cardImportName').value){ $('#cardImportPreview').innerHTML='Selecione o cartão que receberá esta fatura antes de pré-visualizar.'; return; } const text=$('#cardImportText').value||'', rows=parseCardImport(), nextOfficial=nextInvoiceTotalRow($('#cardImportName').value,Number($('#cardImportMonth').value||state.currentMonth)), hasTotal=rows.some(x=>x.invoiceTotal&&Number(x.month)===Number($('#cardImportMonth').value||state.currentMonth)), current=rows.filter(r=>(r.invoiceTotal&&Number(r.month)===Number($('#cardImportMonth').value||state.currentMonth))||(!hasTotal&&!r.futureTotal)).reduce((s,r)=>s+r.value,0), futureOfficial=rows.find(r=>r.futureTotal)?.value||0, future=rows.filter(r=>!r.invoiceTotal&&!r.futureTotal&&r.installments>r.installment).reduce((s,r)=>s+r.value*(r.installments-r.installment),0), byCat={}, plans=parseCardPlans(text); rows.filter(r=>!r.invoiceTotal&&!r.futureTotal).forEach(r=>{byCat[r.category]=(byCat[r.category]||0)+r.value;}); const planHtml=plans.length?`<br><br><b>Opções de parcelamento da fatura</b><br>${plans.map(p=>`Entrada ${br(p.entrada)} + ${p.parcelas}x de ${br(p.valorParcela)} = ${br(p.total)} (${p.cet})`).join('<br>')}<br><small>Use como escape somente se a receita não fechar o mês; aumenta dívida futura.</small>`:''; $('#cardImportPreview').innerHTML=rows.length?`<b>${rows.filter(r=>!r.futureTotal).length} itens encontrados</b><br>Total da fatura atual: ${br(current)}${nextOfficial?`<br>Próximo mês oficial: ${br(nextOfficial.value)}`:''}<br>Parcelas futuras projetadas: ${br(futureOfficial||future)}<br><br><b>Por categoria</b><br>${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')||'Sem categorias reconhecidas'}${planHtml}<br><br>`+rows.filter(r=>!r.futureTotal).slice(0,14).map(r=>`${r.invoiceTotal?'Fatura':(r.date||'-')} • ${r.desc} • ${br(r.value)} • ${r.installment}/${r.installments} • ${r.category}`).join('<br>'):'Nenhum item reconhecido. Cole linhas com descrição e valor.'; }
-async function applyCardImport(){ if(!$('#cardImportName').value)return alert('Selecione o cartão para importar antes de atualizar o débito.'); const actual=parseCardImport(); if(!actual.length)return alert('Nenhum item reconhecido para importar.'); const card=$('#cardImportName').value, month=Number($('#cardImportMonth').value||state.currentMonth), hasTotal=actual.some(r=>r.invoiceTotal&&Number(r.month)===month); state.cardTransactions=state.cardTransactions.filter(t=>!(t.card===card&&(Number(t.month)===month||(t.projected&&Number(t.month)>=month)||(Number(t.month)===month+1&&t.invoiceTotal&&/pr[oó]xima/i.test(String(t.subCategory||t.desc||'')))))); actual.forEach(row=>{ const end=row.invoiceTotal?0:(row.installments-row.installment); for(let offset=0;offset<=end;offset++){ const tx={...row,month:row.invoiceTotal?Number(row.month):month+offset,installment:row.invoiceTotal?1:row.installment+offset,projected:row.invoiceTotal?false:offset>0,analyticsOnly:hasTotal&&!row.invoiceTotal&&offset===0,key:''}; if(row.invoiceTotal&&Number(row.month)===month)tx.desc='Total fechado da fatura '+card; tx.key=cardTxKey(tx)+(tx.analyticsOnly?'|analise':''); delete state.deletedEntries[deletedCardTransactionKey(tx)]; const idx=state.cardTransactions.findIndex(x=>x.key===tx.key); if(idx>=0)state.cardTransactions[idx]=tx; else state.cardTransactions.push(tx); } }); rebuildCardEntries(); const importedEntry=state.entries.find(e=>e.cardName===card); await persistCriticalChange(); renderAll(); resetCardImportForm(); setTab('debitos'); alert('Fatura importada. Débito do mês atualizado e parcelas futuras projetadas.'); focusEntry(importedEntry?.id,true); }
-function rebuildCardEntries(){ let changed=false; const cards=[...new Set(state.cardTransactions.map(t=>t.card))]; cards.forEach(card=>{ const grouped=groupedCardTotals(card); const months=Object.keys(grouped).map(Number); if(!months.length)return; const first=Math.min(...months); const name='Fatura '+card, alias=cardEntryAlias(card); let e=state.entries.find(x=>x.cardName===card)||state.entries.find(x=>String(x.nome||'').toUpperCase()===alias)||state.entries.find(x=>x.nome===name); if(!e){ e={id:state.nextId++,tipo:'debito',nome:alias,dia:cardDueDay(card),valor:'',valorModo:'branco',valoresMes:{},cardValueOverrides:{},status:'pendente',original:'pendente',inicio:first,repeticoes:999,categoria:'Cartão Crédito',forma:'Cartão',banco:cardBank(card),observacao:'Gerado pelo importador de cartões.',cardName:card,statusMes:{}}; state.entries.push(e); changed=true; } const overrides={...(e.cardValueOverrides||{})}; const before=JSON.stringify({inicio:e.inicio,repeticoes:e.repeticoes,valorModo:e.valorModo,categoria:e.categoria,forma:e.forma,banco:e.banco,dia:e.dia,cardName:e.cardName,valoresMes:e.valoresMes,cardValueOverrides:e.cardValueOverrides}); e.inicio=Math.min(Number(e.inicio??first),first); e.repeticoes=999; e.valorModo='branco'; e.categoria='Cartão Crédito'; e.forma='Cartão'; e.banco=cardBank(card); e.dia=e.dia||cardDueDay(card); e.cardName=card; e.cardValueOverrides=overrides; e.valoresMes={}; Object.entries(grouped).forEach(([m,total])=>{ const month=Number(m); e.valoresMes[Math.max(0,month-e.inicio)]=overrides[String(month)]||moneyInput(total,'debito'); }); if(before!==JSON.stringify({inicio:e.inicio,repeticoes:e.repeticoes,valorModo:e.valorModo,categoria:e.categoria,forma:e.forma,banco:e.banco,dia:e.dia,cardName:e.cardName,valoresMes:e.valoresMes,cardValueOverrides:e.cardValueOverrides}))changed=true; }); return changed; }
+async function applyCardImport(){ if(!$('#cardImportName').value)return alert('Selecione o cartão para importar antes de atualizar o débito.'); const actual=parseCardImport(); if(!actual.length)return alert('Nenhum item reconhecido para importar.'); const card=$('#cardImportName').value, month=Number($('#cardImportMonth').value||state.currentMonth), hasTotal=actual.some(r=>r.invoiceTotal&&Number(r.month)===month); state.cardTransactions=state.cardTransactions.filter(t=>!(t.card===card&&(Number(t.month)===month||(t.projected&&Number(t.month)>=month)||(Number(t.month)===month+1&&t.invoiceTotal&&/pr[oó]xima/i.test(String(t.subCategory||t.desc||'')))))); actual.forEach(row=>{ const end=row.invoiceTotal?0:(row.installments-row.installment); for(let offset=0;offset<=end;offset++){ const tx={...row,month:row.invoiceTotal?Number(row.month):month+offset,installment:row.invoiceTotal?1:row.installment+offset,projected:row.invoiceTotal?false:offset>0,analyticsOnly:hasTotal&&!row.invoiceTotal&&offset===0,key:''}; if(row.invoiceTotal&&Number(row.month)===month)tx.desc='Total fechado da fatura '+card; tx.key=cardTxKey(tx)+(tx.analyticsOnly?'|analise':''); delete state.deletedEntries[deletedCardTransactionKey(tx)]; const idx=state.cardTransactions.findIndex(x=>x.key===tx.key); if(idx>=0)state.cardTransactions[idx]=tx; else state.cardTransactions.push(tx); } }); rebuildCardEntries({card,month}); const importedEntry=state.entries.find(e=>e.cardName===card&&visible(e)&&!isOverdueDebit(e)); await persistCriticalChange(); renderAll(); resetCardImportForm(); setTab('debitos'); alert('Fatura importada. Débito do mês atualizado e parcelas futuras projetadas.'); focusEntry(importedEntry?.id,true); }
+function rebuildCardEntries(importTarget){
+  // Reabrir/sincronizar nunca recria lançamentos nem sobrescreve valores manuais.
+  if(!importTarget)return false;
+  const {card,month}=importTarget, grouped=groupedCardTotals(card);
+  if(!Object.prototype.hasOwnProperty.call(grouped,String(month)))return false;
+  const alias=cardEntryAlias(card);
+  let e=state.entries.find(x=>x.tipo==='debito'&&!isOverdueDebit(x)&&entryCardName(x)===card&&visibleAtMonth(x,month));
+  if(!e){
+    e={id:state.nextId++,tipo:'debito',nome:alias,dia:cardDueDay(card),valor:'',valorModo:'branco',valoresMes:{},cardValueOverrides:{},status:'pendente',original:'pendente',inicio:month,repeticoes:999,categoria:'Cartão Crédito',forma:'Cartão',banco:cardBank(card),observacao:'Gerado pelo importador de cartões.',cardName:card,statusMes:{}};
+    state.entries.push(e);
+  }
+  e.cardName=card;
+  e.valorModo='branco';
+  if(!e.valoresMes)e.valoresMes={};
+  const value=moneyInput(grouped[String(month)],'debito');
+  e.valoresMes[month-Number(e.inicio||0)]=value;
+  setCardValueOverride(e,value,month);
+  return true;
+}
 function renderCardImports(){ const table=$('#cardImportTable'); if(!table)return; const rows=state.cardTransactions.slice().sort((a,b)=>Number(a.month)-Number(b.month)||a.card.localeCompare(b.card)), summaryRows=dedupedCardTransactions(rows); table.innerHTML='<tr><td><b>Mês</b></td><td><b>Cartão</b></td><td><b>Descrição</b></td><td><b>Categoria</b></td><td><b>Valor</b></td></tr>'+rows.filter(t=>!t.futureTotal&&!isCardNoise(t)).slice(-100).map(t=>`<tr><td>${monthLabel(Number(t.month))}</td><td>${t.card}</td><td>${t.desc}${t.analyticsOnly?' <small>(cat.)</small>':(t.projected?' <small>(proj.)</small>':'')}</td><td>${t.category} / ${t.subCategory}</td><td>${br(t.value)}</td></tr>`).join(''); const byCard={}, byCat={}, byFuture={}; summaryRows.forEach(t=>{ byCard[t.card]=(byCard[t.card]||0)+t.value; if(isCardCategoryTx(t)&&!t.projected)byCat[t.category]=(byCat[t.category]||0)+t.value; if(isCardCategoryTx(t)&&t.projected)byFuture[monthLabel(Number(t.month))]=(byFuture[monthLabel(Number(t.month))]||0)+t.value; }); $('#cardImportSummary').innerHTML=rows.length?`<b>Por cartão</b><br>${Object.entries(byCard).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')}<br><br><b>Por categoria limpa</b><br>${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')||'Sem categorias reconhecidas'}<br><br><b>Próximos meses</b><br>${Object.entries(byFuture).map(([k,v])=>`${k}: ${br(v)}`).join('<br>')||'Sem parcelas futuras'}`:'Cole uma fatura para começar.'; }
 function syncFormType(){ const rec=$('#typeInput').value==='receita'; $('#incomeExtraFields').style.display=rec?'grid':'none'; $('#statusInput').innerHTML=rec?'<option value="receitaPendente">Receita pendente</option><option value="recebido">Recebido</option>':'<option value="pendente">Débito mensal</option><option value="fixo">Débito fixo</option>'; const valueLabel=$('#valueInput')?.previousElementSibling; if(valueLabel)valueLabel.textContent=rec?'Valor contratado':'Valor'; syncCategory(); $('#splitValueFields').style.display=(rec&&$('#originInput').value==='Marketing + Tráfego')?'grid':'none'; syncValueMode(); syncPixKey(); updateSplitTotal();}
 function formObj(){ const tipo=$('#typeInput').value; const m=parseMoney($('#marketingValueInput').value), tr=parseMoney($('#trafficValueInput').value), other=parseMoney($('#otherValueInput').value); let v=parseMoney($('#valueInput').value); if(tipo==='receita'&&$('#originInput').value==='Marketing + Tráfego') v=m+tr+other; const inicio=Number($('#startMonthInput').value||state.currentMonth); const modo=tipo==='debito'?$('#valueModeInput').value:'fixo'; const formatted=v?moneyInput(v,tipo):''; const repeticoes=$('#lifetimeInput').checked?999:Math.max(1,Number($('#repeatInput').value||1)); const valoresParcelas=tipo==='debito'?buildDebitParcelValues(modo,formatted,repeticoes):[]; const valoresMes={}; if(tipo==='debito'&&modo==='branco'&&formatted){ if(repeticoes>1&&repeticoes<999) valoresParcelas.forEach((val,i)=>{valoresMes[i]=val;}); else valoresMes[Math.max(0,state.currentMonth-inicio)]=formatted; } return {id:$('#editingId').value?Number($('#editingId').value):state.nextId++,tipo,nome:$('#descInput').value.trim()||'Novo lançamento',dia:String($('#dayInput').value||0).padStart(2,'0'),valor:modo==='fixo'?formatted:(tipo==='receita'?formatted:''),valorModo:modo,valoresParcelas:modo==='personalizado'?valoresParcelas:[],valoresMes,status:$('#statusInput').value,original:tipo==='receita'?'receitaPendente':$('#statusInput').value,inicio,repeticoes,categoria:$('#categoryInput').value,forma:$('#methodInput').value,banco:$('#bankInput').value,origem:tipo==='receita'?$('#originInput').value:'',pix:pixByBank[$('#bankInput').value]||'',valorMarketing:m?br(m):'',valorTrafego:tr?br(tr):'',valorOutros:other?br(other):'',observacao:$('#noteInput').value};}
@@ -2363,6 +2372,7 @@ function nextOrderForDay(entry,excludeId=null){
 }
 async function saveEntry(){
   const obj=formObj();
+  const enteredValue=String($('#valueInput').value||'').trim()?moneyInput(parseMoney($('#valueInput').value),obj.tipo):'';
   const idx=state.entries.findIndex(e=>e.id===obj.id);
   const original=obj.tipo==='receita'?'receitaPendente':(obj.status==='fixo'?'fixo':'pendente');
   obj.original=original;
@@ -2377,10 +2387,10 @@ async function saveEntry(){
     const editChoice=editingFuture?futureEditChoice(previous):'future';
     if(editChoice===null)return;
     if(editingFuture && editChoice==='current'){
-      if(obj.valor) setDisplayValue(previous,obj.valor);
+      if(obj.tipo==='debito'||enteredValue) setDisplayValue(previous,enteredValue);
       const selectedStatus=$('#statusInput').value;
       const formStatus=obj.tipo==='receita'?selectedStatus:(selectedStatus==='fixo'?'fixo':'pendente');
-      if(formStatus!==baseStatus(previous)) setCurrentStatus(previous,formStatus);
+      setCurrentStatus(previous,formStatus);
       const saved=await persistInlineValueEdit();
       if(!saved){ renderAll(); focusEntry(previous.id,true); return; }
       clearForm(); setTab(previous.tipo==='receita'?'receitas':'debitos'); renderAll(); focusEntry(previous.id,true);
@@ -2402,13 +2412,16 @@ async function saveEntry(){
     if(previous.cardName){
       obj.cardName=previous.cardName;
       obj.cardValueOverrides={...(previous.cardValueOverrides||{}),...(obj.cardValueOverrides||{})};
-      syncCardOverridesFromValoresMes(obj);
+      obj.valorModo='branco';
+      setCardValueOverride(obj,enteredValue);
     }
     obj.statusMes={...(previous.statusMes||{})};
     state.entries[idx]={...previous,...obj,original,status:original,statusMes:obj.statusMes};
   } else {
     obj.ordem=nextOrderForDay(obj);
     obj.statusMes={};
+    const card=entryCardName(obj);
+    if(card){ obj.cardName=card; obj.valorModo='branco'; setCardValueOverride(obj,enteredValue); }
     state.entries.push(obj);
   }
   const saved=await persistInlineValueEdit();
