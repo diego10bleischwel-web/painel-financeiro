@@ -847,7 +847,8 @@ const state={
   currentMonth:currentMonthIndex(),
   debitFilter:'todos',
   nextId:Number(savedState?.nextId||503),
-  entries:Array.isArray(savedState?.entries)?structuredClone(savedState.entries):structuredClone(INITIAL_ENTRIES),
+  // Um navegador novo aguarda a nuvem; exemplos antigos não são alterações locais.
+  entries:Array.isArray(savedState?.entries)?structuredClone(savedState.entries):[],
   deletedEntries:savedState?.deletedEntries&&typeof savedState.deletedEntries==='object'?structuredClone(savedState.deletedEntries):{},
   transfers:Array.isArray(savedState?.transfers)?structuredClone(savedState.transfers):[],
   thirdMovements:Array.isArray(savedState?.thirdMovements)?structuredClone(savedState.thirdMovements):[],
