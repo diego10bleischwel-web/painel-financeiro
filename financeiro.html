@@ -825,8 +825,13 @@ body .ledger-panel .entry-row .status-pill.pendente{background:#ffdc91!important
 body .ledger-panel .entry-row .value input.amount-pendente,body .ledger-panel .entry-row .value input.amount-receita{color:#ffdc91!important;border-color:#ad853f!important}
 body .ledger-panel .entry-row .status-pill.fixo{background:#c9a4ff!important;border:1px solid #ab7be9!important;color:#341956!important;text-shadow:none!important}
 body .ledger-panel .entry-row .value input.amount-fixo{color:#d0aaff!important;border-color:#9972ce!important}
+body .ledger-panel .entry-row .status-pill.receita,body .ledger-panel .entry-row .status-pill.parcial{background:#ffdc91!important;border:1px solid #edb74c!important;color:#5d3700!important;text-shadow:none!important}
+body .ledger-panel .entry-row .value input.amount-parcial{color:#ffdc91!important;border-color:#ad853f!important}
+body .ledger-panel .entry-row.income-recurring .status-pill:not(.recebido){background:#c9a4ff!important;border:1px solid #ab7be9!important;color:#341956!important;text-shadow:none!important}
+body .ledger-panel .entry-row.income-recurring .value input:not(.amount-recebido){color:#d0aaff!important;border-color:#9972ce!important}
 body .ledger-panel .entry-row.overdue-row .status-pill:not(.pago):not(.recebido){background:#a83246!important;border:1px solid #ed7182!important;color:#fff1f2!important;text-shadow:none!important}
 body .ledger-panel .entry-row.overdue-row .value input:not(.amount-pago):not(.amount-recebido){color:#ff8b9a!important;border-color:#c35467!important}
+body .ledger-panel .entry-row .value input.amount-recebido{color:#86efac!important;border-color:rgba(53,230,138,.46)!important}
 body .ledger-panel .entry-row .status-pill:disabled{opacity:1!important;filter:none!important;cursor:default}
 body .ledger-panel .entry-row .status-pill.pago,body .ledger-panel .entry-row .status-pill.recebido{background:rgba(22,54,38,.88)!important;border-color:rgba(53,230,138,.46)!important;color:#d8ffe8!important}
 .overview-compat[hidden]{display:none!important}
@@ -2360,7 +2365,7 @@ function row(e){
   const st=currentStatus(e),income=e.tipo==='receita',paid=income?st==='recebido':isPaidDebitStatus(st),overdue=isOverdueDebit(e)||isOverdueIncome(e),unpaid=isUnpaidDebitStatus(st),locked=valueIsLocked(e);
   const detail=isOverdueDebit(e)?overdueOriginLabel(e):isOverdueIncome(e)?incomeOverdueOriginLabel(e):(e.origem||e.categoria||'Sem categoria');
   const action=paid?'Desfazer':unpaid?'Retomar':income?'Receber':'Pagar';
-  return `<div class="entry-row ${overdue?'overdue-row':''}" data-id="${e.id}" draggable="false">
+  return `<div class="entry-row ${overdue?'overdue-row':''} ${income&&Number(e.repeticoes)>1?'income-recurring':''}" data-id="${e.id}" draggable="false">
     <div class="handle" title="Arraste para reordenar" aria-label="Arrastar lançamento">↕</div>
     <div class="name"><strong>${htmlText(e.nome)}</strong><small>${htmlText(detail)}</small><small class="entry-bank">${htmlText(e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado')}</small></div>
     <div class="day"><small>Dia</small>${htmlText(e.dia)}</div>
