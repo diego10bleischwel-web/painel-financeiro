@@ -115,7 +115,7 @@ button,a{font:inherit}
 }
 .module-grid{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:18px;
   perspective:1200px;
 }
@@ -2449,9 +2449,6 @@ table,th,td,.row,.line{border-color:rgba(183,148,246,.18)!important}
         <div class="kpis">
           <div class="kpi"><span>Financeiro</span><strong id="financeEntries">--</strong><small id="financeSync">Aguardando Firestore</small></div>
           <div class="kpi"><span>Cartões</span><strong id="financeCards">--</strong><small>Transações importadas</small></div>
-          <div class="kpi"><span>Tarefas</span><strong id="taskCards">--</strong><small id="taskSync">Aguardando Firestore</small></div>
-          <div class="kpi"><span>Formularios</span><strong id="briefingCount">--</strong><small id="briefingSync">Aguardando Firestore</small></div>
-          <div class="kpi"><span>Relatórios</span><strong id="reportCount">5</strong><small>Meta cadastrados</small></div>
           <div class="kpi"><span>Calculadora de LEADs</span><strong>Pronta</strong><small>Módulo disponível</small></div>
         </div>
       </section>
@@ -2461,9 +2458,6 @@ table,th,td,.row,.line{border-color:rgba(183,148,246,.18)!important}
         <div class="activity">
           <div class="activity-line"><b>Firebase</b><span id="activitySync">Aguardando dados</span></div>
           <div class="activity-line"><b>Financeiro</b><span id="activityFinance">Conectando</span></div>
-          <div class="activity-line"><b>Tarefas</b><span id="activityTasks">Conectando</span></div>
-          <div class="activity-line"><b>Formularios</b><span id="activityBriefings">Conectando</span></div>
-          <div class="activity-line"><b>Relatórios</b><span>5 clientes Meta</span></div>
         </div>
       </section>
     </div>
@@ -2567,12 +2561,8 @@ const firebaseConfig={
 };
 const modules=[
   {id:'financeiro',icon:'finance',title:'Financeiro',desc:'Lançamentos, cartões, bancos, terceiros e planejamento.',url:'financeiro.html',status:'Tempo real Firebase',metric:'Controle mensal'},
-  {id:'tarefas',icon:'control',title:'Tarefas',desc:'Quadro operacional, criativos, rotinas e calendário de clientes.',url:'controle-online/index.html',status:'Tempo real Firebase',metric:'Operação diária'},
   {id:'leads',icon:'calculator',title:'Calculadora de LEADs',desc:'Fórmula do lead qualificado e simulações comerciais.',url:'calculadora-lead/index.html',status:'Módulo comercial',metric:'Simulador'}
 ];
-modules.splice(2,0,{id:'briefings',icon:'briefing',title:'Formularios',desc:'Central de formularios, briefings e solicitacoes de configuracao para clientes.',url:'briefing_cliente_v4.html',status:'Traffic AI e configs',metric:'Solicitacoes'});
-modules.splice(3,0,{id:'relatorios',icon:'reports',title:'Relatórios',desc:'Dashboards de Meta e Google Ads por cliente, prontos para consulta e envio.',url:'',status:'Clientes e mídia',metric:'Meta / Google Ads'});
-modules.splice(4,0,{id:'promptSkill',icon:'prompt',title:'Prompt/Skill - Campanhas',desc:'Biblioteca viva para montar prompts profissionais e skills de Meta Ads.',url:'controle-online/index.html?view=promptSkill',status:'Estratégia Meta Ads',metric:'Prompt geral'});
 const $=s=>document.querySelector(s);
 let db=null,briefings=[],briefingsCollection=[],briefingsFallback=[],selectedBriefingId='',activeBriefingModalId='',activeBriefingTab='identificacao',activeBriefingEdit=false,activeReportKind='meta',activeReportId='',activeFormsTab='clienteNovo',formsStatusFilter='todos',formsSearchTerm='',onboardings=[],selectedOnboardingId='',activeOnboardingModalId='';
 const formsTabs=[
@@ -3002,7 +2992,8 @@ function deleteOnboardingById(id){
   db.collection('onboardings').doc(id).delete().catch(err=>alert('Nao foi possivel excluir o onboarding: '+err.message));
 }
 function openModule(id){
-  const mod=modules.find(m=>m.id===id)||modules[0];
+  const mod=modules.find(m=>m.id===id);
+  if(!mod)return;
   $('#workspaceTitle').textContent=mod.title;
   $('#openExternal').href=mod.url?versionedUrl(mod.url):'#';
   $('#workspace').classList.add('active');
@@ -4270,29 +4261,6 @@ function setupFirebaseSummary(){
     },err=>{
       console.warn(err);
       $('#syncStatus').textContent='Firebase indisponível';
-    });
-    db.collection('tarefas').doc('estado_principal').onSnapshot(snapshot=>{
-      if(!snapshot.exists)return;
-      const data=snapshot.data();
-      const payload=data.payload||data;
-      const when=syncTime(payload.lastSync||data.updatedAt);
-      $('#taskCards').textContent=Array.isArray(payload.cards)?payload.cards.length:'0';
-      $('#taskSync').textContent='Atualizado '+when;
-      $('#activityTasks').textContent='Atualizado '+when;
-      setFallbackBriefings(payload.briefingsInbox||data.briefingsInbox||[]);
-    });
-    db.collection('briefings').orderBy('timestamp','desc').onSnapshot(snapshot=>{
-      setCollectionBriefings(snapshot.docs.map(doc=>({id:doc.id,...doc.data()})));
-    },err=>{
-      console.warn(err);
-      $('#briefingSync').textContent='Fallback ativo';
-      $('#activityBriefings').textContent='Usando sync principal';
-    });
-    db.collection('onboardings').onSnapshot(snapshot=>{
-      setOnboardings(snapshot.docs.map(doc=>({id:doc.id,...doc.data()})));
-    },err=>{
-      console.warn(err);
-      setOnboardings([]);
     });
   }catch(err){
     console.warn(err);
