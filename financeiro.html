@@ -1027,12 +1027,17 @@ body .simple-summary .kpi-income-app strong{color:#f2cf77!important}
 @media(max-width:1100px) and (min-width:851px){body .simple-summary.has-overdue,body .simple-summary.income-summary{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:850px){body.mobile-view .simple-summary.has-overdue,body .simple-summary.has-overdue,body.mobile-view .simple-summary.income-summary,body .simple-summary.income-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:520px){body .simple-summary.has-overdue .kpi-overdue-pending{grid-column:1/-1}body .simple-summary.income-summary .kpi-income-clt{grid-column:auto}}
+/* One consolidated cash balance, stored independently for each month. */
+.monthly-cash-card{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:26px;padding:24px;margin-bottom:20px;border:1px solid var(--line);border-radius:20px;background:var(--card)}.monthly-cash-card h2{margin:8px 0;font-size:21px}.monthly-cash-card p{font-size:12px;color:var(--muted);line-height:1.55;margin:8px 0}.cash-eyebrow{font-size:10px;letter-spacing:1.2px;color:var(--blue-text);font-weight:800}.monthly-cash-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;align-items:end}.monthly-cash-form label{font-size:11px;font-weight:700;color:var(--muted);display:grid;gap:7px}.monthly-cash-form input,.monthly-cash-form select{width:100%;padding:12px;font-size:13px;min-height:44px}.monthly-cash-form .btn{justify-self:start;font-size:12px;grid-column:1/-1}.monthly-cash-result{border-left:1px solid var(--line);padding-left:24px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}.monthly-cash-result>small{font-size:11px;color:var(--muted)}.monthly-cash-result>strong{font-size:25px;margin-top:6px;letter-spacing:-.4px}.cash-equation{display:grid;grid-template-columns:1fr auto;gap:8px 18px;font-size:12px;width:100%;padding:14px 0;margin:6px 0 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.cash-equation span{color:var(--muted)}.cash-equation b{white-space:nowrap}.cash-reset{margin-top:10px;font-size:11px;padding:8px 10px;cursor:pointer}.cash-preview{min-height:19px}.cash-save-status{color:var(--blue-text)!important}.monthly-cash-history{grid-column:1/-1;border-top:1px solid var(--line);padding-top:15px;font-size:12px}.monthly-cash-history>summary{cursor:pointer;color:var(--muted)}.cash-history-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}.cash-history-row small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.cash-summary-strip{display:flex;gap:12px 20px;align-items:center;flex-wrap:wrap;margin:-4px 0 18px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:12px}.cash-summary-strip[hidden],.monthly-cash-history[hidden],.cash-reset[hidden]{display:none!important}.cash-summary-strip .btn{font-size:11px;margin-left:auto;padding:8px 12px}.cash-summary-strip span{color:var(--muted)}.cash-summary-strip b{color:var(--text)}.cash-summary-strip>strong{font-size:13px}.monthly-cash-result .cash-positive,.cash-summary-strip .cash-positive{color:var(--green-text)!important}.monthly-cash-result .cash-negative,.cash-summary-strip .cash-negative{color:var(--red-text)!important}
+@media(max-width:850px){.monthly-cash-card{grid-template-columns:1fr;padding:18px;gap:18px}.monthly-cash-result{border-left:0;padding-left:0;padding-top:18px;border-top:1px solid var(--line)}.monthly-cash-form{grid-template-columns:1fr}.monthly-cash-form .btn{justify-self:stretch}.cash-summary-strip .btn{margin-left:0}.cash-history-row{flex-wrap:wrap}.monthly-cash-form input{font-size:16px}}
+.cash-confirm-dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:20px;padding:24px;width:min(540px,calc(100% - 28px));max-height:calc(100vh - 40px);overflow:auto;box-shadow:0 24px 80px rgba(0,0,0,.45)}.cash-confirm-dialog::backdrop{background:rgba(0,0,0,.65)}.cash-confirm-dialog h3{margin:0 0 14px;font-size:20px}.cash-confirm-dialog pre{font-family:inherit;white-space:pre-wrap;font-size:13px;line-height:1.7;color:var(--text);margin:0}.cash-confirm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.cash-confirm-actions .btn{font-size:12px;padding:11px 16px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 </head>
 <body id="app">
+<dialog id="monthlyCashConfirmDialog" class="cash-confirm-dialog" aria-labelledby="monthlyCashConfirmTitle"><h3 id="monthlyCashConfirmTitle">Conferir saldo do mês</h3><pre id="monthlyCashConfirmText"></pre><div class="cash-confirm-actions"><button class="btn soft" id="monthlyCashCancel" type="button">Cancelar</button><button class="btn" id="monthlyCashApprove" type="button">Confirmar</button></div></dialog>
 <div class="app">
 <header class="simple-header"><div class="brand"><small>controle mensal</small><h1>Financeiro</h1></div><div class="topbar">
 <label class="pill month-picker">Mês <select id="monthSelect" aria-label="Mês dos lançamentos"></select></label>
@@ -1050,10 +1055,19 @@ body .simple-summary .kpi-income-app strong{color:#f2cf77!important}
 <button class="kpi kpi-income kpi-income-app" id="incomeOriginCard-app" type="button" data-summary-income data-show-income-origin="app" title="Falta receber do APP TINTIM. Recebimentos parciais seguem a composição cadastrada." hidden><span>APP TINTIM</span><strong id="incomeOriginPending-app">R$ 0,00</strong><small class="income-pending-label">Falta receber</small><small id="incomeOriginCount-app">0 em aberto</small><small class="income-received-label" id="incomeOriginPaid-app">Recebido: R$ 0,00</small></button>
 <button class="kpi kpi-income kpi-income-clt" id="incomeOriginCard-clt" type="button" data-summary-income data-show-income-origin="clt" title="Falta receber de CnSystem. Em receitas mistas, recebimentos parciais são distribuídos proporcionalmente aos valores cadastrados." hidden><span>Receita CLT</span><strong id="incomeOriginPending-clt">R$ 0,00</strong><small class="income-pending-label">Falta receber</small><small id="incomeOriginCount-clt">0 em aberto</small><small class="income-received-label" id="incomeOriginPaid-clt">Recebido: R$ 0,00</small></button>
 </section>
+<div class="cash-summary-strip" id="monthlyCashSummary" hidden><span>Saldo em conta: <b id="monthlyCashSummaryAmount"></b></span><strong id="monthlyCashSummaryResult"></strong><button type="button" class="btn soft" data-edit-monthly-cash>Conferir saldo</button></div>
 <div class="income-other-summary" id="incomeOtherSummary" data-has-values="0" hidden><button id="incomeOtherSummaryButton" type="button" data-show-income-origin="outros"></button><span>Parciais divididos conforme a composição de cada lançamento.</span></div>
 <nav class="tabs simple-tabs" aria-label="Áreas do financeiro"><button class="tab active" data-panel="debitos">Débitos</button><button class="tab" data-panel="receitas">Receitas</button><button class="tab" data-panel="cartoes">Cartões</button><button class="tab" data-panel="fixosCartao">Fixos no cartão</button><button class="tab" data-panel="terceiros">Terceiros</button><button class="tab" data-panel="dashboard">Visão geral</button></nav>
 <section id="debitos" class="panel active ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="debitMonthTitle">Débitos de Abril</h2><p>Dê dois cliques em Pagar para dar baixa. Em Mais, você pode adiar ou excluir.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="debitFilter" class="filter-select"><option value="todos">Todos</option><option value="abertos">A pagar</option><option value="semvalor">Sem valor</option><option value="cartoes">Cartões</option><option value="atrasados">Atrasados</option><option value="pendente">Débito mensal</option><option value="fixo">Débito fixo</option><option value="pago">Pago</option></select><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addDebitBtn">+ Adicionar débito</button></div></div><div class="ledger-toolbar"><input type="search" id="debitSearch" placeholder="Buscar débitos por nome ou banco" aria-label="Buscar débitos"><span class="list-count" id="debitListCount"></span></div><div class="month-list" id="debitList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo do mês</h2><p>Faturas importadas e total do mês.</p></div></div><div class="note" id="monthCardSummary">Importe uma fatura para ver o resumo dos cartões.</div></div><div class="card"><div class="card-head"><div><h2>Próxima ação</h2><p>O que falta conferir.</p></div></div><div class="suggestion">Confira os débitos mensais sem valor e selecione banco de saída antes de marcar como pago.</div></div></aside></div></section>
-<section id="receitas" class="panel ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="incomeMonthTitle">Receitas de Abril</h2><p>Edite o saldo pendente e clique em Receber para registrar uma baixa integral ou parcial.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addIncomeBtn">+ Adicionar receita</button></div></div><div class="ledger-toolbar"><input type="search" id="incomeSearch" placeholder="Buscar receitas por nome ou banco" aria-label="Buscar receitas"><select class="filter-select" id="incomeStatusFilter" aria-label="Filtrar receitas"><option value="todos">Todas</option><option value="pendentes">A receber</option><option value="recebidas">Recebidas</option></select><select class="filter-select" id="incomeOriginFilter" aria-label="Filtrar receitas por origem"><option value="">Todas as origens</option><option value="mkt">Marketing</option><option value="traf">Tráfego</option><option value="app">APP TINTIM</option><option value="clt">CLT / CnSystem</option><option value="outros">Outras receitas</option></select><span class="list-count" id="incomeListCount"></span></div><div class="month-list" id="incomeList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo de receitas</h2><p>Total recebido no mês.</p></div></div><div class="note"><strong>Pendente</strong> fica em aberto.<br><br><strong>Parcial</strong> mostra em roxo quanto ainda falta receber.<br><br><strong>Recebido</strong> entra no banco cadastrado e na receita disponível.</div></div><div class="card"><div class="card-head"><div><h2>Controle por banco</h2><p>Entradas recebidas.</p></div></div><div class="suggestion" id="bankSummary">Nenhum banco movimentado ainda.</div></div></aside></div></section>
+<section id="receitas" class="panel ledger-panel">
+<section class="monthly-cash-card" id="monthlyCashPanel" aria-labelledby="monthlyCashTitle">
+  <div class="monthly-cash-editor"><span class="cash-eyebrow">SEU DINHEIRO DISPONÍVEL</span><h2 id="monthlyCashTitle">Saldo em conta do mês</h2><p>Informe a soma de todos os seus bancos. Use apenas o dinheiro que é seu, descontando valores de terceiros.</p>
+    <div class="monthly-cash-form"><label>O que deseja fazer?<select id="monthlyCashMode"><option value="total">Definir saldo total em conta</option><option value="adjust">Somar / descontar um ajuste</option></select></label><label id="monthlyCashAmountLabel">Valor positivo ou negativo<input id="monthlyCashAmount" type="text" inputmode="text" placeholder="Ex.: 1.500,00 ou -200,00" autocomplete="off"></label><button class="btn" id="monthlyCashConfirm" type="button">Conferir e confirmar</button></div>
+    <p class="cash-preview" id="monthlyCashPreview" aria-live="polite">O saldo é independente em cada mês.</p><p class="cash-save-status" id="monthlyCashSaveStatus" role="status"></p>
+  </div>
+  <div class="monthly-cash-result"><small>Disponível agora</small><strong id="monthlyCashAvailable">Não informado</strong><p id="monthlyCashConfirmedAt">Informe o total disponível para este mês.</p><div class="cash-equation"><span>+ Receitas em aberto</span><b id="monthlyCashPendingIncome"></b><span>− Débitos em aberto</span><b id="monthlyCashPendingDebt"></b></div><small id="monthlyCashResultLabel">Resultado do mês</small><strong id="monthlyCashResult">—</strong><p id="monthlyCashResultNote">Inclui atrasados. Não é uma receita nova.</p><button class="cash-reset" id="monthlyCashReset" type="button" hidden>Voltar ao cálculo do sistema</button></div>
+  <details class="monthly-cash-history" id="monthlyCashHistory" hidden><summary>Histórico dos ajustes deste mês</summary><div id="monthlyCashHistoryList"></div></details>
+</section><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="incomeMonthTitle">Receitas de Abril</h2><p>Edite o saldo pendente e clique em Receber para registrar uma baixa integral ou parcial.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addIncomeBtn">+ Adicionar receita</button></div></div><div class="ledger-toolbar"><input type="search" id="incomeSearch" placeholder="Buscar receitas por nome ou banco" aria-label="Buscar receitas"><select class="filter-select" id="incomeStatusFilter" aria-label="Filtrar receitas"><option value="todos">Todas</option><option value="pendentes">A receber</option><option value="recebidas">Recebidas</option></select><select class="filter-select" id="incomeOriginFilter" aria-label="Filtrar receitas por origem"><option value="">Todas as origens</option><option value="mkt">Marketing</option><option value="traf">Tráfego</option><option value="app">APP TINTIM</option><option value="clt">CLT / CnSystem</option><option value="outros">Outras receitas</option></select><span class="list-count" id="incomeListCount"></span></div><div class="month-list" id="incomeList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo de receitas</h2><p>Total recebido no mês.</p></div></div><div class="note"><strong>Pendente</strong> fica em aberto.<br><br><strong>Parcial</strong> mostra em roxo quanto ainda falta receber.<br><br><strong>Recebido</strong> entra no banco cadastrado e na receita disponível.</div></div><div class="card"><div class="card-head"><div><h2>Controle por banco</h2><p>Entradas recebidas.</p></div></div><div class="suggestion" id="bankSummary">Nenhum banco movimentado ainda.</div></div></aside></div></section>
 <section id="lancar" class="panel">
   <div class="card entry-editor">
     <div class="card-head entry-editor-head">
@@ -1225,6 +1239,7 @@ const state={
   transfers:Array.isArray(savedState?.transfers)?structuredClone(savedState.transfers):[],
   thirdMovements:Array.isArray(savedState?.thirdMovements)?structuredClone(savedState.thirdMovements):[],
   deletedThirdPeople:savedState?.deletedThirdPeople&&typeof savedState.deletedThirdPeople==='object'?structuredClone(savedState.deletedThirdPeople):{},
+  monthlyCashBalances:savedState?.monthlyCashBalances&&typeof savedState.monthlyCashBalances==='object'&&!Array.isArray(savedState.monthlyCashBalances)?structuredClone(savedState.monthlyCashBalances):{},
   cardFixedExpenses:Array.isArray(savedState?.cardFixedExpenses)?structuredClone(savedState.cardFixedExpenses):[],
   deletedFixedExpenses:savedState?.deletedFixedExpenses&&typeof savedState.deletedFixedExpenses==='object'?structuredClone(savedState.deletedFixedExpenses):{},
   cardTransactions:Array.isArray(savedState?.cardTransactions)?structuredClone(savedState.cardTransactions):[],
@@ -1310,6 +1325,7 @@ function statePayload(){
     transfers:state.transfers,
     thirdMovements:state.thirdMovements,
     deletedThirdPeople:state.deletedThirdPeople,
+    monthlyCashBalances:state.monthlyCashBalances,
     cardFixedExpenses:state.cardFixedExpenses,
     deletedFixedExpenses:state.deletedFixedExpenses,
     cardTransactions:state.cardTransactions,
@@ -1625,8 +1641,9 @@ function mergeCloudIntoLocal(remote){
   const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
   const cardTx=mergeByKey(filterDeletedCardTransactions(state.cardTransactions,deletedEntries),filterDeletedCardTransactions(remote.cardTransactions,deletedEntries),t=>'cardtx:'+(t.key||cardTxKey(t)));
   const fixed=mergeFixedExpenseState(state,remote);
+  const cash=mergeMonthlyCashBalances(state.monthlyCashBalances,remote.monthlyCashBalances);
   const deletedChanged=JSON.stringify(deletedThirdPeople)!==JSON.stringify(state.deletedThirdPeople)||JSON.stringify(deletedEntries)!==JSON.stringify(state.deletedEntries);
-  const changed=fixed.changed||entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed||deletedChanged||entries.items.length!==state.entries.length||third.items.length!==state.thirdMovements.length;
+  const changed=cash.changed||fixed.changed||entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed||deletedChanged||entries.items.length!==state.entries.length||third.items.length!==state.thirdMovements.length;
   if(!changed)return false;
   applyingRemote=true;
   state.entries=entries.items;
@@ -1636,6 +1653,7 @@ function mergeCloudIntoLocal(remote){
   state.deletedThirdPeople=deletedThirdPeople;
   state.cards=cards.items.length?cards.items:state.cards;
   state.cardTransactions=cardTx.items;
+  state.monthlyCashBalances=cash.items;
   state.cardFixedExpenses=fixed.items;
   state.deletedFixedExpenses=fixed.deleted;
   state.nextId=Math.max(Number(state.nextId||503),Number(remote.nextId||503),...state.entries.map(e=>Number(e.id||0)+1));
@@ -1673,7 +1691,8 @@ function applyCloudState(data){
   const remoteCardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   const filteredCardTransactions=filterDeletedCardTransactions(remoteCardTransactions,deletedEntries);
   const fixed=mergeFixedExpenseState(state,data);
-  const deletionNeedsUpload=fixed.needsUpload||mergedEntries.changed||JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
+  const cash=mergeMonthlyCashBalances(state.monthlyCashBalances,data.monthlyCashBalances);
+  const deletionNeedsUpload=cash.needsUpload||fixed.needsUpload||mergedEntries.changed||JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
   applyingRemote=true;
   state.nextId=Math.max(Number(state.nextId||503),Number(data.nextId||503),...mergedEntries.items.map(e=>Number(e.id||0)+1));
   state.deletedEntries=deletedEntries;
@@ -1682,6 +1701,7 @@ function applyCloudState(data){
   state.deletedThirdPeople=deletedThirdPeople;
   state.thirdMovements=ensureThirdMovementIds(filteredThirdMovements);
   state.cardTransactions=filteredCardTransactions;
+  state.monthlyCashBalances=cash.items;
   state.cardFixedExpenses=fixed.items;
   state.deletedFixedExpenses=fixed.deleted;
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
@@ -1714,6 +1734,7 @@ function applyRecoveredState(data, uploadNow=false){
   }
   const fixed=mergeFixedExpenseState(state,data);
   applyingRemote=true;
+  state.monthlyCashBalances=mergeMonthlyCashBalances(state.monthlyCashBalances,data.monthlyCashBalances).items;
   state.cardFixedExpenses=fixed.items;
   state.deletedFixedExpenses=fixed.deleted;
   state.currentMonth=currentMonthIndex();
@@ -2616,6 +2637,14 @@ function calc(){
   c.limitePendenteConferencia=entries('debito',{filter:false,scope:false}).some(e=>e.banco!==SPOUSE_BANK&&!isPaidDebitStatus(currentStatus(e))&&!isUnpaidDebitStatus(currentStatus(e))&&!hasEnteredValue(e));
   c.limiteCartao=c.limitePendenteConferencia?0:Math.max(0,ownCents-moneyCents(c.debProprio))/100;
   c.saldoProjetado=(allCents+moneyCents(c.receitaPendente)-moneyCents(c.deb))/100;
+  const cash=monthlyCashView(state.currentMonth,balances);
+  c.cashBalanceConfirmed=cash.confirmed;c.cashAvailable=cash.availableCents/100;
+  c.cashPendingReceipts=cash.pendingReceiptsCents/100;c.cashPendingDebits=cash.pendingDebitsCents/100;c.cashMissingValues=cash.missing;
+  if(cash.confirmed){
+    c.receitaDisp=cash.availableCents/100;c.saldoProjetado=cash.projectedCents/100;
+    c.limitePendenteConferencia=cash.missing>0;
+    c.limiteCartao=cash.missing?0:Math.max(0,cash.availableCents-cash.pendingDebitsCents)/100;
+  }
   c.totalDeb=moneySum([c.deb,c.pago]);c.fix=c.fixPendentes;
   return c;
 }
@@ -2777,6 +2806,128 @@ function incomeOriginRowNote(e){
   return `<small class="income-origin-note">${htmlText(INCOME_ORIGIN_LABELS[key])}: falta ${br(breakdown.pending[key]/100)}</small>`;
 }
 
+function validMonthlyCashRecord(record){
+  return !!record&&Number.isSafeInteger(record.balanceCents)&&Number.isSafeInteger(record.ledgerBaseCents)&&Number.isFinite(Number(record.updatedAt));
+}
+function mergeMonthlyCashBalances(local={},remote={}){
+  if(!local||typeof local!=='object'||Array.isArray(local))local={};
+  if(!remote||typeof remote!=='object'||Array.isArray(remote))remote={};
+  const items={};
+  for(const key of new Set([...Object.keys(local||{}),...Object.keys(remote||{})])){
+    if(!/^\d+$/.test(key))continue;
+    const a=validMonthlyCashRecord(local?.[key])?local[key]:null,b=validMonthlyCashRecord(remote?.[key])?remote[key]:null;
+    if(!a&&!b)continue;
+    const winner=!a?b:!b?a:Number(b.updatedAt)>Number(a.updatedAt)?b:Number(b.updatedAt)<Number(a.updatedAt)?a:String(b.revision||'')>String(a.revision||'')?b:a;
+    const history=new Map();
+    for(const event of [...(Array.isArray(a?.history)?a.history:[]),...(Array.isArray(b?.history)?b.history:[])])if(event?.id)history.set(String(event.id),event);
+    items[key]={...structuredClone(winner),history:[...history.values()].sort((x,y)=>Number(x.at||0)-Number(y.at||0)||String(x.id).localeCompare(String(y.id)))};
+  }
+  return {items,changed:JSON.stringify(items)!==JSON.stringify(local||{}),needsUpload:JSON.stringify(items)!==JSON.stringify(remote||{})};
+}
+function consolidatedLedgerCents(balances=bankBalances()){
+  return Object.values(balances).reduce((sum,bank)=>sum+Math.round(Number(bank.saldoProprio||0)*100),0);
+}
+function monthlyCashBudget(){
+  const incomes=entries('receita',{filter:false,scope:false}),debts=entries('debito',{filter:false,scope:false}).filter(e=>!isPaidDebitStatus(currentStatus(e))&&!isUnpaidDebitStatus(currentStatus(e)));
+  return {pendingReceiptsCents:incomes.reduce((sum,e)=>sum+moneyCents(remainingAmount(e)),0),pendingDebitsCents:debts.reduce((sum,e)=>sum+moneyCents(configuredValue(e)),0),missing:debts.filter(e=>!hasEnteredValue(e)).length};
+}
+function monthlyCashView(month=state.currentMonth,balances=bankBalances()){
+  const record=state.monthlyCashBalances?.[String(month)],confirmed=validMonthlyCashRecord(record)&&record.disabled!==true,ledgerCents=consolidatedLedgerCents(balances),budget=monthlyCashBudget();
+  const availableCents=confirmed?record.balanceCents+ledgerCents-record.ledgerBaseCents:ledgerCents;
+  return {record,confirmed,ledgerCents,availableCents,...budget,projectedCents:availableCents+budget.pendingReceiptsCents-budget.pendingDebitsCents};
+}
+function monthlyCashInputCents(raw){
+  const text=String(raw??'').replace(/R\$/gi,'').replace(/\s/g,'').replace(/\u2212/g,'-');
+  if(!/^[+-]?(?:\d+(?:[.,]\d{1,2})?|\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?)$/.test(text))throw new Error('Informe um valor válido, como 1.500,00, +100,00 ou -200,00.');
+  const cents=Math.round(parseSignedMoney(text)*100);
+  if(!Number.isSafeInteger(cents))throw new Error('O valor informado é muito grande.');
+  return cents===0?0:cents;
+}
+function monthlyCashProposal(enteredCents,mode='total'){
+  if(!Number.isSafeInteger(enteredCents)||!['total','adjust'].includes(mode))throw new Error('Confira o valor e o tipo de ajuste.');
+  const view=monthlyCashView();
+  if(mode==='adjust'&&!view.confirmed)throw new Error('Primeiro defina o saldo total em conta deste mês. Depois você poderá somar ou descontar ajustes.');
+  const balanceCents=mode==='adjust'?view.availableCents+enteredCents:enteredCents;
+  if(!Number.isSafeInteger(balanceCents))throw new Error('O saldo resultante é muito grande.');
+  return {...view,balanceCents,resultCents:balanceCents+view.pendingReceiptsCents-view.pendingDebitsCents};
+}
+function applyMonthlyCashValue(enteredCents,mode='total'){
+  const proposal=monthlyCashProposal(enteredCents,mode),key=String(state.currentMonth),previous=state.monthlyCashBalances?.[key];
+  const at=Math.max(Date.now(),Number(previous?.updatedAt||0)+1),id='cash-'+at+'-'+Math.random().toString(36).slice(2);
+  const event={id,at,type:mode,enteredCents,balanceCents:proposal.balanceCents};
+  state.monthlyCashBalances[key]={balanceCents:proposal.balanceCents,ledgerBaseCents:proposal.ledgerCents,confirmedAt:at,updatedAt:at,revision:id,disabled:false,history:[...(Array.isArray(previous?.history)?previous.history:[]),event]};
+  return monthlyCashView();
+}
+function disableMonthlyCashValue(){
+  const view=monthlyCashView();if(!view.confirmed)return false;
+  const key=String(state.currentMonth),previous=view.record,at=Math.max(Date.now(),Number(previous.updatedAt||0)+1),id='cash-'+at+'-'+Math.random().toString(36).slice(2);
+  state.monthlyCashBalances[key]={...previous,disabled:true,updatedAt:at,revision:id,history:[...(previous.history||[]),{id,at,type:'reset',enteredCents:0,balanceCents:view.ledgerCents}]};
+  return true;
+}
+let monthlyCashSaving=false,renderedMonthlyCashMonth=null,monthlyCashConfirmResolver=null;
+function askMonthlyCashConfirmation(message,title='Conferir saldo do mês'){
+  if(monthlyCashConfirmResolver)return Promise.resolve(false);
+  const dialog=$('#monthlyCashConfirmDialog');
+  if(!dialog?.showModal)return Promise.resolve(confirm(message));
+  $('#monthlyCashConfirmTitle').textContent=title;$('#monthlyCashConfirmText').textContent=message;
+  return new Promise(resolve=>{monthlyCashConfirmResolver=resolve;dialog.showModal();});
+}
+function finishMonthlyCashConfirmation(confirmed){
+  const resolve=monthlyCashConfirmResolver;monthlyCashConfirmResolver=null;
+  $('#monthlyCashConfirmDialog').close();if(resolve)resolve(confirmed);
+}
+function cashResultText(cents){return (cents<0?'Falta para fechar o mês: ':'Sobra prevista: ')+br(Math.abs(cents)/100);}
+function renderMonthlyCashPreview(){
+  const input=$('#monthlyCashAmount'),preview=$('#monthlyCashPreview');if(!input||!preview)return;
+  if(!String(input.value||'').trim()){preview.textContent='Definir total substitui o saldo. Somar / descontar aplica apenas a diferença informada.';return;}
+  try{
+    const p=monthlyCashProposal(monthlyCashInputCents(input.value),$('#monthlyCashMode').value);
+    preview.textContent='Se confirmar, disponível: '+br(p.balanceCents/100)+' · '+cashResultText(p.resultCents);
+  }catch(error){preview.textContent=error.message;}
+}
+function renderMonthlyCashBalance(c){
+  const panel=$('#monthlyCashPanel');if(!panel)return;
+  const view=monthlyCashView(),month=String(state.currentMonth);
+  if(renderedMonthlyCashMonth!==month){$('#monthlyCashAmount').value='';$('#monthlyCashMode').value='total';$('#monthlyCashSaveStatus').textContent='';renderedMonthlyCashMonth=month;}
+  $('#monthlyCashTitle').textContent='Saldo em conta · '+monthLabel(state.currentMonth);
+  $('#monthlyCashAvailable').textContent=view.confirmed?br(view.availableCents/100):'Não informado';
+  $('#monthlyCashAvailable').className=view.availableCents<0?'cash-negative':'cash-positive';
+  $('#monthlyCashConfirmedAt').textContent=view.confirmed?'Conferido em '+new Date(view.record.confirmedAt||view.record.updatedAt).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' por '+br(view.record.balanceCents/100)+'. As baixas seguintes atualizam o saldo.':'Informe o total que você tem disponível neste mês.';
+  $('#monthlyCashPendingIncome').textContent=br(view.pendingReceiptsCents/100);$('#monthlyCashPendingDebt').textContent=br(view.pendingDebitsCents/100);
+  $('#monthlyCashResultLabel').textContent=view.confirmed?(view.projectedCents<0?'Falta para fechar o mês':'Sobra prevista'):'Informe o saldo para conferir o resultado';
+  $('#monthlyCashResult').textContent=view.confirmed?br(Math.abs(view.projectedCents)/100):'—';
+  $('#monthlyCashResult').className=view.projectedCents<0?'cash-negative':'cash-positive';
+  $('#monthlyCashResultNote').textContent='Inclui todas as pendências do mês e os atrasados.'+(view.missing?' Há '+view.missing+' débito(s) sem valor para conferir.':'');
+  $('#monthlyCashReset').hidden=!view.confirmed;$('#monthlyCashConfirm').disabled=monthlyCashSaving;$('#monthlyCashReset').disabled=monthlyCashSaving;
+  const history=Array.isArray(view.record?.history)?view.record.history:[];$('#monthlyCashHistory').hidden=!history.length;
+  $('#monthlyCashHistoryList').innerHTML=history.slice(-8).reverse().map(event=>`<div class="cash-history-row"><span>${event.type==='reset'?'Voltou ao cálculo do sistema':event.type==='adjust'?'Ajuste de '+br(event.enteredCents/100):'Saldo definido'}<small>${htmlText(new Date(event.at).toLocaleString('pt-BR'))}</small></span><strong>${event.type==='reset'?'Histórico do sistema':br(event.balanceCents/100)}</strong></div>`).join('');
+  $('#monthlyCashSummary').hidden=!view.confirmed;$('#monthlyCashSummaryAmount').textContent=br(view.availableCents/100);$('#monthlyCashSummaryResult').textContent=cashResultText(view.projectedCents);$('#monthlyCashSummaryResult').className=view.projectedCents<0?'cash-negative':'cash-positive';
+  renderMonthlyCashPreview();
+}
+async function confirmMonthlyCashBalance(){
+  if(monthlyCashSaving)return;
+  let entered,mode,proposal;
+  try{entered=monthlyCashInputCents($('#monthlyCashAmount').value);mode=$('#monthlyCashMode').value;proposal=monthlyCashProposal(entered,mode);}catch(error){alert(error.message);return;}
+  const action=mode==='adjust'?'Aplicar ajuste de '+br(entered/100):'Definir o saldo total em '+br(entered/100);
+  if(!await askMonthlyCashConfirmation(action+' em '+monthLabel(state.currentMonth)+'?\n\nDisponível após confirmar: '+br(proposal.balanceCents/100)+'\nA receber: '+br(proposal.pendingReceiptsCents/100)+'\nA pagar: '+br(proposal.pendingDebitsCents/100)+'\n'+cashResultText(proposal.resultCents)+'\n\nO valor é consolidado entre seus bancos e não será contado como receita nova.'))return;
+  monthlyCashSaving=true;$('#monthlyCashConfirm').disabled=true;
+  try{
+    applyMonthlyCashValue(entered,mode);$('#monthlyCashAmount').value='';$('#monthlyCashSaveStatus').textContent='Salvando o saldo…';
+    const saved=await persistCriticalChange();renderAll();
+    $('#monthlyCashSaveStatus').textContent=saved&&!syncPending?'Saldo confirmado e salvo na nuvem.':'Saldo salvo neste navegador. Sincronização com a nuvem pendente.';
+  }catch(error){$('#monthlyCashSaveStatus').textContent='Não foi possível confirmar o salvamento. Confira a sincronização.';console.warn(error);}
+  finally{monthlyCashSaving=false;$('#monthlyCashConfirm').disabled=false;$('#monthlyCashReset').disabled=false;}
+}
+async function resetMonthlyCashBalance(){
+  if(monthlyCashSaving||!monthlyCashView().confirmed)return;
+  if(!await askMonthlyCashConfirmation('Voltar ao cálculo automático do sistema em '+monthLabel(state.currentMonth)+'?\n\nSeus lançamentos e o histórico de ajustes serão preservados.','Voltar ao cálculo do sistema'))return;
+  monthlyCashSaving=true;$('#monthlyCashReset').disabled=true;$('#monthlyCashConfirm').disabled=true;
+  try{
+    disableMonthlyCashValue();const saved=await persistCriticalChange();renderAll();
+    $('#monthlyCashSaveStatus').textContent=saved&&!syncPending?'Cálculo do sistema restaurado e salvo na nuvem.':'Alteração salva neste navegador. Sincronização pendente.';
+  }finally{monthlyCashSaving=false;$('#monthlyCashReset').disabled=false;$('#monthlyCashConfirm').disabled=false;}
+}
+
 function pendingOverdueDebits(){
   return entries('debito',{filter:false,scope:false}).filter(e=>isOverdueDebit(e)&&!isPaidDebitStatus(currentStatus(e))&&!isUnpaidDebitStatus(currentStatus(e)));
 }
@@ -2791,7 +2942,7 @@ function renderPendingDebitSummary(c){
   $('#headerFixedPendingCount').textContent=c.fixPendentes+' lançamento(s) em aberto';
   $('#headerMonthlyPendingCount').textContent=(c.debPendentes-c.fixPendentes)+' em aberto · inclui faturas';
 }
-function updateTotals(){ const c=calc(), b=bankBalances(), saldoBanco=Object.values(b).reduce((s,x)=>s+x.saldo,0), terceirosReservados=Object.values(b).reduce((s,x)=>s+x.reservadoTerceiros,0), saldoProprio=saldoBanco-terceirosReservados; renderPendingDebitSummary(c); renderIncomeSummary(); $('#incomeInput').value=br(c.receitaPendente); $('#totalReceita').textContent=br(c.receitaPendente); $('#qtdReceitasLancadas').textContent=c.receitasPendentes; $('#totalDebitos').textContent=brDeb(c.deb); $('#qtdDebitosLancados').textContent=c.debPendentes; $('#saldoProjetado').textContent=br(c.sobraLara); if($('#laraResumo'))$('#laraResumo').textContent='Saldo disponível no NuBank, descontados terceiros'; $('#qtdFixos').textContent=br(c.limiteCartao); $('#totalFixos').textContent=c.limitePendenteConferencia?'Confira os débitos próprios sem valor':'Saldo próprio disponível − débitos próprios pendentes'; $('#mensaisSemValor').textContent=brDeb(c.totalMensalPendente); $('#totalMensaisValor').textContent=c.mensaisPendentes+' débitos mensais pendentes'; $('#planSaldo').textContent=br(c.saldoProjetado); $('#planFixos').textContent=c.fix; $('#planPendentes').textContent=c.semValor; $('#dashReceita').textContent=br(c.receitaPendente); $('#dashDebitos').textContent=brDeb(c.deb); $('#dashSaldo').textContent=br(c.saldoProjetado); $('#dashEmpresa').textContent=br(c.emp); $('#dashMarketing').textContent=br(c.mkt); $('#dashTrafego').textContent=br(c.traf); $('#dashSaldoBanco').textContent=br(saldoProprio); $('#biggestWeight').textContent=c.totalFix>=c.totalMensal?'Maior peso em débitos fixos':'Maior peso em débitos mensais'; const pct=v=>c.receitaPrev?Math.round(v/c.receitaPrev*100):0; $('#pctEmpresa').textContent=pct(c.emp)+'%'; $('#pctMarketing').textContent=pct(c.mkt)+'%'; $('#pctTrafego').textContent=pct(c.traf)+'%'; $('#barEmpresa').style.width=pct(c.emp)+'%'; $('#barMarketing').style.width=pct(c.mkt)+'%'; $('#barTrafego').style.width=pct(c.traf)+'%'; $('#healthBadge').textContent=saldoProprio<0||c.saldoProjetado<0?'Atenção':'Saudável'; const planClass=c.saldoProjetado<0||saldoProprio<0?'danger':(c.semValor>0||c.sobraLara>0||terceirosReservados>0?'warn':'ok'); const planMsg=c.saldoProjetado<0?`Atencao: no mes selecionado, faltam ${br(Math.abs(c.saldoProjetado))} considerando saldo próprio, receitas pendentes e débitos pendentes do mês. Para nao fechar negativo, novos gastos variaveis/cartoes devem ficar em ate ${br(c.limiteCartao)}.`:(c.sobraLara>0?`⚠ Com o que foi lançado no NuBank, a sobra estimada da Lara é ${br(c.sobraLara)}. Lance os pagamentos que ela fez como débitos pagos no NuBank para esse número ficar real.`:(c.semValor>0?'⚠ Existem lançamentos sem valor. Preencha para ter uma projeção real.':'✓ Mês projetado com equilíbrio. Use o limite de cartão seguro antes de gastar mais.')); $('#planningText').className='planning-smart '+planClass; $('#planningText').innerHTML=planMsg; renderDailyFocus(c); renderCarryoverAlert(); updateCleanDashboard(c,b,saldoProprio,terceirosReservados); renderMonthCardSummary(); renderBanks(b); renderThird();}
+function updateTotals(){ const c=calc(), b=bankBalances(), saldoBanco=Object.values(b).reduce((s,x)=>s+x.saldo,0), terceirosReservados=Object.values(b).reduce((s,x)=>s+x.reservadoTerceiros,0), saldoProprio=c.cashBalanceConfirmed?c.cashAvailable:saldoBanco-terceirosReservados; renderMonthlyCashBalance(c); renderPendingDebitSummary(c); renderIncomeSummary(); $('#incomeInput').value=br(c.receitaPendente); $('#totalReceita').textContent=br(c.receitaPendente); $('#qtdReceitasLancadas').textContent=c.receitasPendentes; $('#totalDebitos').textContent=brDeb(c.deb); $('#qtdDebitosLancados').textContent=c.debPendentes; $('#saldoProjetado').textContent=br(c.sobraLara); if($('#laraResumo'))$('#laraResumo').textContent='Saldo disponível no NuBank, descontados terceiros'; $('#qtdFixos').textContent=br(c.limiteCartao); $('#totalFixos').textContent=c.limitePendenteConferencia?'Confira os débitos próprios sem valor':'Saldo próprio disponível − débitos próprios pendentes'; $('#mensaisSemValor').textContent=brDeb(c.totalMensalPendente); $('#totalMensaisValor').textContent=c.mensaisPendentes+' débitos mensais pendentes'; $('#planSaldo').textContent=br(c.saldoProjetado); $('#planFixos').textContent=c.fix; $('#planPendentes').textContent=c.semValor; $('#dashReceita').textContent=br(c.receitaPendente); $('#dashDebitos').textContent=brDeb(c.deb); $('#dashSaldo').textContent=br(c.saldoProjetado); $('#dashEmpresa').textContent=br(c.emp); $('#dashMarketing').textContent=br(c.mkt); $('#dashTrafego').textContent=br(c.traf); $('#dashSaldoBanco').textContent=br(saldoProprio); $('#biggestWeight').textContent=c.totalFix>=c.totalMensal?'Maior peso em débitos fixos':'Maior peso em débitos mensais'; const pct=v=>c.receitaPrev?Math.round(v/c.receitaPrev*100):0; $('#pctEmpresa').textContent=pct(c.emp)+'%'; $('#pctMarketing').textContent=pct(c.mkt)+'%'; $('#pctTrafego').textContent=pct(c.traf)+'%'; $('#barEmpresa').style.width=pct(c.emp)+'%'; $('#barMarketing').style.width=pct(c.mkt)+'%'; $('#barTrafego').style.width=pct(c.traf)+'%'; $('#healthBadge').textContent=saldoProprio<0||c.saldoProjetado<0?'Atenção':'Saudável'; const planClass=c.saldoProjetado<0||saldoProprio<0?'danger':(c.semValor>0||c.sobraLara>0||terceirosReservados>0?'warn':'ok'); const planMsg=c.saldoProjetado<0?`Atencao: no mes selecionado, faltam ${br(Math.abs(c.saldoProjetado))} considerando saldo próprio, receitas pendentes e débitos pendentes do mês. Para nao fechar negativo, novos gastos variaveis/cartoes devem ficar em ate ${br(c.limiteCartao)}.`:(c.sobraLara>0?`⚠ Com o que foi lançado no NuBank, a sobra estimada da Lara é ${br(c.sobraLara)}. Lance os pagamentos que ela fez como débitos pagos no NuBank para esse número ficar real.`:(c.semValor>0?'⚠ Existem lançamentos sem valor. Preencha para ter uma projeção real.':'✓ Mês projetado com equilíbrio. Use o limite de cartão seguro antes de gastar mais.')); $('#planningText').className='planning-smart '+planClass; $('#planningText').innerHTML=planMsg; renderDailyFocus(c); renderCarryoverAlert(); updateCleanDashboard(c,b,saldoProprio,terceirosReservados); renderMonthCardSummary(); renderBanks(b); renderThird();}
 
 function renderOverviewCharts(c,balances){
   const target=id=>$('#'+id), safe=n=>Number.isFinite(Number(n))?Math.max(0,Number(n)):0;
@@ -2825,7 +2976,7 @@ function renderOverviewCharts(c,balances){
   if(rows.length>6){const rest=rows.slice(5).reduce((sum,row)=>sum+row[1],0);rows=rows.slice(0,5).concat([['Demais categorias',rest]]);}
   const categoryMax=Math.max(0,...rows.map(row=>row[1]));
   target('overviewCategoryChart').innerHTML=categoryMax?`<div class="chart-bars">${rows.map(([name,value])=>`<div><div class="chart-horizontal-label"><span>${htmlText(name)}</span><strong>${br(value)}</strong></div><div class="chart-horizontal-track" aria-hidden="true"><div class="chart-horizontal-fill" style="width:${value/categoryMax*100}%"></div></div></div>`).join('')}</div>${missing?`<p class="chart-note">${missing} lançamento(s) sem valor não entram neste gráfico.</p>`:''}`:empty('Preencha os valores dos débitos para visualizar as categorias.');
-  const banks=Object.entries(balances).filter(([,v])=>v.entrada||v.saida||v.saldo||v.reservadoTerceiros).map(([name,v])=>[name,Number(v.saldoProprio)||0]).sort((a,b)=>b[1]-a[1]);
+  const banks=c.cashBalanceConfirmed?[['Saldo consolidado do mês',c.cashAvailable]]:Object.entries(balances).filter(([,v])=>v.entrada||v.saida||v.saldo||v.reservadoTerceiros).map(([name,v])=>[name,Number(v.saldoProprio)||0]).sort((a,b)=>b[1]-a[1]);
   const bankMax=Math.max(1,...banks.map(row=>Math.abs(row[1])));
   target('overviewBankChart').innerHTML=banks.length?`<div class="chart-bars">${banks.map(([name,value])=>`<div><div class="chart-horizontal-label"><span>${htmlText(name)}</span><strong>${br(value)}</strong></div><div class="chart-bank-track" aria-hidden="true"><div class="chart-bank-fill ${value<0?'negative':''}" style="${value<0?'right':'left'}:50%;width:${Math.abs(value)/bankMax*50}%"></div></div></div>`).join('')}</div><div class="chart-legend"><span><i class="chart-dot" style="background:#d86278"></i>Saldo negativo</span><span><i class="chart-dot" style="background:#66c9a9"></i>Saldo positivo</span></div>`:empty('Os saldos aparecem conforme você registra recebimentos e pagamentos.');
 }
@@ -3669,6 +3820,14 @@ async function runSimpleEntryAction(id,action){
   }finally{entryActionsInFlight.delete(Number(id));}
 }
 function enableSimpleFinanceControls(){
+  $('#monthlyCashApprove').onclick=()=>finishMonthlyCashConfirmation(true);
+  $('#monthlyCashCancel').onclick=()=>finishMonthlyCashConfirmation(false);
+  $('#monthlyCashConfirmDialog').addEventListener('cancel',e=>{e.preventDefault();finishMonthlyCashConfirmation(false);});
+  $('#monthlyCashConfirm').onclick=confirmMonthlyCashBalance;
+  $('#monthlyCashReset').onclick=resetMonthlyCashBalance;
+  $('#monthlyCashAmount').addEventListener('input',renderMonthlyCashPreview);
+  $('#monthlyCashMode').addEventListener('change',renderMonthlyCashPreview);
+  $('#monthlyCashAmount').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();confirmMonthlyCashBalance();}});
   $('#addThirdBtn').onclick=()=>{resetThirdEditor(false);$('#thirdEditor').open=true;$('#thirdEditor').scrollIntoView({block:'nearest',behavior:'smooth'});$('#thirdPerson').focus();};
   $('#cancelThirdBtn').onclick=()=>{resetThirdEditor(false);renderThird(true);};
   $('#thirdSearch').addEventListener('input',()=>renderThird(true));
@@ -3680,6 +3839,7 @@ function enableSimpleFinanceControls(){
   $('#incomeOriginFilter').addEventListener('change',renderLists);
   document.body.addEventListener('click',e=>{
     const button=e.target.closest('button');if(!button)return;
+    if(button.hasAttribute('data-edit-monthly-cash')){setTab('receitas');$('#monthlyCashPanel').scrollIntoView({block:'start',behavior:'smooth'});return;}
     if(button.dataset.editThird){editThirdMovement(button.dataset.editThird);return;}
     if(button.dataset.entryAction){if(button.disabled||button.dataset.settleGesture==='double')return;const row=button.closest('.entry-row');if(row)runSimpleEntryAction(Number(row.dataset.id),button.dataset.entryAction);return;}
     if(button.dataset.showIncomeOrigin){$('#incomeOriginFilter').value=button.dataset.showIncomeOrigin;$('#incomeStatusFilter').value='pendentes';$('#incomeSearch').value='';setTab('receitas');renderLists();return;}
