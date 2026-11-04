@@ -939,6 +939,63 @@ body .ledger-panel .entry-row .status-pill.pago,body .ledger-panel .entry-row .s
 #terceiros .third-recent-block{padding:20px 23px;border-bottom:1px solid var(--line)}#terceiros .third-recent-heading{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:15px}#terceiros .third-recent-heading h3{font-size:14px;margin:0}#terceiros .third-recent-heading>span{font-size:10px;color:var(--muted)}#terceiros #thirdRecentPeople{display:grid;gap:9px}#terceiros .third-person-summary{display:grid;grid-template-columns:minmax(130px,1.2fr) repeat(3,minmax(110px,1fr));gap:16px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:16px}#terceiros .third-person-summary small{display:block;font-size:10px;color:var(--muted);margin-bottom:6px}#terceiros .third-person-summary strong{font-size:14px}#terceiros .third-person-summary span{font-size:12px}#terceiros .third-person-summary>div:first-child small{margin:7px 0 0}#terceiros .third-person-summary>div:last-child{text-align:right}#terceiros .third-bank-details{margin-top:12px;background:transparent}#terceiros .third-bank-details>summary{padding:13px 15px;font-size:11px}#terceiros [hidden]{display:none!important}#terceiros #thirdHideHistoryBtn{font-size:10px;background:transparent!important;color:var(--muted)!important;border:1px solid var(--line)}
 @media(max-width:700px){#fixosCartao .card-head{align-items:flex-start;flex-direction:column;gap:14px}.fixed-summary{grid-template-columns:repeat(2,minmax(0,1fr));padding:19px 17px;gap:20px 12px}.fixed-summary>div:nth-child(3){border-left:0;padding-left:0}.fixed-summary strong{font-size:19px}.fixed-summary>div+div{padding-left:12px}.fixed-summary span{font-size:10px}.fixed-toolbar{padding:16px 17px 12px}.fixed-toolbar input{flex-basis:100%}.fixed-toolbar select{flex:1;max-width:none}.fixed-info{margin:16px 17px 0}.fixed-list{padding:0 12px 15px}.fixed-expense-row{grid-template-columns:75px minmax(0,1fr) 95px;gap:11px;padding:13px}.fixed-expense-name{grid-column:2/4}.fixed-expense-value{grid-column:2;grid-row:2;text-align:left}.fixed-state{grid-column:1;grid-row:2}.fixed-expense-row>.btn{grid-column:3;grid-row:2}.fixed-editor{margin:0 15px 16px}.fixed-form{grid-template-columns:1fr;padding:17px}.fixed-form-actions{grid-column:1}#fixosCartao input,#fixosCartao select{font-size:16px}#terceiros .third-recent-block{padding:17px 15px}#terceiros .third-person-summary{grid-template-columns:1fr 1fr;gap:16px;padding:15px}#terceiros .third-person-summary>div:last-child{text-align:left}#terceiros .third-recent-heading{align-items:flex-start;flex-direction:column;gap:7px}}
 
+/* Header menu belongs above the KPI stacking contexts. */
+body .simple-header{position:relative;z-index:100;overflow:visible!important}
+body .simple-header .topbar{position:relative;overflow:visible!important}
+body .simple-header .display-options[open]{z-index:110}
+body .simple-header .display-options-body{z-index:120;top:calc(100% + 8px);width:260px;min-width:0;max-width:calc(100vw - 32px);background:var(--bg)!important;box-shadow:0 16px 45px #0007!important}
+/* Card statements: a spacious primary overview and separate secondary tools. */
+#cartoes{padding:24px!important}
+#cartoes .section-heading{margin:0 0 24px;gap:22px;align-items:center}
+#cartoes .section-heading h2{font-size:25px;letter-spacing:-.5px}
+#cartoes .section-heading p{margin-top:8px;font-size:12px;line-height:1.6}
+#cartoes .btn{border-radius:11px!important;padding:12px 16px;font-size:12px;box-shadow:none!important}
+#cartoes #cardDetailsCompact{display:grid;gap:22px}
+#cartoes .invoice-overview{border:1px solid var(--line);border-radius:18px;padding:24px;background:var(--card)}
+#cartoes .invoice-overview-heading{display:flex;justify-content:space-between;align-items:center;gap:24px;padding-bottom:23px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+#cartoes .invoice-eyebrow{display:block;font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:9px}
+#cartoes .invoice-overview-heading h3{font-size:19px;margin:0;color:var(--text)}
+#cartoes .invoice-overview-heading p{font-size:11px;line-height:1.6;color:var(--muted);margin:8px 0 0}
+#cartoes .invoice-total{text-align:right;flex-shrink:0}
+#cartoes .invoice-total small{display:block;font-size:10px;color:var(--muted);margin-bottom:9px}
+#cartoes .invoice-total strong{display:block;font-size:28px;letter-spacing:-.6px;color:#ff8b9a}
+#cartoes .invoice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#cartoes .invoice-tile{min-width:0;padding:20px 22px;background:var(--bg);border:1px solid var(--line);border-radius:14px}
+#cartoes .invoice-tile-heading{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px}
+#cartoes .invoice-tile h4{font-size:16px;margin:0;color:var(--text);overflow-wrap:anywhere}
+#cartoes .invoice-state{font-size:10px;font-weight:700;padding:6px 9px;border-radius:7px;white-space:nowrap}
+#cartoes .invoice-state.invoice-paid{background:#163626;color:#b7e8cc;border:1px solid #315f48}
+#cartoes .invoice-state.invoice-open{background:#4c381a;color:#ffdc91;border:1px solid #78603c}
+#cartoes .invoice-state.invoice-missing{background:#382450;color:#d0aaff;border:1px solid #67478b}
+#cartoes .invoice-amount{display:block;font-size:26px;letter-spacing:-.6px;margin-bottom:20px}
+#cartoes .invoice-open-value{color:#ff8b9a!important}
+#cartoes .invoice-paid-value{color:#86d9ae!important}
+#cartoes .invoice-missing-value{color:var(--muted)!important;font-size:22px}
+#cartoes .invoice-meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--muted);line-height:1.6}
+#cartoes .invoice-row-note{display:block;margin-top:10px;color:var(--muted);font-size:10px}
+#cartoes .invoice-footer{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-top:23px;padding-top:20px;border-top:1px solid var(--line)}
+#cartoes .invoice-footer>span{font-size:11px;color:var(--muted);line-height:1.6}
+#cartoes .card-secondary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+#cartoes .card-secondary-grid .exec-accordion{min-width:0;background:var(--card)!important;box-shadow:none!important;border:1px solid var(--line)!important;border-radius:17px!important}
+#cartoes .card-secondary-grid summary{padding:23px}
+#cartoes .card-secondary-grid .exec-panel-title-v3{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin:0}
+#cartoes .card-secondary-grid .exec-panel-title-v3>div{flex:1 1 100%}
+#cartoes .card-secondary-grid .exec-panel-title-v3 h3{font-size:16px!important;margin:0 0 9px}
+#cartoes .card-secondary-grid .exec-panel-title-v3 p{font-size:11px;line-height:1.7;margin:0;color:var(--muted)}
+#cartoes .card-secondary-grid .exec-total-v3{font-size:23px!important}
+#cartoes .card-secondary-grid .exec-panel-title-v3::after{margin-left:auto;font-size:10px;padding:8px 10px;border-radius:8px}
+#cartoes .card-secondary-grid .exec-list-v3{padding:0 23px 23px}
+#cartoes .exec-line-v3{padding:13px 0;gap:18px;line-height:1.6}
+#cartoes #cardImportTools{margin:24px 0 0;background:var(--card)!important;border:1px solid var(--line)!important;border-radius:17px!important}
+#cartoes #cardImportTools>summary{padding:21px 23px;font-size:13px}
+#cartoes #cardImportTools>.details-content{padding:0 22px 22px}
+#cartoes #cardImportTools>.details-content>.grid{grid-template-columns:minmax(0,1fr);gap:20px}
+#cartoes #cardImportTools .side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+#cartoes #cardImportTools .form{padding:22px;gap:20px}
+#cartoes #cardImportTools .card-import-target{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+#cartoes #cardImportTools .mini-help{font-size:10px;line-height:1.7;margin-top:8px}
+@media(max-width:700px){#cartoes{padding:17px!important}#cartoes .section-heading{align-items:flex-start;gap:15px}#cartoes .section-heading h2{font-size:22px}#cartoes .invoice-overview{padding:18px}#cartoes .invoice-overview-heading{align-items:flex-start;gap:16px}#cartoes .invoice-total strong{font-size:23px}#cartoes .invoice-tile{padding:18px}#cartoes .invoice-tile-heading{gap:10px;flex-wrap:wrap}#cartoes .invoice-amount{font-size:23px}#cartoes .card-secondary-grid{grid-template-columns:1fr}#cartoes #cardImportTools .side{grid-template-columns:1fr}#cartoes #cardImportTools .card-import-target{grid-template-columns:1fr}#cartoes #cardImportTools .form{padding:17px}#cartoes #cardImportTools>.details-content{padding:0 15px 17px}}
+@media(max-width:480px){#cartoes .section-heading{flex-direction:column}#cartoes .invoice-overview-heading{flex-direction:column}#cartoes .invoice-total{text-align:left}#cartoes .invoice-grid{grid-template-columns:1fr}#cartoes .invoice-footer{align-items:flex-start;flex-direction:column}#cartoes .invoice-total strong{font-size:26px}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -954,8 +1011,8 @@ body .ledger-panel .entry-row .status-pill.pago,body .ledger-panel .entry-row .s
 <section class="summary simple-summary" aria-label="Resumo financeiro do mês">
 <button class="kpi kpi-green" type="button" data-go-panel="receitas"><span>A receber</span><strong id="totalReceita">R$ 0,00</strong><small><span id="qtdReceitasLancadas">0</span> receitas em aberto</small></button>
 <button class="kpi kpi-red" type="button" data-go-panel="debitos"><span>A pagar</span><strong id="totalDebitos">R$ 0,00</strong><small><span id="qtdDebitosLancados">0</span> débitos em aberto</small></button>
-<button class="kpi kpi-blue" type="button" data-go-panel="bancos"><span>Saldo próprio</span><strong id="dashSaldoBanco">R$ 0,00</strong><small>Acumulado, sem dinheiro de terceiros</small></button>
-<button class="kpi kpi-orange" type="button" data-open-indicators><span>Projeção do mês</span><strong id="dashSaldo">R$ 0,00</strong><small>Saldo + a receber − a pagar</small></button>
+<button class="kpi kpi-blue" type="button" data-open-indicators title="Saldo acumulado dos movimentos registrados até o mês selecionado, descontado o dinheiro de terceiros ainda a repassar."><span>Saldo próprio</span><strong id="dashSaldoBanco">R$ 0,00</strong><small>Acumulado, sem dinheiro de terceiros</small></button>
+<button class="kpi kpi-orange" type="button" data-open-indicators title="Saldo próprio acumulado + receitas pendentes − débitos em aberto considerados no mês."><span>Projeção do mês</span><strong id="dashSaldo">R$ 0,00</strong><small>Saldo + a receber − a pagar</small></button>
 </section>
 <nav class="tabs simple-tabs" aria-label="Áreas do financeiro"><button class="tab active" data-panel="debitos">Débitos</button><button class="tab" data-panel="receitas">Receitas</button><button class="tab" data-panel="cartoes">Cartões</button><button class="tab" data-panel="fixosCartao">Fixos no cartão</button><button class="tab" data-panel="terceiros">Terceiros</button><button class="tab" data-panel="dashboard">Visão geral</button></nav>
 <section id="debitos" class="panel active ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="debitMonthTitle">Débitos de Abril</h2><p>Dê dois cliques em Pagar para dar baixa. Em Mais, você pode adiar ou excluir.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="debitFilter" class="filter-select"><option value="todos">Todos</option><option value="abertos">A pagar</option><option value="semvalor">Sem valor</option><option value="cartoes">Cartões</option><option value="pendente">Débito mensal</option><option value="fixo">Débito fixo</option><option value="pago">Pago</option></select><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addDebitBtn">+ Adicionar débito</button></div></div><div class="ledger-toolbar"><input type="search" id="debitSearch" placeholder="Buscar débitos por nome ou banco" aria-label="Buscar débitos"><span class="list-count" id="debitListCount"></span></div><div class="month-list" id="debitList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo do mês</h2><p>Faturas importadas e total do mês.</p></div></div><div class="note" id="monthCardSummary">Importe uma fatura para ver o resumo dos cartões.</div></div><div class="card"><div class="card-head"><div><h2>Próxima ação</h2><p>O que falta conferir.</p></div></div><div class="suggestion">Confira os débitos mensais sem valor e selecione banco de saída antes de marcar como pago.</div></div></aside></div></section>
@@ -2584,11 +2641,16 @@ function renderMonthCardSummary(){
   }).join('')||'<p class="form-hint">Nenhum cartão cadastrado para este mês.</p>';
   if($('#monthCardSummary'))$('#monthCardSummary').innerHTML=monthLines;
   if($('#dashCardSummary'))$('#dashCardSummary').innerHTML=`<div class="compact-card-row"><div><h3>Cartões do mês</h3><p>Faturas informadas, sem somar estimativas futuras.</p></div><strong class="amount-debt">${br(s.totalMonth)}</strong><button class="btn soft" type="button" data-go-panel="cartoes">Ver cartões</button></div>`;
-  if($('#cardDetailsCompact'))$('#cardDetailsCompact').innerHTML=[
-    sectionPanel('Faturas do mês','Valores cadastrados no mês selecionado.',br(s.totalMonth),'amount-debt',monthLines+'<button class="btn soft" type="button" data-view-card-debits>Conferir em Débitos</button>').replace('<details ','<details open '),
+  const invoiceTiles=Object.entries(s.byCardMonth).map(([card,value])=>{
+    const rows=invoices.filter(e=>entryCardName(e)===card),entered=rows.some(e=>hasEnteredValue(e)),paid=entered&&rows.every(e=>isPaidDebitStatus(currentStatus(e)));
+    const bankNames=[...new Set(rows.map(e=>e.banco).filter(b=>b&&b!=='Nenhum'))];
+    const days=[...new Set(rows.map(e=>String(e.dia||'').padStart(2,'0')).filter(d=>d!=='00'))];
+    return `<article class="invoice-tile"><div class="invoice-tile-heading"><h4>${htmlText(card.replace(/^Fatura Cartão\s+/,''))}</h4><span class="invoice-state ${paid?'invoice-paid':entered?'invoice-open':'invoice-missing'}">${paid?'Pago':entered?'Em aberto':'A informar'}</span></div><strong class="invoice-amount ${paid?'invoice-paid-value':entered?'invoice-open-value':'invoice-missing-value'}">${entered?br(value):'A informar'}</strong><div class="invoice-meta"><span>${htmlText(bankNames.join(' · ')||'Banco não informado')}</span>${days.length?'<span>Vencimento dia '+htmlText(days.join(' / '))+'</span>':''}</div>${rows.length>1?'<small class="invoice-row-note">'+rows.length+' lançamentos neste cartão</small>':''}</article>`;
+  }).join('')||'<div class="empty-list">Nenhuma fatura cadastrada para este mês.</div>';
+  if($('#cardDetailsCompact'))$('#cardDetailsCompact').innerHTML=`<div class="invoice-overview"><div class="invoice-overview-heading"><div><span class="invoice-eyebrow">${htmlText(monthLabel(state.currentMonth))}</span><h3>Faturas do mês</h3><p>Valores informados nas faturas deste mês.</p></div><div class="invoice-total"><small>Total informado</small><strong>${br(s.totalMonth)}</strong></div></div><div class="invoice-grid">${invoiceTiles}</div><div class="invoice-footer"><span>Valores em branco ainda precisam ser preenchidos.</span><button class="btn soft" type="button" data-view-card-debits>Conferir em Débitos</button></div></div><div class="card-secondary-grid">`+[
     sectionPanel('Próximos meses · estimativa','Parcelas importadas. Confirme os valores quando a fatura fechar.',br(s.totalFuture),'amount-neutral',futureLines),
     sectionPanel('Análise das compras','Categorias e cobranças recorrentes da fatura importada.',null,'',categories+(s.recurringLines?'<h4>Recorrentes</h4>'+s.recurringLines:''))
-  ].join('');
+  ].join('')+'</div>';
   renderPaymentSummary();
 }
 function renderCarryoverAlert(){
