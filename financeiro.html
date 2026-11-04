@@ -1000,6 +1000,24 @@ body .simple-header .display-options-body{z-index:120;top:calc(100% + 8px);width
 body .simple-summary .kpi>span{color:var(--muted)!important}
 body .simple-summary .kpi-fixed-pending strong{color:#d0aaff!important}
 body .simple-summary .kpi-monthly-pending strong{color:#ffdc91!important}
+/* Contextual revenue summary; unpaid totals stay positive and received values are explicit. */
+body .simple-summary .kpi[hidden],.income-other-summary[hidden]{display:none!important}
+body .simple-summary.income-summary{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+body .simple-summary.income-summary .kpi{min-height:145px!important}
+body .simple-summary .kpi-income-mkt strong{color:#85c9e8!important}
+body .simple-summary .kpi-income-traf strong{color:#d0aaff!important}
+body .simple-summary .kpi-income-clt strong{color:#ffdc91!important}
+body .simple-summary .kpi-income.income-settled strong{color:#86d9ae!important}
+body .simple-summary .kpi-income small{font-size:10px!important;line-height:1.55;margin-top:6px;white-space:normal}
+body .simple-summary .kpi-income .income-pending-label{margin-top:7px;color:var(--muted)!important}
+body .simple-summary .kpi-income .income-received-label{color:#86d9ae!important;font-weight:600}
+.income-other-summary{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px 18px;margin:-5px 0 18px;padding:0 2px;color:var(--muted);font-size:10px;line-height:1.6}
+.income-other-summary button{background:none;border:0;padding:0;color:#d0aaff;text-align:left;cursor:pointer;font-size:11px;font-weight:600}
+#incomeOriginFilter{max-width:180px}
+.ledger-panel .name .income-origin-note{color:#85c9e8;font-weight:600}
+@media(max-width:1100px) and (min-width:851px){body .simple-summary.income-summary{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:850px){body .simple-summary.income-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}.income-other-summary{padding:0 2px;margin-top:0}}
+@media(max-width:520px){body .simple-summary.income-summary .kpi{min-height:140px!important}body .simple-summary.income-summary .kpi-income-clt{grid-column:1/-1}#incomeOriginFilter{max-width:none;flex:1}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -1012,15 +1030,19 @@ body .simple-summary .kpi-monthly-pending strong{color:#ffdc91!important}
 <button class="pill save-control" id="syncBtn" type="button" title="Salvar agora na nuvem"><b>Salvar</b><span id="syncStatus" aria-live="polite">Conectando…</span></button>
 <details class="display-options"><summary>Opções</summary><div class="display-options-body"><button class="theme-toggle" id="themeToggle" type="button">Tema escuro</button><div class="view-toggle"><button id="btnDesktop" type="button">Desktop</button><button id="btnMobile" type="button">Celular</button></div><button class="btn soft" type="button" data-config-sync>Configurar sincronização</button></div></details>
 <input id="incomeInput" value="R$ 0,00" readonly hidden></div></header>
-<section class="summary simple-summary" aria-label="Resumo financeiro do mês">
+<section class="summary simple-summary" id="financeSummary" aria-label="Resumo financeiro do mês">
 <button class="kpi kpi-green" type="button" data-go-panel="receitas"><span>A receber</span><strong id="totalReceita">R$ 0,00</strong><small><span id="qtdReceitasLancadas">0</span> receitas em aberto</small></button>
 <button class="kpi kpi-red" type="button" data-go-panel="debitos"><span>A pagar</span><strong id="totalDebitos">R$ 0,00</strong><small><span id="qtdDebitosLancados">0</span> débitos em aberto</small></button>
-<button class="kpi kpi-fixed-pending" type="button" data-show-fixed-pending title="Débitos fixos ainda em aberto no mês selecionado."><span>Débitos fixos</span><strong id="headerFixedPending">R$ 0,00</strong><small id="headerFixedPendingCount">Somente os que faltam pagar</small></button>
-<button class="kpi kpi-monthly-pending" type="button" data-show-monthly-pending title="Débitos mensais e faturas de cartão ainda em aberto no mês selecionado."><span>Débitos mensais</span><strong id="headerMonthlyPending">R$ 0,00</strong><small id="headerMonthlyPendingCount">Mensais e faturas em aberto</small></button>
+<button class="kpi kpi-fixed-pending" type="button" data-show-fixed-pending data-summary-debit title="Débitos fixos ainda em aberto no mês selecionado."><span>Débitos fixos</span><strong id="headerFixedPending">R$ 0,00</strong><small id="headerFixedPendingCount">Somente os que faltam pagar</small></button>
+<button class="kpi kpi-monthly-pending" type="button" data-show-monthly-pending data-summary-debit title="Débitos mensais e faturas de cartão ainda em aberto no mês selecionado."><span>Débitos mensais</span><strong id="headerMonthlyPending">R$ 0,00</strong><small id="headerMonthlyPendingCount">Mensais e faturas em aberto</small></button>
+<button class="kpi kpi-income kpi-income-mkt" id="incomeOriginCard-mkt" type="button" data-summary-income data-show-income-origin="mkt" title="Falta receber de Marketing. Em receitas mistas, recebimentos parciais são distribuídos proporcionalmente aos valores cadastrados." hidden><span>Receita Marketing</span><strong id="incomeOriginPending-mkt">R$ 0,00</strong><small class="income-pending-label">Falta receber</small><small id="incomeOriginCount-mkt">0 em aberto</small><small class="income-received-label" id="incomeOriginPaid-mkt">Recebido: R$ 0,00</small></button>
+<button class="kpi kpi-income kpi-income-traf" id="incomeOriginCard-traf" type="button" data-summary-income data-show-income-origin="traf" title="Falta receber de Tráfego. Em receitas mistas, recebimentos parciais são distribuídos proporcionalmente aos valores cadastrados." hidden><span>Receita Tráfego</span><strong id="incomeOriginPending-traf">R$ 0,00</strong><small class="income-pending-label">Falta receber</small><small id="incomeOriginCount-traf">0 em aberto</small><small class="income-received-label" id="incomeOriginPaid-traf">Recebido: R$ 0,00</small></button>
+<button class="kpi kpi-income kpi-income-clt" id="incomeOriginCard-clt" type="button" data-summary-income data-show-income-origin="clt" title="Falta receber de CnSystem. Em receitas mistas, recebimentos parciais são distribuídos proporcionalmente aos valores cadastrados." hidden><span>Receita CLT</span><strong id="incomeOriginPending-clt">R$ 0,00</strong><small class="income-pending-label">Falta receber</small><small id="incomeOriginCount-clt">0 em aberto</small><small class="income-received-label" id="incomeOriginPaid-clt">Recebido: R$ 0,00</small></button>
 </section>
+<div class="income-other-summary" id="incomeOtherSummary" data-has-values="0" hidden><button id="incomeOtherSummaryButton" type="button" data-show-income-origin="outros"></button><span>Parciais divididos conforme a composição de cada lançamento.</span></div>
 <nav class="tabs simple-tabs" aria-label="Áreas do financeiro"><button class="tab active" data-panel="debitos">Débitos</button><button class="tab" data-panel="receitas">Receitas</button><button class="tab" data-panel="cartoes">Cartões</button><button class="tab" data-panel="fixosCartao">Fixos no cartão</button><button class="tab" data-panel="terceiros">Terceiros</button><button class="tab" data-panel="dashboard">Visão geral</button></nav>
 <section id="debitos" class="panel active ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="debitMonthTitle">Débitos de Abril</h2><p>Dê dois cliques em Pagar para dar baixa. Em Mais, você pode adiar ou excluir.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="debitFilter" class="filter-select"><option value="todos">Todos</option><option value="abertos">A pagar</option><option value="semvalor">Sem valor</option><option value="cartoes">Cartões</option><option value="pendente">Débito mensal</option><option value="fixo">Débito fixo</option><option value="pago">Pago</option></select><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addDebitBtn">+ Adicionar débito</button></div></div><div class="ledger-toolbar"><input type="search" id="debitSearch" placeholder="Buscar débitos por nome ou banco" aria-label="Buscar débitos"><span class="list-count" id="debitListCount"></span></div><div class="month-list" id="debitList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo do mês</h2><p>Faturas importadas e total do mês.</p></div></div><div class="note" id="monthCardSummary">Importe uma fatura para ver o resumo dos cartões.</div></div><div class="card"><div class="card-head"><div><h2>Próxima ação</h2><p>O que falta conferir.</p></div></div><div class="suggestion">Confira os débitos mensais sem valor e selecione banco de saída antes de marcar como pago.</div></div></aside></div></section>
-<section id="receitas" class="panel ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="incomeMonthTitle">Receitas de Abril</h2><p>Edite o saldo pendente e clique em Receber para registrar uma baixa integral ou parcial.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addIncomeBtn">+ Adicionar receita</button></div></div><div class="ledger-toolbar"><input type="search" id="incomeSearch" placeholder="Buscar receitas por nome ou banco" aria-label="Buscar receitas"><select class="filter-select" id="incomeStatusFilter" aria-label="Filtrar receitas"><option value="todos">Todas</option><option value="pendentes">A receber</option><option value="recebidas">Recebidas</option></select><span class="list-count" id="incomeListCount"></span></div><div class="month-list" id="incomeList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo de receitas</h2><p>Total recebido no mês.</p></div></div><div class="note"><strong>Pendente</strong> fica em aberto.<br><br><strong>Parcial</strong> mostra em roxo quanto ainda falta receber.<br><br><strong>Recebido</strong> entra no banco cadastrado e na receita disponível.</div></div><div class="card"><div class="card-head"><div><h2>Controle por banco</h2><p>Entradas recebidas.</p></div></div><div class="suggestion" id="bankSummary">Nenhum banco movimentado ainda.</div></div></aside></div></section>
+<section id="receitas" class="panel ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="incomeMonthTitle">Receitas de Abril</h2><p>Edite o saldo pendente e clique em Receber para registrar uma baixa integral ou parcial.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addIncomeBtn">+ Adicionar receita</button></div></div><div class="ledger-toolbar"><input type="search" id="incomeSearch" placeholder="Buscar receitas por nome ou banco" aria-label="Buscar receitas"><select class="filter-select" id="incomeStatusFilter" aria-label="Filtrar receitas"><option value="todos">Todas</option><option value="pendentes">A receber</option><option value="recebidas">Recebidas</option></select><select class="filter-select" id="incomeOriginFilter" aria-label="Filtrar receitas por origem"><option value="">Todas as origens</option><option value="mkt">Marketing</option><option value="traf">Tráfego</option><option value="clt">CLT / CnSystem</option><option value="outros">Outras receitas</option></select><span class="list-count" id="incomeListCount"></span></div><div class="month-list" id="incomeList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo de receitas</h2><p>Total recebido no mês.</p></div></div><div class="note"><strong>Pendente</strong> fica em aberto.<br><br><strong>Parcial</strong> mostra em roxo quanto ainda falta receber.<br><br><strong>Recebido</strong> entra no banco cadastrado e na receita disponível.</div></div><div class="card"><div class="card-head"><div><h2>Controle por banco</h2><p>Entradas recebidas.</p></div></div><div class="suggestion" id="bankSummary">Nenhum banco movimentado ainda.</div></div></aside></div></section>
 <section id="lancar" class="panel">
   <div class="card entry-editor">
     <div class="card-head entry-editor-head">
@@ -2525,7 +2547,7 @@ function row(e){
   const action=paid?'Desfazer':unpaid?'Retomar':income?'Receber':'Pagar';
   return `<div class="entry-row ${overdue?'overdue-row':''} ${income&&Number(e.repeticoes)>1?'income-recurring':''}" data-id="${e.id}" draggable="false">
     <div class="handle" title="Arraste para reordenar" aria-label="Arrastar lançamento">↕</div>
-    <div class="name"><strong>${htmlText(e.nome)}</strong><small>${htmlText(detail)}</small><small class="entry-bank">${htmlText(e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado')}</small></div>
+    <div class="name"><strong>${htmlText(e.nome)}</strong><small>${htmlText(detail)}</small>${income?incomeOriginRowNote(e):''}<small class="entry-bank">${htmlText(e.banco&&e.banco!=='Nenhum'?e.banco:'Banco não informado')}</small></div>
     <div class="day"><small>Dia</small>${htmlText(e.dia)}</div>
     <div class="value"><input class="amount-${statusClass(e)} ${locked?'locked':''}" aria-label="Valor de ${htmlText(e.nome)}" placeholder="" value="${htmlText(income?revenueInputValue(e):(displayValue(e)||''))}" ${locked?'readonly title="Desfaça a baixa para alterar o valor"':''}></div>
     <button class="status-pill ${statusClass(e)}" type="button" data-entry-action="settle" ${income?'':'data-settle-gesture="double"'} title="${income?'Registrar recebimento':'Dê dois cliques para alterar o status'}" aria-label="${action} ${htmlText(e.nome)}" ${!paid&&!unpaid&&!canSettleEntry(e)?'disabled':''}><span>${action}</span><small>${htmlText(statusText(e))}</small></button>
@@ -2547,7 +2569,7 @@ function toggleMonthScope(){
 function renderLists(){
   for(const [type,prefix] of [['debito','debit'],['receita','income']]){
     const all=entries(type),query=statusKey($('#'+prefix+'Search')?.value||''),status=$('#incomeStatusFilter')?.value||'todos';
-    const rows=all.filter(e=>!query||statusKey([e.nome,e.banco,e.categoria,e.origem].join(' ')).includes(query)).filter(e=>type!=='receita'||status==='todos'||(status==='recebidas'?currentStatus(e)==='recebido':remainingAmount(e)>0));
+    const rows=all.filter(e=>!query||statusKey([e.nome,e.banco,e.categoria,e.origem].join(' ')).includes(query)).filter(e=>type!=='receita'||incomeMatchesDashboardFilter(e));
     $('#'+prefix+'List').innerHTML=rows.length?rows.map(row).join(''):`<div class="empty-list"><strong>${query?'Nenhum resultado para essa busca.':'Nenhum lançamento neste filtro.'}</strong><br>${query?'Tente outro nome ou banco.':'Escolha outro filtro ou adicione um lançamento.'}<br><button class="btn soft" type="button" data-new-entry="${type}">+ Adicionar ${type==='receita'?'receita':'débito'}</button></div>`;
     if($('#'+prefix+'ListCount'))$('#'+prefix+'ListCount').textContent=rows.length+' de '+all.length+' lançamentos';
   }
@@ -2666,6 +2688,80 @@ function renderCarryoverAlert(){
   el.className='carry-alert active';
   el.innerHTML=`<details ${open?'open':''}><summary><b>${count} pendência(s) de meses anteriores</b><span>Ver detalhes</span></summary><p>Em aberto: débitos ${br(s.debtTotal)} · receitas ${br(s.incomeTotal)}.</p><div class="carry-alert-list">${chips.map(x=>`<span class="carry-chip">${x.label}: ${htmlText(x.name)} · ${monthLabel(x.month)} · ${x.value?br(x.value):'sem valor'}</span>`).join('')}</div></details>`;
 }
+const INCOME_ORIGIN_LABELS={mkt:'Marketing',traf:'Tráfego',clt:'CLT / CnSystem',outros:'Outras receitas'};
+function isCltIncome(e){return statusKey(e.nome).replace(/[^a-z0-9]/g,'').includes('cnsystem');}
+function incomeOriginBreakdown(e,month=state.currentMonth){
+  const received=moneyCents(receivedAmount(e,month)),total=Math.max(moneyCents(configuredValue(e,month)),received),remaining=Math.min(total,moneyCents(remainingAmount(e,month)));
+  const totals={mkt:0,traf:0,clt:0,outros:0},pending={mkt:0,traf:0,clt:0,outros:0},paid={mkt:0,traf:0,clt:0,outros:0};
+  if(isCltIncome(e))totals.clt=total;
+  else{const parts=revenueComposition(e,total/100);totals.mkt=moneyCents(parts.mkt);totals.traf=moneyCents(parts.traf);totals.outros=moneyCents(parts.emp)+moneyCents(parts.outros);}
+  if(total){
+    const keys=Object.keys(totals),exact=keys.map(key=>({key,value:remaining*totals[key]/total}));
+    exact.forEach(x=>pending[x.key]=Math.floor(x.value));
+    const order=exact.slice().sort((a,b)=>(b.value-Math.floor(b.value))-(a.value-Math.floor(a.value)));
+    for(let cents=remaining-Object.values(pending).reduce((sum,v)=>sum+v,0),i=0;i<cents;i++)pending[order[i%order.length].key]++;
+    keys.forEach(key=>paid[key]=totals[key]-pending[key]);
+  }
+  return {totals,pending,paid,total,remaining,missing:!String(configuredValue(e,month)||'').trim()};
+}
+function hasIncomeOrigin(e,key,breakdown=incomeOriginBreakdown(e)){
+  if(breakdown.totals[key]>0)return true;
+  if(breakdown.total)return false;
+  if(isCltIncome(e))return key==='clt';
+  if(e.origem==='Marketing')return key==='mkt';
+  if(e.origem==='Tráfego Pago')return key==='traf';
+  if(e.origem==='Marketing + Tráfego')return key==='mkt'||key==='traf';
+  return key==='outros';
+}
+function incomeOriginStats(){
+  const stats=Object.fromEntries(Object.keys(INCOME_ORIGIN_LABELS).map(key=>[key,{pending:0,paid:0,count:0,open:0,missing:0}]));
+  entries('receita',{filter:false}).forEach(e=>{
+    const breakdown=incomeOriginBreakdown(e);
+    Object.keys(stats).forEach(key=>{
+      if(!hasIncomeOrigin(e,key,breakdown))return;
+      const group=stats[key];group.pending+=breakdown.pending[key];group.paid+=breakdown.paid[key];group.count++;
+      if(breakdown.pending[key]>0||breakdown.missing)group.open++;
+      if(breakdown.missing)group.missing++;
+    });
+  });
+  return stats;
+}
+function syncIncomeSummaryMode(panel){
+  const summary=$('#financeSummary');if(!summary)return;
+  const income=panel?panel==='receitas':$('#receitas').classList.contains('active');
+  summary.classList.toggle('income-summary',income);
+  $$('[data-summary-debit]').forEach(el=>el.hidden=income);
+  $$('[data-summary-income]').forEach(el=>el.hidden=!income);
+  const other=$('#incomeOtherSummary');other.hidden=!income||other.dataset.hasValues!=='1';
+}
+function renderIncomeSummary(){
+  const stats=incomeOriginStats();
+  for(const key of ['mkt','traf','clt']){
+    const group=stats[key],card=$('#incomeOriginCard-'+key);
+    $('#incomeOriginPending-'+key).textContent=br(group.pending/100);
+    $('#incomeOriginCount-'+key).textContent=`${group.open} em aberto · ${group.count} lançamento(s)`+(group.missing?` · ${group.missing} sem valor`:'');
+    $('#incomeOriginPaid-'+key).textContent='Recebido: '+br(group.paid/100);
+    card.classList.toggle('income-settled',group.count>0&&group.open===0);
+  }
+  const other=stats.outros,box=$('#incomeOtherSummary');
+  box.dataset.hasValues=other.count?'1':'0';
+  $('#incomeOtherSummaryButton').textContent=`Outras receitas: ${br(other.pending/100)} a receber · ${br(other.paid/100)} recebido · ${other.open} em aberto`;
+  syncIncomeSummaryMode();
+}
+function incomeMatchesDashboardFilter(e){
+  const key=$('#incomeOriginFilter')?.value||'',status=$('#incomeStatusFilter')?.value||'todos';
+  if(!key)return status==='todos'||(status==='recebidas'?currentStatus(e)==='recebido':remainingAmount(e)>0);
+  const breakdown=incomeOriginBreakdown(e);if(!hasIncomeOrigin(e,key,breakdown))return false;
+  if(status==='pendentes')return breakdown.pending[key]>0||breakdown.missing;
+  if(status==='recebidas')return breakdown.paid[key]>0&&breakdown.pending[key]===0&&!breakdown.missing;
+  return true;
+}
+function incomeOriginRowNote(e){
+  const key=$('#incomeOriginFilter')?.value||'';if(!key)return '';
+  const breakdown=incomeOriginBreakdown(e);
+  return `<small class="income-origin-note">${htmlText(INCOME_ORIGIN_LABELS[key])}: falta ${br(breakdown.pending[key]/100)}</small>`;
+}
+
 function renderPendingDebitSummary(c){
   const fixed=Number(c.totalFixPendente||0),monthly=moneySum([c.totalMensalPendente,c.totalCartaoPendente]);
   $('#headerFixedPending').textContent=fixed?brDeb(fixed):br(0);
@@ -2673,7 +2769,7 @@ function renderPendingDebitSummary(c){
   $('#headerFixedPendingCount').textContent=c.fixPendentes+' lançamento(s) em aberto';
   $('#headerMonthlyPendingCount').textContent=(c.debPendentes-c.fixPendentes)+' em aberto · inclui faturas';
 }
-function updateTotals(){ const c=calc(), b=bankBalances(), saldoBanco=Object.values(b).reduce((s,x)=>s+x.saldo,0), terceirosReservados=Object.values(b).reduce((s,x)=>s+x.reservadoTerceiros,0), saldoProprio=saldoBanco-terceirosReservados; renderPendingDebitSummary(c); $('#incomeInput').value=br(c.receitaPendente); $('#totalReceita').textContent=br(c.receitaPendente); $('#qtdReceitasLancadas').textContent=c.receitasPendentes; $('#totalDebitos').textContent=brDeb(c.deb); $('#qtdDebitosLancados').textContent=c.debPendentes; $('#saldoProjetado').textContent=br(c.sobraLara); if($('#laraResumo'))$('#laraResumo').textContent='Saldo disponível no NuBank, descontados terceiros'; $('#qtdFixos').textContent=br(c.limiteCartao); $('#totalFixos').textContent=c.limitePendenteConferencia?'Confira os débitos próprios sem valor':'Saldo próprio disponível − débitos próprios pendentes'; $('#mensaisSemValor').textContent=brDeb(c.totalMensalPendente); $('#totalMensaisValor').textContent=c.mensaisPendentes+' débitos mensais pendentes'; $('#planSaldo').textContent=br(c.saldoProjetado); $('#planFixos').textContent=c.fix; $('#planPendentes').textContent=c.semValor; $('#dashReceita').textContent=br(c.receitaPendente); $('#dashDebitos').textContent=brDeb(c.deb); $('#dashSaldo').textContent=br(c.saldoProjetado); $('#dashEmpresa').textContent=br(c.emp); $('#dashMarketing').textContent=br(c.mkt); $('#dashTrafego').textContent=br(c.traf); $('#dashSaldoBanco').textContent=br(saldoProprio); $('#biggestWeight').textContent=c.totalFix>=c.totalMensal?'Maior peso em débitos fixos':'Maior peso em débitos mensais'; const pct=v=>c.receitaPrev?Math.round(v/c.receitaPrev*100):0; $('#pctEmpresa').textContent=pct(c.emp)+'%'; $('#pctMarketing').textContent=pct(c.mkt)+'%'; $('#pctTrafego').textContent=pct(c.traf)+'%'; $('#barEmpresa').style.width=pct(c.emp)+'%'; $('#barMarketing').style.width=pct(c.mkt)+'%'; $('#barTrafego').style.width=pct(c.traf)+'%'; $('#healthBadge').textContent=saldoProprio<0||c.saldoProjetado<0?'Atenção':'Saudável'; const planClass=c.saldoProjetado<0||saldoProprio<0?'danger':(c.semValor>0||c.sobraLara>0||terceirosReservados>0?'warn':'ok'); const planMsg=c.saldoProjetado<0?`Atencao: no mes selecionado, faltam ${br(Math.abs(c.saldoProjetado))} considerando saldo próprio, receitas pendentes e débitos pendentes do mês. Para nao fechar negativo, novos gastos variaveis/cartoes devem ficar em ate ${br(c.limiteCartao)}.`:(c.sobraLara>0?`⚠ Com o que foi lançado no NuBank, a sobra estimada da Lara é ${br(c.sobraLara)}. Lance os pagamentos que ela fez como débitos pagos no NuBank para esse número ficar real.`:(c.semValor>0?'⚠ Existem lançamentos sem valor. Preencha para ter uma projeção real.':'✓ Mês projetado com equilíbrio. Use o limite de cartão seguro antes de gastar mais.')); $('#planningText').className='planning-smart '+planClass; $('#planningText').innerHTML=planMsg; renderDailyFocus(c); renderCarryoverAlert(); updateCleanDashboard(c,b,saldoProprio,terceirosReservados); renderMonthCardSummary(); renderBanks(b); renderThird();}
+function updateTotals(){ const c=calc(), b=bankBalances(), saldoBanco=Object.values(b).reduce((s,x)=>s+x.saldo,0), terceirosReservados=Object.values(b).reduce((s,x)=>s+x.reservadoTerceiros,0), saldoProprio=saldoBanco-terceirosReservados; renderPendingDebitSummary(c); renderIncomeSummary(); $('#incomeInput').value=br(c.receitaPendente); $('#totalReceita').textContent=br(c.receitaPendente); $('#qtdReceitasLancadas').textContent=c.receitasPendentes; $('#totalDebitos').textContent=brDeb(c.deb); $('#qtdDebitosLancados').textContent=c.debPendentes; $('#saldoProjetado').textContent=br(c.sobraLara); if($('#laraResumo'))$('#laraResumo').textContent='Saldo disponível no NuBank, descontados terceiros'; $('#qtdFixos').textContent=br(c.limiteCartao); $('#totalFixos').textContent=c.limitePendenteConferencia?'Confira os débitos próprios sem valor':'Saldo próprio disponível − débitos próprios pendentes'; $('#mensaisSemValor').textContent=brDeb(c.totalMensalPendente); $('#totalMensaisValor').textContent=c.mensaisPendentes+' débitos mensais pendentes'; $('#planSaldo').textContent=br(c.saldoProjetado); $('#planFixos').textContent=c.fix; $('#planPendentes').textContent=c.semValor; $('#dashReceita').textContent=br(c.receitaPendente); $('#dashDebitos').textContent=brDeb(c.deb); $('#dashSaldo').textContent=br(c.saldoProjetado); $('#dashEmpresa').textContent=br(c.emp); $('#dashMarketing').textContent=br(c.mkt); $('#dashTrafego').textContent=br(c.traf); $('#dashSaldoBanco').textContent=br(saldoProprio); $('#biggestWeight').textContent=c.totalFix>=c.totalMensal?'Maior peso em débitos fixos':'Maior peso em débitos mensais'; const pct=v=>c.receitaPrev?Math.round(v/c.receitaPrev*100):0; $('#pctEmpresa').textContent=pct(c.emp)+'%'; $('#pctMarketing').textContent=pct(c.mkt)+'%'; $('#pctTrafego').textContent=pct(c.traf)+'%'; $('#barEmpresa').style.width=pct(c.emp)+'%'; $('#barMarketing').style.width=pct(c.mkt)+'%'; $('#barTrafego').style.width=pct(c.traf)+'%'; $('#healthBadge').textContent=saldoProprio<0||c.saldoProjetado<0?'Atenção':'Saudável'; const planClass=c.saldoProjetado<0||saldoProprio<0?'danger':(c.semValor>0||c.sobraLara>0||terceirosReservados>0?'warn':'ok'); const planMsg=c.saldoProjetado<0?`Atencao: no mes selecionado, faltam ${br(Math.abs(c.saldoProjetado))} considerando saldo próprio, receitas pendentes e débitos pendentes do mês. Para nao fechar negativo, novos gastos variaveis/cartoes devem ficar em ate ${br(c.limiteCartao)}.`:(c.sobraLara>0?`⚠ Com o que foi lançado no NuBank, a sobra estimada da Lara é ${br(c.sobraLara)}. Lance os pagamentos que ela fez como débitos pagos no NuBank para esse número ficar real.`:(c.semValor>0?'⚠ Existem lançamentos sem valor. Preencha para ter uma projeção real.':'✓ Mês projetado com equilíbrio. Use o limite de cartão seguro antes de gastar mais.')); $('#planningText').className='planning-smart '+planClass; $('#planningText').innerHTML=planMsg; renderDailyFocus(c); renderCarryoverAlert(); updateCleanDashboard(c,b,saldoProprio,terceirosReservados); renderMonthCardSummary(); renderBanks(b); renderThird();}
 
 function renderOverviewCharts(c,balances){
   const target=id=>$('#'+id), safe=n=>Number.isFinite(Number(n))?Math.max(0,Number(n)):0;
@@ -2950,7 +3046,7 @@ function deleteThirdPersonMovements(){
   setTab('terceiros');
 }
 function renderAll(){ recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); ensureOverdueIncomesForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); renderFixedExpenses(); }
-function setTab(id){ $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id)); $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id)); }
+function setTab(id){ $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id)); $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id)); syncIncomeSummaryMode(id); }
 function autoViewMode(){return window.matchMedia('(max-width: 760px)').matches?'mobile':'desktop'}
 function setView(mode,manual=true){ document.body.classList.toggle('mobile-view',mode==='mobile'); $('#btnDesktop').classList.toggle('active',mode==='desktop'); $('#btnMobile').classList.toggle('active',mode==='mobile'); if(manual)localStorage.setItem('dualizeViewMode',mode); }
 function applyAutoView(){setView(autoViewMode(),false)}
@@ -3559,10 +3655,12 @@ function enableSimpleFinanceControls(){
   $('#thirdHideHistoryBtn').onclick=()=>{thirdHistoryRequested=false;renderThird();};
   ['debitSearch','incomeSearch'].forEach(id=>$('#'+id).addEventListener('input',renderLists));
   $('#incomeStatusFilter').addEventListener('change',renderLists);
+  $('#incomeOriginFilter').addEventListener('change',renderLists);
   document.body.addEventListener('click',e=>{
     const button=e.target.closest('button');if(!button)return;
     if(button.dataset.editThird){editThirdMovement(button.dataset.editThird);return;}
     if(button.dataset.entryAction){if(button.disabled||button.dataset.settleGesture==='double')return;const row=button.closest('.entry-row');if(row)runSimpleEntryAction(Number(row.dataset.id),button.dataset.entryAction);return;}
+    if(button.dataset.showIncomeOrigin){$('#incomeOriginFilter').value=button.dataset.showIncomeOrigin;$('#incomeStatusFilter').value='pendentes';$('#incomeSearch').value='';setTab('receitas');renderLists();return;}
     if(button.dataset.goPanel){setTab(button.dataset.goPanel);return;}
     if(button.dataset.newEntry){clearForm();$('#typeInput').value=button.dataset.newEntry;syncFormType();setTab('lancar');return;}
     if(button.hasAttribute('data-close-entry')){setTab($('#typeInput').value==='receita'?'receitas':'debitos');return;}
@@ -3570,7 +3668,7 @@ function enableSimpleFinanceControls(){
     if(button.hasAttribute('data-open-indicators')){setTab('dashboard');return;}
     if(button.hasAttribute('data-config-sync')){configureSync();return;}
     if(button.hasAttribute('data-show-fixed-pending')||button.hasAttribute('data-show-monthly-pending')){state.debitFilter=button.hasAttribute('data-show-fixed-pending')?'fixo':'pendente';$('#debitFilter').value=state.debitFilter;$('#debitSearch').value='';setTab('debitos');renderLists();return;}
-    if(button.hasAttribute('data-show-income-pending')){$('#incomeStatusFilter').value='pendentes';$('#incomeSearch').value='';setTab('receitas');renderLists();return;}
+    if(button.hasAttribute('data-show-income-pending')){$('#incomeOriginFilter').value='';$('#incomeStatusFilter').value='pendentes';$('#incomeSearch').value='';setTab('receitas');renderLists();return;}
     if(button.hasAttribute('data-show-missing')||button.hasAttribute('data-show-debit-pending')||button.hasAttribute('data-view-card-debits')){
       state.debitFilter=button.hasAttribute('data-show-missing')?'semvalor':button.hasAttribute('data-view-card-debits')?'cartoes':'abertos';
       $('#debitFilter').value=state.debitFilter;$('#debitSearch').value='';setTab('debitos');renderLists();
