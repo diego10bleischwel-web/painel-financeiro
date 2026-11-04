@@ -921,6 +921,19 @@ body .ledger-panel .entry-row .status-pill.pago,body .ledger-panel .entry-row .s
 @media(max-width:850px){#terceiros .third-ledger-row{grid-template-columns:57px minmax(90px,1fr) 90px 125px 60px;gap:10px;padding:12px}#terceiros .third-simple-summary strong{font-size:21px}}
 @media(max-width:650px){#terceiros .card-head{align-items:flex-start;flex-direction:column;padding:19px}#terceiros .third-simple-summary{padding:18px 15px}#terceiros .third-simple-summary>div{padding:0 12px}#terceiros .third-simple-summary strong{font-size:18px}#terceiros .third-simple-summary span{font-size:10px;line-height:1.5}#terceiros .third-simple-toolbar{padding:16px 15px 10px;gap:8px}#terceiros #thirdSearch{max-width:none;flex-basis:100%}#terceiros #thirdPersonFilter{flex:1;max-width:none}#terceiros .third-person-actions{margin-left:0}#terceiros .third-simple-counter{padding:0 15px 13px;font-size:10px}#terceiros .third-simple-list{padding:0 12px 14px}#terceiros .third-ledger-row{grid-template-columns:52px minmax(0,1fr) 120px;gap:9px 11px}#terceiros .third-date{grid-column:1;grid-row:1/3}#terceiros .third-person{grid-column:2;grid-row:1/3}#terceiros .third-direction{grid-column:3;grid-row:1;padding:7px;font-size:10px}#terceiros .third-row-value{grid-column:3;grid-row:2;font-size:12px}#terceiros .third-edit-action{grid-column:2/4;justify-self:end}#terceiros .third-editor{margin:0 13px 14px}#terceiros .third-form-body{padding:16px}#terceiros .third-form-grid{grid-template-columns:1fr}#terceiros input:not([type=file]),#terceiros select,#terceiros textarea{font-size:16px!important}#terceiros .third-period>div{right:auto;left:-100px}#terceiros .third-bank-details>summary{font-size:11px}}
 
+
+/* Fixed card costs are an informational list, independent from invoices. */
+#fixosCartao .card{background:var(--card)!important;box-shadow:none!important;border:1px solid var(--line)!important;transform:none!important;border-radius:20px}
+#fixosCartao .card-head{padding:21px 23px;align-items:center}#fixosCartao h2{font-size:22px}#fixosCartao .card-head p{font-size:12px}
+#fixosCartao .btn{border-radius:10px!important;font-size:12px;box-shadow:none!important;padding:11px 14px}
+.fixed-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:22px 23px;gap:20px;border-bottom:1px solid var(--line)}.fixed-summary>div+div{border-left:1px solid var(--line);padding-left:22px}.fixed-summary span{font-size:11px;color:var(--muted)}.fixed-summary strong{display:block;font-size:24px;margin-top:10px;color:#d0aaff}.fixed-summary>div:nth-child(2) strong{color:#ffdc91}.fixed-summary>div:last-child strong{color:#86d9ae}
+.fixed-info{font-size:11px;color:var(--muted);margin:17px 23px 0;line-height:1.6}.fixed-toolbar{display:flex;gap:10px;flex-wrap:wrap;padding:18px 23px 12px}.fixed-toolbar input{flex:1;min-width:180px}.fixed-toolbar select{max-width:230px}
+#fixosCartao input,#fixosCartao select{background:var(--bg)!important;color:var(--text)!important;border:1px solid var(--line)!important;border-radius:10px!important;padding:11px 13px;font-size:12px;min-height:42px;box-shadow:none!important;min-width:0}
+.fixed-counter{font-size:11px;color:var(--muted);padding:0 23px 14px}.fixed-list{display:grid;gap:8px;padding:0 20px 20px}.fixed-expense-row{display:grid;grid-template-columns:82px minmax(120px,1fr) 145px 75px 65px;gap:14px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:13px;min-width:0}.fixed-expense-name{min-width:0}.fixed-expense-name strong{display:block;font-size:14px;overflow-wrap:anywhere}.fixed-expense-name small{display:block;margin-top:6px;font-size:11px;color:var(--muted)}.fixed-group{text-align:center;font-size:11px;padding:9px 7px;border-radius:8px}.fixed-dualize{background:#382450;color:#e6d4ff}.fixed-lazer{background:#4c381a;color:#ffdc91}.fixed-expense-value{text-align:right;color:#d0aaff;font-size:15px}.fixed-expense-value small{display:block;color:var(--muted);font-size:10px;font-weight:400;margin-top:5px}.fixed-state{border:1px solid #315f48;border-radius:8px;color:#b7e8cc;background:#163626;font-size:11px;padding:9px;cursor:pointer}.fixed-paused{opacity:.65}.fixed-paused .fixed-state{background:transparent;border-color:var(--line);color:var(--muted)}#fixosCartao .fixed-expense-row .btn{background:transparent!important;border:1px solid var(--line);color:var(--muted)!important;font-size:11px;padding:9px}
+.fixed-editor{margin:0 23px 18px;border:1px solid var(--line);border-radius:13px}.fixed-editor:not([open]){display:none}.fixed-editor>summary{padding:16px 18px;font-size:14px;font-weight:700;cursor:pointer;border-bottom:1px solid var(--line)}.fixed-form{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:20px}.fixed-form label{display:block;font-size:11px;color:var(--muted);margin-bottom:8px}.fixed-form input,.fixed-form select{width:100%}.fixed-form-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap}#fixosCartao #deleteFixedExpenseBtn{margin-left:auto;color:#ff8b9a!important;background:transparent!important;border:1px solid #6e3444}#fixosCartao [hidden]{display:none!important}
+#terceiros .third-recent-block{padding:20px 23px;border-bottom:1px solid var(--line)}#terceiros .third-recent-heading{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:15px}#terceiros .third-recent-heading h3{font-size:14px;margin:0}#terceiros .third-recent-heading>span{font-size:10px;color:var(--muted)}#terceiros #thirdRecentPeople{display:grid;gap:9px}#terceiros .third-person-summary{display:grid;grid-template-columns:minmax(130px,1.2fr) repeat(3,minmax(110px,1fr));gap:16px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:16px}#terceiros .third-person-summary small{display:block;font-size:10px;color:var(--muted);margin-bottom:6px}#terceiros .third-person-summary strong{font-size:14px}#terceiros .third-person-summary span{font-size:12px}#terceiros .third-person-summary>div:first-child small{margin:7px 0 0}#terceiros .third-person-summary>div:last-child{text-align:right}#terceiros .third-bank-details{margin-top:12px;background:transparent}#terceiros .third-bank-details>summary{padding:13px 15px;font-size:11px}#terceiros [hidden]{display:none!important}#terceiros #thirdHideHistoryBtn{font-size:10px;background:transparent!important;color:var(--muted)!important;border:1px solid var(--line)}
+@media(max-width:700px){#fixosCartao .card-head{align-items:flex-start;flex-direction:column;gap:14px}.fixed-summary{padding:19px 17px;gap:12px}.fixed-summary strong{font-size:19px}.fixed-summary>div+div{padding-left:12px}.fixed-summary span{font-size:10px}.fixed-toolbar{padding:16px 17px 12px}.fixed-toolbar input{flex-basis:100%}.fixed-toolbar select{flex:1;max-width:none}.fixed-info{margin:16px 17px 0}.fixed-list{padding:0 12px 15px}.fixed-expense-row{grid-template-columns:75px minmax(0,1fr) 95px;gap:11px;padding:13px}.fixed-expense-name{grid-column:2/4}.fixed-expense-value{grid-column:2;grid-row:2;text-align:left}.fixed-state{grid-column:1;grid-row:2}.fixed-expense-row>.btn{grid-column:3;grid-row:2}.fixed-editor{margin:0 15px 16px}.fixed-form{grid-template-columns:1fr;padding:17px}.fixed-form-actions{grid-column:1}#fixosCartao input,#fixosCartao select{font-size:16px}#terceiros .third-recent-block{padding:17px 15px}#terceiros .third-person-summary{grid-template-columns:1fr 1fr;gap:16px;padding:15px}#terceiros .third-person-summary>div:last-child{text-align:left}#terceiros .third-recent-heading{align-items:flex-start;flex-direction:column;gap:7px}}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -939,7 +952,7 @@ body .ledger-panel .entry-row .status-pill.pago,body .ledger-panel .entry-row .s
 <button class="kpi kpi-blue" type="button" data-go-panel="bancos"><span>Saldo próprio</span><strong id="dashSaldoBanco">R$ 0,00</strong><small>Acumulado, sem dinheiro de terceiros</small></button>
 <button class="kpi kpi-orange" type="button" data-open-indicators><span>Projeção do mês</span><strong id="dashSaldo">R$ 0,00</strong><small>Saldo + a receber − a pagar</small></button>
 </section>
-<nav class="tabs simple-tabs" aria-label="Áreas do financeiro"><button class="tab active" data-panel="debitos">Débitos</button><button class="tab" data-panel="receitas">Receitas</button><button class="tab" data-panel="cartoes">Cartões</button><button class="tab" data-panel="terceiros">Terceiros</button><button class="tab" data-panel="dashboard">Visão geral</button></nav>
+<nav class="tabs simple-tabs" aria-label="Áreas do financeiro"><button class="tab active" data-panel="debitos">Débitos</button><button class="tab" data-panel="receitas">Receitas</button><button class="tab" data-panel="cartoes">Cartões</button><button class="tab" data-panel="fixosCartao">Fixos no cartão</button><button class="tab" data-panel="terceiros">Terceiros</button><button class="tab" data-panel="dashboard">Visão geral</button></nav>
 <section id="debitos" class="panel active ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="debitMonthTitle">Débitos de Abril</h2><p>Dê dois cliques em Pagar para dar baixa. Em Mais, você pode adiar ou excluir.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="debitFilter" class="filter-select"><option value="todos">Todos</option><option value="abertos">A pagar</option><option value="semvalor">Sem valor</option><option value="cartoes">Cartões</option><option value="pendente">Débito mensal</option><option value="fixo">Débito fixo</option><option value="pago">Pago</option></select><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addDebitBtn">+ Adicionar débito</button></div></div><div class="ledger-toolbar"><input type="search" id="debitSearch" placeholder="Buscar débitos por nome ou banco" aria-label="Buscar débitos"><span class="list-count" id="debitListCount"></span></div><div class="month-list" id="debitList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo do mês</h2><p>Faturas importadas e total do mês.</p></div></div><div class="note" id="monthCardSummary">Importe uma fatura para ver o resumo dos cartões.</div></div><div class="card"><div class="card-head"><div><h2>Próxima ação</h2><p>O que falta conferir.</p></div></div><div class="suggestion">Confira os débitos mensais sem valor e selecione banco de saída antes de marcar como pago.</div></div></aside></div></section>
 <section id="receitas" class="panel ledger-panel"><div class="grid"><div class="card ledger-card"><div class="card-head"><div><h2 id="incomeMonthTitle">Receitas de Abril</h2><p>Edite o saldo pendente e clique em Receber para registrar uma baixa integral ou parcial.</p></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn month-scope-toggle" type="button" data-month-scope-toggle>Somente mês atual</button><button class="btn" id="addIncomeBtn">+ Adicionar receita</button></div></div><div class="ledger-toolbar"><input type="search" id="incomeSearch" placeholder="Buscar receitas por nome ou banco" aria-label="Buscar receitas"><select class="filter-select" id="incomeStatusFilter" aria-label="Filtrar receitas"><option value="todos">Todas</option><option value="pendentes">A receber</option><option value="recebidas">Recebidas</option></select><span class="list-count" id="incomeListCount"></span></div><div class="month-list" id="incomeList"></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo de receitas</h2><p>Total recebido no mês.</p></div></div><div class="note"><strong>Pendente</strong> fica em aberto.<br><br><strong>Parcial</strong> mostra em roxo quanto ainda falta receber.<br><br><strong>Recebido</strong> entra no banco cadastrado e na receita disponível.</div></div><div class="card"><div class="card-head"><div><h2>Controle por banco</h2><p>Entradas recebidas.</p></div></div><div class="suggestion" id="bankSummary">Nenhum banco movimentado ainda.</div></div></aside></div></section>
 <section id="lancar" class="panel">
@@ -983,11 +996,20 @@ body .ledger-panel .entry-row .status-pill.pago,body .ledger-panel .entry-row .s
   </div>
 </section>
 <section id="bancos" class="panel" hidden aria-hidden="true"><div class="card"><div class="card-head"><div><h2>Bancos Saldo</h2><p>Entradas recebidas, saídas pagas, transferências e saldo por banco.</p></div></div><div class="bank-grid" id="bankCards"></div><div style="display:none"><table class="bank-table" id="bankDetails"></table></div><div class="transfer-shell"><div class="transfer-shell-head"><h3>Transferir / ajustar banco</h3><button class="btn" id="toggleTransferBtn">+ Transferência</button></div><div class="transfer-box" id="transferBox"><div class="transfer-grid"><select class="mini-input" id="transferType"><option value="transferencia">Transferência</option><option value="entrada">Entrada</option><option value="saida">Saída</option></select><select class="mini-input" id="transferFrom"></select><select class="mini-input" id="transferTo"></select><input class="mini-input" id="transferValue" placeholder="R$ 0,00"><input class="mini-input" id="transferNote" placeholder="Observação opcional"></div><button class="btn" style="margin-top:12px" id="saveTransferBtn">Salvar movimento</button><div style="margin-top:14px"><table class="bank-table" id="transferTable"></table></div></div></div><div style="padding:0 20px 22px"><h3>Pesquisar movimentações por banco</h3><div class="transfer-grid"><select class="mini-input" id="bankMovementFilter"><option value="nenhum">Nenhum banco</option><option value="todos">Todos os bancos</option></select><input type="date" class="mini-input" id="bankMovementFrom"><input type="date" class="mini-input" id="bankMovementTo"><button class="btn" id="searchBankMovementsBtn" type="button">Pesquisar</button></div><div style="margin-top:14px"><table class="bank-table" id="bankMovementTable"></table></div></div></div></section>
+<section id="fixosCartao" class="panel fixed-expenses">
+  <div class="card"><div class="card-head"><div><h2>Fixos no cartão</h2><p>Suas ferramentas e assinaturas mensais, separadas entre Dualize e Lazer.</p></div><button class="btn" id="addFixedExpenseBtn" type="button">+ Adicionar mensalidade</button></div>
+    <div class="fixed-summary"><div><span>Dualize / mês</span><strong id="fixedExpenseDualizeTotal">R$ 0,00</strong></div><div><span>Lazer / mês</span><strong id="fixedExpenseLazerTotal">R$ 0,00</strong></div><div><span>Total ativo / mês</span><strong id="fixedExpenseTotal">R$ 0,00</strong></div></div>
+    <p class="fixed-info">Controle das mensalidades já incluídas nas faturas. Não gera um novo débito.</p>
+    <div class="fixed-toolbar"><input type="search" id="fixedExpenseSearch" aria-label="Buscar mensalidade" placeholder="Buscar ferramenta ou assinatura"><select id="fixedExpenseGroupFilter" aria-label="Filtrar grupo"><option value="">Dualize e Lazer</option><option value="dualize">Dualize</option><option value="lazer">Lazer</option></select><select id="fixedExpenseCardFilter" aria-label="Filtrar cartão"><option value="">Todos os cartões</option></select></div>
+    <details class="fixed-editor" id="fixedExpenseEditor"><summary id="fixedExpenseEditorTitle">Nova mensalidade</summary><div class="fixed-form"><div><label for="fixedExpenseName">Nome</label><input id="fixedExpenseName" placeholder="Ex.: Netflix, Prime Video, Tintim"></div><div><label for="fixedExpenseAmount">Valor mensal</label><input id="fixedExpenseAmount" placeholder="R$ 0,00" inputmode="decimal"></div><div><label for="fixedExpenseGroup">Grupo</label><select id="fixedExpenseGroup"><option value="dualize">Dualize</option><option value="lazer">Lazer</option></select></div><div><label for="fixedExpenseCard">Cartão</label><select id="fixedExpenseCard"><option value="">Selecione o cartão</option></select></div><div class="fixed-form-actions"><button class="btn" id="saveFixedExpenseBtn" type="button">Salvar mensalidade</button><button class="btn soft" id="cancelFixedExpenseBtn" type="button">Cancelar</button><button class="btn soft" id="deleteFixedExpenseBtn" type="button" hidden>Excluir</button></div></div></details>
+    <div class="fixed-counter" id="fixedExpenseCounter"></div><div class="fixed-list" id="fixedExpenseList"></div>
+  </div>
+</section>
 <section id="terceiros" class="panel third-simple">
   <div class="card third-ledger-card">
     <div class="card-head"><div><h2>Terceiros</h2><p>Dinheiro que você recebeu para repassar a outra pessoa.</p></div><button class="btn" type="button" id="addThirdBtn">+ Adicionar movimento</button></div>
-    <div class="third-simple-summary" id="thirdSummaryCards"></div>
-    <div class="third-simple-toolbar"><input type="search" id="thirdSearch" aria-label="Buscar movimentos de terceiros" placeholder="Buscar pessoa, banco ou observação"><select id="thirdPersonFilter" class="filter-select" aria-label="Filtrar por pessoa"><option value="todos">Todas as pessoas</option></select><details class="third-period"><summary>Filtrar período</summary><div><label>De<input type="date" id="thirdDateFrom" class="mini-input"></label><label>Até<input type="date" id="thirdDateTo" class="mini-input"></label><button class="btn soft" id="searchThirdBtn" type="button">Aplicar filtro</button></div></details><details class="entry-more third-person-actions"><summary>Mais ações</summary><div class="entry-menu"><button class="btn danger" id="deleteThirdPersonBtn" type="button" disabled>Excluir pessoa</button></div></details></div>
+    <div class="third-recent-block"><div class="third-recent-heading"><h3>Valores de terceiros</h3><span>Últimas 5 pessoas com movimentos</span></div><div id="thirdRecentPeople"></div><details class="third-bank-details"><summary>Ver valores de terceiros por banco</summary><div id="dashPaymentSummary"></div></details></div><div class="third-simple-summary" id="thirdSummaryCards" hidden></div>
+    <div class="third-simple-toolbar"><input type="search" id="thirdSearch" aria-label="Buscar movimentos de terceiros" placeholder="Buscar pessoa, banco ou observação"><select id="thirdPersonFilter" class="filter-select" aria-label="Filtrar por pessoa"><option value="todos">Todas as pessoas</option></select><details class="third-period" id="thirdPeriodFilter"><summary>Ver lançamentos / período</summary><div><label>De<input type="date" id="thirdDateFrom" class="mini-input"></label><label>Até<input type="date" id="thirdDateTo" class="mini-input"></label><button class="btn soft" id="searchThirdBtn" type="button">Ver lançamentos</button><button class="btn soft" id="thirdViewAllBtn" type="button">Ver todo o histórico</button></div></details><button class="btn soft" id="thirdHideHistoryBtn" type="button" hidden>Ocultar lançamentos</button><details class="entry-more third-person-actions"><summary>Mais ações</summary><div class="entry-menu"><button class="btn danger" id="deleteThirdPersonBtn" type="button" disabled>Excluir pessoa</button></div></details></div>
     <div class="third-simple-counter" id="thirdLineCounter"></div>
     <details class="third-editor" id="thirdEditor"><summary><span id="thirdEditorTitle">Novo movimento</span><span class="third-editor-toggle">Abrir / fechar</span></summary>
       <div class="third-form-body"><div class="third-form-grid">
@@ -1003,7 +1025,7 @@ body .ledger-panel .entry-row .status-pill.pago,body .ledger-panel .entry-row .s
     </details>
     <div class="third-simple-list" id="thirdMovementTable"></div>
   </div>
-  <details class="third-bank-details"><summary>Ver valores de terceiros por banco</summary><div id="dashPaymentSummary"></div></details>
+
 </section>
 <section id="cartoes" class="panel"><div class="section-heading"><div><h2>Cartões</h2><p>Faturas do mês em um só lugar. Estimativas futuras ficam separadas.</p></div><button class="btn" type="button" data-open-import>Importar fatura</button></div><div id="cardDetailsCompact" class="card-details-compact"></div><details id="cardImportTools" class="simple-details"><summary>Importar uma fatura ou cadastrar cartão</summary><div class="details-content"><div class="grid"><div class="card"><div class="card-head"><div><h2>Importar faturas de cartão</h2><p>Cadastre o cartão se ele ainda não existir; depois selecione o cartão, o mês e importe a fatura.</p></div></div><div class="form"><details class="simple-details register-card"><summary>Cadastrar um novo cartão</summary><div class="details-content"><div class="suggestion" style="margin:4px 0 0;background:#fbfaf8"><b>1. Cadastrar novo cartão</b><br><small>Use esta parte somente se o cartão ainda não aparecer na lista de importação.</small><div class="row" style="margin-top:12px"><div><label>Nome do novo cartão</label><input id="newCardName" placeholder="Ex: Cartão Itaú"></div><div><label>Banco de pagamento</label><select id="newCardBank"></select></div></div><div class="row" style="margin-top:10px"><div><label>Dia do vencimento</label><input id="newCardDay" type="number" min="1" max="31" placeholder="Ex: Dia 10"></div><button class="btn soft" id="addCardBtn" type="button">Cadastrar e selecionar cartão</button></div></div></div></details><div class="row card-import-target"><div><label>2. Cartão para importar</label><select id="cardImportName"></select><div class="mini-help">Selecione o cartão antes de importar a fatura.</div></div><div><label>3. Mês da fatura</label><select id="cardImportMonth"></select><div class="mini-help">A fatura entra neste mês e projeta parcelas futuras.</div></div><div><label>Valor oficial do próximo mês</label><input id="cardNextInvoiceValue" placeholder="Ex: R$ 5.487,11"><div class="mini-help">Use quando o banco mostrar a próxima fatura aberta.</div></div></div><div id="cardDropZone" class="suggestion" style="border:2px dashed var(--line);background:#fbfaf8;text-align:center;cursor:pointer"><b>Solte o PDF/CSV/TXT aqui</b><br><span id="cardFileName">ou clique para buscar o arquivo</span><input id="cardFileInput" type="file" accept=".pdf,.csv,.txt,text/plain,application/pdf" hidden></div><details class="raw-card-data simple-details"><summary>Colar texto da fatura</summary><div class="details-content"><label>Dados da fatura</label><textarea id="cardImportText" placeholder="O texto extraído do PDF ou CSV aparece aqui. Você também pode colar manualmente." style="min-height:220px"></textarea><div class="mini-help">Aceita PDF, CSV, ponto e vírgula, tabulação ou texto copiado. Quando encontrar parcela 2/10, projeta as próximas.</div></div></details><div class="row"><button class="btn" id="previewCardImportBtn" type="button">Pré-visualizar</button><button class="btn soft" id="applyCardImportBtn" type="button" disabled>Importar e atualizar débito</button></div><div id="cardImportPreview" class="suggestion">Selecione um cartão para importar.</div></div></div><aside class="side"><div class="card"><div class="card-head"><div><h2>Resumo dos cartões</h2><p>Totais importados por cartão, categoria e próximos meses.</p></div></div><div class="note" id="cardImportSummary">Cole uma fatura para começar.</div></div><details class="card import-history-toggle"><summary><div class="card-head"><div><h2>Histórico importado</h2><p>Clique para ver os itens usados no cálculo.</p></div></div></summary><div style="padding:0 20px 20px"><table class="bank-table" id="cardImportTable"></table></div></details></aside></div></div></details></section>
 
@@ -1104,6 +1126,8 @@ const state={
   transfers:Array.isArray(savedState?.transfers)?structuredClone(savedState.transfers):[],
   thirdMovements:Array.isArray(savedState?.thirdMovements)?structuredClone(savedState.thirdMovements):[],
   deletedThirdPeople:savedState?.deletedThirdPeople&&typeof savedState.deletedThirdPeople==='object'?structuredClone(savedState.deletedThirdPeople):{},
+  cardFixedExpenses:Array.isArray(savedState?.cardFixedExpenses)?structuredClone(savedState.cardFixedExpenses):[],
+  deletedFixedExpenses:savedState?.deletedFixedExpenses&&typeof savedState.deletedFixedExpenses==='object'?structuredClone(savedState.deletedFixedExpenses):{},
   cardTransactions:Array.isArray(savedState?.cardTransactions)?structuredClone(savedState.cardTransactions):[],
   cards:Array.isArray(savedState?.cards)?structuredClone(savedState.cards):structuredClone(DEFAULT_CARDS),
   lastSync:Number(savedState?.lastSync||0),
@@ -1187,6 +1211,8 @@ function statePayload(){
     transfers:state.transfers,
     thirdMovements:state.thirdMovements,
     deletedThirdPeople:state.deletedThirdPeople,
+    cardFixedExpenses:state.cardFixedExpenses,
+    deletedFixedExpenses:state.deletedFixedExpenses,
     cardTransactions:state.cardTransactions,
     cards:state.cards,
     lastSync:state.lastSync,
@@ -1499,8 +1525,9 @@ function mergeCloudIntoLocal(remote){
   const third=mergeByKey(filterDeletedThirdMovements(state.thirdMovements,deletedThirdPeople,deletedEntries),filterDeletedThirdMovements(remote.thirdMovements,deletedThirdPeople,deletedEntries),m=>'third:'+(m.id??[m.person,m.date,m.bank,m.type,m.valor,m.note].join('|')),(local,remote)=>Number(remote.updatedAt||0)>Number(local.updatedAt||0)?remote:local);
   const cards=mergeByKey(state.cards,remote.cards,c=>'card:'+standardCardName(c.name||c.alias||''));
   const cardTx=mergeByKey(filterDeletedCardTransactions(state.cardTransactions,deletedEntries),filterDeletedCardTransactions(remote.cardTransactions,deletedEntries),t=>'cardtx:'+(t.key||cardTxKey(t)));
+  const fixed=mergeFixedExpenseState(state,remote);
   const deletedChanged=JSON.stringify(deletedThirdPeople)!==JSON.stringify(state.deletedThirdPeople)||JSON.stringify(deletedEntries)!==JSON.stringify(state.deletedEntries);
-  const changed=entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed||deletedChanged||entries.items.length!==state.entries.length||third.items.length!==state.thirdMovements.length;
+  const changed=fixed.changed||entries.changed||transfers.changed||third.changed||cards.changed||cardTx.changed||deletedChanged||entries.items.length!==state.entries.length||third.items.length!==state.thirdMovements.length;
   if(!changed)return false;
   applyingRemote=true;
   state.entries=entries.items;
@@ -1510,6 +1537,8 @@ function mergeCloudIntoLocal(remote){
   state.deletedThirdPeople=deletedThirdPeople;
   state.cards=cards.items.length?cards.items:state.cards;
   state.cardTransactions=cardTx.items;
+  state.cardFixedExpenses=fixed.items;
+  state.deletedFixedExpenses=fixed.deleted;
   state.nextId=Math.max(Number(state.nextId||503),Number(remote.nextId||503),...state.entries.map(e=>Number(e.id||0)+1));
   state.lastSync=Date.now();
   state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2);
@@ -1544,7 +1573,8 @@ function applyCloudState(data){
   const mergedEntries=mergeByKey(filteredEntries,filterDeletedEntries(state.entries,deletedEntries),entryMergeKey,mergeFinancialEntry);
   const remoteCardTransactions=Array.isArray(data.cardTransactions)?structuredClone(data.cardTransactions):[];
   const filteredCardTransactions=filterDeletedCardTransactions(remoteCardTransactions,deletedEntries);
-  const deletionNeedsUpload=mergedEntries.changed||JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
+  const fixed=mergeFixedExpenseState(state,data);
+  const deletionNeedsUpload=fixed.needsUpload||mergedEntries.changed||JSON.stringify(deletedEntries)!==JSON.stringify(data.deletedEntries||{})||filteredEntries.length!==remoteEntries.length||filteredCardTransactions.length!==remoteCardTransactions.length||JSON.stringify(deletedThirdPeople)!==JSON.stringify(data.deletedThirdPeople||{})||filteredThirdMovements.length!==remoteThirdMovements.length;
   applyingRemote=true;
   state.nextId=Math.max(Number(state.nextId||503),Number(data.nextId||503),...mergedEntries.items.map(e=>Number(e.id||0)+1));
   state.deletedEntries=deletedEntries;
@@ -1553,6 +1583,8 @@ function applyCloudState(data){
   state.deletedThirdPeople=deletedThirdPeople;
   state.thirdMovements=ensureThirdMovementIds(filteredThirdMovements);
   state.cardTransactions=filteredCardTransactions;
+  state.cardFixedExpenses=fixed.items;
+  state.deletedFixedExpenses=fixed.deleted;
   state.cards=Array.isArray(data.cards)?structuredClone(data.cards):structuredClone(DEFAULT_CARDS);
   state.lastSync=Number(data.lastSync||Date.now());
   state.syncRevision=String(data.syncRevision||'');
@@ -1581,7 +1613,10 @@ function applyRecoveredState(data, uploadNow=false){
   if(data.deletedThirdPeople&&typeof data.deletedThirdPeople==='object'){
     Object.entries(data.deletedThirdPeople).forEach(([person,ts])=>{ deletedThirdPeople[person]=Math.max(Number(deletedThirdPeople[person]||0),Number(ts||0)); });
   }
+  const fixed=mergeFixedExpenseState(state,data);
   applyingRemote=true;
+  state.cardFixedExpenses=fixed.items;
+  state.deletedFixedExpenses=fixed.deleted;
   state.currentMonth=currentMonthIndex();
   state.nextId=Number(data.nextId||503);
   state.deletedEntries=deletedEntries;
@@ -2687,21 +2722,128 @@ function renderBankMovementFilters(reset=false){ const filter=$('#bankMovementFi
 function renderBankMovements(force=false){ const table=$('#bankMovementTable'); if(!table)return; renderBankMovementFilters(!force); let rows=[]; const bank=$('#bankMovementFilter').value||'nenhum', from=$('#bankMovementFrom').value, to=$('#bankMovementTo').value; if(force&&bank!=='nenhum'){ rows=bankMovementRows(); if(bank!=='todos')rows=rows.filter(r=>r.bank===bank); if(from)rows=rows.filter(r=>!r.date||r.date>=from); if(to)rows=rows.filter(r=>!r.date||r.date<=to); } const total=rows.reduce((sum,r)=>sum+(r.type==='entrada'?moneyCents(r.value):-moneyCents(r.value)),0)/100; table.innerHTML='<tr><td><b>Data</b></td><td><b>Banco</b></td><td><b>Tipo</b></td><td><b>Descrição</b></td><td><b>Valor</b></td></tr>'+rows.map(r=>`<tr class="${r.type==='entrada'?'positive':'negative'}"><td>${r.date||'-'}</td><td>${r.bank}</td><td>${r.type}</td><td>${r.source}: ${r.desc||'-'}</td><td>${r.type==='entrada'?br(r.value):brDeb(r.value)}</td></tr>`).join('')+(rows.length?`<tr><td colspan="4"><b>Total filtrado</b></td><td><b>${total>=0?br(total):brDeb(Math.abs(total))}</b></td></tr>`:'<tr><td colspan="5">Selecione um banco e clique em Pesquisar.</td></tr>'); }
 function thirdMovementId(m){ return String(m?.id||''); }
 function thirdMovementById(id){ return state.thirdMovements.find(m=>thirdMovementId(m)===String(id)); }
+let editingFixedExpenseId='',fixedExpenseSaving=false;
+let thirdHistoryRequested=false,thirdAppliedPeriod={from:'',to:''};
+function mergeFixedExpenseState(local,remote){
+  const deleted={...(local.deletedFixedExpenses||{})};
+  Object.entries(remote.deletedFixedExpenses||{}).forEach(([id,ts])=>{deleted[id]=Math.max(Number(deleted[id]||0),Number(ts||0));});
+  const map=new Map();
+  for(const item of [...(local.cardFixedExpenses||[]),...(remote.cardFixedExpenses||[])]){
+    if(!item||!item.id||deleted[item.id])continue;
+    const previous=map.get(item.id);
+    if(!previous||Number(item.updatedAt||0)>Number(previous.updatedAt||0))map.set(item.id,structuredClone(item));
+  }
+  const items=[...map.values()].sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+  return {items,deleted,changed:JSON.stringify(items)!==JSON.stringify(local.cardFixedExpenses||[])||JSON.stringify(deleted)!==JSON.stringify(local.deletedFixedExpenses||{}),needsUpload:JSON.stringify(items)!==JSON.stringify(remote.cardFixedExpenses||[])||JSON.stringify(deleted)!==JSON.stringify(remote.deletedFixedExpenses||{})};
+}
+function fixedExpenseNames(){
+  return [...new Set([...state.cards.map(c=>c.name),...state.cardFixedExpenses.map(e=>e.card)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+}
+function renderFixedExpenses(){
+  if(!$('#fixedExpenseList'))return;
+  const names=fixedExpenseNames();
+  for(const [id,placeholder] of [['fixedExpenseCard','Selecione o cartão'],['fixedExpenseCardFilter','Todos os cartões']]){
+    const el=$('#'+id),old=el.value;
+    el.innerHTML='<option value="">'+placeholder+'</option>'+names.map(name=>`<option value="${htmlText(name)}">${htmlText(name.replace(/^Fatura Cartão\s+/,''))}</option>`).join('');
+    el.value=names.includes(old)?old:'';
+  }
+  const active=state.cardFixedExpenses.filter(e=>e.active!==false),sum=rows=>rows.reduce((c,e)=>c+Math.round(parseMoney(e.amount)*100),0)/100;
+  $('#fixedExpenseDualizeTotal').textContent=br(sum(active.filter(e=>e.group==='dualize')));
+  $('#fixedExpenseLazerTotal').textContent=br(sum(active.filter(e=>e.group==='lazer')));
+  $('#fixedExpenseTotal').textContent=br(sum(active));
+  const query=statusKey($('#fixedExpenseSearch').value),group=$('#fixedExpenseGroupFilter').value,card=$('#fixedExpenseCardFilter').value;
+  const rows=state.cardFixedExpenses.filter(e=>(!group||e.group===group)&&(!card||e.card===card)&&(!query||statusKey([e.name,e.card,e.group==='dualize'?'Dualize empresa':'Lazer'].join(' ')).includes(query))).slice().sort((a,b)=>Number(a.active===false)-Number(b.active===false)||String(a.name).localeCompare(String(b.name),'pt-BR'));
+  $('#fixedExpenseCounter').textContent=`${rows.length} mensalidade(s) no filtro · ${br(sum(rows.filter(e=>e.active!==false)))}/mês em ativos`;
+  $('#fixedExpenseList').innerHTML=rows.length?rows.map(e=>`<div class="fixed-expense-row ${e.active===false?'fixed-paused':''}"><span class="fixed-group ${e.group==='dualize'?'fixed-dualize':'fixed-lazer'}">${e.group==='dualize'?'Dualize':'Lazer'}</span><div class="fixed-expense-name"><strong>${htmlText(e.name)}</strong><small>${htmlText(e.card.replace(/^Fatura Cartão\s+/,''))}</small></div><strong class="fixed-expense-value">${br(parseMoney(e.amount))}<small>/ mês</small></strong><button type="button" class="fixed-state" data-fixed-toggle="${htmlText(e.id)}" title="${e.active===false?'Ativar mensalidade':'Pausar mensalidade'}">${e.active===false?'Pausado':'Ativo'}</button><button type="button" class="btn soft" data-fixed-edit="${htmlText(e.id)}">Editar</button></div>`).join(''):'<div class="empty-list">'+(state.cardFixedExpenses.length?'Nenhuma mensalidade neste filtro.':'Cadastre Netflix, Prime Video, Tintim ou outras mensalidades para ver em qual cartão estão.')+'</div>';
+}
+function resetFixedExpenseEditor(){
+  editingFixedExpenseId='';$('#fixedExpenseEditor').open=false;$('#fixedExpenseEditorTitle').textContent='Nova mensalidade';
+  $('#fixedExpenseName').value='';$('#fixedExpenseAmount').value='';$('#fixedExpenseCard').value='';$('#fixedExpenseGroup').value='dualize';
+  $('#deleteFixedExpenseBtn').hidden=true;
+}
+function editFixedExpense(id){
+  const item=state.cardFixedExpenses.find(e=>e.id===id);if(!item)return;
+  editingFixedExpenseId=id;renderFixedExpenses();$('#fixedExpenseEditor').open=true;$('#fixedExpenseEditorTitle').textContent='Editar mensalidade';
+  $('#fixedExpenseName').value=item.name;$('#fixedExpenseAmount').value=br(parseMoney(item.amount));$('#fixedExpenseCard').value=item.card;$('#fixedExpenseGroup').value=item.group;
+  $('#deleteFixedExpenseBtn').hidden=false;$('#fixedExpenseEditor').scrollIntoView({block:'nearest',behavior:'smooth'});$('#fixedExpenseName').focus();
+}
+async function saveFixedExpense(){
+  if(fixedExpenseSaving)return;
+  const name=$('#fixedExpenseName').value.trim(),amount=parseMoney($('#fixedExpenseAmount').value),card=$('#fixedExpenseCard').value,group=$('#fixedExpenseGroup').value;
+  if(!name||!amount||!card||!['dualize','lazer'].includes(group))return alert('Preencha nome, valor mensal, cartão e grupo.');
+  fixedExpenseSaving=true;$('#saveFixedExpenseBtn').disabled=true;
+  try{
+    const previous=state.cardFixedExpenses.find(e=>e.id===editingFixedExpenseId);
+    const item={...(previous||{}),id:previous?.id||'fixed-'+Date.now()+'-'+Math.random().toString(36).slice(2),name,amount,card,group,active:previous?.active!==false,updatedAt:Math.max(Date.now(),Number(previous?.updatedAt||0)+1)};
+    if(previous)Object.assign(previous,item);else state.cardFixedExpenses.push(item);
+    editingFixedExpenseId=item.id;
+    const saved=await persistCriticalChange();renderAll();
+    if(saved)resetFixedExpenseEditor();
+  }finally{fixedExpenseSaving=false;$('#saveFixedExpenseBtn').disabled=false;}
+}
+async function toggleFixedExpense(id){
+  if(fixedExpenseSaving)return;
+  const item=state.cardFixedExpenses.find(e=>e.id===id);if(!item)return;
+  fixedExpenseSaving=true;
+  try{item.active=item.active===false;item.updatedAt=Math.max(Date.now(),Number(item.updatedAt||0)+1);await persistCriticalChange();renderAll();}finally{fixedExpenseSaving=false;}
+}
+async function deleteFixedExpense(){
+  if(fixedExpenseSaving)return;
+  const item=state.cardFixedExpenses.find(e=>e.id===editingFixedExpenseId);if(!item||!confirm(`Excluir a mensalidade "${item.name}" deste controle?`))return;
+  fixedExpenseSaving=true;
+  try{state.deletedFixedExpenses[item.id]=Math.max(Date.now(),Number(item.updatedAt||0)+1);state.cardFixedExpenses=state.cardFixedExpenses.filter(e=>e.id!==item.id);await persistCriticalChange();resetFixedExpenseEditor();renderAll();}finally{fixedExpenseSaving=false;}
+}
+function bindFixedExpenses(){
+  $('#addFixedExpenseBtn').onclick=()=>{resetFixedExpenseEditor();renderFixedExpenses();$('#fixedExpenseEditor').open=true;$('#fixedExpenseName').focus();};
+  $('#cancelFixedExpenseBtn').onclick=resetFixedExpenseEditor;$('#saveFixedExpenseBtn').onclick=saveFixedExpense;$('#deleteFixedExpenseBtn').onclick=deleteFixedExpense;
+  $('#fixedExpenseSearch').addEventListener('input',renderFixedExpenses);
+  ['fixedExpenseGroupFilter','fixedExpenseCardFilter'].forEach(id=>$('#'+id).addEventListener('change',renderFixedExpenses));
+  $('#fixedExpenseList').addEventListener('click',e=>{const edit=e.target.closest('[data-fixed-edit]'),toggle=e.target.closest('[data-fixed-toggle]');if(edit)editFixedExpense(edit.dataset.fixedEdit);if(toggle)toggleFixedExpense(toggle.dataset.fixedToggle);});
+  $('#fixedExpenseEditor').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input,select')){e.preventDefault();saveFixedExpense();}});
+}
+function thirdRecentPeople(){
+  const people=new Map();
+  for(const m of state.thirdMovements){
+    const name=String(m.person||'').trim();if(!name)continue;
+    const item=people.get(name)||{name,received:0,passed:0,lastAt:0,banks:new Set()};
+    const cents=moneyCents(m.valor);if(m.type==='entrada')item.received+=cents;else item.passed+=cents;
+    item.lastAt=Math.max(item.lastAt,Number(m.createdAt||0),Date.parse(String(m.date||'')+'T12:00:00')||0);
+    if(m.bank)item.banks.add(m.bank);people.set(name,item);
+  }
+  return [...people.values()].sort((a,b)=>b.lastAt-a.lastAt||a.name.localeCompare(b.name,'pt-BR')).slice(0,5);
+}
+function renderThirdRecentPeople(){
+  const rows=thirdRecentPeople();
+  $('#thirdRecentPeople').innerHTML=rows.length?rows.map(p=>{const balance=(p.received-p.passed)/100;return `<div class="third-person-summary"><div><strong>${htmlText(p.name)}</strong><small>${htmlText([...p.banks].join(' · '))}</small></div><div><small>Recebido</small><span>${br(p.received/100)}</span></div><div><small>Repassado</small><span>${br(p.passed/100)}</span></div><div><small>${balance<0?'Repassado a mais':'Falta repassar'}</small><strong class="${balance?'third-money-open':'third-money-in'}">${br(Math.abs(balance))}</strong></div></div>`;}).join(''):'<div class="empty-list">As últimas pessoas com movimentos aparecem aqui.</div>';
+}
+function applyThirdHistory(all=false){
+  let from=$('#thirdDateFrom').value,to=$('#thirdDateTo').value;
+  if(all){from='';to='';$('#thirdDateFrom').value='';$('#thirdDateTo').value='';}
+  if(from&&to&&from>to)return alert('A data inicial deve ser anterior ou igual à data final.');
+  thirdAppliedPeriod={from,to};thirdHistoryRequested=true;renderThird(true);
+  const period=$('#thirdPeriodFilter');if(period)period.open=false;
+}
+
 function renderThird(force=false){
+  renderThirdRecentPeople();
+  $('#thirdSummaryCards').hidden=!thirdHistoryRequested;
+  $('#thirdMovementTable').hidden=!thirdHistoryRequested;
+  $('#thirdHideHistoryBtn').hidden=!thirdHistoryRequested;
   const people=[...new Set(state.thirdMovements.map(m=>m.person))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
   const old=$('#thirdPersonFilter').value||'todos';
   $('#thirdPeopleList').innerHTML=people.map(p=>`<option value="${htmlText(p)}"></option>`).join('');
   $('#thirdPersonFilter').innerHTML='<option value="todos">Todas as pessoas</option>'+people.map(p=>`<option value="${htmlText(p)}">${htmlText(p)}</option>`).join('');
   $('#thirdPersonFilter').value=people.includes(old)?old:'todos';
-  const f=$('#thirdPersonFilter').value,query=statusKey($('#thirdSearch').value),from=$('#thirdDateFrom').value,to=$('#thirdDateTo').value;
+  const f=$('#thirdPersonFilter').value,query=statusKey($('#thirdSearch').value),from=thirdAppliedPeriod.from,to=thirdAppliedPeriod.to;
   const personMoves=state.thirdMovements.filter(m=>m.person===f),deleteBtn=$('#deleteThirdPersonBtn');
   if(deleteBtn){deleteBtn.disabled=!(people.includes(f)&&personMoves.length);deleteBtn.textContent=personMoves.length?`Excluir histórico de ${f} (${personMoves.length})`:'Selecione uma pessoa para excluir';}
-  const moves=state.thirdMovements.filter(m=>(f==='todos'||m.person===f)&&(!from||!m.date||m.date>=from)&&(!to||!m.date||m.date<=to)&&(!query||statusKey([m.person,m.bank,m.note,m.type==='entrada'?'recebido entrada':'repassado saída'].join(' ')).includes(query))).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.createdAt||0)-Number(a.createdAt||0));
+  const filteredMoves=state.thirdMovements.filter(m=>(f==='todos'||m.person===f)&&(!from||!m.date||m.date>=from)&&(!to||!m.date||m.date<=to)&&(!query||statusKey([m.person,m.bank,m.note,m.type==='entrada'?'recebido entrada':'repassado saída'].join(' ')).includes(query))).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.createdAt||0)-Number(a.createdAt||0));
+  const moves=thirdHistoryRequested?filteredMoves:[],summaryMoves=thirdHistoryRequested?moves:state.thirdMovements;
   let entrada=0,saida=0;let entradaQtd=0,saidaQtd=0;
-  moves.forEach(m=>{if(m.type==='entrada'){entrada=(moneyCents(entrada)+moneyCents(m.valor))/100;entradaQtd++;}else{saida=(moneyCents(saida)+moneyCents(m.valor))/100;saidaQtd++;}});
+  summaryMoves.forEach(m=>{if(m.type==='entrada'){entrada=(moneyCents(entrada)+moneyCents(m.valor))/100;entradaQtd++;}else{saida=(moneyCents(saida)+moneyCents(m.valor))/100;saidaQtd++;}});
   const saldo=(moneyCents(entrada)-moneyCents(saida))/100;
   $('#thirdSummaryCards').innerHTML=`<div><span>Recebido para repassar</span><strong class="third-money-in">${br(entrada)}</strong><small>${entradaQtd} entrada(s)</small></div><div><span>Já repassado</span><strong>${br(saida)}</strong><small>${saidaQtd} saída(s)</small></div><div><span>${saldo<0?'Repassado a mais':'Ainda com você'}</span><strong class="${saldo?'third-money-open':'third-money-in'}">${br(Math.abs(saldo))}</strong><small>${saldo<0?'Confira os recebimentos':saldo>0?'Valor que falta repassar':'Nenhum valor pendente no filtro'}</small></div>`;
-  $('#thirdLineCounter').textContent=`${moves.length} de ${state.thirdMovements.length} movimentos · todo o histórico, com os filtros acima`;
+  $('#thirdLineCounter').textContent=thirdHistoryRequested?`${moves.length} de ${state.thirdMovements.length} movimentos · ${from||'início'} até ${to||'hoje'}`:'Consulte os lançamentos em Ver lançamentos / período.';
   $('#thirdMovementTable').innerHTML=moves.length?moves.map(m=>{
     const incoming=m.type==='entrada',date=String(m.date||''),valid=/^\d{4}-\d{2}-\d{2}$/.test(date),day=valid?date.slice(8):'—',month=valid?date.slice(5,7)+'/'+date.slice(0,4):'Sem data';
     return `<div data-third-id="${htmlText(thirdMovementId(m))}" class="third-ledger-row ${thirdMovementId(m)===editingThirdId?'third-editing-row':''}"><div class="third-date"><small>${htmlText(month)}</small><strong>${htmlText(day)}</strong></div><div class="third-person"><strong>${htmlText(m.person)}</strong><small>${htmlText(m.bank||'Banco não informado')}</small>${m.note?'<p>'+htmlText(m.note)+'</p>':''}</div><span class="third-direction ${incoming?'third-in':'third-out'}">${incoming?'Recebido':'Repassado'}</span><strong class="third-row-value ${incoming?'third-money-in':'third-money-out'}">${incoming?'+':'−'} ${br(parseMoney(m.valor))}</strong><button type="button" class="btn soft third-edit-action" data-edit-third="${htmlText(thirdMovementId(m))}">Editar</button></div>`;
@@ -2724,7 +2866,7 @@ function deleteThirdPersonMovements(){
   renderAll();
   setTab('terceiros');
 }
-function renderAll(){ recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); ensureOverdueIncomesForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); }
+function renderAll(){ recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); ensureOverdueIncomesForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); renderFixedExpenses(); }
 function setTab(id){ $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id)); $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id)); }
 function autoViewMode(){return window.matchMedia('(max-width: 760px)').matches?'mobile':'desktop'}
 function setView(mode,manual=true){ document.body.classList.toggle('mobile-view',mode==='mobile'); $('#btnDesktop').classList.toggle('active',mode==='desktop'); $('#btnMobile').classList.toggle('active',mode==='mobile'); if(manual)localStorage.setItem('dualizeViewMode',mode); }
@@ -3224,7 +3366,7 @@ function bindThirdPixImport(){
   if(btn&&input)btn.onclick=()=>input.click();
   if(input)input.onchange=()=>readThirdPixFile(input.files&&input.files[0]);
   if(parseBtn)parseBtn.onclick=applyThirdPixImport;
-}function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $$('[data-month-scope-toggle]').forEach(btn=>btn.onclick=toggleMonthScope); $('#syncBtn').onclick=handleSyncButtonClick; $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#themeToggle').onclick=toggleTheme; $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);saveLocalSnapshot();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#transferType').onchange=syncTransferType; $('#transferFrom').onchange=()=>syncTransferBanks('from'); $('#transferTo').onchange=()=>syncTransferBanks('to'); $('#saveTransferBtn').onclick=saveTransferMovement; $('#searchBankMovementsBtn').onclick=()=>renderBankMovements(true); $('#previewCardImportBtn').onclick=previewCardImport; $('#applyCardImportBtn').onclick=applyCardImport; $('#addCardBtn').onclick=addCard; $('#cardImportName').onchange=()=>{updateCardImportState();previewCardImport();}; $('#cardImportText').addEventListener('input',updateCardImportState); $('#cardNextInvoiceValue').addEventListener('input',previewCardImport); $('#newCardBank').onchange=updateCardImportState; $('#saveThirdBtn').onclick=saveThirdMovement; $('#deleteThirdMoveBtn').onclick=deleteThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>renderThird(true); $('#deleteThirdPersonBtn').onclick=deleteThirdPersonMovements; document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','otherValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput'||id==='otherValueInput')updateSplitTotal(); validate();})}); }
+}function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $$('[data-month-scope-toggle]').forEach(btn=>btn.onclick=toggleMonthScope); $('#syncBtn').onclick=handleSyncButtonClick; $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#themeToggle').onclick=toggleTheme; $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);saveLocalSnapshot();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#transferType').onchange=syncTransferType; $('#transferFrom').onchange=()=>syncTransferBanks('from'); $('#transferTo').onchange=()=>syncTransferBanks('to'); $('#saveTransferBtn').onclick=saveTransferMovement; $('#searchBankMovementsBtn').onclick=()=>renderBankMovements(true); $('#previewCardImportBtn').onclick=previewCardImport; $('#applyCardImportBtn').onclick=applyCardImport; $('#addCardBtn').onclick=addCard; $('#cardImportName').onchange=()=>{updateCardImportState();previewCardImport();}; $('#cardImportText').addEventListener('input',updateCardImportState); $('#cardNextInvoiceValue').addEventListener('input',previewCardImport); $('#newCardBank').onchange=updateCardImportState; $('#saveThirdBtn').onclick=saveThirdMovement; $('#deleteThirdMoveBtn').onclick=deleteThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>applyThirdHistory(false); $('#deleteThirdPersonBtn').onclick=deleteThirdPersonMovements; document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','otherValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput'||id==='otherValueInput')updateSplitTotal(); validate();})}); }
 
 function enableDragSorting(){
   let draggedRow=null;
@@ -3330,7 +3472,8 @@ function enableSimpleFinanceControls(){
   $('#cancelThirdBtn').onclick=()=>{resetThirdEditor(false);renderThird(true);};
   $('#thirdSearch').addEventListener('input',()=>renderThird(true));
   $('#thirdPersonFilter').addEventListener('change',()=>renderThird(true));
-  ['thirdDateFrom','thirdDateTo'].forEach(id=>$('#'+id).addEventListener('change',()=>renderThird(true)));
+  $('#thirdViewAllBtn').onclick=()=>applyThirdHistory(true);
+  $('#thirdHideHistoryBtn').onclick=()=>{thirdHistoryRequested=false;renderThird();};
   ['debitSearch','incomeSearch'].forEach(id=>$('#'+id).addEventListener('input',renderLists));
   $('#incomeStatusFilter').addEventListener('change',renderLists);
   document.body.addEventListener('click',e=>{
@@ -3373,7 +3516,7 @@ function enableSyncSafety(){
   });
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const draftsMigrated=migrateRevenueDrafts(); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const cleanedDeletionLocks=cleanGeneratedDeletionLocks(); const sanitized=sanitizeFinancialState(); if(draftsMigrated||cardsChanged||categoriesChanged||cardEntriesChanged||cleanedDeletionLocks||sanitized) persist(); bind(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableSimpleFinanceControls(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl) syncFromCloud(); }
+function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const draftsMigrated=migrateRevenueDrafts(); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const cleanedDeletionLocks=cleanGeneratedDeletionLocks(); const sanitized=sanitizeFinancialState(); if(draftsMigrated||cardsChanged||categoriesChanged||cardEntriesChanged||cleanedDeletionLocks||sanitized) persist(); bind(); bindFixedExpenses(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableSimpleFinanceControls(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl) syncFromCloud(); }
 init();
 });
 </script>
