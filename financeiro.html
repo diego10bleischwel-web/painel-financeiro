@@ -1032,6 +1032,7 @@ body .simple-summary .kpi-income-app strong{color:#f2cf77!important}
 @media(max-width:850px){.monthly-cash-card{grid-template-columns:1fr;padding:18px;gap:18px}.monthly-cash-result{border-left:0;padding-left:0;padding-top:18px;border-top:1px solid var(--line)}.monthly-cash-form{grid-template-columns:1fr}.monthly-cash-form .btn{justify-self:stretch}.cash-summary-strip .btn{margin-left:0}.cash-history-row{flex-wrap:wrap}.monthly-cash-form input{font-size:16px}}
 .cash-confirm-dialog{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:20px;padding:24px;width:min(540px,calc(100% - 28px));max-height:calc(100vh - 40px);overflow:auto;box-shadow:0 24px 80px rgba(0,0,0,.45)}.cash-confirm-dialog::backdrop{background:rgba(0,0,0,.65)}.cash-confirm-dialog h3{margin:0 0 14px;font-size:20px}.cash-confirm-dialog pre{font-family:inherit;white-space:pre-wrap;font-size:13px;line-height:1.7;color:var(--text);margin:0}.cash-confirm-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.cash-confirm-actions .btn{font-size:12px;padding:11px 16px}
 .fixed-plan-detail{line-height:1.6!important;color:var(--text)!important}.fixed-expense-name progress{display:block;width:100%;max-width:260px;height:6px;margin-top:10px;accent-color:#8c72ed}.fixed-form small{display:block;color:var(--muted);font-size:11px;margin-top:7px;line-height:1.5}.fixed-plan-summary{background:rgba(130,100,200,.04)}
+.fixed-plan-preview{grid-column:1/-1;padding:16px;border:1px solid var(--line);border-radius:12px;background:rgba(130,100,200,.06);font-size:13px;line-height:1.6}.fixed-plan-preview>strong{display:block}.fixed-plan-preview>div{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.fixed-plan-preview>div>span{padding:6px 10px;background:var(--card);border:1px solid var(--line);border-radius:8px;font-size:11px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -1115,7 +1116,7 @@ body .simple-summary .kpi-income-app strong{color:#f2cf77!important}
     <div class="fixed-summary"><div><span>Dualize Tráfego / mês</span><strong id="fixedExpenseTrafegoTotal">R$ 0,00</strong></div><div><span>Dualize Marketing / mês</span><strong id="fixedExpenseMarketingTotal">R$ 0,00</strong></div><div><span>Lazer / mês</span><strong id="fixedExpenseLazerTotal">R$ 0,00</strong></div><div><span>Total no mês selecionado</span><strong id="fixedExpenseTotal">R$ 0,00</strong></div></div>
     <p class="fixed-info"><span id="fixedExpenseMonthLabel"></span> · Controle dos valores incluídos nas faturas; não gera débito adicional. Parcelas restantes são uma previsão pelo calendário, não uma confirmação de pagamento.</p>
     <div class="fixed-summary fixed-plan-summary"><div><span>Recorrentes no mês</span><strong id="fixedRecurringTotal"></strong></div><div><span>Parcelas no mês</span><strong id="fixedInstallmentTotal"></strong></div><div><span>Parcelado restante</span><strong id="fixedRemainingTotal"></strong></div><div><span>Terminam neste mês</span><strong id="fixedEndingCount"></strong></div></div><div class="fixed-toolbar"><input type="search" id="fixedExpenseSearch" aria-label="Buscar lançamento" placeholder="Buscar conta ou compra"><select id="fixedExpenseTypeFilter" aria-label="Filtrar tipo"><option value="">Fixos e parcelados</option><option value="recurring">Só recorrentes</option><option value="installment">Só parcelados</option></select><select id="fixedExpenseGroupFilter" aria-label="Filtrar grupo"><option value="">Todos</option><option value="dualize_trafego">Dualize Tráfego</option><option value="dualize_marketing">Dualize Marketing</option><option value="lazer">Lazer</option></select><select id="fixedExpenseCardFilter" aria-label="Filtrar cartão"><option value="">Todos os cartões</option></select></div>
-    <details class="fixed-editor" id="fixedExpenseEditor"><summary id="fixedExpenseEditorTitle">Novo lançamento</summary><div class="fixed-form"><div><label for="fixedExpenseName">Nome</label><input id="fixedExpenseName" placeholder="Ex.: Netflix, Prime Video, Tintim"></div><div><label for="fixedExpenseAmount">Valor mensal</label><input id="fixedExpenseAmount" placeholder="R$ 0,00" inputmode="decimal"></div><div><label for="fixedExpenseGroup">Grupo</label><select id="fixedExpenseGroup"><option value="" disabled selected>Selecione o grupo</option><option value="dualize_trafego">Dualize Tráfego</option><option value="dualize_marketing">Dualize Marketing</option><option value="lazer">Lazer</option></select></div><div><label for="fixedExpenseCard">Cartão</label><select id="fixedExpenseCard"><option value="">Selecione o cartão</option></select></div><div><label for="fixedExpenseType">Tipo</label><select id="fixedExpenseType"><option value="recurring">Recorrente · todo mês</option><option value="installment">Parcelado · tem fim</option></select></div><div><label for="fixedExpenseStart">Primeira fatura (mês)</label><input id="fixedExpenseStart" type="month"><small>Em compras em andamento, informe o mês da primeira parcela.</small></div><div data-fixed-installment hidden><label for="fixedExpenseCount">Quantidade de parcelas</label><input id="fixedExpenseCount" type="number" min="1" max="600" step="1" placeholder="Ex.: 12"></div><div data-fixed-installment hidden><label for="fixedExpenseEnd">Última fatura (mês)</label><input id="fixedExpenseEnd" type="month"><small>Informe as parcelas ou o término: calculamos o outro campo.</small></div><div class="fixed-form-actions"><button class="btn" id="saveFixedExpenseBtn" type="button">Salvar lançamento</button><button class="btn soft" id="cancelFixedExpenseBtn" type="button">Cancelar</button><button class="btn soft" id="deleteFixedExpenseBtn" type="button" hidden>Excluir</button></div></div></details>
+    <details class="fixed-editor" id="fixedExpenseEditor"><summary id="fixedExpenseEditorTitle">Novo lançamento</summary><div class="fixed-form"><div><label for="fixedExpenseName">Nome</label><input id="fixedExpenseName" placeholder="Ex.: Netflix, Prime Video, Tintim"></div><div><label for="fixedExpenseAmount">Valor mensal</label><input id="fixedExpenseAmount" placeholder="R$ 0,00" inputmode="decimal"></div><div><label for="fixedExpenseGroup">Grupo</label><select id="fixedExpenseGroup"><option value="" disabled selected>Selecione o grupo</option><option value="dualize_trafego">Dualize Tráfego</option><option value="dualize_marketing">Dualize Marketing</option><option value="lazer">Lazer</option></select></div><div><label for="fixedExpenseCard">Cartão</label><select id="fixedExpenseCard"><option value="">Selecione o cartão</option></select></div><div><label for="fixedExpenseType">Tipo</label><select id="fixedExpenseType"><option value="recurring">Recorrente · todo mês</option><option value="installment">Parcelado · tem fim</option></select></div><div><label for="fixedExpenseStart">Primeira fatura (mês)</label><select id="fixedExpenseStart"></select><small>Em compras em andamento, informe o mês da primeira parcela.</small></div><div data-fixed-installment hidden><label for="fixedExpenseCount">Quantidade de parcelas</label><input id="fixedExpenseCount" type="number" min="1" max="600" step="1" placeholder="Ex.: 12"></div><div data-fixed-installment hidden><label for="fixedExpenseEnd">Última fatura (mês)</label><select id="fixedExpenseEnd"></select><small>Informe as parcelas ou o término: calculamos o outro campo.</small></div><div class="fixed-plan-preview" id="fixedExpensePreview" aria-live="polite"></div><div class="fixed-form-actions"><button class="btn" id="saveFixedExpenseBtn" type="button">Salvar lançamento</button><button class="btn soft" id="cancelFixedExpenseBtn" type="button">Cancelar</button><button class="btn soft" id="deleteFixedExpenseBtn" type="button" hidden>Excluir</button></div></div></details>
     <div class="fixed-counter" id="fixedExpenseCounter"></div><div class="fixed-list" id="fixedExpenseList"></div>
   </div>
 </section>
@@ -3135,26 +3136,43 @@ function fixedExpenseSchedule(item,month=Number(state.currentMonth)){
   const remaining=installment?count-elapsed:0;
   return {start:first,end,count,current:installment&&!future&&!finished?month-first+1:0,elapsed,remaining,future,finished,inMonth:item.active!==false&&!future&&!finished,remainingCents:installment&&item.active!==false?Math.round(parseMoney(item.amount)*100)*remaining:0};
 }
+function renderFixedMonthOptions(firstValue,endValue,count=1){
+  const first=fixedMonthIndex(firstValue),end=fixedMonthIndex(endValue),today=currentMonthIndex();
+  const from=Math.min(0,first??today,end??today),to=Math.max(today+60,(first??today)+Math.min(600,Math.max(1,Number(count)||1)),end??today);
+  const options=[];for(let i=from;i<=to;i++)options.push('<option value="'+fixedMonthValue(i)+'">'+htmlText(monthLabel(i))+'</option>');
+  for(const [id,value] of [['fixedExpenseStart',firstValue],['fixedExpenseEnd',endValue]]){const el=$('#'+id);el.innerHTML=options.join('');el.value=value||fixedMonthValue(today);}
+}
+function renderFixedExpensePreview(){
+  const target=$('#fixedExpensePreview'),start=fixedMonthIndex($('#fixedExpenseStart').value),installment=$('#fixedExpenseType').value==='installment',count=Number($('#fixedExpenseCount').value);
+  if(start===null){target.textContent='Selecione o mês da primeira fatura.';return;}
+  if(!installment){target.textContent='Todo mês, a partir de '+monthLabel(start)+'. Sem data de término.';return;}
+  if(!Number.isInteger(count)||count<1||count>600){target.textContent='Informe a quantidade de parcelas para simular as próximas faturas.';return;}
+  const value=parseMoney($('#fixedExpenseAmount').value),rows=[];
+  for(let i=0;i<Math.min(count,6);i++)rows.push('<span>'+htmlText(monthLabel(start+i))+' · '+(i+1)+'/'+count+(value?' · '+br(value):'')+'</span>');
+  if(count>6)rows.push('<span>… Última: '+htmlText(monthLabel(start+count-1))+' · '+count+'/'+count+'</span>');
+  target.innerHTML='<strong>'+count+' parcela(s)'+(value?' de '+br(value)+' · Total: '+br(Math.round(value*100)*count/100):'')+'</strong><small>De '+htmlText(monthLabel(start))+' até '+htmlText(monthLabel(start+count-1))+'</small><div>'+rows.join('')+'</div>';
+}
 function syncFixedExpensePlan(source){
   const installment=$('#fixedExpenseType').value==='installment';
   document.querySelectorAll('[data-fixed-installment]').forEach(el=>el.hidden=!installment);
-  if(!installment)return;
+  if(!installment){renderFixedExpensePreview();return;}
   const start=fixedMonthIndex($('#fixedExpenseStart').value),end=fixedMonthIndex($('#fixedExpenseEnd').value),count=Number($('#fixedExpenseCount').value);
   if(source==='end')$('#fixedExpenseCount').value=start!==null&&end!==null&&end>=start?end-start+1:'';
-  else $('#fixedExpenseEnd').value=start!==null&&Number.isInteger(count)&&count>0&&count<=600?fixedMonthValue(start+count-1):'';
+  else {const finalMonth=start!==null&&Number.isInteger(count)&&count>0&&count<=600?fixedMonthValue(start+count-1):'';renderFixedMonthOptions($('#fixedExpenseStart').value,finalMonth,count);}
+  renderFixedExpensePreview();
 }
 
 function resetFixedExpenseEditor(){
   editingFixedExpenseId='';$('#fixedExpenseEditor').open=false;$('#fixedExpenseEditorTitle').textContent='Novo lançamento';
   $('#fixedExpenseName').value='';$('#fixedExpenseAmount').value='';$('#fixedExpenseCard').value='';$('#fixedExpenseGroup').value='';
-  $('#fixedExpenseType').value='recurring';$('#fixedExpenseStart').value=fixedMonthValue(state.currentMonth);$('#fixedExpenseCount').value='';$('#fixedExpenseEnd').value='';syncFixedExpensePlan();
+  $('#fixedExpenseType').value='recurring';renderFixedMonthOptions(fixedMonthValue(currentMonthIndex()),fixedMonthValue(currentMonthIndex()));$('#fixedExpenseCount').value='1';syncFixedExpensePlan();
   $('#deleteFixedExpenseBtn').hidden=true;
 }
 function editFixedExpense(id){
   const item=state.cardFixedExpenses.find(e=>e.id===id);if(!item)return;
   editingFixedExpenseId=id;renderFixedExpenses();$('#fixedExpenseEditor').open=true;$('#fixedExpenseEditorTitle').textContent='Editar lançamento';
   $('#fixedExpenseName').value=item.name;$('#fixedExpenseAmount').value=br(parseMoney(item.amount));$('#fixedExpenseCard').value=item.card;$('#fixedExpenseGroup').value=['dualize_trafego','dualize_marketing','lazer'].includes(item.group)?item.group:'';
-  $('#fixedExpenseType').value=item.kind==='installment'?'installment':'recurring';$('#fixedExpenseStart').value=item.firstMonth||'';$('#fixedExpenseCount').value=item.installments||'';syncFixedExpensePlan();
+  $('#fixedExpenseType').value=item.kind==='installment'?'installment':'recurring';renderFixedMonthOptions(item.firstMonth||fixedMonthValue(currentMonthIndex()),'',item.installments||1);$('#fixedExpenseCount').value=item.installments||1;syncFixedExpensePlan();
   $('#deleteFixedExpenseBtn').hidden=false;$('#fixedExpenseEditor').scrollIntoView({block:'nearest',behavior:'smooth'});$('#fixedExpenseName').focus();
 }
 async function saveFixedExpense(){
@@ -3190,10 +3208,11 @@ async function deleteFixedExpense(){
 function bindFixedExpenses(){
   $('#addFixedExpenseBtn').onclick=()=>{resetFixedExpenseEditor();renderFixedExpenses();$('#fixedExpenseEditor').open=true;$('#fixedExpenseName').focus();};
   $('#cancelFixedExpenseBtn').onclick=resetFixedExpenseEditor;$('#saveFixedExpenseBtn').onclick=saveFixedExpense;$('#deleteFixedExpenseBtn').onclick=deleteFixedExpense;
+  $('#fixedExpenseAmount').addEventListener('input',renderFixedExpensePreview);
   $('#fixedExpenseType').addEventListener('change',()=>syncFixedExpensePlan());
-  $('#fixedExpenseStart').addEventListener('input',()=>syncFixedExpensePlan('start'));
+  $('#fixedExpenseStart').addEventListener('change',()=>syncFixedExpensePlan('start'));
   $('#fixedExpenseCount').addEventListener('input',()=>syncFixedExpensePlan('count'));
-  $('#fixedExpenseEnd').addEventListener('input',()=>syncFixedExpensePlan('end'));
+  $('#fixedExpenseEnd').addEventListener('change',()=>syncFixedExpensePlan('end'));
   $('#fixedExpenseSearch').addEventListener('input',renderFixedExpenses);
   ['fixedExpenseGroupFilter','fixedExpenseCardFilter','fixedExpenseTypeFilter'].forEach(id=>$('#'+id).addEventListener('change',renderFixedExpenses));
   $('#fixedExpenseList').addEventListener('click',e=>{const edit=e.target.closest('[data-fixed-edit]'),toggle=e.target.closest('[data-fixed-toggle]');if(edit)editFixedExpense(edit.dataset.fixedEdit);if(toggle)toggleFixedExpense(toggle.dataset.fixedToggle);});
