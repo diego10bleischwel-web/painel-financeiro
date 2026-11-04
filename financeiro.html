@@ -2694,7 +2694,7 @@ function incomeOriginBreakdown(e,month=state.currentMonth){
   const received=moneyCents(receivedAmount(e,month)),total=Math.max(moneyCents(configuredValue(e,month)),received),remaining=Math.min(total,moneyCents(remainingAmount(e,month)));
   const totals={mkt:0,traf:0,clt:0,outros:0},pending={mkt:0,traf:0,clt:0,outros:0},paid={mkt:0,traf:0,clt:0,outros:0};
   if(isCltIncome(e))totals.clt=total;
-  else{const parts=revenueComposition(e,total/100);totals.mkt=moneyCents(parts.mkt);totals.traf=moneyCents(parts.traf);totals.outros=moneyCents(parts.emp)+moneyCents(parts.outros);}
+  else{const parts=revenueComposition(e,total/100);totals.mkt=moneyCents(parts.mkt);totals.traf=moneyCents(parts.traf)+moneyCents(parts.outros);totals.outros=moneyCents(parts.emp);}
   if(total){
     const keys=Object.keys(totals),exact=keys.map(key=>({key,value:remaining*totals[key]/total}));
     exact.forEach(x=>pending[x.key]=Math.floor(x.value));
@@ -2711,7 +2711,7 @@ function hasIncomeOrigin(e,key,breakdown=incomeOriginBreakdown(e)){
   if(e.origem==='Marketing')return key==='mkt';
   if(e.origem==='Tráfego Pago')return key==='traf';
   if(e.origem==='Marketing + Tráfego')return key==='mkt'||key==='traf';
-  return key==='outros';
+  return key===(e.origem==='Empresa'||e.categoria==='Empresa'?'outros':'traf');
 }
 function incomeOriginStats(){
   const stats=Object.fromEntries(Object.keys(INCOME_ORIGIN_LABELS).map(key=>[key,{pending:0,paid:0,count:0,open:0,missing:0}]));
