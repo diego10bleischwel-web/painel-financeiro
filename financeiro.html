@@ -2828,7 +2828,7 @@ function applyThirdHistory(all=false){
 
 function renderThird(force=false){
   renderThirdRecentPeople();
-  $('#thirdSummaryCards').hidden=!thirdHistoryRequested;
+  $('#thirdSummaryCards').hidden=true;
   $('#thirdMovementTable').hidden=!thirdHistoryRequested;
   $('#thirdHideHistoryBtn').hidden=!thirdHistoryRequested;
   const people=[...new Set(state.thirdMovements.map(m=>m.person))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
@@ -2839,13 +2839,13 @@ function renderThird(force=false){
   const f=$('#thirdPersonFilter').value,query=statusKey($('#thirdSearch').value),from=thirdAppliedPeriod.from,to=thirdAppliedPeriod.to;
   const personMoves=state.thirdMovements.filter(m=>m.person===f),deleteBtn=$('#deleteThirdPersonBtn');
   if(deleteBtn){deleteBtn.disabled=!(people.includes(f)&&personMoves.length);deleteBtn.textContent=personMoves.length?`Excluir histórico de ${f} (${personMoves.length})`:'Selecione uma pessoa para excluir';}
-  const filteredMoves=state.thirdMovements.filter(m=>(f==='todos'||m.person===f)&&(!from||!m.date||m.date>=from)&&(!to||!m.date||m.date<=to)&&(!query||statusKey([m.person,m.bank,m.note,m.type==='entrada'?'recebido entrada':'repassado saída'].join(' ')).includes(query))).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.createdAt||0)-Number(a.createdAt||0));
+  const filteredMoves=state.thirdMovements.filter(m=>(f==='todos'||m.person===f)&&(!from||(m.date&&m.date>=from))&&(!to||(m.date&&m.date<=to))&&(!query||statusKey([m.person,m.bank,m.note,m.type==='entrada'?'recebido entrada':'repassado saída'].join(' ')).includes(query))).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||Number(b.createdAt||0)-Number(a.createdAt||0));
   const moves=thirdHistoryRequested?filteredMoves:[],summaryMoves=thirdHistoryRequested?moves:state.thirdMovements;
   let entrada=0,saida=0;let entradaQtd=0,saidaQtd=0;
   summaryMoves.forEach(m=>{if(m.type==='entrada'){entrada=(moneyCents(entrada)+moneyCents(m.valor))/100;entradaQtd++;}else{saida=(moneyCents(saida)+moneyCents(m.valor))/100;saidaQtd++;}});
   const saldo=(moneyCents(entrada)-moneyCents(saida))/100;
   $('#thirdSummaryCards').innerHTML=`<div><span>Recebido para repassar</span><strong class="third-money-in">${br(entrada)}</strong><small>${entradaQtd} entrada(s)</small></div><div><span>Já repassado</span><strong>${br(saida)}</strong><small>${saidaQtd} saída(s)</small></div><div><span>${saldo<0?'Repassado a mais':'Ainda com você'}</span><strong class="${saldo?'third-money-open':'third-money-in'}">${br(Math.abs(saldo))}</strong><small>${saldo<0?'Confira os recebimentos':saldo>0?'Valor que falta repassar':'Nenhum valor pendente no filtro'}</small></div>`;
-  $('#thirdLineCounter').textContent=thirdHistoryRequested?`${moves.length} de ${state.thirdMovements.length} movimentos · ${from||'início'} até ${to||'hoje'}`:'Consulte os lançamentos em Ver lançamentos / período.';
+  $('#thirdLineCounter').textContent=thirdHistoryRequested?`${moves.length} de ${state.thirdMovements.length} movimentos · ${from||'início'} até ${to||'fim do histórico'}`:'Consulte os lançamentos em Ver lançamentos / período.';
   $('#thirdMovementTable').innerHTML=moves.length?moves.map(m=>{
     const incoming=m.type==='entrada',date=String(m.date||''),valid=/^\d{4}-\d{2}-\d{2}$/.test(date),day=valid?date.slice(8):'—',month=valid?date.slice(5,7)+'/'+date.slice(0,4):'Sem data';
     return `<div data-third-id="${htmlText(thirdMovementId(m))}" class="third-ledger-row ${thirdMovementId(m)===editingThirdId?'third-editing-row':''}"><div class="third-date"><small>${htmlText(month)}</small><strong>${htmlText(day)}</strong></div><div class="third-person"><strong>${htmlText(m.person)}</strong><small>${htmlText(m.bank||'Banco não informado')}</small>${m.note?'<p>'+htmlText(m.note)+'</p>':''}</div><span class="third-direction ${incoming?'third-in':'third-out'}">${incoming?'Recebido':'Repassado'}</span><strong class="third-row-value ${incoming?'third-money-in':'third-money-out'}">${incoming?'+':'−'} ${br(parseMoney(m.valor))}</strong><button type="button" class="btn soft third-edit-action" data-edit-third="${htmlText(thirdMovementId(m))}">Editar</button></div>`;
