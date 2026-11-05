@@ -1204,7 +1204,7 @@ let savedSyncUrl=localStorage.getItem(SYNC_URL_KEY)||'';
 if(LEGACY_SYNC_URLS.includes(savedSyncUrl)){ localStorage.setItem(SYNC_URL_KEY,DEFAULT_SYNC_URL); savedSyncUrl=DEFAULT_SYNC_URL; }
 let syncUrl=savedSyncUrl||DEFAULT_SYNC_URL;
 let syncTimer=null, syncLoopTimer=null, syncReady=false, applyingRemote=false, syncSaving=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
-let showOnlyCurrentMonthEntries=localStorage.getItem(MONTH_SCOPE_KEY)==='1';
+let showOnlyCurrentMonthEntries=false;
 let firestoreDb=null, firestoreDocRef=null, firestoreUnsubscribe=null, firestoreReady=false, firestoreSnapshotStarted=false;
 function loadSavedState(){
   try{
@@ -1517,7 +1517,10 @@ function mergeReceiptMaps(a={},b={}){
 function mergeFinancialEntry(local,remote){
   // Uma edição completa inclui apagar valores, reabrir status e cortar meses futuros.
   if(Number(local.updatedAt||0)||Number(remote.updatedAt||0)){
-    return structuredClone(Number(remote.updatedAt||0)>Number(local.updatedAt||0)?remote:local);
+    const merged=structuredClone(Number(remote.updatedAt||0)>Number(local.updatedAt||0)?remote:local);
+    const tracking=[local.pendingTrackingStartMonth,remote.pendingTrackingStartMonth].filter(Number.isInteger);
+    if(tracking.length)merged.pendingTrackingStartMonth=Math.min(...tracking);
+    return merged;
   }
   const base={...remote,...local};
   base.statusMes=mergeStatusMaps(remote.statusMes,local.statusMes);
@@ -2136,7 +2139,13 @@ function currentStatus(e){
 function statusAtMonth(e,month){
   const key=String(month);
   if(e.statusMes && Object.prototype.hasOwnProperty.call(e.statusMes,key)) return e.statusMes[key];
-  if(Number(month)<Number(state.currentMonth)) return e.tipo==='receita'?'recebido':'pago';
+  if(Number(month)<Number(state.currentMonth)){
+    // Só meses acompanhados pela rotina nova podem usar o status base como pendência.
+    // O histórico legado sem confirmação continua protegido contra atrasos falsos.
+    const tracked=Number.isInteger(e.pendingTrackingStartMonth)&&Number(month)>=e.pendingTrackingStartMonth;
+    if(tracked||isPreviousMonthCarryEntry(e))return baseStatus(e);
+    return e.tipo==='receita'?'recebido':'pago';
+  }
   return baseStatus(e);
 }
 function isPaidDebitStatus(status){ const key=statusKey(status); return key==='pago'||key==='pagoatraso'; }
@@ -2450,6 +2459,36 @@ function dedupeOverdueDebits(targetMonth){
     return true;
   });
   return state.entries.length!==before;
+}
+function enableAutomaticPendingTracking(){
+  let changed=false;
+  state.entries.forEach(e=>{
+    if(isPreviousMonthCarryEntry(e)||!['debito','receita'].includes(e.tipo)||Number.isInteger(e.pendingTrackingStartMonth))return;
+    e.pendingTrackingStartMonth=Math.max(currentMonthIndex(),Number(e.inicio||0));changed=true;
+  });
+  if(changed)persist();
+  return changed;
+}
+function rememberPendingMonth(month){
+  let changed=false;
+  state.entries.forEach(e=>{
+    if(!visibleAtMonth(e,month))return;
+    const key=String(month),status=currentStatus(e);
+    if(e.tipo==='debito'?isPaidDebitStatus(status):status==='recebido')return;
+    if(!e.statusMes)e.statusMes={};
+    if(!Object.prototype.hasOwnProperty.call(e.statusMes,key)){e.statusMes[key]=status;changed=true;}
+  });
+  if(changed)persist();
+  return changed;
+}
+function changeFinancialMonth(month){
+  rememberPendingMonth(Number(state.currentMonth));
+  state.currentMonth=Number(month);
+  showOnlyCurrentMonthEntries=false;localStorage.removeItem(MONTH_SCOPE_KEY);
+  state.debitFilter='todos';$('#debitFilter').value='todos';
+  $('#incomeStatusFilter').value='todos';$('#incomeOriginFilter').value='';
+  $('#debitSearch').value='';$('#incomeSearch').value='';
+  saveLocalSnapshot();renderAll();
 }
 function ensureOverdueDebitsForCurrentMonth(){
   const targetMonth=Number(state.currentMonth);
@@ -3292,7 +3331,7 @@ function deleteThirdPersonMovements(){
   renderAll();
   setTab('terceiros');
 }
-function renderAll(){ recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); ensureOverdueIncomesForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); renderFixedExpenses(); }
+function renderAll(){ enableAutomaticPendingTracking(); recategorizeCardTransactions(); ensureOverdueDebitsForCurrentMonth(); ensureOverdueIncomesForCurrentMonth(); renderMonths(); renderCardMonths(); renderLists(); updateTotals(); renderCardImports(); renderFixedExpenses(); }
 function setTab(id){ $$('.tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id)); $$('.panel').forEach(p=>p.classList.toggle('active',p.id===id)); syncIncomeSummaryMode(id); }
 function autoViewMode(){return window.matchMedia('(max-width: 760px)').matches?'mobile':'desktop'}
 function setView(mode,manual=true){ document.body.classList.toggle('mobile-view',mode==='mobile'); $('#btnDesktop').classList.toggle('active',mode==='desktop'); $('#btnMobile').classList.toggle('active',mode==='mobile'); if(manual)localStorage.setItem('dualizeViewMode',mode); }
@@ -3792,7 +3831,7 @@ function bindThirdPixImport(){
   if(btn&&input)btn.onclick=()=>input.click();
   if(input)input.onchange=()=>readThirdPixFile(input.files&&input.files[0]);
   if(parseBtn)parseBtn.onclick=applyThirdPixImport;
-}function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $$('[data-month-scope-toggle]').forEach(btn=>btn.onclick=toggleMonthScope); $('#syncBtn').onclick=handleSyncButtonClick; $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#themeToggle').onclick=toggleTheme; $('#monthSelect').onchange=()=>{state.currentMonth=Number($('#monthSelect').value);saveLocalSnapshot();renderAll();}; $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#transferType').onchange=syncTransferType; $('#transferFrom').onchange=()=>syncTransferBanks('from'); $('#transferTo').onchange=()=>syncTransferBanks('to'); $('#saveTransferBtn').onclick=saveTransferMovement; $('#searchBankMovementsBtn').onclick=()=>renderBankMovements(true); $('#previewCardImportBtn').onclick=previewCardImport; $('#applyCardImportBtn').onclick=applyCardImport; $('#addCardBtn').onclick=addCard; $('#cardImportName').onchange=()=>{updateCardImportState();previewCardImport();}; $('#cardImportText').addEventListener('input',updateCardImportState); $('#cardNextInvoiceValue').addEventListener('input',previewCardImport); $('#newCardBank').onchange=updateCardImportState; $('#saveThirdBtn').onclick=saveThirdMovement; $('#deleteThirdMoveBtn').onclick=deleteThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>applyThirdHistory(false); $('#deleteThirdPersonBtn').onclick=deleteThirdPersonMovements; document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','otherValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput'||id==='otherValueInput')updateSplitTotal(); validate();})}); }
+}function bind(){ $$('.tab').forEach(t=>t.onclick=()=>setTab(t.dataset.panel)); $$('[data-month-scope-toggle]').forEach(btn=>btn.onclick=toggleMonthScope); $('#syncBtn').onclick=handleSyncButtonClick; $('#btnDesktop').onclick=()=>setView('desktop'); $('#btnMobile').onclick=()=>setView('mobile'); $('#themeToggle').onclick=toggleTheme; $('#monthSelect').onchange=()=>changeFinancialMonth($('#monthSelect').value); $('#debitFilter').onchange=()=>{state.debitFilter=$('#debitFilter').value;renderAll();}; $('#addDebitBtn').onclick=()=>{clearForm();$('#typeInput').value='debito';syncFormType();setTab('lancar')}; $('#addIncomeBtn').onclick=()=>{clearForm();$('#typeInput').value='receita';syncFormType();setTab('lancar')}; $('#saveBtn').onclick=saveEntry; let clearArmed=false; $('#clearBtn').onclick=()=>{ if(!clearArmed){ clearArmed=true; $('#clearBtn').textContent='Clique de novo para limpar'; setTimeout(()=>{clearArmed=false; $('#clearBtn').textContent='Limpar formulário';},1600); return; } clearArmed=false; $('#clearBtn').textContent='Limpar formulário'; clearForm(); }; $('#toggleTransferBtn').onclick=()=>$('#transferBox').classList.toggle('active'); $('#transferType').onchange=syncTransferType; $('#transferFrom').onchange=()=>syncTransferBanks('from'); $('#transferTo').onchange=()=>syncTransferBanks('to'); $('#saveTransferBtn').onclick=saveTransferMovement; $('#searchBankMovementsBtn').onclick=()=>renderBankMovements(true); $('#previewCardImportBtn').onclick=previewCardImport; $('#applyCardImportBtn').onclick=applyCardImport; $('#addCardBtn').onclick=addCard; $('#cardImportName').onchange=()=>{updateCardImportState();previewCardImport();}; $('#cardImportText').addEventListener('input',updateCardImportState); $('#cardNextInvoiceValue').addEventListener('input',previewCardImport); $('#newCardBank').onchange=updateCardImportState; $('#saveThirdBtn').onclick=saveThirdMovement; $('#deleteThirdMoveBtn').onclick=deleteThirdMovement; $('#thirdValue').onblur=formatThirdValue; $('#searchThirdBtn').onclick=()=>applyThirdHistory(false); $('#deleteThirdPersonBtn').onclick=deleteThirdPersonMovements; document.body.addEventListener('click',e=>{const edit=e.target.closest('.edit-btn'), del=e.target.closest('.delete-btn'); if(edit)editEntry(Number(edit.closest('.entry-row').dataset.id)); if(del)deleteEntry(Number(del.closest('.entry-row').dataset.id));}); document.body.addEventListener('blur',e=>{if(e.target.matches('.value input')){saveInlineValue(e.target);}},true); document.body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.value input')){e.preventDefault();saveInlineValue(e.target);}}); ['typeInput','originInput','descInput','dayInput','valueInput','categoryInput','methodInput','statusInput','repeatInput','lifetimeInput','startMonthInput','noteInput','bankInput','marketingValueInput','trafficValueInput','otherValueInput','valueModeInput','parcelValuesInput'].forEach(id=>{$('#'+id).addEventListener('input',validate);$('#'+id).addEventListener('change',()=>{if(id==='typeInput'||id==='originInput')syncFormType(); if(id==='bankInput')syncPixKey(); if(id==='valueModeInput')syncValueMode(); if(id==='marketingValueInput'||id==='trafficValueInput'||id==='otherValueInput')updateSplitTotal(); validate();})}); }
 
 function enableDragSorting(){
   let draggedRow=null;
