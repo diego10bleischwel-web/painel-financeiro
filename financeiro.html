@@ -1207,6 +1207,9 @@ if(LEGACY_SYNC_URLS.includes(savedSyncUrl)){ localStorage.setItem(SYNC_URL_KEY,D
 let syncUrl=savedSyncUrl||DEFAULT_SYNC_URL;
 let syncTimer=null, syncLoopTimer=null, syncReady=false, applyingRemote=false, syncSaving=false, syncPending=localStorage.getItem(PENDING_SYNC_KEY)==='1';
 let showOnlyCurrentMonthEntries=false;
+let cloudBootstrapped=false;
+const startupHadPendingChanges=syncPending;
+const FIRESTORE_REST_URL='https://firestore.googleapis.com/v1/projects/dualize-projeto/databases/(default)/documents/painel_financeiro/estado_principal';
 let firestoreDb=null, firestoreDocRef=null, firestoreUnsubscribe=null, firestoreReady=false, firestoreSnapshotStarted=false;
 function loadSavedState(){
   try{
@@ -1346,7 +1349,7 @@ function persist(){
   try{
     if(!applyingRemote)stampChangedEntries();
     if(!applyingRemote){ state.lastSync=Date.now(); state.syncRevision='rev-'+state.lastSync+'-'+Math.random().toString(36).slice(2); setSyncPending(true); }
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
+    writeFinanceSnapshot(STORAGE_KEY,JSON.stringify(statePayload()));
     rememberEntryVersions();
     scheduleCloudSave(180);
   }catch(err){ console.warn('Não foi possível salvar no navegador.',err); }
@@ -1445,24 +1448,54 @@ function startFirestoreRealtime(){
     setSyncStatus(syncPending?'Sync pendente':'Sync erro');
   });
 }
-function loadCloudState(){
-  if(firestoreReady&&firestoreDocRef){
-    return firestoreDocRef.get({source:'server'}).then(snapshot=>snapshot.exists?firestorePayload(snapshot.data()):null);
-  }
-  return new Promise((resolve,reject)=>{
-    if(!syncUrl) return resolve(null);
-    const cb='dualizeSyncCb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
-    const script=document.createElement('script');
-    const timer=setTimeout(()=>done(new Error('Tempo esgotado ao confirmar sincronizacao.')),10000);
-    const done=(err,data)=>{ clearTimeout(timer); delete window[cb]; script.remove(); err?reject(err):resolve(data); };
-    window[cb]=payload=>done(null,payload&&payload.data?payload.data:payload);
-    script.onerror=()=>done(new Error('Falha ao carregar sincronização.'));
-    script.src=syncEndpoint('load','&callback='+encodeURIComponent(cb)+'&t='+Date.now());
-    document.body.appendChild(script);
-  });
+function decodeFirestoreValue(v){
+  if(v.mapValue)return Object.fromEntries(Object.entries(v.mapValue.fields||{}).map(([k,x])=>[k,decodeFirestoreValue(x)]));
+  if(v.arrayValue)return(v.arrayValue.values||[]).map(decodeFirestoreValue);
+  if('integerValue'in v)return Number(v.integerValue);
+  for(const k of ['doubleValue','stringValue','booleanValue','timestampValue'])if(k in v)return v[k];return null;
 }
+function encodeFirestoreValue(v){
+  if(v===null||v===undefined)return {nullValue:null};
+  if(Array.isArray(v))return {arrayValue:{values:v.map(encodeFirestoreValue)}};
+  if(typeof v==='object')return {mapValue:{fields:Object.fromEntries(Object.entries(v).map(([k,x])=>[k,encodeFirestoreValue(x)]))}};
+  if(typeof v==='number')return Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v};
+  if(typeof v==='boolean')return {booleanValue:v};return {stringValue:String(v)};
+}
+async function loadCloudState(){
+  if(firestoreReady&&firestoreDocRef){
+    const snapshot=await firestoreDocRef.get({source:'server'});return snapshot.exists?firestorePayload(snapshot.data()):null;
+  }
+  // O fallback usa o MESMO documento Firestore, nunca uma segunda nuvem antiga.
+  const response=await fetch(FIRESTORE_REST_URL,{cache:'no-store'});
+  if(response.status===404)return null;
+  if(!response.ok)throw new Error('Não foi possível ler a nuvem: '+response.status);
+  const doc=await response.json(),payload=decodeFirestoreValue(doc.fields.payload);
+  Object.defineProperty(payload,'_cloudUpdateTime',{value:doc.updateTime,enumerable:false});return payload;
+}
+async function bootstrapFinancialCloud(){
+  setSyncStatus('Carregando dados da nuvem...');setupFirestoreSync();
+  try{
+    const remote=await loadCloudState();
+    if(!remote||!Array.isArray(remote.entries)||!remote.entries.length)throw new Error('Documento financeiro vazio ou indisponível.');
+    saveCloudApplyBackup();
+    if(!startupHadPendingChanges){
+      // Sem edição local pendente, a primeira leitura remota é a fonte atual.
+      state.entries=[];state.deletedEntries={};state.deletedThirdPeople={};
+      state.cardFixedExpenses=[];state.deletedFixedExpenses={};state.monthlyCashBalances={};
+    }
+    cloudBootstrapped=true;applyCloudState(remote);return true;
+  }catch(error){cloudBootstrapped=false;console.warn('Inicialização interrompida para preservar os dados.',error);setSyncStatus('Nuvem indisponível · recarregue para tentar novamente');return false;}
+}
+function writeFinanceSnapshot(key,value){
+  try{localStorage.setItem(key,value);}catch(error){
+    if(error.name!=='QuotaExceededError')throw error;
+    // Histórico rotativo é dispensável; o estado principal nunca é removido.
+    localStorage.removeItem(CLOUD_BACKUP_HISTORY_KEY);localStorage.setItem(key,value);
+  }
+}
+
 function saveLocalSnapshot(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(statePayload()));
+  writeFinanceSnapshot(STORAGE_KEY,JSON.stringify(statePayload()));
   rememberEntryVersions();
 }
 function saveCloudApplyBackup(){
@@ -1473,7 +1506,8 @@ function saveCloudApplyBackup(){
     localStorage.setItem(CLOUD_BACKUP_KEY,JSON.stringify(snapshot));
     const history=JSON.parse(localStorage.getItem(CLOUD_BACKUP_HISTORY_KEY)||'[]');
     history.unshift(snapshot);
-    localStorage.setItem(CLOUD_BACKUP_HISTORY_KEY,JSON.stringify(history.slice(0,20)));
+    let recent=history.slice(0,4);while(recent.length>1&&JSON.stringify(recent).length>1200000)recent.pop();
+    writeFinanceSnapshot(CLOUD_BACKUP_HISTORY_KEY,JSON.stringify(recent));
   }catch(err){ console.warn('Nao foi possivel criar backup local antes da nuvem.',err); }
 }
 function mergeByKey(local,remote,keyFn,mergeFn){
@@ -1836,29 +1870,23 @@ function scheduleCloudSave(delay=800){
   clearTimeout(syncTimer);
   syncTimer=setTimeout(saveCloudState,delay);
 }
-function postCloudState(payload){
+async function postCloudState(payload,before){
+  if(!cloudBootstrapped)throw new Error('A leitura inicial da nuvem ainda não terminou.');
+  const value={payload,syncRevision:String(payload.syncRevision||''),lastSync:Number(payload.lastSync||Date.now()),updatedAt:Date.now()};
   if(firestoreReady&&firestoreDocRef){
-    return firestoreDocRef.set({
-      payload,
-      syncRevision:String(payload.syncRevision||''),
-      lastSync:Number(payload.lastSync||Date.now()),
-      updatedAt:Date.now()
-    },{merge:true}).then(()=>true);
+    await firestoreDb.runTransaction(async transaction=>{
+      const snapshot=await transaction.get(firestoreDocRef),latest=snapshot.exists?firestorePayload(snapshot.data()):null;
+      if(String(latest?.syncRevision||'')!==String(before?.syncRevision||''))throw new Error('A nuvem mudou durante o salvamento. Tentando mesclar novamente.');
+      transaction.set(firestoreDocRef,value,{merge:true});
+    });return true;
   }
-  const body=JSON.stringify({action:'save',data:payload});
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),15000);
-  return fetch(syncUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,signal:controller.signal})
-    .then(()=>true)
-    .catch(err=>{
-      if(navigator.sendBeacon){
-        const ok=navigator.sendBeacon(syncUrl,new Blob([body],{type:'text/plain;charset=utf-8'}));
-        if(ok)return delay(2500).then(()=>true);
-      }
-      throw err;
-    })
-    .finally(()=>clearTimeout(timer));
+  const query=new URLSearchParams();Object.keys(value).forEach(k=>query.append('updateMask.fieldPaths',k));
+  if(before?._cloudUpdateTime)query.set('currentDocument.updateTime',before._cloudUpdateTime);
+  else query.set('currentDocument.exists','false');
+  const response=await fetch(FIRESTORE_REST_URL+'?'+query,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:Object.fromEntries(Object.entries(value).map(([k,v])=>[k,encodeFirestoreValue(v)]))})});
+  if(!response.ok)throw new Error('A nuvem não confirmou o salvamento: '+response.status);return true;
 }
+
 async function confirmCloudSave(sentAt, revision, attempts=8){
   for(let i=0;i<attempts;i++){
     try{
@@ -1871,19 +1899,20 @@ async function confirmCloudSave(sentAt, revision, attempts=8){
   return null;
 }
 async function saveCloudState(){
+  if(!cloudBootstrapped){setSyncStatus('Aguardando leitura segura da nuvem');return;}
   if(!firestoreReady&&!syncUrl)return;
   if(syncSaving){ scheduleCloudSave(1200); return; }
   syncSaving=true;
   try{
     setSyncStatus('Sync salvando...');
-    const before=await loadCloudState().catch(()=>null);
+    const before=await loadCloudState();
     if(before&&Array.isArray(before.entries)&&String(before.syncRevision||'')!==String(state.syncRevision||'')){
       const merged=mergeCloudIntoLocal(before);
       if(merged) setSyncStatus('Sync mesclando...');
     }
     const sentAt=Number(state.lastSync||Date.now());
     const sentRevision=String(state.syncRevision||'');
-    await postCloudState(statePayload());
+    await postCloudState(statePayload(),before);
     setSyncStatus('Sync confirmando...');
     const remote=await confirmCloudSave(sentAt,sentRevision);
     if(Number(state.lastSync||0)===sentAt&&String(state.syncRevision||'')===sentRevision&&remote&&Array.isArray(remote.entries)&&String(remote.syncRevision||'')===sentRevision){
@@ -4031,7 +4060,7 @@ function enableSyncSafety(){
   });
 }
 
-function init(){ banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const draftsMigrated=migrateRevenueDrafts(); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const cleanedDeletionLocks=cleanGeneratedDeletionLocks(); const sanitized=sanitizeFinancialState(); if(draftsMigrated||cardsChanged||categoriesChanged||cardEntriesChanged||cleanedDeletionLocks||sanitized) persist(); bind(); bindFixedExpenses(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableSimpleFinanceControls(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl) syncFromCloud(); }
+async function init(){ if(!await bootstrapFinancialCloud())return; banks.forEach(b=>$('#bankInput').add(new Option(b,b))); banks.filter(b=>b!=='Nenhum').forEach(b=>{$('#transferFrom').add(new Option(b,b));$('#transferTo').add(new Option(b,b));$('#thirdBank').add(new Option(b,b));$('#newCardBank').add(new Option(b,b));}); $('#newCardBank').insertBefore(new Option('Nenhum',''), $('#newCardBank').firstChild); $('#newCardBank').value=''; $('#thirdDate').value=new Date().toISOString().slice(0,10); const draftsMigrated=migrateRevenueDrafts(); const cardsChanged=ensureDefaultCards(); const categoriesChanged=recategorizeCardTransactions(); const cardEntriesChanged=state.cardTransactions.length?rebuildCardEntries():false; const cleanedDeletionLocks=cleanGeneratedDeletionLocks(); const sanitized=sanitizeFinancialState(); if(draftsMigrated||cardsChanged||categoriesChanged||cardEntriesChanged||cleanedDeletionLocks||sanitized) persist(); bind(); bindFixedExpenses(); bindBankBalanceAdjustments(); bindThirdPixImport(); enableSimpleFinanceControls(); setTheme(localStorage.getItem(THEME_KEY)||'light'); bindCardDropZone(); enableEnterNavigation(); enableThirdEnterNavigation(); enableTransferEnterNavigation(); enableDragSorting(); enableSyncSafety(); syncFormType(); syncTransferType(); renderAll(); clearForm(); applyAutoView(); window.addEventListener('resize',applyAutoView); setupFirestoreSync(); syncReady=true; setSyncStatus(firestoreReady?(syncPending?'Firestore pendente':'Firestore conectando...'):(syncUrl?(syncPending?'Sync pendente':'Sync conectando...'):'Sync local')); startContinuousSync(); if(firestoreReady||syncUrl) syncFromCloud(); }
 init();
 });
 </script>
